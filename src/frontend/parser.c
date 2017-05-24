@@ -53,11 +53,11 @@ void jl_fe_init(jl_parser_t *self, enum jl_parser_n kind, jl_compiler_t *compile
 }
 
 void jl_fe_dtor(jl_parser_t *self) {
-  const char *src;
+  unsigned i;
 
-  adt_vector_foreach(self->sources, src) {
-    xfree((void *) src);
-    src = NULL;
+  foreach(self->sources, i) {
+    xfree((void *) ds_at(self->sources, i));
+    ds_at(self->sources, i) = NULL;
   }
   adt_deque_dtor(self->sources);
   while (self->scope->parent) {
@@ -107,7 +107,7 @@ void jl_fe_scope(jl_parser_t *self) {
   self->scope = xmalloc(sizeof(jl_scope_t));
   *self->scope = (jl_scope_t) {0};
   self->scope->parent = parent;
-  adt_vector_push(parent->childs, self->scope);
+  vec_push(parent->childs, self->scope);
 }
 
 void jl_fe_unscope(jl_parser_t *self) {

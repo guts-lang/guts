@@ -14,7 +14,7 @@ set(jayl_INCLUDES ${jayl_INCLUDES} ${libfirm_BINARY_DIR}/gen/include)
 set(jayl_INCLUDES ${jayl_INCLUDES} ${libfirm_BINARY_DIR}/gen/include/libfirm)
 set(jayl_DEFS ${jayl_DEFS} -DWITH_LIBFIRM)
 
-option(LTALLOC "With ltalloc" 1)
+option(LTALLOC "With ltalloc" OFF)
 
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     set(LTALLOC 0)

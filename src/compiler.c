@@ -47,24 +47,24 @@ void jl_init(jl_compiler_t *self, int argc, char **argv) {
   if (!self->opts.in) {
     jl_fatal_err(self, "no input file");
   }
-  if (adt_vector_size(self->opts.opts_errs)) {
-    jl_err(self, adt_vector_front(self->opts.opts_errs));
+  if (ds_size(self->opts.opts_errs)) {
+    jl_err(self, ds_front(self->opts.opts_errs));
   }
   jl_fe_init(&self->fe, JL_PARSER_C, self);
   jl_fe_push_src(&self->fe, self->opts.in);
 }
 
 void jl_dtor(jl_compiler_t *self) {
-  const char *str;
+  size_t i;
 
   jl_opts_dtor(&self->opts);
   if (jl_defined(self->fe)) {
     jl_fe_dtor(&self->fe);
   }
-  adt_vector_foreach(self->strtab, str) {
-    xfree((void *) str);
+  foreach(self->strtab, i) {
+    xfree((void *) ds_at(self->strtab, i));
   }
-  adt_vector_dtor(self->strtab);
+  vec_dtor(self->strtab);
 }
 
 void jl_parse(jl_compiler_t *self) {
@@ -116,7 +116,7 @@ JL_NORETURN jl_parse_err(jl_compiler_t *self, jl_loc_t loc, const char *format, 
   jl_token_t eol;
   va_list args;
 
-  file = adt_vector_at(self->fe.sources, loc.file_id);
+  file = ds_at(self->fe.sources, loc.file_id);
   jl_lexer_fork(&lexer, self->fe.lexer);
   lexer.loc = loc;
   ptr = lexer.buffer + begin;
@@ -142,8 +142,8 @@ const char *jl_strdup(jl_compiler_t *self, const char *str) {
 }
 
 const char *jl_strndup(jl_compiler_t *self, const char *str, size_t n) {
-  adt_vector_push(self->strtab, "");
-  adt_vector_back(self->strtab) = xmalloc(n + 1);
-  strncpy((char *) adt_vector_back(self->strtab), str, n + 1);
-  return adt_vector_back(self->strtab);
+  vec_push(self->strtab, "");
+  ds_back(self->strtab) = xmalloc(n + 1);
+  strncpy((char *) ds_back(self->strtab), str, n + 1);
+  return ds_back(self->strtab);
 }

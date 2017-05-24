@@ -28,11 +28,11 @@
 
 #include <string.h>
 #include <stdarg.h>
+#include <u/vector.h>
 
-#include "vector.h"
 #include "xmalloc.h"
 
-typedef adt_vector_of(const char *) string_r;
+typedef vec_of(const char *) string_r;
 
 /**
  * Allocates memory and copies string @p str into it.

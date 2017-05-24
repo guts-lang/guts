@@ -133,11 +133,11 @@ jl_entity_t jl_proc_decl(const char *name, jl_param_t *params) {
 }
 
 jl_entity_t jl_func_def(jl_func_t prototype, jl_stmt_t body) {
-  jl_entity_t param, 
-    entity = jl_func(prototype.return_type, prototype.name, NULL, body);
+  size_t i;
+  jl_entity_t entity = jl_func(prototype.return_type, prototype.name, NULL, body);
   
-  adt_vector_foreach(prototype.params, param) {
-    adt_vector_push(entity.function.params, param);
+  foreach(prototype.params, i) {
+    vec_push(entity.function.params, ds_at(prototype.params, i));
   }
   return entity;
 }
@@ -155,18 +155,18 @@ jl_entity_t jl_func(jl_type_t return_type, const char *name, jl_param_t *params,
   };
   if (params) while (params->name) {
     param = *params++;
-    adt_vector_push(entity.function.params, jl_param(count++, param.name, param.type, param.initializer));
+    vec_push(entity.function.params, jl_param(count++, param.name, param.type, param.initializer));
   }
   return entity;
 }
 
 static void jl_func_dtor(jl_func_t *self) {
-  jl_entity_t param;
+  size_t i;
 
-  adt_vector_foreach(self->params, param) {
-    jl_entity_dtor(&param);
+  foreach(self->params, i) {
+    jl_entity_dtor(ds_data(self->params) + i);
   }
-  adt_vector_dtor(self->params);
+  vec_dtor(self->params);
   jl_type_dtor(&self->return_type);
   jl_stmt_dtor(&self->body);
 }
@@ -188,18 +188,18 @@ jl_entity_t jl_enum(const char *name, jl_field_t *fields) {
   entity.align = entity.type.align;
   if (fields) while (fields->name) {
     field = *fields++;
-    adt_vector_push(entity.enumerable.vars, jl_field(field.name, field.type));
+    vec_push(entity.enumerable.vars, jl_field(field.name, field.type));
   }
   return entity;
 }
 
 static void jl_enum_dtor(jl_enum_t *self) {
-  jl_entity_t field;
+  size_t i;
 
-  adt_vector_foreach(self->vars, field) {
-    jl_entity_dtor(&field);
+  foreach(self->vars, i) {
+    jl_entity_dtor(ds_data(self->vars) + i);
   }
-  adt_vector_dtor(self->vars);
+  vec_dtor(self->vars);
 }
 
 static jl_entity_t *type_add_field(jl_entity_t *self, const char *name, jl_type_t type, unsigned short width);
@@ -210,13 +210,13 @@ static void reset_field_alignment(jl_entity_t *self) {
   const jl_entity_t *m;
 
   assert(jl_pis(self, JL_ENTITY_STRUCT));
-  n = adt_vector_length(self->structure.fields);
+  n = ds_size(self->structure.fields);
   if (n) {
-    m = &adt_vector_at(self->structure.fields, n - 1);
+    m = &ds_at(self->structure.fields, n - 1);
     if (m->field.field_width) {
       d = m->field.field_offset + m->field.field_width;
       if (d < 32) {
-        type_add_field(self, NULL, jl_int(), (short) (32 - d));
+        type_add_field(self, NULL, jl_int(), (unsigned short) (32 - d));
       }
     } else if (self->size % 4 != 0) {
       self->size += self->size % 4;
@@ -260,8 +260,8 @@ static jl_entity_t *add_member(jl_entity_t *self, jl_entity_t m) {
       default:
         return NULL;
     }
-    adt_vector_push(entities, m);
-    member = &adt_vector_back(entities);
+    vec_push(entities, m);
+    member = &ds_back(entities);
     if (m.type.size == 0) {
       jl_fatal_err(NULL, "Member '%s' has incomplete type.", m.name);
     }
@@ -306,11 +306,11 @@ static size_t remove_anonymous_fields(jl_entity_t *self) {
   }
 
   maxalign = 0;
-  for (i = (int) (adt_vector_length(entities) - 1); i >= 0; --i) {
-    m = &adt_vector_at(entities, i).field;
+  for (i = (int) (ds_size(entities) - 1); i >= 0; --i) {
+    m = &ds_at(entities, i).field;
     if (!m->name) {
-      jl_entity_dtor(&adt_vector_at(entities, i));
-      adt_vector_erase(entities, i);
+      jl_entity_dtor(&ds_at(entities, i));
+      vec_erase(entities, i);
     } else {
       align = m->align;
       if (align > maxalign) {
@@ -329,7 +329,7 @@ static jl_entity_t *type_add_field(jl_entity_t *self, const char *name, jl_type_
   m = jl_field(name, type);
   m.field.field_width = width;
   if (jl_pis(self, JL_ENTITY_STRUCT)) {
-    prev = &adt_vector_back(self->structure.fields);
+    prev = &ds_back(self->structure.fields);
     if (!prev || !pack_field(prev, &m)) {
       m.field.field_offset = 0;
       m.field.offset = adjust_member_alignment(self, type);
@@ -362,19 +362,19 @@ static jl_entity_t *type_add_anonymous_member(jl_entity_t *self, jl_type_t type)
   }
   if (jl_pis(self, JL_ENTITY_STRUCT) && jl_pis(member, JL_ENTITY_UNION)) {
     offset = adjust_member_alignment(self, type);
-    for (i = 0; i < adt_vector_size(entities); ++i) {
-      m = adt_vector_at(entities, i);
+    for (i = 0; i < ds_size(entities); ++i) {
+      m = ds_at(entities, i);
       m.field.offset += offset;
       add_member(self, m);
     }
   } else if (jl_pis(self, JL_ENTITY_UNION) && jl_pis(member, JL_ENTITY_STRUCT)) {
-    for (i = 0; i < adt_vector_size(entities); ++i) {
-      m = adt_vector_at(entities, i);
+    for (i = 0; i < ds_size(entities); ++i) {
+      m = ds_at(entities, i);
       add_member(self, m);
     }
   } else {
-    for (i = 0; i < adt_vector_size(entities); ++i) {
-      m = adt_vector_at(entities, i);
+    for (i = 0; i < ds_size(entities); ++i) {
+      m = ds_at(entities, i);
       jl_entity_add_field(self, m.name, m.type, 0);
     }
   }
@@ -418,12 +418,12 @@ jl_entity_t jl_struct_anonymous(jl_field_t *fields) {
 }
 
 void jl_struct_dtor(jl_struct_t *self) {
-  jl_entity_t field;
+  size_t i;
 
-  adt_vector_foreach(self->fields, field) {
-    jl_entity_dtor(&field);
+  foreach(self->fields, i) {
+    jl_entity_dtor(ds_data(self->fields) + i);
   }
-  adt_vector_dtor(self->fields);
+  vec_dtor(self->fields);
 }
 
 jl_entity_t jl_union(const char *name, jl_field_t *fields) {
@@ -450,12 +450,12 @@ jl_entity_t jl_union_anonymous(jl_field_t *fields) {
 }
 
 static void jl_union_dtor(jl_union_t *self) {
-  jl_entity_t field;
+  size_t i;
 
-  adt_vector_foreach(self->fields, field) {
-    jl_entity_dtor(&field);
+  foreach(self->fields, i) {
+    jl_entity_dtor(ds_data(self->fields) + i);
   }
-  adt_vector_dtor(self->fields);
+  vec_dtor(self->fields);
 }
 
 void jl_label_dtor(jl_label_t *self) {}
@@ -506,11 +506,11 @@ bool jl_entity_equals(jl_entity_t a, jl_entity_t b) {
   }
   a_fields = jl_entity_fields(a);
   b_fields = jl_entity_fields(b);
-  if (adt_vector_size(a_fields) != adt_vector_size(b_fields)) {
+  if (ds_size(a_fields) != ds_size(b_fields)) {
     return false;
   }
-  for (i = 0; i < adt_vector_size(a_fields); ++i) {
-    if (!jl_entity_equals(adt_vector_at(a_fields, i), adt_vector_at(b_fields, i))) {
+  for (i = 0; i < ds_size(a_fields); ++i) {
+    if (!jl_entity_equals(ds_at(a_fields, i), ds_at(b_fields, i))) {
       return false;
     }
   }
@@ -535,23 +535,24 @@ jl_entity_r jl_entity_fields(jl_entity_t self) {
 jl_field_t *jl_entity_field_lookup(jl_entity_t self, const char *name) {
   jl_entity_r fields;
   jl_entity_t entity;
+  size_t i;
 
   switch (self.kind) {
     case JL_ENTITY_STRUCT:
       fields = self.structure.fields;
-      adt_vector_foreach(fields, entity) {
-          if (strcmp(name, entity.name) == 0) {
-            return &adt_vector_at(fields, __i).field;
-          }
+      foreach(fields, i) {
+        if (strcmp(name, ds_at(fields, i).name) == 0) {
+          return &ds_at(fields, i).field;
         }
+      }
       break;
     case JL_ENTITY_UNION:
       fields = self.u_structure.fields;
-      adt_vector_foreach(fields, entity) {
-          if (strcmp(name, entity.name) == 0) {
-            return &adt_vector_at(fields, __i).field;
-          }
+      foreach(fields, i) {
+        if (strcmp(name, ds_at(fields, i).name) == 0) {
+          return &ds_at(fields, i).field;
         }
+      }
       break;
     default:
       break;
@@ -564,7 +565,7 @@ jl_entity_t *jl_entity_add_field(jl_entity_t *self, const char *name, jl_type_t 
   jl_entity_t m;
 
   if (width) {
-    return type_add_field(self, name, type, width);
+    return type_add_field(self, name, type, (unsigned short) width);
   }
   if (!name) {
     return type_add_anonymous_member(self, type);

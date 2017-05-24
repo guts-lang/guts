@@ -50,7 +50,7 @@ struct jl_opts_t {
   bool echo, firm_graph, verbose, output_asm;
   int optimize_lvl;
   enum jl_backend_n target;
-  adt_vector_of(char *) opts_errs;
+  vec_of(char *) opts_errs;
 };
 
 bool jl_opts_init(jl_opts_t *self, int argc, char **argv);

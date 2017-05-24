@@ -44,7 +44,7 @@ jl_expr_t jl_exprs(jl_expr_t *exprs) {
 
   if (exprs) {
     while (exprs->kind) {
-      adt_vector_push(expr.exprs.vector, *exprs);
+      vec_push(expr.exprs.vector, *exprs);
       ++exprs;
     }
   }
@@ -56,17 +56,17 @@ jl_expr_t jl_exprs_start(jl_expr_t expr) {
     .kind = JL_EXPR_EXPRS
   };
 
-  adt_vector_push(exprs.exprs.vector, expr);
+  vec_push(exprs.exprs.vector, expr);
   return exprs;
 }
 
 static void jl_exprs_dtor(jl_exprs_t *self) {
-  jl_expr_t expr;
+  size_t i;
 
-  adt_vector_foreach(self->vector, expr) {
-    jl_expr_dtor(&expr);
+  foreach(self->vector, i) {
+    jl_expr_dtor(ds_data(self->vector) + i);
   }
-  adt_vector_dtor(self->vector);
+  vec_dtor(self->vector);
 }
 
 jl_expr_t jl_id(jl_lloc_t lloc, const char *id, jl_type_t type) {

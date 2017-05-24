@@ -26,7 +26,7 @@
 #ifndef   JL_LEXER_H__
 # define  JL_LEXER_H__
 
-#include <adt/vector.h>
+#include <u/vector.h>
 
 #include "token.h"
 
@@ -36,8 +36,8 @@ struct jl_parser_t;
 typedef struct jl_lexer_t jl_lexer_t;
 typedef struct jl_lexer_event_t jl_lexer_event_t;
 
-typedef adt_vector_of(jl_lexer_t) jl_lexer_r;
-typedef adt_vector_of(jl_lexer_event_t) jl_lexer_event_r;
+typedef vec_of(jl_lexer_t) jl_lexer_r;
+typedef vec_of(jl_lexer_event_t) jl_lexer_event_r;
 
 enum jl_lexer_event_n {
   JL_LEXER_EVENT_ON_PUSH = 0

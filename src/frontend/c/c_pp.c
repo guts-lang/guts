@@ -32,16 +32,17 @@ void c_macro_init(c_macro_t *self) {
 }
 
 void c_macro_dtor(c_macro_t *self) {
-  adt_vector_dtor(self->params);
-  adt_vector_dtor(self->replacement);
+  vec_dtor(self->params);
+  vec_dtor(self->replacement);
 }
 
 void c_macro_expand(c_macro_t *self, c_pp_t *pp, jl_lexer_t *into) {
   jl_token_t t;
-  unsigned it;
+  unsigned it, i;
   c_macro_t macro;
 
-  adt_vector_foreach(self->replacement, t) {
+  foreach(self->replacement, i) {
+    t = ds_at(self->replacement, i);
     if (t.kind == JL_TOKEN_IDENTIFIER) {
       it = kh_get(c_macro_ht, &pp->macros, t.value);
       if (it != kh_end(&pp->macros)) {
@@ -84,7 +85,7 @@ void c_pp_parse_define(c_pp_t *self, jl_lexer_t *lexer) {
   if (jl_lexer_peek(lexer).type == '(') {
     macro.kind = C_MACRO_FUNC;
     lbl_parse_arg:
-    adt_vector_push(macro.params, jl_lexer_consume(lexer, C_TOK_IDENTIFIER));
+    vec_push(macro.params, jl_lexer_consume(lexer, C_TOK_IDENTIFIER));
     if (jl_lexer_peek(lexer).type == ',') {
       jl_lexer_consume(lexer, ',');
       goto lbl_parse_arg;
@@ -103,7 +104,7 @@ void c_pp_parse_define(c_pp_t *self, jl_lexer_t *lexer) {
         continue;
       }
     } else if (t.type != '\\') {
-      adt_vector_push(macro.replacement, t);
+      vec_push(macro.replacement, t);
     }
     pt = t;
   }

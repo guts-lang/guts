@@ -83,9 +83,9 @@ void jl_lexer_init_f(jl_lexer_t *self, jl_parser_t *fe) {
 }
 
 void jl_lexer_dtor(jl_lexer_t *self, bool free_all) {
+  size_t i;
   jl_token_t token;
   jl_lexer_event_t event;
-  jl_lexer_t child;
 
   if (self->buffer && jl_lexer_is_root(self)) {
     xfree(self->buffer);
@@ -94,22 +94,23 @@ void jl_lexer_dtor(jl_lexer_t *self, bool free_all) {
   adt_deque_foreach(self->queue, token) {
     jl_token_dtor(&token);
   }
-  adt_vector_foreach(self->events, event) {
+  foreach(self->events, i) {
+    event = ds_at(self->events, i);
     if (event.dtor) {
       event.dtor(&event);
     }
   }
-  adt_vector_foreach(self->childs, child) {
-    jl_lexer_dtor(&child, true);
+  foreach(self->childs, i) {
+    jl_lexer_dtor(ds_data(self->childs) + i, true);
   }
   if (free_all) {
-    adt_vector_dtor(self->childs);
+    vec_dtor(self->childs);
     adt_deque_dtor(self->queue);
-    adt_vector_dtor(self->events);
+    vec_dtor(self->events);
   } else {
-    adt_vector_clear(self->childs);
+    vec_clear(self->childs);
     adt_deque_clear(self->queue);
-    adt_vector_clear(self->events);
+    vec_clear(self->events);
   }
 }
 
@@ -142,7 +143,8 @@ bool jl_lexer_push(jl_lexer_t *self, jl_token_t token) {
   jl_lexer_event_t event;
   unsigned i;
 
-  adt_vector_foreach(self->events, event) {
+  foreach(self->events, i) {
+    event = ds_at(self->events, i);
     if (event.kind == JL_LEXER_EVENT_ON_PUSH) {
       if (!event.callback(&event, &token)) {
         jl_token_dtor(&token);
@@ -171,7 +173,7 @@ bool jl_lexer_push(jl_lexer_t *self, jl_token_t token) {
 
 void jl_lexer_attach(jl_lexer_t *self, jl_lexer_event_t event) {
   event.lexer = self;
-  adt_vector_push(self->events, event);
+  vec_push(self->events, event);
 }
 
 bool jl_lexer_is_root(jl_lexer_t *self) {
@@ -185,12 +187,12 @@ void jl_lexer_next_src(jl_lexer_t *self, jl_parser_t *fe) {
 }
 
 void jl_lexer_enqueue(jl_lexer_t *self, unsigned n) {
-  if (adt_vector_size(self->childs)) {
-    jl_lexer_enqueue(&adt_vector_back(self->childs), n);
+  if (ds_size(self->childs)) {
+    jl_lexer_enqueue(&ds_back(self->childs), n);
   } else if (self->loc.position < self->length) {
     self->enqueue(self, n);
   } else if (!jl_lexer_is_root(self)) {
-    (void) adt_vector_pop(self->parent->childs);
+    (void) vec_pop(self->parent->childs);
   } else if (!jl_lexer_length(self)) {
     if (adt_deque_length(self->compiler->fe.sources)) {
       jl_lexer_next_src(self, &self->compiler->fe);

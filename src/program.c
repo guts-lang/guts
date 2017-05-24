@@ -26,16 +26,17 @@
 #include "program.h"
 
 #include "entity.h"
+#include "ir.h"
 
 void jl_program_init(jl_program_t *self) {
   *self = (jl_program_t) {{0}};
 }
 
 void jl_program_dtor(jl_program_t *self) {
-  jl_entity_t entity;
+  size_t it;
 
-  adt_vector_foreach(self->entities, entity) {
-    jl_entity_dtor(&entity);
+  foreach(self->entities, it) {
+    jl_entity_dtor(ds_data(self->entities) + it);
   }
-  adt_vector_dtor(self->entities);
+  vec_dtor(self->entities);
 }

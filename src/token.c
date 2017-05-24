@@ -44,8 +44,8 @@ jl_lloc_t jl_lloc_end(jl_lloc_t self){
 jl_rtoken_t jl_llocate(jl_lloc_t lloc) {
   if (lloc.lexer) {
     return (jl_rtoken_t) {
-      adt_vector_at(lloc.lexer->queue, lloc.begin),
-      adt_vector_at(lloc.lexer->queue, lloc.end)
+      ds_at(lloc.lexer->queue, lloc.begin),
+      ds_at(lloc.lexer->queue, lloc.end)
     };
   }
   return (jl_rtoken_t) {{0}, {0}};

@@ -210,25 +210,25 @@ static jl_expr_t postfix_expression(jl_parser_t *self, jl_program_t *out) {
         }
         func = &type.compound.entity->function;
         jl_lexer_next(self->lexer);
-        for (i = 0; i < adt_vector_size(func->params); ++i) {
+        for (i = 0; i < ds_size(func->params); ++i) {
           if (jl_lexer_peek(self->lexer).type == ')') {
             jl_parse_err(self->compiler, token.loc,
               "Too few arguments, expected %zu but got %d",
-              adt_vector_size(func->params), i
+              ds_size(func->params), i
             );
           }
-          param = adt_vector_at(func->params, i);
+          param = ds_at(func->params, i);
           r2 = assignment_expression(self, out);
           if (!jl_type_equals(r2.type, param.type)) {
             r2 = jl_cast(r2.lloc, param.type, r2);
           }
-          adt_vector_push(args, r2);
-          if (i < adt_vector_size(func->params) - 1) {
+          vec_push(args, r2);
+          if (i < ds_size(func->params) - 1) {
             jl_lexer_consume(self->lexer, ',');
           }
         }
         jl_lexer_consume(self->lexer, ')');
-        adt_vector_push(args, jl_expr_undefined());
+        vec_push(args, jl_expr_undefined());
         r1 = jl_call(r1, jl_lloc_end(lloc), jl_exprs(args.data).exprs);
         break;
       }
@@ -598,7 +598,7 @@ static jl_expr_t expression(jl_parser_t *self, jl_program_t *out) {
     if (!jl_is(r1, JL_EXPR_EXPRS)) {
       r1 = jl_exprs_start(r1);
     }
-    adt_vector_push(r1.exprs.vector, assignment_expression(self, out));
+    vec_push(r1.exprs.vector, assignment_expression(self, out));
   }
 }
 

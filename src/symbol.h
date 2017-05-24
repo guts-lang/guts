@@ -27,13 +27,13 @@
 # define  JL_SYMBOL_H__
 
 #include <adt/hash.h>
-#include <adt/vector.h>
+#include <u/vector.h>
 
 #include "entity.h"
 
 typedef struct jl_sym_t jl_sym_t;
 typedef struct jl_scope_t jl_scope_t;
-typedef adt_vector_of(jl_scope_t *) jl_scope_r;
+typedef vec_of(jl_scope_t *) jl_scope_r;
 
 KHASH_DECLARE(jl_symtab, const char *, jl_sym_t)
 

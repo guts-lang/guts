@@ -26,20 +26,12 @@
 #ifndef   JL_PARSER_H__
 # define  JL_PARSER_H__
 
-#include <adt/deque.h>
+#include <u/deque.h>
 
 #include "lexer.h"
 
-struct jl_compiler_t;
 struct jl_scope_t;
 struct jl_program_t;
-
-jl_token_t jl_lexer_peek(struct jl_lexer_t *self);
-jl_token_t jl_lexer_peekn(struct jl_lexer_t *self, unsigned n);
-jl_token_t jl_lexer_next(struct jl_lexer_t *self);
-jl_token_t jl_lexer_consume(struct jl_lexer_t *self, unsigned char type);
-jl_token_t jl_lexer_consume_id(struct jl_lexer_t *self, const char *id);
-void jl_lexer_undo(struct jl_lexer_t *lexer, jl_token_t until);
 
 typedef struct jl_parser_t jl_parser_t;
 

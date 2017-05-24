@@ -26,7 +26,7 @@
 #ifndef   JL_IR_H__
 # define  JL_IR_H__
 
-#include <adt/vector.h>
+#include <u/vector.h>
 
 #include "token.h"
 
@@ -151,7 +151,7 @@ typedef struct jl_field_read jl_field_read_t;
 typedef struct jl_field_write jl_field_write_t;
 typedef struct jl_call jl_call_t;
 
-typedef adt_vector_of(jl_expr_t) jl_expr_r;
+typedef vec_of(jl_expr_t) jl_expr_r;
 
 enum jl_expr_n {
   JL_EXPR_UNDEFINED = 0,
@@ -359,7 +359,7 @@ typedef struct jl_stmt_continue jl_stmt_continue_t;
 typedef struct jl_stmt_return jl_stmt_return_t;
 typedef struct jl_stmt_decl jl_stmt_decl_t;
 
-typedef adt_vector_of(jl_stmt_t) jl_stmt_r;
+typedef vec_of(jl_stmt_t) jl_stmt_r;
 
 enum jl_stmt_n {
   JL_STMT_UNDEFINED = 0,
@@ -506,7 +506,7 @@ typedef struct jl_struct jl_struct_t;
 typedef struct jl_union jl_union_t;
 typedef struct jl_label jl_label_t;
 
-typedef adt_vector_of(jl_entity_t) jl_entity_r;
+typedef vec_of(jl_entity_t) jl_entity_r;
 
 enum jl_entity_n {
   JL_ENTITY_UNDEFINED = 0,

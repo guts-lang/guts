@@ -30,6 +30,8 @@
 
 #include "attr.h"
 
+#undef WITH_LTALLOC
+
 #ifdef WITH_LTALLOC
 #include "ltalloc.h"
 #endif

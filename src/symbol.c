@@ -32,17 +32,19 @@ void jl_sym_dtor(jl_sym_t *self) {}
 void jl_scope_dtor(jl_scope_t *self) {
   jl_sym_t sym;
   jl_scope_t *scope;
+  size_t i;
 
   kh_foreach_value(&self->symtab, sym, {
     jl_sym_dtor(&sym);
   });
   jl_symtab_dtor(&self->symtab);
-  adt_vector_foreach(self->childs, scope) {
+  foreach(self->childs, i) {
+    scope = ds_at(self->childs, i);
     jl_scope_dtor(scope);
     xfree(scope);
-    scope = NULL;
+    ds_at(self->childs, i) = NULL;
   }
-  adt_vector_dtor(self->childs);
+  vec_dtor(self->childs);
 }
 
 bool jl_sym_has_flag(jl_sym_t *self, unsigned flag) {

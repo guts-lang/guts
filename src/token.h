@@ -26,7 +26,8 @@
 #ifndef   JL_TOKEN_H__
 # define  JL_TOKEN_H__
 
-#include <adt/deque.h>
+#include <u/deque.h>
+#include <adt/xmalloc.h>
 
 #include "api.h"
 
