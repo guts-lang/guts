@@ -1,9 +1,0 @@
-[submodule "vendor/firm"]
-	path = vendor/firm
-	url = https://github.com/jayl/ir.git
-[submodule "vendor/ltalloc"]
-	path = vendor/ltalloc
-	url = https://github.com/jayl/ltalloc.git
-[submodule "vendor/mu"]
-	path = vendor/mu
-	url = https://www.github.com/uael/mu.git
