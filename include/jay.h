@@ -26,4 +26,6 @@
 #ifndef __JAY_H
 # define __JAY_H
 
+#include <uty.h>
+
 #endif /* !__JAY_H */

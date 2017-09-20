@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2016-2017 uael <www.github.com/uael>
+ * Copyright (c) 2016-2017 Abel Lucas <www.github.com/uael>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,16 +23,4 @@
  * SOFTWARE.
  */
 
-#ifndef   JL_NODE_H__
-# define  JL_NODE_H__
-
-#include "ir.h"
-
-jl_node_t jl_entity(jl_entity_t entity);
-jl_node_t jl_expr(jl_expr_t expr);
-jl_node_t jl_stmt(jl_stmt_t stmt);
-jl_node_t jl_type(jl_type_t type);
-
-#define jl_node_undefined() ((jl_node_t) {.kind = JL_NODE_UNDEFINED})
-
-#endif /* JL_NODE_H__ */
+#include "jay.h"
