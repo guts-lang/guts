@@ -22,6 +22,9 @@ add_library(jay ${jay_SRCS} ${jay_HDRS} ${jay_HDR})
 target_include_directories(jay PUBLIC ${jay_INC_DIR})
 target_link_libraries(jay PUBLIC il)
 
+add_executable(jayc tools/jayc.c)
+target_link_libraries(jayc PUBLIC jay)
+
 get_directory_property(jay_PARENT PARENT_DIRECTORY)
 if (NOT ${jay_PARENT})
   set(jay_DEVEL TRUE)
