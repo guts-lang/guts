@@ -1,4 +1,0 @@
-#define FOO 3+4
-#define BAR 4*8
-FOO & BAR
-
