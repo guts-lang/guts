@@ -6,8 +6,11 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 include(LoadLLVM)
 include(ProjectDependency)
 
+load_llvm()
+
 project(jay C)
 project_dependency(il GIT_REPOSITORY https://github.com/uael/il.git)
+project_dependency(uev GIT_REPOSITORY https://github.com/uael/uev.git)
 
 set(jay_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
 set(jay_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
@@ -18,11 +21,13 @@ file(GLOB_RECURSE jay_HDRS ${jay_HDRS} ${jay_INC_DIR}/jay/*.h)
 set(jay_HDR ${jay_INC_DIR}/jay.h)
 
 add_library(jay ${jay_SRCS} ${jay_HDRS} ${jay_HDR})
-target_include_directories(jay PUBLIC ${jay_INC_DIR})
-target_link_libraries(jay PUBLIC il)
+target_include_directories(jay
+  PUBLIC ${jay_INC_DIR})
+target_link_libraries(jay
+  PUBLIC uopt ufs uev llvm)
 
 add_executable(jayc tools/jayc.c)
-target_link_libraries(jayc PUBLIC jay)
+target_link_libraries(jayc PUBLIC jay ${LLVM_LIBRARIES} ${CLANG_LIBRARIES})
 
 get_directory_property(jay_PARENT PARENT_DIRECTORY)
 if (NOT ${jay_PARENT})

@@ -1,5 +1,5 @@
 if (NOT COMMAND load_llvm)
-  function(load_llvm)
+  macro(load_llvm)
     set(LLVM_KNOWN_VERSIONS
       6.0.0 6.0 5.0.0 5.0 4.0.1 4.0.0 4.0 4 3.9.1 3.9.0 3.9 3.8.1 3.8.0 3.8
       3.7.1 3.7.0 3.7 3.6.2 3.6.1 3.6.0 3.6 3.5.2 3.5.1 3.5.0 3.5 3.4.2 3.4.1
@@ -51,14 +51,18 @@ if (NOT COMMAND load_llvm)
       Coverage Passes
     )
     llvm_map_components_to_libnames(LLVM_LIBRARIES ${LLVM_LINK_COMPONENTS})
-    set(CLANG_LIBRARIES
-      clangBasic clangLex clangParse clangAST clangASTMatchers
-      clangDynamicASTMatchers clangSema clangCodeGen clangAnalysis clangEdit
-      clangRewrite clangARCMigrate clangDriver clangSerialization clangFrontend
-      clangRewriteFrontend clangFrontendTool clangToolingCore
-      clangToolingRefactor clangToolingASTDiff clangTooling clangIndex
-      clangStaticAnalyzerCore clangStaticAnalyzerCheckers
-      clangStaticAnalyzerFrontend clangFormat libclang
+    find_file(LIBCLANG
+      NAMES libclang.lib libclang.imp
+      PATHS ${LLVM_LIBRARY_DIR}
+      DOC "The file that corresponds to the libclang library."
     )
-  endfunction ()
+    add_library(llvm INTERFACE)
+    target_link_libraries(llvm INTERFACE ${LLVM_LIBRARIES} ${LIBCLANG})
+    target_include_directories(llvm
+      INTERFACE ${LLVM_INCLUDE_DIRS} ${CLANG_INCLUDE_DIRS}
+    )
+    target_compile_definitions(llvm
+      INTERFACE ${LLVM_DEFINITIONS} ${CLANG_DEFINITIONS}
+    )
+  endmacro ()
 endif ()
