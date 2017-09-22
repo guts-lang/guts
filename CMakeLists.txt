@@ -17,7 +17,9 @@ include(ProjectDependency)
 load_llvm()
 
 project(jay C)
-project_dependency(il GIT_REPOSITORY https://github.com/uael/il.git)
+# project_dependency(il GIT_REPOSITORY https://github.com/uael/il.git)
+project_dependency(uopt GIT_REPOSITORY https://github.com/uael/uopt.git)
+project_dependency(ufs GIT_REPOSITORY https://github.com/uael/ufs.git)
 project_dependency(uev GIT_REPOSITORY https://github.com/uael/uev.git)
 
 set(jay_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
@@ -26,6 +28,7 @@ set(jay_TEST_DIR ${CMAKE_CURRENT_LIST_DIR}/test)
 
 file(GLOB_RECURSE jay_SRCS ${jay_SRCS} ${jay_SRC_DIR}/*.c)
 file(GLOB_RECURSE jay_HDRS ${jay_HDRS} ${jay_INC_DIR}/jay/*.h)
+file(GLOB_RECURSE jay_HDRS ${jay_HDRS} ${jay_INC_DIR}/il/*.h)
 set(jay_HDR ${jay_INC_DIR}/jay.h)
 
 add_library(jay ${jay_SRCS} ${jay_HDRS} ${jay_HDR})
