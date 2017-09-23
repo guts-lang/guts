@@ -23,31 +23,34 @@
  * SOFTWARE.
  */
 
-/*!@file jay.h
+/*!@file il/ty/const.h
  * @author uael
  */
-#ifndef __JAY_H
-# define __JAY_H
+#ifndef __IL_TY_CONST_H
+# define __IL_TY_CONST_H
 
 #include <uty.h>
-#include <uerr.h>
-#include <il/ty.h>
-#include <stdio.h>
 
-typedef struct il_ctx il_ctx_t;
-typedef struct il_fe il_fe_t;
-typedef struct il_hir il_hir_t;
-typedef struct il_lexer il_lexer_t;
-typedef struct il_parser il_parser_t;
-typedef struct il_mir il_mir_t;
-typedef struct il_lir il_lir_t;
-typedef struct il_be il_be_t;
+#include "const/kind.h"
+#include "const/str.h"
 
+typedef struct il_ty_const il_ty_const_t;
 
+struct il_ty_const {
+  il_ty_const_kind_t kind : 1;
+  union {
+    i8_t i8;
+    i16_t i16;
+    i32_t i32;
+    i64_t i64;
+    u8_t u8;
+    u16_t u16;
+    u32_t u32;
+    u64_t u64;
+    f32_t f32;
+    f64_t f64;
+    il_ty_cstr_t str;
+  };
+};
 
-
-
-
-
-
-#endif /* !__JAY_H */
+#endif /* !__IL_TY_CONST_H */

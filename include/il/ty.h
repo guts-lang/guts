@@ -23,31 +23,61 @@
  * SOFTWARE.
  */
 
-/*!@file jay.h
+/*!@file il/ty.h
  * @author uael
  */
-#ifndef __JAY_H
-# define __JAY_H
+#ifndef __IL_TY_H
+# define __IL_TY_H
 
-#include <uty.h>
-#include <uerr.h>
-#include <il/ty.h>
-#include <stdio.h>
+#include <uds/vec.h>
 
-typedef struct il_ctx il_ctx_t;
-typedef struct il_fe il_fe_t;
-typedef struct il_hir il_hir_t;
-typedef struct il_lexer il_lexer_t;
-typedef struct il_parser il_parser_t;
-typedef struct il_mir il_mir_t;
-typedef struct il_lir il_lir_t;
-typedef struct il_be il_be_t;
+#include "ty/const.h"
+#include "ty/kind.h"
 
+typedef struct il_ty il_ty_t;
+typedef struct il_ty_void il_ty_void_t;
+typedef struct il_ty_scalar il_ty_float_t;
+typedef struct il_ty_scalar il_ty_int_t;
+typedef struct il_ty_fn il_ty_fn_t;
+typedef struct il_ty_struct il_ty_struct_t;
+typedef struct il_ty_wrap il_ty_array_t;
+typedef struct il_ty_wrap il_ty_pointer_t;
+typedef struct il_ty_wrap il_ty_vector_t;
+typedef struct il_ty_void il_ty_label_t;
+typedef struct il_ty_void il_ty_metadata_t;
+typedef struct il_ty_void il_ty_token_t;
 
+struct il_ty {
+  il_ty_kind_t kind : 1;
+};
 
+struct il_ty_void {
+  il_ty_kind_t kind : 1;
+};
 
+struct il_ty_scalar {
+  il_ty_kind_t kind : 1;
+  u8_t bits;
+};
 
+struct il_ty_fn {
+  il_ty_kind_t kind : 1;
+  il_ty_t *ret, **params;
+  u32_t param_count;
+  bool_t is_vararg;
+};
 
+struct il_ty_struct {
+  il_ty_kind_t kind : 1;
+  il_ty_t **elements;
+  u32_t element_couny;
+  bool_t is_packed;
+};
 
+struct il_ty_wrap {
+  il_ty_kind_t kind : 1;
+  il_ty_t *element;
+  u32_t len;
+};
 
-#endif /* !__JAY_H */
+#endif /* !__IL_TY_H */

@@ -30,6 +30,7 @@
 
 #include <clang-c/Index.h>
 #include <clang-c/Platform.h>
+#include <llvm-c/Core.h>
 
 void
 printDiagnostics(CXTranslationUnit translationUnit);
@@ -64,6 +65,7 @@ main(int argc, const char *argv[]) {
     fprintf(stderr, "error creating translationUnit\n");
     return 1;
   }
+
 
   printDiagnostics(translationUnit);
 

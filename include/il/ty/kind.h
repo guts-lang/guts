@@ -23,31 +23,26 @@
  * SOFTWARE.
  */
 
-/*!@file jay.h
+/*!@file il/ty/kind.h
  * @author uael
  */
-#ifndef __JAY_H
-# define __JAY_H
+#ifndef __IL_TY_KIND_H
+# define __IL_TY_KIND_H
 
-#include <uty.h>
-#include <uerr.h>
-#include <il/ty.h>
-#include <stdio.h>
+enum il_ty_kind {
+  IL_TY_VOID,
+  IL_TY_FLOAT,
+  IL_TY_INT,
+  IL_TY_FN,
+  IL_TY_STRUCT,
+  IL_TY_ARRAY,
+  IL_TY_POINTER,
+  IL_TY_VECTOR,
+  IL_TY_LABEL,
+  IL_TY_METADATA,
+  IL_TY_TOKEN
+};
 
-typedef struct il_ctx il_ctx_t;
-typedef struct il_fe il_fe_t;
-typedef struct il_hir il_hir_t;
-typedef struct il_lexer il_lexer_t;
-typedef struct il_parser il_parser_t;
-typedef struct il_mir il_mir_t;
-typedef struct il_lir il_lir_t;
-typedef struct il_be il_be_t;
+typedef enum il_ty_kind il_ty_kind_t;
 
-
-
-
-
-
-
-
-#endif /* !__JAY_H */
+#endif /* !__IL_TY_KIND_H */

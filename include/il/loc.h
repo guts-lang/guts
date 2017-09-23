@@ -23,31 +23,19 @@
  * SOFTWARE.
  */
 
-/*!@file jay.h
+/*!@file il/loc.h
  * @author uael
  */
-#ifndef __JAY_H
-# define __JAY_H
+#ifndef __IL_LOC_H
+# define __IL_LOC_H
 
-#include <uty.h>
-#include <uerr.h>
-#include <il/ty.h>
-#include <stdio.h>
+#include "src.h"
 
-typedef struct il_ctx il_ctx_t;
-typedef struct il_fe il_fe_t;
-typedef struct il_hir il_hir_t;
-typedef struct il_lexer il_lexer_t;
-typedef struct il_parser il_parser_t;
-typedef struct il_mir il_mir_t;
-typedef struct il_lir il_lir_t;
-typedef struct il_be il_be_t;
+typedef struct il_loc il_loc_t;
 
+struct il_loc {
+  il_src_t *src;
+  u32_t line, col, cursor;
+};
 
-
-
-
-
-
-
-#endif /* !__JAY_H */
+#endif /* !__IL_LOC_H */

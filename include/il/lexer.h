@@ -23,31 +23,33 @@
  * SOFTWARE.
  */
 
-/*!@file jay.h
+/*!@file il/lexer.h
  * @author uael
  */
-#ifndef __JAY_H
-# define __JAY_H
+#ifndef __IL_LEXER_H
+# define __IL_LEXER_H
 
-#include <uty.h>
-#include <uerr.h>
-#include <il/ty.h>
-#include <stdio.h>
+#include <uds/deq.h>
 
-typedef struct il_ctx il_ctx_t;
-typedef struct il_fe il_fe_t;
-typedef struct il_hir il_hir_t;
+#include "tok.h"
+
+DEQ32_DEFINE(il_tokdeq, il_tok_t, addrcmp);
+
 typedef struct il_lexer il_lexer_t;
-typedef struct il_parser il_parser_t;
-typedef struct il_mir il_mir_t;
-typedef struct il_lir il_lir_t;
-typedef struct il_be il_be_t;
 
+struct il_lexer {
+  struct il_ctx *ctx;
+  il_tokdeq_t tokens;
+};
 
+void lexer_ctor(il_lexer_t *self) {
+  *self = init (il_lexer_t,
+    .tokens = init (il_tokdeq_t,
+      .buf = vec (il_tok_t,
+        init (il_tok_t, 0)
+      )
+    )
+  );
+}
 
-
-
-
-
-
-#endif /* !__JAY_H */
+#endif /* !__IL_LEXER_H */

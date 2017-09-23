@@ -23,31 +23,26 @@
  * SOFTWARE.
  */
 
-/*!@file jay.h
+/*!@file il/ty/const/kind.h
  * @author uael
  */
-#ifndef __JAY_H
-# define __JAY_H
+#ifndef __IL_TY_CONST_KIND_H
+# define __IL_TY_CONST_KIND_H
 
-#include <uty.h>
-#include <uerr.h>
-#include <il/ty.h>
-#include <stdio.h>
+enum il_ty_const_kind {
+  IL_TY_CONST_I8,
+  IL_TY_CONST_I16,
+  IL_TY_CONST_I32,
+  IL_TY_CONST_I64,
+  IL_TY_CONST_U8,
+  IL_TY_CONST_U16,
+  IL_TY_CONST_U32,
+  IL_TY_CONST_U64,
+  IL_TY_CONST_F32,
+  IL_TY_CONST_F64,
+  IL_TY_CONST_STR,
+};
 
-typedef struct il_ctx il_ctx_t;
-typedef struct il_fe il_fe_t;
-typedef struct il_hir il_hir_t;
-typedef struct il_lexer il_lexer_t;
-typedef struct il_parser il_parser_t;
-typedef struct il_mir il_mir_t;
-typedef struct il_lir il_lir_t;
-typedef struct il_be il_be_t;
+typedef enum il_ty_const_kind il_ty_const_kind_t;
 
-
-
-
-
-
-
-
-#endif /* !__JAY_H */
+#endif /* !__IL_TY_CONST_KIND_H */
