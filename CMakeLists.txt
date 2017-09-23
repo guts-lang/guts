@@ -21,6 +21,7 @@ project(jay C)
 project_dependency(uopt GIT_REPOSITORY https://github.com/uael/uopt.git)
 project_dependency(ufs GIT_REPOSITORY https://github.com/uael/ufs.git)
 project_dependency(uev GIT_REPOSITORY https://github.com/uael/uev.git)
+project_dependency(ulex GIT_REPOSITORY https://github.com/uael/ulex.git)
 
 set(jay_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
 set(jay_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
