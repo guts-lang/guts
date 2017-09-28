@@ -14,9 +14,11 @@ set(CMAKE_MODULE_PATH "${CMAKE_CACHEFILE_DIR}/cmake")
 include(LoadLLVM)
 include(ProjectDependency)
 
-load_llvm()
+set(CMAKE_C_STANDARD 99)
+set(BUILD_SHARED_LIBS OFF)
 
 project(jay C)
+load_llvm()
 # project_dependency(il GIT_REPOSITORY https://github.com/uael/il.git)
 project_dependency(uopt GIT_REPOSITORY https://github.com/uael/uopt.git)
 project_dependency(ufs GIT_REPOSITORY https://github.com/uael/ufs.git)
@@ -37,6 +39,23 @@ target_include_directories(jay
   PUBLIC ${jay_INC_DIR})
 target_link_libraries(jay
   PUBLIC uopt ufs uev llvm)
+
+set(CMAKE_C_FLAGS "")
+set(CMAKE_C_FLAGS_DEBUG "")
+set(CMAKE_C_FLAGS_RELEASE "")
+
+if (MSVC)
+  target_compile_options(jay
+    PRIVATE /MT$<$<CONFIG:Debug>:d> /Oy
+    PRIVATE /O$<$<CONFIG:Debug>:d>$<$<CONFIG:Release>:x>)
+  set_target_properties(jay
+    PROPERTIES LINK_FLAGS /nodefaultlib:msvcrt.lib)
+else ()
+  target_compile_options(jay
+    PRIVATE -Wall -Werror -Wextra -fomit-frame-pointer
+    PRIVATE -Wno-missing-field-initializers
+    PRIVATE -O$<$<CONFIG:Debug>:0 -g3>$<$<CONFIG:Release>:3>)
+endif ()
 
 add_executable(jayc tools/jayc.c)
 target_link_libraries(jayc PUBLIC jay ${LLVM_LIBRARIES} ${CLANG_LIBRARIES})
