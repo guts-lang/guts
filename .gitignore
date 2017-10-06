@@ -65,7 +65,6 @@ CTestTestfile.cmake
 .idea/**/libraries
 
 # CMake
-cmake/
 cmake-build-debug/
 cmake-build-release/
 

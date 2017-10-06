@@ -23,6 +23,6 @@
  * SOFTWARE.
  */
 
-#include "cor.h"
+#include "guts/cor.h"
 
 

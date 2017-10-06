@@ -5,6 +5,14 @@ cmake_policy(SET CMP0045 OLD)
 project(guts C CXX)
 get_directory_property(guts_PARENT PARENT_DIRECTORY)
 
+set(BUILD_SHARED_LIBS OFF)
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
+include(CMakeParseArguments)
+include(LoadLLVM)
+
+load_llvm()
+
 set(guts_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
 set(guts_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
 set(guts_TEST_DIR ${CMAKE_CURRENT_LIST_DIR}/test)
@@ -15,8 +23,6 @@ set(CMAKE_C_FLAGS_DEBUG "")
 set(CMAKE_CXX_FLAGS_DEBUG "")
 set(CMAKE_C_FLAGS_RELEASE "")
 set(CMAKE_CXX_FLAGS_RELEASE "")
-
-include(CMakeParseArguments)
 
 macro (add_module MOD TYPE)
   cmake_parse_arguments(PA "CXX" "IN" "DEPS" ${ARGN})
