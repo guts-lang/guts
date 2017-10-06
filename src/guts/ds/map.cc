@@ -23,15 +23,6 @@
  * SOFTWARE.
  */
 
-#include <iostream>
+#include "guts/ds/map.h"
 
-#include "ds/map.h"
 
-i32 main() {
-  auto map = ds::Map<const char *, const char *, u8>();
-
-  map["oops"] = "ma bite";
-  map["ma bite"] = "oops";
-  std::cout << map["oops"] << " " << map["ma bite"];
-  return 0;
-}

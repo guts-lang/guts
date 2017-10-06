@@ -32,8 +32,8 @@
 #include <cstdlib>
 #include <cstring>
 
-#include <cor.h>
-#include <m.h>
+#include <guts/cor.h>
+#include <guts/m.h>
 
 namespace ds {
 
@@ -85,14 +85,14 @@ namespace ds {
         k = m::hash(key);
         i = k & mask;
         last = i;
-        while (flags[i] & Flag::Empty != Flag::Empty &&
-          (flags[i] & Flag::Deleted == Flag::Deleted || !m::eq(keys[i], key))) {
+        while ((flags[i] & Flag::Empty) != Flag::Empty &&
+          ((flags[i] & Flag::Deleted) == Flag::Deleted || !m::eq(keys[i], key))) {
           i = (i + (++step)) & mask;
           if (i == last) {
             return false;
           }
         }
-        if (flags[i] & Flag::Either != 0) {
+        if ((flags[i] & Flag::Either) != 0) {
           return false;
         }
         *out = i;
