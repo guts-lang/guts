@@ -2,89 +2,114 @@ cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 cmake_policy(SET CMP0054 OLD)
 cmake_policy(SET CMP0045 OLD)
 
-if (NOT EXISTS ${CMAKE_CACHEFILE_DIR}/cmake)
-  execute_process(
-    COMMAND git clone https://github.com/uael/cmake-modules.git cmake
-    RESULT_VARIABLE result OUTPUT_QUIET
-    WORKING_DIRECTORY ${CMAKE_CACHEFILE_DIR}
-  )
-endif ()
-
-set(CMAKE_MODULE_PATH "${CMAKE_CACHEFILE_DIR}/cmake")
-include(LoadLLVM)
-include(ProjectDependency)
-
 set(CMAKE_C_STANDARD 99)
 set(BUILD_SHARED_LIBS OFF)
 
-project(jay C)
-load_llvm()
-# project_dependency(il GIT_REPOSITORY https://github.com/uael/il.git)
-project_dependency(uopt GIT_REPOSITORY https://github.com/uael/uopt.git)
-project_dependency(ufs GIT_REPOSITORY https://github.com/uael/ufs.git)
-project_dependency(uev GIT_REPOSITORY https://github.com/uael/uev.git)
-project_dependency(ulex GIT_REPOSITORY https://github.com/uael/ulex.git)
+project(guts C)
+get_directory_property(guts_PARENT PARENT_DIRECTORY)
 
-set(jay_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
-set(jay_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
-set(jay_TEST_DIR ${CMAKE_CURRENT_LIST_DIR}/test)
-
-file(GLOB_RECURSE jay_SRCS ${jay_SRCS} ${jay_SRC_DIR}/*.c)
-file(GLOB_RECURSE jay_HDRS ${jay_HDRS} ${jay_INC_DIR}/jay/*.h)
-file(GLOB_RECURSE jay_HDRS ${jay_HDRS} ${jay_INC_DIR}/il/*.h)
-set(jay_HDR ${jay_INC_DIR}/jay.h)
-
-add_library(jay ${jay_SRCS} ${jay_HDRS} ${jay_HDR})
-target_include_directories(jay
-  PUBLIC ${jay_INC_DIR})
-target_link_libraries(jay
-  PUBLIC uopt ufs uev llvm)
+set(guts_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
+set(guts_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
+set(guts_TEST_DIR ${CMAKE_CURRENT_LIST_DIR}/test)
 
 set(CMAKE_C_FLAGS "")
 set(CMAKE_C_FLAGS_DEBUG "")
 set(CMAKE_C_FLAGS_RELEASE "")
 
-if (MSVC)
-  target_compile_options(jay
-    PRIVATE /MT$<$<CONFIG:Debug>:d> /Oy
-    PRIVATE /O$<$<CONFIG:Debug>:d>$<$<CONFIG:Release>:x>)
-  set_target_properties(jay
-    PROPERTIES LINK_FLAGS /nodefaultlib:msvcrt.lib)
-else ()
-  target_compile_options(jay
-    PRIVATE -Wall -Werror -Wextra -fomit-frame-pointer
-    PRIVATE -Wno-missing-field-initializers
-    PRIVATE -O$<$<CONFIG:Debug>:0 -g3>$<$<CONFIG:Release>:3>)
-endif ()
+macro (add_module MOD TYPE)
+  project(${MOD} C)
 
-add_executable(jayc tools/jayc.c)
-target_link_libraries(jayc PUBLIC jay ${LLVM_LIBRARIES} ${CLANG_LIBRARIES})
+  set(CMAKE_C_STANDARD 99)
+  set(BUILD_SHARED_LIBS OFF)
 
-get_directory_property(jay_PARENT PARENT_DIRECTORY)
-if (NOT ${jay_PARENT})
-  set(jay_DEVEL TRUE)
-elseif (NOT ${jay_DEVEL})
-  set(jay_DEVEL FALSE)
-endif ()
-if (${jay_DEVEL})
-  if (EXISTS ${jay_TEST_DIR})
-    project_dependency(cute GIT_REPOSITORY https://github.com/uael/cute.git)
-    if (NOT jay_PARENT)
-      enable_testing()
+  if ("${TYPE}" STREQUAL "INTERFACE")
+    file(GLOB_RECURSE ${MOD}_HDRS ${${MOD}_HDRS} ${guts_INC_DIR}/${MOD}/*.h)
+    set(${MOD}_HDR ${guts_INC_DIR}/${MOD}.h)
+
+    add_library(${MOD} INTERFACE)
+    target_include_directories(${MOD} INTERFACE ${guts_INC_DIR})
+
+    if (MSVC)
+      target_compile_options(${MOD}
+        INTERFACE /MT$<$<CONFIG:Debug>:d> /Oy /Za /W3
+        INTERFACE /D_CRT_SECURE_NO_WARNINGS
+        INTERFACE /O$<$<CONFIG:Debug>:d>$<$<CONFIG:Release>:x>)
+    else ()
+      target_compile_options(${MOD}
+        INTERFACE -Wall -Werror -Wextra -fomit-frame-pointer -ansi -pedantic
+        INTERFACE -Wno-missing-field-initializers
+        INTERFACE -O$<$<CONFIG:Debug>:0 -g3>$<$<CONFIG:Release>:3>)
     endif ()
+  elseif ("${TYPE}" STREQUAL "LIBRARY")
+    file(GLOB_RECURSE ${MOD}_SRCS ${${MOD}_SRCS} ${guts_SRC_DIR}/${MOD}/*.c)
+    file(GLOB_RECURSE ${MOD}_HDRS ${${MOD}_HDRS} ${guts_INC_DIR}/${MOD}/*.h)
+    set(${MOD}_HDR ${guts_INC_DIR}/${MOD}.h)
 
-    file(GLOB jay_TEST_SRCS ${jay_TEST_SRCS} ${jay_TEST_DIR}/*.c)
-    foreach (jay_TEST_SRC ${jay_TEST_SRCS})
-      get_filename_component(jay_TEST_NAME ${jay_TEST_SRC} NAME_WE)
-      add_executable(test_${jay_TEST_NAME} ${jay_TEST_SRC})
-      add_dependencies(test_${jay_TEST_NAME} jay cute)
-      target_link_libraries(test_${jay_TEST_NAME} jay cute)
-      add_test(${jay_TEST_NAME} test_${jay_TEST_NAME})
+    add_library(${MOD} ${${MOD}_SRCS} ${${MOD}_HDRS} ${${MOD}_HDR})
+    target_include_directories(${MOD} PUBLIC ${guts_INC_DIR})
+
+    if (MSVC)
+      target_compile_options(${MOD}
+        PUBLIC /MT$<$<CONFIG:Debug>:d> /Oy /Za /W3
+        PUBLIC /D_CRT_SECURE_NO_WARNINGS
+        PUBLIC /O$<$<CONFIG:Debug>:d>$<$<CONFIG:Release>:x>)
+    else ()
+      target_compile_options(${MOD}
+        PUBLIC -Wall -Werror -Wextra -fomit-frame-pointer -ansi -pedantic
+        PUBLIC -Wno-missing-field-initializers
+        PUBLIC -O$<$<CONFIG:Debug>:0 -g3>$<$<CONFIG:Release>:3>)
+    endif ()
+  elseif ("${TYPE}" STREQUAL "EXECUTABLE")
+    file(GLOB_RECURSE ${MOD}_SRCS ${${MOD}_SRCS} ${guts_SRC_DIR}/${MOD}/*.c)
+
+    add_executable(${MOD} ${${MOD}_SRCS})
+    target_include_directories(${MOD} PUBLIC ${guts_INC_DIR})
+
+    if (MSVC)
+      target_compile_options(${MOD}
+        PRIVATE /MT$<$<CONFIG:Debug>:d> /Oy /Za /W3
+        PRIVATE /D_CRT_SECURE_NO_WARNINGS
+        PRIVATE /O$<$<CONFIG:Debug>:d>$<$<CONFIG:Release>:x>)
+    else ()
+      target_compile_options(${MOD}
+        PRIVATE -Wall -Werror -Wextra -fomit-frame-pointer -ansi -pedantic
+        PRIVATE -Wno-missing-field-initializers
+        PRIVATE -O$<$<CONFIG:Debug>:0 -g3>$<$<CONFIG:Release>:3>)
+    endif ()
+  else ()
+    message(FATAL_ERROR "Unrecognized module type : ${TYPE}")
+  endif ()
+
+  foreach(dep IN LISTS ARGN)
+    if ("${TYPE}" STREQUAL "INTERFACE")
+      target_link_libraries(${MOD} INTERFACE ${dep})
+    else ()
+      target_link_libraries(${MOD} ${dep})
+    endif ()
+    add_dependencies(${MOD} ${dep})
+  endforeach()
+
+  if (NOT guts_PARENT)
+    enable_testing()
+
+    file(GLOB ${MOD}_TEST_SRCS ${${MOD}_TEST_SRCS} ${guts_TEST_DIR}/${MOD}/*.c)
+    foreach (${MOD}_TEST_SRC ${${MOD}_TEST_SRCS})
+      get_filename_component(${MOD}_TEST_NAME ${${MOD}_TEST_SRC} NAME_WE)
+      add_executable(test_${MOD}_${${MOD}_TEST_NAME} ${${MOD}_TEST_SRC})
+      add_dependencies(test_${MOD}_${${MOD}_TEST_NAME} ${MOD})
+      target_include_directories(test_${MOD}_${${MOD}_TEST_NAME} PUBLIC
+        ${guts_TEST_DIR})
+      target_link_libraries(test_${MOD}_${${MOD}_TEST_NAME} ${MOD})
+      add_test(${${MOD}_TEST_NAME} test_${${MOD}_TEST_NAME})
     endforeach ()
   endif ()
-endif ()
+endmacro ()
 
-install(FILES ${jay_HDRS}
-  DESTINATION include/jay)
-install(FILES ${jay_HDR}
-  DESTINATION include)
+add_module(ucc  INTERFACE)
+add_module(uty  INTERFACE ucc)
+add_module(uerr INTERFACE ucc uty)
+add_module(uds  INTERFACE ucc uty uerr)
+add_module(uev  INTERFACE ucc uty uerr uds)
+add_module(ufs  LIBRARY   ucc uty uerr uds)
+add_module(ulex LIBRARY   ucc uty uerr uds ufs uev)
+add_module(uopt LIBRARY   ucc uty uerr uds)
