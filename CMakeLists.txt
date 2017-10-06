@@ -34,7 +34,11 @@ macro (add_module MOD TYPE)
     set(CMAKE_C_STANDARD 99)
     set(EXT c)
   endif ()
-  message(NOTICE "add module ${MOD} from ${MOD_DIR}")
+  if (PA_DEPS)
+    message(STATUS "[guts] add module '${MOD}' depends on '${PA_DEPS}'")
+  else ()
+    message(STATUS "[guts] add module '${MOD}'")
+  endif ()
 
   set(BUILD_SHARED_LIBS OFF)
 
@@ -61,10 +65,11 @@ macro (add_module MOD TYPE)
       ${guts_SRC_DIR}/${MOD_DIR}/*.${EXT})
     file(GLOB_RECURSE ${MOD}_HDRS ${${MOD}_HDRS}
       ${guts_INC_DIR}/${MOD_DIR}/*.h)
-    set(${MOD}_HDR ${guts_INC_DIR}/${MOD}.h)
+    set(${MOD}_HDR ${guts_INC_DIR}/${MOD_DIR}.h)
 
     add_library(${MOD} ${${MOD}_SRCS} ${${MOD}_HDRS} ${${MOD}_HDR})
     target_include_directories(${MOD} PUBLIC ${guts_INC_DIR})
+    target_compile_definitions(${MOD} PRIVATE U_COMPILE)
 
     if (MSVC)
       target_compile_options(${MOD}
@@ -83,6 +88,7 @@ macro (add_module MOD TYPE)
 
     add_executable(${MOD} ${${MOD}_SRCS})
     target_include_directories(${MOD} PUBLIC ${guts_INC_DIR})
+    target_compile_definitions(${MOD} PRIVATE U_COMPILE)
 
     if (MSVC)
       target_compile_options(${MOD}
