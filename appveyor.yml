@@ -30,10 +30,10 @@ build:
 
 before_build:
   - ps: |
-    Write-Output "Configuration: $env:CONFIGURATION"
-    Write-Output "Platform: $env:PLATFORM"
-    $generator = $env:MSVC
-    if ($env:PLATFORM -eq "x64") {
+    Write-Output "Configuration: %configuration%"
+    Write-Output "Platform: %platform%"
+    $generator = %msvc%
+    if (%platform% -eq "x64") {
       $generator = "$generator Win64"
     }
 
@@ -41,11 +41,11 @@ before_build:
   - ps: |
     md build -Force | Out-Null
     cd build
-    & cmake -G "$generator%" -DCMAKE_BUILD_TYPE=%configuration% ..
+    & cmake -G "$generator" -DCMAKE_BUILD_TYPE=%configuration% ..
     if ($LastExitCode -ne 0) {
       throw "Exec: $ErrorMessage"
     }
-    & cmake --build . --config $env:CONFIGURATION
+    & cmake --build . --config %configuration%
     if ($LastExitCode -ne 0) {
       throw "Exec: $ErrorMessage"
     }
@@ -53,7 +53,7 @@ before_build:
 
 test_script:
   - ps: |
-    & ctest -C $env:CONFIGURATION --output-on-failure
+    & ctest -C %configuration% --output-on-failure
     if ($LastExitCode -ne 0) {
         throw "Exec: $ErrorMessage"
     }
