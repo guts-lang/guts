@@ -4,11 +4,11 @@ os: Visual Studio 2015
 
 environment:
   matrix:
-    - Toolset: v140
-    - Toolset: v120
-    - Toolset: v110
-    - Toolset: v100
-    - Toolset: v90
+    - msvc: Visual Studio 14 2015
+    - msvc: Visual Studio 12 2013
+    - msvc: Visual Studio 11 2012
+    - msvc: Visual Studio 10 2010
+    - msvc: Visual Studio 9 2008
 
 platform:
   - Win32
@@ -20,9 +20,9 @@ configuration:
 
 matrix:
   exclude:
-    - Toolset: v90
+    - msvc: Visual Studio 10 2010
       platform: x64
-    - Toolset: v100
+    - msvc: Visual Studio 9 2008
       platform: x64
 
 build:
@@ -32,13 +32,7 @@ before_build:
   - ps: |
     Write-Output "Configuration: $env:CONFIGURATION"
     Write-Output "Platform: $env:PLATFORM"
-    $generator = switch ($env:TOOLSET) {
-      "v140" {"Visual Studio 14 2015"}
-      "v120" {"Visual Studio 12 2013"}
-      "v110" {"Visual Studio 11 2012"}
-      "v100" {"Visual Studio 10 2010"}
-      "v90" {"Visual Studio 9 2008"}
-    }
+    $generator = $env:MSVC
     if ($env:PLATFORM -eq "x64") {
       $generator = "$generator Win64"
     }
