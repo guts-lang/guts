@@ -60,5 +60,8 @@ if (NOT COMMAND load_llvm)
       INTERFACE ${LLVM_INCLUDE_DIRS} ${CLANG_INCLUDE_DIRS})
     target_compile_definitions(llvm
       INTERFACE ${LLVM_DEFINITIONS} ${CLANG_DEFINITIONS})
+    include(FindPackageHandleStandardArgs)
+    find_package_handle_standard_args(LLVM DEFAULT_MSG LLVM_DIR)
+    find_package_handle_standard_args(CLANG DEFAULT_MSG CLANG_DIR)
   endmacro ()
 endif ()
