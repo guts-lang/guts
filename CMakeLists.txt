@@ -9,9 +9,12 @@ set(BUILD_SHARED_LIBS OFF)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 include(CMakeParseArguments)
-include(LoadLLVM)
 
-load_llvm()
+find_package(llvm)
+include_directories(${LLVM_INCLUDE_DIRS})
+
+find_package(clang)
+include_directories(${CLANG_INCLUDE_DIRS})
 
 set(guts_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
 set(guts_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
