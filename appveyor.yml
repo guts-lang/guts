@@ -29,31 +29,11 @@ build:
   verbosity: minimal
 
 before_build:
-  - ps: |
-    Write-Output "Configuration: %configuration%"
-    Write-Output "Platform: %platform%"
-    $generator = %msvc%
-    if (%platform% -eq "x64") {
-      $generator = "$generator Win64"
-    }
-
-before_build:
-  - ps: |
-    md build -Force | Out-Null
-    cd build
-    & cmake -G "$generator" -DCMAKE_BUILD_TYPE=%configuration% ..
-    if ($LastExitCode -ne 0) {
-      throw "Exec: $ErrorMessage"
-    }
-    & cmake --build . --config %configuration%
-    if ($LastExitCode -ne 0) {
-      throw "Exec: $ErrorMessage"
-    }
-
+  - cmd: md build
+  - cmd: cd build
+  - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=%msvc%
+  - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=%msvc% Win64
+  - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% ..
 
 test_script:
-  - ps: |
-    & ctest -C %configuration% --output-on-failure
-    if ($LastExitCode -ne 0) {
-        throw "Exec: $ErrorMessage"
-    }
+  - cmd: ctest -VV
