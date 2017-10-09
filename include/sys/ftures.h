@@ -537,6 +537,8 @@
 #   define __HAS_FEATURE_dirent_h 0
 # endif
 # if __has_include(<fcntl.h>) || \
+     defined STD_POSIX || \
+     defined STD_XOPEN || \
      (defined CC_MSVC && VERNO_GE(CC_MSVC, 15, 0))
 #   define __HAS_FEATURE_fcntl_h 1
 # else
