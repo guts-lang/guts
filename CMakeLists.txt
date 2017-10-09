@@ -65,7 +65,7 @@ macro (add_module MOD TYPE)
         INTERFACE /O$<$<CONFIG:Debug>:d>$<$<CONFIG:Release>:x>)
     else ()
       target_compile_options(${MOD}
-        INTERFACE -Wall -Werror -Wextra -fomit-frame-pointer -ansi -pedantic
+        INTERFACE -Wall -Werror -Wextra -fomit-frame-pointer -ansi
         INTERFACE -Wno-missing-field-initializers -Wno-missing-braces
         INTERFACE -O$<$<CONFIG:Debug>:0 -g3>$<$<CONFIG:Release>:3>)
     endif ()
@@ -90,7 +90,7 @@ macro (add_module MOD TYPE)
         PUBLIC /O$<$<CONFIG:Debug>:d>$<$<CONFIG:Release>:x>)
     else ()
       target_compile_options(${MOD}
-        PUBLIC -Wall -Werror -Wextra -fomit-frame-pointer -ansi -pedantic
+        PUBLIC -Wall -Werror -Wextra -fomit-frame-pointer -ansi
         PUBLIC -Wno-missing-field-initializers -Wno-missing-braces
         PUBLIC -O$<$<CONFIG:Debug>:0 -g3>$<$<CONFIG:Release>:3>)
     endif ()
@@ -112,7 +112,7 @@ macro (add_module MOD TYPE)
         PRIVATE /O$<$<CONFIG:Debug>:d>$<$<CONFIG:Release>:x>)
     else ()
       target_compile_options(${MOD}
-        PRIVATE -Wall -Werror -Wextra -fomit-frame-pointer -ansi -pedantic
+        PRIVATE -Wall -Werror -Wextra -fomit-frame-pointer -ansi
         PRIVATE -Wno-missing-field-initializers -Wno-missing-braces
         PRIVATE -O$<$<CONFIG:Debug>:0 -g3>$<$<CONFIG:Release>:3>)
     endif ()
