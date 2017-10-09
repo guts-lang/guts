@@ -37,7 +37,7 @@
 #define VERSION_C99 199901L
 #define VERSION_C11 201112L
 
-#if defined(__STDC_VERSION__)
+#if defined __STDC_VERSION__
 # if (__STDC_VERSION__ - 0 > 1)
 #   define STD_C __STDC_VERSION__
 # else
@@ -48,9 +48,9 @@
 #   endif
 # endif
 #else
-# if defined(__STDC__) \
-  || defined(CC_MSVC) \
-  || defined(CC_BORLAND)
+# if defined __STDC__ \
+  || defined CC_MSVC \
+  || defined CC_BORLAND
 #   define STD_C VERSION_C89
 # endif
 #endif
@@ -73,7 +73,7 @@
 
 #define VERSION_CXX98 199711L
 
-#if defined(__cplusplus)
+#if defined __cplusplus
 # if __cplusplus - 0 == 1
 #   define STD_CXX VERSION_CXX98
 # else
@@ -85,7 +85,7 @@
 # define STD_CXX98
 #endif
 
-#if defined(OS_UNIX)
+#if defined OS_UNIX
 # include <unistd.h>
 #endif
 
@@ -110,7 +110,7 @@
 #if _POSIX_VERSION - 0 >= VERSION_POSIX_2001
 # define STD_POSIX_2001
 #endif
-#if defined(_POSIX_VERSION)
+#if defined _POSIX_VERSION
 # define STD_POSIX _POSIX_VERSION
 #endif
 
@@ -120,14 +120,14 @@
 #define VERSION_XOPEN_1998 500
 #define VERSION_XOPEN_2003 600
 
-#if (_XOPEN_VERSION - 0 >= 3) || defined(_XOPEN_XPG3)
+#if (_XOPEN_VERSION - 0 >= 3) || defined _XOPEN_XPG3
 # define STD_XOPEN_1989
 #endif
-#if (_XOPEN_VERSION - 0 >= 4) || defined(_XOPEN_XPG4)
+#if (_XOPEN_VERSION - 0 >= 4) || defined _XOPEN_XPG4
 # define STD_XOPEN_1992
 #endif
 #if (_XOPEN_VERSION - 0 > 4) || \
-    (defined(_XOPEN_UNIX) && (_XOPEN_VERSION - 0 == 4))
+    (defined _XOPEN_UNIX && (_XOPEN_VERSION - 0 == 4))
 # define STD_XOPEN_1995
 #endif
 #if (_XOPEN_VERSION - 0 >= VERSION_XOPEN_1998)
@@ -137,16 +137,16 @@
 # define STD_XOPEN_2003
 #endif
 
-#if defined(STD_XOPEN_1998)
+#if defined STD_XOPEN_1998
 # define STD_XOPEN _XOPEN_VERSION
 #else
-# if defined(STD_XOPEN_1995)
+# if defined STD_XOPEN_1995
 #   define STD_XOPEN VERSION_XOPEN_1995
 # else
-#   if defined(STD_XOPEN_1992)
+#   if defined STD_XOPEN_1992
 #     define STD_XOPEN VERSION_XOPEN_1992
 #   else
-#     if defined(STD_XOPEN_1989)
+#     if defined STD_XOPEN_1989
 #       define STD_XOPEN VERSION_XOPEN_1989
 #     endif
 #   endif

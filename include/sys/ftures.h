@@ -396,11 +396,11 @@
      (defined CC_DMC) || \
      ( \
       defined CC_MSVC && ( \
-        defined(_M_IX86) || \
-        defined(_M_IA64) || \
-        defined(_M_AMD64) || \
-        defined(_M_ARM) || \
-        defined(_M_ARM64) \
+        defined _M_IX86 || \
+        defined _M_IA64 || \
+        defined _M_AMD64 || \
+        defined _M_ARM || \
+        defined _M_ARM64 \
       ) \
     )
 #   define __HAS_DECLSPEC_ATTRIBUTE_dllimport 1

@@ -43,11 +43,11 @@
 # endif
 #endif
 
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#if defined __MINGW32__ || defined __MINGW64__
 # include <_mingw.h>
-# if defined(__MINGW64_VERSION_MAJOR) && defined(__MINGW64_VERSION_MINOR)
+# if defined __MINGW64_VERSION_MAJOR && defined __MINGW64_VERSION_MINOR
 #   define PLAT_MINGW VERNO(__MINGW64_VERSION_MAJOR, __MINGW64_VERSION_MINOR, 0)
-# elif defined(__MINGW32_VERSION_MAJOR) && defined(__MINGW32_VERSION_MINOR)
+# elif defined __MINGW32_VERSION_MAJOR && defined __MINGW32_VERSION_MINOR
 #   define PLAT_MINGW VERNO(__MINGW32_MAJOR_VERSION, __MINGW32_MINOR_VERSION, 0)
 # else
 #   define PLAT_MINGW 0
@@ -55,17 +55,17 @@
 #endif
 
 #if defined OS_WIN && \
-    defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP)
+    defined WINAPI_FAMILY && (WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP)
 # define PLAT_WIN_DESKTOP 0
 #endif
 
 #if defined OS_WIN && \
-    defined(WINAPI_FAMILY) && WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP
+    defined WINAPI_FAMILY && WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP
 # define PLAT_WIN_PHONE 0
 #endif
 
 #if defined OS_WIN && \
-    defined(WINAPI_FAMILY) && WINAPI_FAMILY == WINAPI_FAMILY_APP
+    defined WINAPI_FAMILY && WINAPI_FAMILY == WINAPI_FAMILY_APP
 # define PLAT_WIN_STORE 0
 #endif
 

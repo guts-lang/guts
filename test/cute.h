@@ -30,10 +30,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if defined(_MSC_VER) || defined(__ICL) || defined(__ICC) || defined(__INTEL_COMPILER)
+#if defined _MSC_VER || defined __ICL || defined __ICC || defined __INTEL_COMPILER
 # define CUTE_FORCEINLINE __forceinline
 # define CUTE_CONSTCALL
-#elif defined(__GNUC__) || defined(__clang__)
+#elif defined __GNUC__ || defined __clang__
 # define CUTE_FORCEINLINE inline __attribute__((__always_inline__))
 # define CUTE_CONSTCALL __attribute__((__const__))
 #else
@@ -41,15 +41,15 @@
 # define CUTE_CONSTCALL
 #endif
 
-#if defined(__GNUC__) || defined(__clang__)
+#if defined __GNUC__ || defined __clang__
 # define CUTE_UNUSED __attribute__((unused))
-#elif defined(__LCLINT__)
+#elif defined __LCLINT__
 # define CUTE_UNUSED /*@unused@*/
 #else
 # define CUTE_UNUSED
 #endif
 
-#if defined(_WIN32) || defined(__WIN32__) || defined(_WIN64)
+#if defined _WIN32 || defined __WIN32__ || defined _WIN64
 # define RESET
 # define RED
 # define GREEN

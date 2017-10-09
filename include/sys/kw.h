@@ -32,7 +32,7 @@
 #include "ftures.h"
 
 
-#if defined(__STDC__) || defined(__cplusplus)
+#if defined __STDC__ || defined __cplusplus
 # if !defined __const
 #   define __const const
 # endif
@@ -54,7 +54,7 @@
 #     endif
 #   endif
 # endif
-# if defined(__cplusplus)
+# if defined __cplusplus
 #   if !defined __inline
 #     define __inline inline
 #   endif
