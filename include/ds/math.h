@@ -37,7 +37,7 @@
 #define ISPOW2(n) (((n) != 0) && (((n) & (~(n) + 1)) == (n)))
 #endif
 
-static inline PURE CONST u8_t
+static PURE CONST FORCEINLINE u8_t
 pow2_next8(u8_t n) {
   u32_t j;
   u32_t i;
@@ -57,7 +57,7 @@ pow2_next8(u8_t n) {
   return (i > U8_MAX || i < (u32_t) n) ? (u8_t) U8_MAX : (u8_t) i;
 }
 
-static inline PURE CONST u16_t
+static PURE CONST FORCEINLINE u16_t
 pow2_next16(u16_t n) {
   u32_t j;
   u32_t i;
@@ -77,7 +77,7 @@ pow2_next16(u16_t n) {
   return (i > U16_MAX || i < (u32_t) n) ? (u16_t) U16_MAX : (u16_t) i;
 }
 
-static inline PURE CONST u32_t
+static PURE CONST FORCEINLINE u32_t
 pow2_next32(u32_t n) {
   u32_t j;
 
@@ -95,7 +95,7 @@ pow2_next32(u32_t n) {
   return (j < n) ? (u32_t) U32_MAX : j;
 }
 
-static inline PURE CONST u64_t
+static PURE CONST FORCEINLINE u64_t
 pow2_next64(u64_t n) {
   u64_t j;
 

@@ -40,7 +40,7 @@
 #define i64hash(key) ((u32_t)(((key)>>33^(key)^(key)<<11)))
 #define u64hash(key) ((u32_t)(((key)>>33^(key)^(key)<<11)))
 
-static inline PURE CONST u32_t
+static PURE CONST FORCEINLINE u32_t
 strhash(__const char_t *s) {
   u32_t h = (u32_t) *s;
   if (h) for (++s; *s; ++s) h = (h << 5) - h + (u32_t) *s;
