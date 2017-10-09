@@ -80,7 +80,11 @@ fs_file_open(fs_file_t *__restrict self, char_t __const *filename,
   if (uflags & FS_OPEN_TRUNC) flags |= O_TRUNC;
   modes = 0;
 #ifdef OS_UNIX
+# ifdef O_DIRECT
   if (uflags & FS_OPEN_DIRECT) flags |= O_DIRECT;
+# else
+  if (uflags & FS_OPEN_DIRECT) flags |= 0x80000;
+# endif
   flags |= O_NONBLOCK;
   if (uflags & FS_OPEN_CREAT) {
     modes = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;

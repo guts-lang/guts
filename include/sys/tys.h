@@ -54,7 +54,7 @@ typedef float f32_t;
 typedef double f64_t;
 
 #if defined OS_WIN
-# if CPU_64
+# if CPU_64 && !defined _WIN32 && !defined WIN32
 typedef i64_t isize_t;
 # else
 typedef i32_t isize_t;
