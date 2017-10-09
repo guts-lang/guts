@@ -518,7 +518,7 @@
 # if __has_include(<complex.h>) || \
      defined STD_C99 || \
      __has_feature__(c_complex) || \
-     (defined CC_MSVC && VERNO_GE(CC_MSVC, 17, 0))
+     (defined CC_MSVC && VERNO_GE(CC_MSVC, 18, 0))
 #   define __HAS_FEATURE_complex_h 1
 # else
 #   define __HAS_FEATURE_complex_h 0
