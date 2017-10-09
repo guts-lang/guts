@@ -83,7 +83,7 @@
 # include <dirent.h>
 #endif
 
-#if defined STD_POSIX || __has_feature__(fcntl_h)
+#if (defined STD_POSIX || defined STD_XOPEN) || __has_feature__(fcntl_h)
 # include <fcntl.h>
 #endif
 
@@ -107,7 +107,7 @@
 # include <io.h>
 #endif
 
-#if defined STD_POSIX || __has_feature__(iso646_h)
+#if (defined STD_POSIX || defined STD_XOPEN) || __has_feature__(iso646_h)
 # include <iso646.h>
 #endif
 
@@ -145,11 +145,11 @@
 # include <stdnoreturn.h>
 #endif
 
-#if defined STD_POSIX || __has_feature__(sys_stat_h)
+#if (defined STD_POSIX || defined STD_XOPEN) || __has_feature__(sys_stat_h)
 # include <sys/stat.h>
 #endif
 
-#if defined STD_POSIX || __has_feature__(sys_types_h)
+#if (defined STD_POSIX || defined STD_XOPEN) || __has_feature__(sys_types_h)
 # include <sys/types.h>
 #endif
 
@@ -165,7 +165,7 @@
 # include <uchar.h>
 #endif
 
-#if defined STD_POSIX || __has_feature__(unistd_h)
+#if (defined STD_POSIX || defined STD_XOPEN) || __has_feature__(unistd_h)
 # include <unistd.h>
 #endif
 
