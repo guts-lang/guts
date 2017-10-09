@@ -38,7 +38,6 @@ macro (add_module MOD TYPE)
     set(MOD_DIR ${MOD})
   endif ()
   project(${MOD} C)
-  set(CMAKE_C_STANDARD 99)
   set(EXT c)
   if (PA_UNPARSED_ARGUMENTS)
     message(STATUS
@@ -78,6 +77,7 @@ macro (add_module MOD TYPE)
     set(${MOD}_HDR ${guts_INC_DIR}/${MOD_DIR}.h)
 
     add_library(${MOD} ${${MOD}_SRCS} ${${MOD}_HDRS} ${${MOD}_HDR})
+    set_property(TARGET ${MOD} PROPERTY C_STANDARD 90)
     target_include_directories(${MOD} PUBLIC ${guts_INC_DIR})
     target_compile_definitions(${MOD} PRIVATE U_COMPILE)
 
@@ -101,6 +101,7 @@ macro (add_module MOD TYPE)
       ${guts_SRC_DIR}/${MOD_DIR}/*.${EXT})
 
     add_executable(${MOD} ${${MOD}_SRCS})
+    set_property(TARGET ${MOD} PROPERTY C_STANDARD 90)
     target_include_directories(${MOD} PUBLIC ${guts_INC_DIR})
     target_compile_definitions(${MOD} PRIVATE U_COMPILE)
 
@@ -138,6 +139,7 @@ macro (add_module MOD TYPE)
     foreach (${MOD}_TEST_SRC ${${MOD}_TEST_SRCS})
       get_filename_component(${MOD}_TEST_NAME ${${MOD}_TEST_SRC} NAME_WE)
       add_executable(test_${MOD}_${${MOD}_TEST_NAME} ${${MOD}_TEST_SRC})
+      set_property(TARGET test_${MOD}_${${MOD}_TEST_NAME} PROPERTY C_STANDARD 90)
       add_dependencies(test_${MOD}_${${MOD}_TEST_NAME} ${MOD})
       add_dependencies(check test_${MOD}_${${MOD}_TEST_NAME})
       target_include_directories(test_${MOD}_${${MOD}_TEST_NAME} PUBLIC

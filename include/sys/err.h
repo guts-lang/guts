@@ -131,11 +131,9 @@ struct err_stack {
 __extern_c__
 static FORCEINLINE void
 err_stack_ctor(err_stack_t *__restrict self) {
-  *self = (err_stack_t) {
-    .cap = 0,
-    .len = 0,
-    .buf = nil
-  };
+  self->buf = nil;
+  self->cap = 0;
+  self->len = 0;
 }
 
 __extern_c__

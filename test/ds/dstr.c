@@ -216,19 +216,25 @@ CUTEST(dstr, push) {
   return CUTE_SUCCESS;
 }
 
+static char_t vchar0[1] = {0};
+static char_t vchar40[2] = {4, 0};
+static char_t vchar430[3] = {4, 3, 0};
+static char_t vchar4320[4] = {4, 3, 2, 0};
+static char_t vchar43210[5] = {4, 3, 2, 1, 0};
+
 CUTEST(dstr, append) {
-  ASSERT_EQ(RET_SUCCESS, dstr8_append(&self->dstr8, vec (char_t, 0)));
+  ASSERT_EQ(RET_SUCCESS, dstr8_append(&self->dstr8, vchar0));
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_EQ(nil, self->dstr8.buf);
-  ASSERT_EQ(RET_SUCCESS, dstr8_append(&self->dstr8, vec (char_t, 4, 0)));
+  ASSERT_EQ(RET_SUCCESS, dstr8_append(&self->dstr8, vchar40));
   ASSERT_EQ(1, dstr8_size(&self->dstr8));
   ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(RET_SUCCESS, dstr8_append(&self->dstr8, vec (char_t, 4, 3, 0)));
+  ASSERT_EQ(RET_SUCCESS, dstr8_append(&self->dstr8, vchar430));
   ASSERT_EQ(3, dstr8_size(&self->dstr8));
   ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
   ASSERT_EQ(4, dstr8_at(&self->dstr8, 1));
   ASSERT_EQ(3, dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ(RET_SUCCESS, dstr8_append(&self->dstr8, vec (char_t, 4, 3, 2, 0)));
+  ASSERT_EQ(RET_SUCCESS, dstr8_append(&self->dstr8, vchar4320));
   ASSERT_EQ(6, dstr8_size(&self->dstr8));
   ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
   ASSERT_EQ(4, dstr8_at(&self->dstr8, 1));
@@ -237,7 +243,7 @@ CUTEST(dstr, append) {
   ASSERT_EQ(3, dstr8_at(&self->dstr8, 4));
   ASSERT_EQ(2, dstr8_at(&self->dstr8, 5));
   ASSERT_EQ(RET_SUCCESS,
-    dstr8_append(&self->dstr8, vec (char_t, 4, 3, 2, 1, 0))
+    dstr8_append(&self->dstr8, vchar43210)
   );
   ASSERT_EQ(10, dstr8_size(&self->dstr8));
   ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
@@ -251,7 +257,7 @@ CUTEST(dstr, append) {
   ASSERT_EQ(2, dstr8_at(&self->dstr8, 8));
   ASSERT_EQ(1, dstr8_at(&self->dstr8, 9));
   ASSERT_EQ(RET_ERRNO,
-    dstr8_nomem_append(&self->dstr8_nomem, vec (char_t, 4, 0))
+    dstr8_nomem_append(&self->dstr8_nomem, vchar40)
   );
   return CUTE_SUCCESS;
 }
@@ -260,7 +266,7 @@ CUTEST(dstr, pop) {
   char_t i;
 
   ASSERT_EQ(RET_SUCCESS,
-    dstr8_append(&self->dstr8, vec (char_t, 4, 3, 2, 1, 0))
+    dstr8_append(&self->dstr8, vchar43210)
   );
   ASSERT_EQ(4, dstr8_size(&self->dstr8));
   ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
@@ -303,18 +309,18 @@ CUTEST(dstr, unshift) {
 }
 
 CUTEST(dstr, prepend) {
-  ASSERT_EQ(RET_SUCCESS, dstr8_prepend(&self->dstr8, vec (char_t, 0)));
+  ASSERT_EQ(RET_SUCCESS, dstr8_prepend(&self->dstr8, vchar0));
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_EQ(nil, self->dstr8.buf);
-  ASSERT_EQ(RET_SUCCESS, dstr8_prepend(&self->dstr8, vec (char_t, 4, 0)));
+  ASSERT_EQ(RET_SUCCESS, dstr8_prepend(&self->dstr8, vchar40));
   ASSERT_EQ(1, dstr8_size(&self->dstr8));
   ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(RET_SUCCESS, dstr8_prepend(&self->dstr8, vec (char_t, 4, 3, 0)));
+  ASSERT_EQ(RET_SUCCESS, dstr8_prepend(&self->dstr8, vchar430));
   ASSERT_EQ(3, dstr8_size(&self->dstr8));
   ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
   ASSERT_EQ(3, dstr8_at(&self->dstr8, 1));
   ASSERT_EQ(4, dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ(RET_SUCCESS, dstr8_prepend(&self->dstr8, vec (char_t, 4, 3, 2, 0)));
+  ASSERT_EQ(RET_SUCCESS, dstr8_prepend(&self->dstr8, vchar4320));
   ASSERT_EQ(6, dstr8_size(&self->dstr8));
   ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
   ASSERT_EQ(3, dstr8_at(&self->dstr8, 1));
@@ -323,7 +329,7 @@ CUTEST(dstr, prepend) {
   ASSERT_EQ(3, dstr8_at(&self->dstr8, 4));
   ASSERT_EQ(4, dstr8_at(&self->dstr8, 5));
   ASSERT_EQ(RET_SUCCESS,
-    dstr8_prepend(&self->dstr8, vec (char_t, 4, 3, 2, 1, 0))
+    dstr8_prepend(&self->dstr8, vchar43210)
   );
   ASSERT_EQ(10, dstr8_size(&self->dstr8));
   ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
@@ -337,7 +343,7 @@ CUTEST(dstr, prepend) {
   ASSERT_EQ(3, dstr8_at(&self->dstr8, 8));
   ASSERT_EQ(4, dstr8_at(&self->dstr8, 9));
   ASSERT_EQ(RET_ERRNO,
-    dstr8_nomem_prepend(&self->dstr8_nomem, vec (char_t, 4, 3, 2, 1, 0))
+    dstr8_nomem_prepend(&self->dstr8_nomem, vchar43210)
   );
   return CUTE_SUCCESS;
 }
@@ -346,7 +352,7 @@ CUTEST(dstr, shift) {
   char_t i;
 
   ASSERT_EQ(RET_SUCCESS,
-    dstr8_append(&self->dstr8, vec (char_t, 4, 3, 2, 1, 0))
+    dstr8_append(&self->dstr8, vchar43210)
   );
   ASSERT_EQ(4, dstr8_size(&self->dstr8));
   ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
@@ -376,10 +382,11 @@ CUTEST(dstr, shift) {
 
 CUTEST(dstr, remove) {
   char_t i;
+  char_t vchar[5] = {5, 1, 2, 3, 0};
 
   ASSERT_EQ(false, dstr8_remove(&self->dstr8, 0, nil));
   ASSERT_EQ(RET_SUCCESS,
-    dstr8_append(&self->dstr8, vec (char_t, 5, 1, 2, 3, 0))
+    dstr8_append(&self->dstr8, vchar)
   );
   ASSERT_EQ(false, dstr8_remove(&self->dstr8, 4, nil));
   ASSERT_EQ(true, dstr8_remove(&self->dstr8, 2, nil));
@@ -405,11 +412,12 @@ CUTEST(dstr, remove) {
 
 CUTEST(dstr, removen) {
   char_t buf[2], *ptr;
+  char_t vchar[7] = {7, 1, 2, 3, 5, 6, 0};
 
   ptr = buf;
   ASSERT_EQ(false, dstr8_removen(&self->dstr8, 0, 0, nil));
   ASSERT_EQ(RET_SUCCESS,
-    dstr8_append(&self->dstr8, vec (char_t, 7, 1, 2, 3, 5, 6, 0))
+    dstr8_append(&self->dstr8, vchar)
   );
   ASSERT_EQ(false, dstr8_removen(&self->dstr8, 6, 0, nil));
   ASSERT_EQ(true, dstr8_removen(&self->dstr8, 2, 2, nil));
@@ -436,9 +444,11 @@ CUTEST(dstr, removen) {
 }
 
 CUTEST(dstr, erase) {
+  char_t vchar[8] = {1, 2, 1, 2, 3, 3, 2, 0};
+
   ASSERT_EQ(0, dstr8_erase(&self->dstr8, 0));
   ASSERT_EQ(RET_SUCCESS,
-    dstr8_append(&self->dstr8, vec (char_t, 1, 2, 1, 2, 3, 3, 2, 0))
+    dstr8_append(&self->dstr8, vchar)
   );
   ASSERT_EQ(2, dstr8_erase(&self->dstr8, 1));
   ASSERT_EQ(5, dstr8_size(&self->dstr8));
@@ -458,9 +468,11 @@ CUTEST(dstr, erase) {
 }
 
 CUTEST(dstr, erasen) {
+  char_t vchar[8] = {1, 2, 1, 2, 3, 3, 2, 0};
+
   ASSERT_EQ(0, dstr8_erasen(&self->dstr8, 0, 1));
   ASSERT_EQ(RET_SUCCESS,
-    dstr8_append(&self->dstr8, vec (char_t, 1, 2, 1, 2, 3, 3, 2, 0))
+    dstr8_append(&self->dstr8, vchar)
   );
   ASSERT_EQ(0, dstr8_erasen(&self->dstr8, 1, 0));
   ASSERT_EQ(2, dstr8_erasen(&self->dstr8, 1, 3));
@@ -486,9 +498,11 @@ CUTEST(dstr, erasen) {
 }
 
 CUTEST(dstr, eraseonce) {
+  char_t vchar[8] = {1, 2, 1, 2, 3, 3, 2, 0};
+
   ASSERT_EQ(false, dstr8_eraseonce(&self->dstr8, 0));
   ASSERT_EQ(RET_SUCCESS,
-    dstr8_append(&self->dstr8, vec (char_t, 1, 2, 1, 2, 3, 3, 2, 0))
+    dstr8_append(&self->dstr8, vchar)
   );
   ASSERT_EQ(true, dstr8_eraseonce(&self->dstr8, 1));
   ASSERT_EQ(true, dstr8_eraseonce(&self->dstr8, 1));
@@ -516,10 +530,11 @@ CUTEST(dstr, eraseonce) {
 
 CUTEST(dstr, cpy) {
   dstr8_t src;
+  char_t vchar[8] = {1, 2, 1, 2, 3, 3, 2, 0};
 
   dstr8_ctor(&src);
   ASSERT_EQ(RET_SUCCESS,
-    dstr8_append(&src, vec (char_t, 1, 2, 1, 2, 3, 3, 2, 0))
+    dstr8_append(&src, vchar)
   );
   ASSERT_EQ(RET_SUCCESS, dstr8_cpy(&self->dstr8, &src));
   ASSERT_EQ(7, self->dstr8.len);
@@ -530,10 +545,11 @@ CUTEST(dstr, cpy) {
 
 CUTEST(dstr, ncpy) {
   dstr8_t src;
+  char_t vchar[8] = {7, 1, 2, 3, 4, 5, 6, 0};
 
   dstr8_ctor(&src);
   ASSERT_EQ(RET_SUCCESS,
-    dstr8_append(&src, vec (char_t, 7, 1, 2, 3, 4, 5, 6, 0))
+    dstr8_append(&src, vchar)
   );
   ASSERT_EQ(RET_SUCCESS, dstr8_ncpy(&self->dstr8, &src, 5));
   ASSERT_EQ(5, self->dstr8.len);
@@ -543,19 +559,18 @@ CUTEST(dstr, ncpy) {
 }
 
 CUTEST(dstr, general) {
-  dstr8_t *str;
+  dstr8_t str = {0};
 
-  str = init_ptr (dstr8_t, 0);
-  dstr8_append(str, "Hello world !");
-  ASSERT_EQ(0, strcmp(str->buf, "Hello world !"));
-  ASSERT_EQ(0, strcmp("Hello world !", str->buf));
-  dstr8_emplace(str, 6, "god damn ");
-  ASSERT_EQ(0, strcmp(str->buf, "Hello god damn world !"));
-  ASSERT_EQ(0, strcmp("Hello god damn world !", str->buf));
-  dstr8_prepend(str, "< ");
-  dstr8_append(str, " >");
-  ASSERT_EQ(0, strcmp(str->buf, "< Hello god damn world ! >"));
-  ASSERT_EQ(0, strcmp("< Hello god damn world ! >", str->buf));
+  dstr8_append(&str, "Hello world !");
+  ASSERT_EQ(0, strcmp(str.buf, "Hello world !"));
+  ASSERT_EQ(0, strcmp("Hello world !", str.buf));
+  dstr8_emplace(&str, 6, "god damn ");
+  ASSERT_EQ(0, strcmp(str.buf, "Hello god damn world !"));
+  ASSERT_EQ(0, strcmp("Hello god damn world !", str.buf));
+  dstr8_prepend(&str, "< ");
+  dstr8_append(&str, " >");
+  ASSERT_EQ(0, strcmp(str.buf, "< Hello god damn world ! >"));
+  ASSERT_EQ(0, strcmp("< Hello god damn world ! >", str.buf));
   return CUTE_SUCCESS;
 }
 

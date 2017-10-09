@@ -23,11 +23,11 @@
  * SOFTWARE.
  */
 
-#include "ulex/lexer.h"
+#include "lex/lexer.h"
 
 void
 lex_lexer_ctor(lex_lexer_t *self) {
-  *self = init (lex_lexer_t, true);
+  init(self, lex_lexer_t);
 }
 
 void
@@ -76,25 +76,25 @@ lex_lexer_push(lex_lexer_t *self, lex_tok_t tok) {
 lex_tok_t
 lex_lexer_peek(lex_lexer_t *self) {
   (void) self;
-  return init (lex_tok_t, 0);
+  return lex_toks_at(&self->toks, 0);
 }
 
 lex_tok_t
 lex_lexer_npeek(lex_lexer_t *self, u16_t n) {
   (void) self;
   (void) n;
-  return init (lex_tok_t, 0);
+  return lex_toks_at(&self->toks, 0);
 }
 
 lex_tok_t
 lex_lexer_next(lex_lexer_t *self) {
   (void) self;
-  return init (lex_tok_t, 0);
+  return lex_toks_at(&self->toks, 0);
 }
 
 lex_tok_t
 lex_lexer_consume(lex_lexer_t *self, u32_t kind) {
   (void) self;
   (void) kind;
-  return init (lex_tok_t, 0);
+  return lex_toks_at(&self->toks, 0);
 }

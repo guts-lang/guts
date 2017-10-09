@@ -25,7 +25,7 @@
 
 #include <cute.h>
 
-#include "ulex/lexer.h"
+#include "lex/lexer.h"
 
 CUTEST_DATA {
   i32_t dummy;

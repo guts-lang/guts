@@ -47,7 +47,7 @@
 
 #define SEQ_IMPL_ctor(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_ctor(SCOPE, ID, T, BITS) { \
-    *self = (ID##_t) {.LEN = 0, .BUF = nil}; \
+    init(self, ID##_t); \
   }
 
 #define SEQ_DECL_dtor(SCOPE, ID, T, BITS) \

@@ -41,9 +41,6 @@
 
 #define COUNT_OF(x) (sizeof(x)/sizeof(*(x)))
 
-#define init(T, ...) ((T) {__VA_ARGS__})
-#define init_ptr(T, ...) (&init(T, __VA_ARGS__))
-#define vec(T, ...) ((T[]) {__VA_ARGS__})
-#define array(T, ...) vec(T, __VA_ARGS__), COUNT_OF(vec(T, __VA_ARGS__))
+#define init(ptr, T) memset(ptr, 0, sizeof(T))
 
 #endif /* !__SYS_PP_H */

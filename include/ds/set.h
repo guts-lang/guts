@@ -48,14 +48,7 @@
   typedef setof(TItem) ID##_t; \
   static FORCEINLINE void \
   ID##_ctor(ID##_t *__restrict self) { \
-    *self = (ID##_t) { \
-      .cap = 0, \
-      .len = 0, \
-      .occupieds = 0, \
-      .upper_bound = 0, \
-      .buckets = nil, \
-      .items = nil \
-    }; \
+    init(self, ID##_t); \
   } \
   static FORCEINLINE void \
   ID##_dtor(ID##_t *__restrict self) { \

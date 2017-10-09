@@ -65,10 +65,11 @@ fs_file_opened(__const fs_file_t *__restrict self) {
 ret_t
 fs_file_open(fs_file_t *__restrict self, char_t __const *filename,
   u32_t flags) {
+  u32_t modes, uflags;
+
   if (fs_file_opened(self)) {
     return RET_SUCCESS;
   }
-  u32_t modes, uflags;
 
   uflags = flags;
   flags = 0;

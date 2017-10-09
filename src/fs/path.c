@@ -59,7 +59,9 @@ SEQ_IMPL_cpy_nt(
 
 void
 fs_path_ctor(fs_path_t *__restrict self) {
-  *self = (fs_path_t){0};
+  self->buf = nil;
+  self->cap = 0;
+  self->len = 0;
 }
 
 ret_t
