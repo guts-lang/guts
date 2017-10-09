@@ -120,10 +120,12 @@ enum bucket {
         if (!new_buckets) return RET_ERRNO; \
         memset(new_buckets, 2, ensure); \
         if (self->cap < ensure) {  /* expand */ \
-          TKey *new_keys = (TKey*)REALLOC_FN((void *)self->keys, ensure * sizeof(TKey)); \
+          TKey *new_keys; \
+          TValue *new_vals; \
+          new_keys = (TKey*)REALLOC_FN((void *)self->keys, ensure * sizeof(TKey)); \
           if (!new_keys) { FREE_FN(new_buckets); return RET_ERRNO; } \
           self->keys = new_keys; \
-          TValue *new_vals = (TValue*)REALLOC_FN((void *)self->vals, ensure * sizeof(TValue)); \
+          new_vals = (TValue*)REALLOC_FN((void *)self->vals, ensure * sizeof(TValue)); \
           if (!new_vals) { FREE_FN(new_buckets); return RET_ERRNO; } \
           self->vals = new_vals; \
         } /* otherwise shrink */ \
