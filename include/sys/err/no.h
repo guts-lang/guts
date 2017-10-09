@@ -72,6 +72,6 @@ enum errno_wrap {
   ERRNO_USR = ERRNO_NOTEMPTY + 1
 };
 
-typedef enum errno_wrap errno_t;
+typedef enum errno_wrap err_no_t;
 
 #endif /* !__SYS_ERR_NO_H */

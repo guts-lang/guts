@@ -41,7 +41,7 @@ struct err {
   errlvl_t lvl;
   char_t __const *fn, *file;
   u32_t line;
-  errno_t code;
+  err_no_t code;
   char_t msg[U8_MAX];
   i32_t col;
 };
@@ -49,7 +49,7 @@ struct err {
 __extern_c__
 static FORCEINLINE UNUSED err_t *
 __err(err_t * self,
-  errlvl_t lvl, char_t __const *fn, char_t __const *file, u32_t line, errno_t no) {
+  errlvl_t lvl, char_t __const *fn, char_t __const *file, u32_t line, err_no_t no) {
   self->lvl = lvl;
   self->fn = fn;
   self->file = file;
