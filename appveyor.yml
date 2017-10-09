@@ -14,7 +14,7 @@ environment:
       msvc: Visual Studio 15 2017
 
 platform:
-  - x86
+  - Win32
   - x64
 
 configuration:
@@ -32,7 +32,7 @@ build:
 before_build:
   - cmd: md build
   - cmd: cd build
-  - cmd: if "%platform%"=="x86" set CMAKE_GENERATOR_NAME=%msvc%
+  - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=%msvc%
   - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=%msvc% Win64
   - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% ..
 
