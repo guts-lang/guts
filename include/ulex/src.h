@@ -29,7 +29,7 @@
 #ifndef __ULEX_SRC_H
 # define __ULEX_SRC_H
 
-#include <ufs/stream.h>
+#include <fs/stream.h>
 
 #include "loc.h"
 

@@ -23,42 +23,47 @@
  * SOFTWARE.
  */
 
-/*!@file ulex/tok.h
+/*!@file lex/val.h
  * @author uael
  */
-#ifndef __ULEX_TOK_H
-# define __ULEX_TOK_H
+#ifndef __LEX_VAL_H
+# define __LEX_VAL_H
 
-#include <ds/deq.h>
+#include <ds/dstr.h>
 
-#include "loc.h"
-#include "src.h"
-#include "val.h"
-
-enum lex_tok_type {
-  LEX_TOK_NONE = 0,
-  LEX_TOK_PONCTUATION,
-  LEX_TOK_OPERATOR,
-  LEX_TOK_KEYWORD,
-  LEX_TOK_VALUE
+enum lex_val_kind {
+  LEX_VAL_NULL,
+  LEX_VAL_STR,
+  LEX_VAL_I8,
+  LEX_VAL_I16,
+  LEX_VAL_I32,
+  LEX_VAL_I64,
+  LEX_VAL_U8,
+  LEX_VAL_U16,
+  LEX_VAL_U32,
+  LEX_VAL_U64,
+  LEX_VAL_F32,
+  LEX_VAL_F64
 };
 
-typedef enum lex_tok_type lex_tok_type_t;
-typedef struct lex_tok lex_tok_t;
+typedef enum lex_val_kind lex_val_kind_t;
+typedef struct lex_val lex_val_t;
 
-/*!@brief The 32 bytes token structure
- * When type is LEX_TOK_VALUE instead of kind an index to the value on the lexer
- * values cache is provided. The loc struct provide also an index to the related
- * stream.
- */
-struct lex_tok {
-  u8_t type;
-  u16_t lws;
+struct lex_val {
+  lex_val_kind_t kind;
   union {
-    u32_t kind;
-    u32_t val;
-  } cnt;
-  lex_loc_t loc;
+    dstr64_t str;
+    i8_t i8;
+    i16_t i16;
+    i32_t i32;
+    i64_t i64;
+    u8_t u8;
+    u16_t u16;
+    u32_t u32;
+    u64_t u64;
+    f32_t f32;
+    f64_t f64;
+  } val;
 };
 
-#endif /* !__ULEX_TOK_H */
+#endif /* !__LEX_VAL_H */

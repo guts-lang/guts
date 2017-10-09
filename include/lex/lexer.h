@@ -23,11 +23,11 @@
  * SOFTWARE.
  */
 
-/*!@file ulex/lexer.h
+/*!@file lex/lexer.h
  * @author uael
  */
-#ifndef __ULEX_LEXER_H
-# define __ULEX_LEXER_H
+#ifndef __LEX_LEXER_H
+# define __LEX_LEXER_H
 
 #include <ev.h>
 #include <ds/deq.h>
@@ -90,4 +90,4 @@ lex_lexer_next(lex_lexer_t *self);
 __api__ lex_tok_t
 lex_lexer_consume(lex_lexer_t *self, u32_t kind);
 
-#endif /* !__ULEX_VAL_H */
+#endif /* !__LEX_VAL_H */

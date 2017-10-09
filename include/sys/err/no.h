@@ -23,42 +23,57 @@
  * SOFTWARE.
  */
 
-/*!@file ulex/tok.h
+/*!@file sys/err/no.h
  * @author uael
  */
-#ifndef __ULEX_TOK_H
-# define __ULEX_TOK_H
+#ifndef __SYS_ERR_NO_H
+# define __SYS_ERR_NO_H
 
-#include <ds/deq.h>
+#include <errno.h>
 
-#include "loc.h"
-#include "src.h"
-#include "val.h"
-
-enum lex_tok_type {
-  LEX_TOK_NONE = 0,
-  LEX_TOK_PONCTUATION,
-  LEX_TOK_OPERATOR,
-  LEX_TOK_KEYWORD,
-  LEX_TOK_VALUE
+enum errno_wrap {
+  ERRNO_PERM = EPERM,
+  ERRNO_NOENT = ENOENT,
+  ERRNO_SRCH = ESRCH,
+  ERRNO_INTR = EINTR,
+  ERRNO_IO = EIO,
+  ERRNO_NXIO = ENXIO,
+  ERRNO_2BIG = E2BIG,
+  ERRNO_NOEXEC = ENOEXEC,
+  ERRNO_BADF = EBADF,
+  ERRNO_CHILD = ECHILD,
+  ERRNO_AGAIN = EAGAIN,
+  ERRNO_NOMEM = ENOMEM,
+  ERRNO_ACCES = EACCES,
+  ERRNO_FAULT = EFAULT,
+  ERRNO_BUSY = EBUSY,
+  ERRNO_EXIST = EEXIST,
+  ERRNO_XDEV = EXDEV,
+  ERRNO_NODEV = ENODEV,
+  ERRNO_NOTDIR = ENOTDIR,
+  ERRNO_ISDIR = EISDIR,
+  ERRNO_INVAL = EINVAL,
+  ERRNO_NFILE = ENFILE,
+  ERRNO_MFILE = EMFILE,
+  ERRNO_NOTTY = ENOTTY,
+  ERRNO_FBIG = EFBIG,
+  ERRNO_NOSPC = ENOSPC,
+  ERRNO_SPIPE = ESPIPE,
+  ERRNO_ROFS = EROFS,
+  ERRNO_MLINK = EMLINK,
+  ERRNO_PIPE = EPIPE,
+  ERRNO_DOM = EDOM,
+  ERRNO_RANGE = ERANGE,
+  ERRNO_DEADLK = EDEADLK,
+  ERRNO_DEADLOCK = EDEADLOCK,
+  ERRNO_NAMETOOLONG = ENAMETOOLONG,
+  ERRNO_NOLCK = ENOLCK,
+  ERRNO_NOSYS = ENOSYS,
+  ERRNO_NOTEMPTY = ENOTEMPTY,
+  ERRNO_ILSEQ = EILSEQ,
+  ERRNO_USR = ERRNO_ILSEQ + 1
 };
 
-typedef enum lex_tok_type lex_tok_type_t;
-typedef struct lex_tok lex_tok_t;
+typedef enum errno_wrap errno_t;
 
-/*!@brief The 32 bytes token structure
- * When type is LEX_TOK_VALUE instead of kind an index to the value on the lexer
- * values cache is provided. The loc struct provide also an index to the related
- * stream.
- */
-struct lex_tok {
-  u8_t type;
-  u16_t lws;
-  union {
-    u32_t kind;
-    u32_t val;
-  } cnt;
-  lex_loc_t loc;
-};
-
-#endif /* !__ULEX_TOK_H */
+#endif /* !__SYS_ERR_NO_H */

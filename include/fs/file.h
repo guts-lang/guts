@@ -23,42 +23,53 @@
  * SOFTWARE.
  */
 
-/*!@file ulex/tok.h
+/*!@file fs/file.h
  * @author uael
  */
-#ifndef __ULEX_TOK_H
-# define __ULEX_TOK_H
+#ifndef __FS_FILE_H
+# define __FS_FILE_H
 
-#include <ds/deq.h>
+#include "conf.h"
+#include "op.h"
+#include "mod.h"
 
-#include "loc.h"
-#include "src.h"
-#include "val.h"
+#define FS_FD_DFT (-1)
 
-enum lex_tok_type {
-  LEX_TOK_NONE = 0,
-  LEX_TOK_PONCTUATION,
-  LEX_TOK_OPERATOR,
-  LEX_TOK_KEYWORD,
-  LEX_TOK_VALUE
+enum fs_kind {
+  FS_KIND_DIR,
+  FS_KIND_FILE,
+  FS_FILE_DOT,
+  FS8FILE_DOT2
 };
 
-typedef enum lex_tok_type lex_tok_type_t;
-typedef struct lex_tok lex_tok_t;
+typedef enum fs_kind fs_kind_t;
+typedef i32_t fs_file_t;
 
-/*!@brief The 32 bytes token structure
- * When type is LEX_TOK_VALUE instead of kind an index to the value on the lexer
- * values cache is provided. The loc struct provide also an index to the related
- * stream.
- */
-struct lex_tok {
-  u8_t type;
-  u16_t lws;
-  union {
-    u32_t kind;
-    u32_t val;
-  } cnt;
-  lex_loc_t loc;
-};
+__api__ bool_t
+fs_file_exists(fs_file_t *__restrict self);
 
-#endif /* !__ULEX_TOK_H */
+__api__ bool_t
+fs_file_opened(fs_file_t __const *__restrict self);
+
+__api__ ret_t
+fs_file_open(fs_file_t *__restrict self, char_t __const *filename, u32_t flags);
+
+__api__ ret_t
+fs_file_close(fs_file_t *__restrict self);
+
+__api__ ret_t
+fs_file_read(fs_file_t *__restrict self, char_t *buf, usize_t len,
+  isize_t *out);
+
+__api__ ret_t
+fs_file_write(fs_file_t *__restrict self, char_t __const *buf, usize_t len,
+  isize_t *out);
+
+__api__ ret_t
+fs_file_seek(fs_file_t *__restrict self, isize_t off, fs_seek_mod_t whence,
+  isize_t *out);
+
+__api__ isize_t
+fs_file_offset(fs_file_t *__restrict self);
+
+#endif /* !__FS_FILE_H */

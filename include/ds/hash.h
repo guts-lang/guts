@@ -23,42 +23,28 @@
  * SOFTWARE.
  */
 
-/*!@file ulex/tok.h
+/*!@file ds/err.h
  * @author uael
  */
-#ifndef __ULEX_TOK_H
-# define __ULEX_TOK_H
+#ifndef __DS_HASH_H
+# define __DS_HASH_H
 
-#include <ds/deq.h>
+#include <sys/tys.h>
 
-#include "loc.h"
-#include "src.h"
-#include "val.h"
+#define i8hash(key) ((u32_t)(key))
+#define u8hash(key) ((u32_t)(key))
+#define i16hash(key) ((u32_t)(key))
+#define u16hash(key) ((u32_t)(key))
+#define i32hash(key) ((u32_t)(key))
+#define u32hash(key) ((u32_t)(key))
+#define i64hash(key) ((u32_t)(((key)>>33^(key)^(key)<<11)))
+#define u64hash(key) ((u32_t)(((key)>>33^(key)^(key)<<11)))
 
-enum lex_tok_type {
-  LEX_TOK_NONE = 0,
-  LEX_TOK_PONCTUATION,
-  LEX_TOK_OPERATOR,
-  LEX_TOK_KEYWORD,
-  LEX_TOK_VALUE
-};
+static inline PURE CONST u32_t
+strhash(__const char_t *s) {
+  u32_t h = (u32_t) *s;
+  if (h) for (++s; *s; ++s) h = (h << 5) - h + (u32_t) *s;
+  return h;
+}
 
-typedef enum lex_tok_type lex_tok_type_t;
-typedef struct lex_tok lex_tok_t;
-
-/*!@brief The 32 bytes token structure
- * When type is LEX_TOK_VALUE instead of kind an index to the value on the lexer
- * values cache is provided. The loc struct provide also an index to the related
- * stream.
- */
-struct lex_tok {
-  u8_t type;
-  u16_t lws;
-  union {
-    u32_t kind;
-    u32_t val;
-  } cnt;
-  lex_loc_t loc;
-};
-
-#endif /* !__ULEX_TOK_H */
+#endif /* !__DS_HASH_H */

@@ -23,42 +23,17 @@
  * SOFTWARE.
  */
 
-/*!@file ulex/tok.h
+/*!@file fs.h
  * @author uael
  */
-#ifndef __ULEX_TOK_H
-# define __ULEX_TOK_H
+#ifndef __FS_H
+# define __FS_H
 
-#include <ds/deq.h>
+#include "fs/conf.h"
+#include "fs/file.h"
+#include "fs/mod.h"
+#include "fs/op.h"
+#include "fs/path.h"
+#include "fs/stream.h"
 
-#include "loc.h"
-#include "src.h"
-#include "val.h"
-
-enum lex_tok_type {
-  LEX_TOK_NONE = 0,
-  LEX_TOK_PONCTUATION,
-  LEX_TOK_OPERATOR,
-  LEX_TOK_KEYWORD,
-  LEX_TOK_VALUE
-};
-
-typedef enum lex_tok_type lex_tok_type_t;
-typedef struct lex_tok lex_tok_t;
-
-/*!@brief The 32 bytes token structure
- * When type is LEX_TOK_VALUE instead of kind an index to the value on the lexer
- * values cache is provided. The loc struct provide also an index to the related
- * stream.
- */
-struct lex_tok {
-  u8_t type;
-  u16_t lws;
-  union {
-    u32_t kind;
-    u32_t val;
-  } cnt;
-  lex_loc_t loc;
-};
-
-#endif /* !__ULEX_TOK_H */
+#endif /* !__FS_H */

@@ -29,7 +29,7 @@
 #ifndef __ULEX_LOC_H
 # define __ULEX_LOC_H
 
-#include <uty.h>
+#include <sys/tys.h>
 
 typedef struct lex_loc lex_loc_t;
 

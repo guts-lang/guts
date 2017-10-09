@@ -23,42 +23,30 @@
  * SOFTWARE.
  */
 
-/*!@file ulex/tok.h
+/*!@file fs/mod.h
  * @author uael
  */
-#ifndef __ULEX_TOK_H
-# define __ULEX_TOK_H
+#ifndef __FS_MOD_H
+# define __FS_MOD_H
 
-#include <ds/deq.h>
-
-#include "loc.h"
-#include "src.h"
-#include "val.h"
-
-enum lex_tok_type {
-  LEX_TOK_NONE = 0,
-  LEX_TOK_PONCTUATION,
-  LEX_TOK_OPERATOR,
-  LEX_TOK_KEYWORD,
-  LEX_TOK_VALUE
+enum fs_open_mod {
+  FS_OPEN_RO = 1 << 0,
+  FS_OPEN_WO = 1 << 1,
+  FS_OPEN_RW = 1 << 2,
+  FS_OPEN_CREAT = 1 << 3,
+  FS_OPEN_APPEND = 1 << 4,
+  FS_OPEN_TRUNC = 1 << 5,
+  FS_OPEN_DIRECT = 1 << 6,
+  FS_OPEN_ASIO = 1 << 7
 };
 
-typedef enum lex_tok_type lex_tok_type_t;
-typedef struct lex_tok lex_tok_t;
-
-/*!@brief The 32 bytes token structure
- * When type is LEX_TOK_VALUE instead of kind an index to the value on the lexer
- * values cache is provided. The loc struct provide also an index to the related
- * stream.
- */
-struct lex_tok {
-  u8_t type;
-  u16_t lws;
-  union {
-    u32_t kind;
-    u32_t val;
-  } cnt;
-  lex_loc_t loc;
+enum fs_seek_mod {
+  FS_SEEK_BEG = 0,
+  FS_SEEK_CUR,
+  FS_SEEK_END
 };
 
-#endif /* !__ULEX_TOK_H */
+typedef enum fs_open_mod fs_open_mod_t;
+typedef enum fs_seek_mod fs_seek_mod_t;
+
+#endif /* !__FS_MOD_H */

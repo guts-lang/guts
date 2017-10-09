@@ -23,42 +23,20 @@
  * SOFTWARE.
  */
 
-/*!@file ulex/tok.h
- * @author uael
- */
-#ifndef __ULEX_TOK_H
-# define __ULEX_TOK_H
+#include <sys.h>
 
-#include <ds/deq.h>
+static PURE CONST FORCEINLINE int
+foo(int a, int b) {
+  return a + b;
+}
 
-#include "loc.h"
-#include "src.h"
-#include "val.h"
+NORETURN void
+die(int code) {
+  exit(code);
+}
 
-enum lex_tok_type {
-  LEX_TOK_NONE = 0,
-  LEX_TOK_PONCTUATION,
-  LEX_TOK_OPERATOR,
-  LEX_TOK_KEYWORD,
-  LEX_TOK_VALUE
-};
-
-typedef enum lex_tok_type lex_tok_type_t;
-typedef struct lex_tok lex_tok_t;
-
-/*!@brief The 32 bytes token structure
- * When type is LEX_TOK_VALUE instead of kind an index to the value on the lexer
- * values cache is provided. The loc struct provide also an index to the related
- * stream.
- */
-struct lex_tok {
-  u8_t type;
-  u16_t lws;
-  union {
-    u32_t kind;
-    u32_t val;
-  } cnt;
-  lex_loc_t loc;
-};
-
-#endif /* !__ULEX_TOK_H */
+int main(void) {
+  assert(10200003UL == VERNO(1, 2, 3));
+  assert(5 == foo(2, 3));
+  die(0);
+}

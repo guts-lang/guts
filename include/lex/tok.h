@@ -23,11 +23,11 @@
  * SOFTWARE.
  */
 
-/*!@file ulex/tok.h
+/*!@file lex/tok.h
  * @author uael
  */
-#ifndef __ULEX_TOK_H
-# define __ULEX_TOK_H
+#ifndef __LEX_TOK_H
+# define __LEX_TOK_H
 
 #include <ds/deq.h>
 
@@ -61,4 +61,4 @@ struct lex_tok {
   lex_loc_t loc;
 };
 
-#endif /* !__ULEX_TOK_H */
+#endif /* !__LEX_TOK_H */

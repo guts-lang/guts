@@ -23,42 +23,31 @@
  * SOFTWARE.
  */
 
-/*!@file ulex/tok.h
+/*!@file sys/cpu.h
  * @author uael
  */
-#ifndef __ULEX_TOK_H
-# define __ULEX_TOK_H
+#ifndef __SYS_CPU_H
+# define __SYS_CPU_H
 
-#include <ds/deq.h>
+#if defined __LP64__ || defined __64BIT__ || defined _LP64 \
+  || defined __x86_64 || defined __x86_64__ || defined __amd64 \
+  || defined __amd64__ || defined __arm64 || defined __arm64__ \
+  || defined __sparc64__ || defined __PPC64__ || defined __ppc64__ \
+  || defined __powerpc64__ || defined _M_X64 || defined _M_AMD64 \
+  || defined _M_IA64 || (defined __WORDSIZE && __WORDSIZE == 64)
+# define CPU_SIZE (64)
+# define CPU_BYTE (8)
+# define CPU_ALIGN (7)
+# define CPU_32 (0)
+# define CPU_64 (1)
+# define CPU_SHIFT (6)
+#else
+# define CPU_SIZE (32)
+# define CPU_BYTE (4)
+# define CPU_ALIGN (3)
+# define CPU_32 (1)
+# define CPU_64 (0)
+# define CPU_SHIFT (5)
+#endif
 
-#include "loc.h"
-#include "src.h"
-#include "val.h"
-
-enum lex_tok_type {
-  LEX_TOK_NONE = 0,
-  LEX_TOK_PONCTUATION,
-  LEX_TOK_OPERATOR,
-  LEX_TOK_KEYWORD,
-  LEX_TOK_VALUE
-};
-
-typedef enum lex_tok_type lex_tok_type_t;
-typedef struct lex_tok lex_tok_t;
-
-/*!@brief The 32 bytes token structure
- * When type is LEX_TOK_VALUE instead of kind an index to the value on the lexer
- * values cache is provided. The loc struct provide also an index to the related
- * stream.
- */
-struct lex_tok {
-  u8_t type;
-  u16_t lws;
-  union {
-    u32_t kind;
-    u32_t val;
-  } cnt;
-  lex_loc_t loc;
-};
-
-#endif /* !__ULEX_TOK_H */
+#endif /* !__SYS_CPU_H */

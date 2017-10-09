@@ -23,42 +23,50 @@
  * SOFTWARE.
  */
 
-/*!@file ulex/tok.h
+/*!@file fs/conf.h
  * @author uael
  */
-#ifndef __ULEX_TOK_H
-# define __ULEX_TOK_H
+#ifndef __FS_CONF_H
+# define __FS_CONF_H
 
-#include <ds/deq.h>
+#include <ds.h>
 
-#include "loc.h"
-#include "src.h"
-#include "val.h"
+#ifndef EOL
+# ifdef OS_WIN
+#   define EOL "\r\n"
+# else
+#   define EOL "\n"
+# endif
+#endif
 
-enum lex_tok_type {
-  LEX_TOK_NONE = 0,
-  LEX_TOK_PONCTUATION,
-  LEX_TOK_OPERATOR,
-  LEX_TOK_KEYWORD,
-  LEX_TOK_VALUE
-};
+#ifndef DS
+# if defined OS_WIN || defined OS_OS2
+#   define DS '\\'
+# else
+#   define DS '/'
+# endif
+#endif
 
-typedef enum lex_tok_type lex_tok_type_t;
-typedef struct lex_tok lex_tok_t;
+#if defined PATH_MAX
+# define FS_PATH_MAX PATH_MAX
+#elif defined MAX_PATH
+# define FS_PATH_MAX MAX_PATH
+#elif defined _MAX_PATH
+# define FS_PATH_MAX _MAX_PATH
+#elif defined MAXPATHLEN
+# define FS_PATH_MAX MAXPATHLEN
+#else
+# define FS_PATH_MAX (4096)
+#endif
 
-/*!@brief The 32 bytes token structure
- * When type is LEX_TOK_VALUE instead of kind an index to the value on the lexer
- * values cache is provided. The loc struct provide also an index to the related
- * stream.
- */
-struct lex_tok {
-  u8_t type;
-  u16_t lws;
-  union {
-    u32_t kind;
-    u32_t val;
-  } cnt;
-  lex_loc_t loc;
-};
+#if defined FILENAME_MAX && (FILENAME_MAX <= U8_MAX)
+# define FS_FILENAME_MAX PATH_MAX
+#elif defined NAME_MAX && (NAME_MAX <= U8_MAX)
+# define FS_FILENAME_MAX (NAME_MAX)
+#elif defined MAXNAMLEN && (MAXNAMLEN <= U8_MAX)
+# define FS_FILENAME_MAX (MAXNAMLEN)
+#else
+# define FS_FILENAME_MAX (U8_MAX)
+#endif
 
-#endif /* !__ULEX_TOK_H */
+#endif /* !__FS_CONF_H */

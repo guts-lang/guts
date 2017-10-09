@@ -23,42 +23,19 @@
  * SOFTWARE.
  */
 
-/*!@file ulex/tok.h
+/*!@file sys/err/lvl.h
  * @author uael
  */
-#ifndef __ULEX_TOK_H
-# define __ULEX_TOK_H
+#ifndef __SYS_ERR_LVL_H
+# define __SYS_ERR_LVL_H
 
-#include <ds/deq.h>
-
-#include "loc.h"
-#include "src.h"
-#include "val.h"
-
-enum lex_tok_type {
-  LEX_TOK_NONE = 0,
-  LEX_TOK_PONCTUATION,
-  LEX_TOK_OPERATOR,
-  LEX_TOK_KEYWORD,
-  LEX_TOK_VALUE
+enum errlvl {
+  ERRLVL_NOTICE,
+  ERRLVL_WARNING,
+  ERRLVL_ERROR,
+  ERRLVL_FATAL
 };
 
-typedef enum lex_tok_type lex_tok_type_t;
-typedef struct lex_tok lex_tok_t;
+typedef enum errlvl errlvl_t;
 
-/*!@brief The 32 bytes token structure
- * When type is LEX_TOK_VALUE instead of kind an index to the value on the lexer
- * values cache is provided. The loc struct provide also an index to the related
- * stream.
- */
-struct lex_tok {
-  u8_t type;
-  u16_t lws;
-  union {
-    u32_t kind;
-    u32_t val;
-  } cnt;
-  lex_loc_t loc;
-};
-
-#endif /* !__ULEX_TOK_H */
+#endif /* !__SYS_ERR_LVL_H */

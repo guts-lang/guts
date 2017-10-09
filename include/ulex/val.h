@@ -29,7 +29,7 @@
 #ifndef __ULEX_VAL_H
 # define __ULEX_VAL_H
 
-#include <uds/dstr.h>
+#include <ds/dstr.h>
 
 enum lex_val_kind {
   LEX_VAL_NULL,

@@ -23,42 +23,42 @@
  * SOFTWARE.
  */
 
-/*!@file ulex/tok.h
+/*!@file sys/libs.h
  * @author uael
  */
-#ifndef __ULEX_TOK_H
-# define __ULEX_TOK_H
+#ifndef __SYS_LIBS_H
+# define __SYS_LIBS_H
 
-#include <ds/deq.h>
+#include "std.h"
 
-#include "loc.h"
-#include "src.h"
-#include "val.h"
+#if defined(__ANDROID__)
+# include <sys/cdefs.h>
+#elif defined(__APPLE__)
+# include <TargetConditionals.h>
+#elif defined(__linux__)
+# include <features.h>
+#endif
 
-enum lex_tok_type {
-  LEX_TOK_NONE = 0,
-  LEX_TOK_PONCTUATION,
-  LEX_TOK_OPERATOR,
-  LEX_TOK_KEYWORD,
-  LEX_TOK_VALUE
-};
+#if defined (_MSC_VER)
+# define LIBC_MSVCRT 1
+#elif defined(__BIONIC__)
+# define LIBC_BIONIC 1
+# define LIBC_BSD 1
+#elif defined(__UCLIBC__)
+# define LIBC_UCLIBC 1
+#elif defined(__KLIBC__)
+# define LIBC_KLIBC 1
+# define LIBC_BSD 1
+#elif defined(__CRTL_VER)
+# define LIBC_VMS 1
+# define LIBC_BSD 1
+#elif defined(__LIBREL__)
+# define LIBC_ZOS 1
+# define LIBC_BSD 1
+#elif defined(__GLIBC__) || defined(__GNU_LIBRARY__)
+# define LIBC_GLIBC 1
+#else
+# define LIBC_BSD 1
+#endif
 
-typedef enum lex_tok_type lex_tok_type_t;
-typedef struct lex_tok lex_tok_t;
-
-/*!@brief The 32 bytes token structure
- * When type is LEX_TOK_VALUE instead of kind an index to the value on the lexer
- * values cache is provided. The loc struct provide also an index to the related
- * stream.
- */
-struct lex_tok {
-  u8_t type;
-  u16_t lws;
-  union {
-    u32_t kind;
-    u32_t val;
-  } cnt;
-  lex_loc_t loc;
-};
-
-#endif /* !__ULEX_TOK_H */
+#endif /* !__SYS_LIBS_H */

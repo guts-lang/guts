@@ -23,42 +23,43 @@
  * SOFTWARE.
  */
 
-/*!@file ulex/tok.h
+/*!@file fs/path.h
  * @author uael
  */
-#ifndef __ULEX_TOK_H
-# define __ULEX_TOK_H
+#ifndef __FS_PATH_H
+# define __FS_PATH_H
 
-#include <ds/deq.h>
+#include "conf.h"
+#include "file.h"
 
-#include "loc.h"
-#include "src.h"
-#include "val.h"
+typedef vecof(char_t, 16) fs_path_t;
 
-enum lex_tok_type {
-  LEX_TOK_NONE = 0,
-  LEX_TOK_PONCTUATION,
-  LEX_TOK_OPERATOR,
-  LEX_TOK_KEYWORD,
-  LEX_TOK_VALUE
-};
+SEQ_DECL_ctor(__api__, fs_path, char_t, 16);
+SEQ_DECL_dtor(__api__, fs_path, char_t, 16);
+SEQ_DECL_cpy(__api__, fs_path, char_t, 16);
 
-typedef enum lex_tok_type lex_tok_type_t;
-typedef struct lex_tok lex_tok_t;
+__api__ ret_t
+fs_path_cwd(fs_path_t *self);
 
-/*!@brief The 32 bytes token structure
- * When type is LEX_TOK_VALUE instead of kind an index to the value on the lexer
- * values cache is provided. The loc struct provide also an index to the related
- * stream.
- */
-struct lex_tok {
-  u8_t type;
-  u16_t lws;
-  union {
-    u32_t kind;
-    u32_t val;
-  } cnt;
-  lex_loc_t loc;
-};
+__api__ ret_t
+fs_path(fs_path_t *self, char_t const *path);
 
-#endif /* !__ULEX_TOK_H */
+__api__ ret_t
+fs_pathn(fs_path_t *self, char_t const *path, u16_t n);
+
+__api__ bool_t
+fs_path_is_abs(fs_path_t const *self);
+
+__api__ bool_t
+fs_path_is_rel(fs_path_t const *self);
+
+__api__ ret_t
+fs_path_absolute(fs_path_t *self, fs_path_t *out);
+
+__api__ ret_t
+fs_path_open(fs_path_t *self, fs_file_t *out, u32_t flags);
+
+__api__ ret_t
+fs_path_join(fs_path_t *self, fs_path_t *other);
+
+#endif /* !__FS_PATH_H */

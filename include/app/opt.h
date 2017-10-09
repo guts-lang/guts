@@ -23,71 +23,76 @@
  * SOFTWARE.
  */
 
-/*!@file ulex/lexer.h
+/*!@file app/opt.h
  * @author uael
  */
-#ifndef __ULEX_LEXER_H
-# define __ULEX_LEXER_H
+#ifndef __APP_OPT_H
+# define __APP_OPT_H
 
-#include <ev.h>
-#include <ds/deq.h>
+#include <sys/tys.h>
+#include <ds/map.h>
 
-#include "tok.h"
+typedef struct opt opt_t;
+typedef struct opts opts_t;
+typedef ret_t (*optcb_t)(void *app, __const char *val);
 
-enum lex_lexer_ev {
-  LEX_LEXER_ON_TOK_PUSH
+struct opt {
+  char_t f, *lf, *help;
+  optcb_t callback;
+  bool_t kval, global, match;
 };
 
-typedef enum lex_lexer_ev lex_lexer_ev_t;
-typedef struct lex_lexer lex_lexer_t;
+__extern_c__
+static FORCEINLINE i32_t
+opt_cmp(__const opt_t a, __const opt_t b) {
+  i32_t cmp;
 
-DEQ32_DEFINE(lex_toks, lex_tok_t, addrcmp)
-VEC32_DEFINE(lex_vals, lex_val_t, addrcmp)
-DEQ16_DEFINE(lex_srcs, lex_src_t, addrcmp)
+  if ((cmp = i8cmp(a.f, b.f)) != 0) {
+    return cmp;
+  }
+  return strcmp(a.lf, b.lf);
+}
 
-struct lex_lexer {
-  bool_t root;
-  observers_t observers;
+STR_MAP_DEFINE(optmap, opt_t, opt_cmp)
+I8_MAP_DEFINE(optmap_sc, opt_t *, i64cmp)
+
+struct opts {
+  char_t __const *program;
+  optmap_t conf;
+  optmap_sc_t shortcuts;
+  optcb_t callback;
   err_stack_t errs;
-  lex_srcs_t srcs;
-  lex_lexer_t *origin;
-  lex_toks_t toks;
-  lex_vals_t vals;
 };
 
-OBSERVABLE_DEFINE(lex_lexer, lex_lexer_t, lex_lexer_ev_t)
+__extern_c__
+static FORCEINLINE opt_t *
+opts_get(opts_t *opts, char_t id) {
+  u32_t it;
+
+  if (optmap_sc_get(&opts->shortcuts, id, &it)) {
+    return opts->shortcuts.vals[it];
+  }
+  return nil;
+}
+
+__extern_c__
+static FORCEINLINE opt_t *
+opts_lget(opts_t *opts, char_t __const *id) {
+  unsigned it;
+
+  if (optmap_get(&opts->conf, id, &it)) {
+    return &opts->conf.vals[it];
+  }
+  return nil;
+}
 
 __api__ void
-lex_lexer_ctor(lex_lexer_t *self);
+opts_ctor(opts_t *self, opt_t *opts, optcb_t callback);
 
 __api__ void
-lex_lexer_dtor(lex_lexer_t *self);
+opts_dtor(opts_t *self);
 
 __api__ ret_t
-lex_lexer_push_file(lex_lexer_t *self, i8_t __const *filename);
+opts_parse(opts_t *self, void *app_ptr, i32_t argc, char_t **argv);
 
-__api__ ret_t
-lex_lexer_push_buf(lex_lexer_t *self, i8_t __const *buf, u64_t len);
-
-__api__ ret_t
-lex_lexer_fork(lex_lexer_t *fork, lex_lexer_t *origin);
-
-__api__ ret_t
-lex_lexer_join(lex_lexer_t *fork);
-
-__api__ ret_t
-lex_lexer_push(lex_lexer_t *self, lex_tok_t tok);
-
-__api__ lex_tok_t
-lex_lexer_peek(lex_lexer_t *self);
-
-__api__ lex_tok_t
-lex_lexer_npeek(lex_lexer_t *self, u16_t n);
-
-__api__ lex_tok_t
-lex_lexer_next(lex_lexer_t *self);
-
-__api__ lex_tok_t
-lex_lexer_consume(lex_lexer_t *self, u32_t kind);
-
-#endif /* !__ULEX_VAL_H */
+#endif /* !__APP_OPT_H */

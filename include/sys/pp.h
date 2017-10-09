@@ -23,42 +23,27 @@
  * SOFTWARE.
  */
 
-/*!@file ulex/tok.h
+/*!@file sys/pp.h
  * @author uael
  */
-#ifndef __ULEX_TOK_H
-# define __ULEX_TOK_H
+#ifndef __SYS_PP_H
+# define __SYS_PP_H
 
-#include <ds/deq.h>
-
-#include "loc.h"
-#include "src.h"
-#include "val.h"
-
-enum lex_tok_type {
-  LEX_TOK_NONE = 0,
-  LEX_TOK_PONCTUATION,
-  LEX_TOK_OPERATOR,
-  LEX_TOK_KEYWORD,
-  LEX_TOK_VALUE
-};
-
-typedef enum lex_tok_type lex_tok_type_t;
-typedef struct lex_tok lex_tok_t;
-
-/*!@brief The 32 bytes token structure
- * When type is LEX_TOK_VALUE instead of kind an index to the value on the lexer
- * values cache is provided. The loc struct provide also an index to the related
- * stream.
+/*!@def STRINGIFY(x)
+ * A macro which stringifies its argument.
+ * @param[in] x All the tokens which have to be stringified.
+ * @return An expression of type pointer to char.
  */
-struct lex_tok {
-  u8_t type;
-  u16_t lws;
-  union {
-    u32_t kind;
-    u32_t val;
-  } cnt;
-  lex_loc_t loc;
-};
+#ifndef STRINGIFY
+# define STRINGIFY_EX(x) #x
+# define STRINGIFY(x) STRINGIFY_EX(x)
+#endif
 
-#endif /* !__ULEX_TOK_H */
+#define COUNT_OF(x) (sizeof(x)/sizeof(*(x)))
+
+#define init(T, ...) ((T) {__VA_ARGS__})
+#define init_ptr(T, ...) (&init(T, __VA_ARGS__))
+#define vec(T, ...) ((T[]) {__VA_ARGS__})
+#define array(T, ...) vec(T, __VA_ARGS__), COUNT_OF(vec(T, __VA_ARGS__))
+
+#endif /* !__SYS_PP_H */
