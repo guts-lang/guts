@@ -3,8 +3,6 @@ version: '{build}'
 environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
-      msvc: Visual Studio 9 2008
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
       msvc: Visual Studio 10 2010
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
       msvc: Visual Studio 11 2012
@@ -26,8 +24,6 @@ matrix:
   fast_finish: true
   exclude:
     - msvc: Visual Studio 10 2010
-      platform: x64
-    - msvc: Visual Studio 9 2008
       platform: x64
 
 build:
