@@ -54,12 +54,13 @@ typedef float f32_t;
 typedef double f64_t;
 
 #if defined OS_WIN
-# if CPU_64 && !defined _WIN32 && !defined WIN32
+# if CPU_64 && !(defined _WIN32 || defined WIN32)
 typedef i64_t isize_t;
+typedef u64_t usize_t;
 # else
 typedef i32_t isize_t;
+typedef u32_t usize_t;
 # endif
-typedef uintmax_t usize_t;
 #else
 typedef ssize_t isize_t;
 typedef size_t usize_t;
