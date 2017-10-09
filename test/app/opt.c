@@ -121,7 +121,7 @@ CUTEST(opt, input) {
 CUTEST(opt, catval) {
   char_t *args[2] = {"cli", "-obla"};
 
-  opts_parse(&self->opts, &self->my_app, 2, args;
+  opts_parse(&self->opts, &self->my_app, 2, args);
   ASSERT(self->my_app.output && memcmp("bla", self->my_app.output, 3) == 0);
   return CUTE_SUCCESS;
 }

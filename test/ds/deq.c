@@ -216,26 +216,28 @@ CUTEST(deq, insert) {
   return CUTE_SUCCESS;
 }
 
+static i8_t vi84321[4] = {4, 3, 2, 1};
+
 CUTEST(deq, emplace) {
   ASSERT_EQ(RET_SUCCESS,
-    i8deq_emplace(&self->i8deq, 0, (i8_t[4]){4, 3, 2, 1}, 0)
+    i8deq_emplace(&self->i8deq, 0, vi84321, 0)
   );
   ASSERT_EQ(0, i8deq_size(&self->i8deq));
   ASSERT_EQ(nil, self->i8deq.buf);
   ASSERT_EQ(RET_SUCCESS,
-    i8deq_emplace(&self->i8deq, 0, (i8_t[4]){4, 3, 2, 1}, 1)
+    i8deq_emplace(&self->i8deq, 0, vi84321, 1)
   );
   ASSERT_EQ(1, i8deq_size(&self->i8deq));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 0));
   ASSERT_EQ(RET_SUCCESS,
-    i8deq_emplace(&self->i8deq, 1, (i8_t[4]){4, 3, 2, 1}, 2)
+    i8deq_emplace(&self->i8deq, 1, vi84321, 2)
   );
   ASSERT_EQ(3, i8deq_size(&self->i8deq));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 0));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 1));
   ASSERT_EQ(3, i8deq_at(&self->i8deq, 2));
   ASSERT_EQ(RET_SUCCESS,
-    i8deq_emplace(&self->i8deq, 0, (i8_t[4]){4, 3, 2, 1}, 3)
+    i8deq_emplace(&self->i8deq, 0, vi84321, 3)
   );
   ASSERT_EQ(6, i8deq_size(&self->i8deq));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 0));
@@ -245,7 +247,7 @@ CUTEST(deq, emplace) {
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 4));
   ASSERT_EQ(3, i8deq_at(&self->i8deq, 5));
   ASSERT_EQ(RET_SUCCESS,
-    i8deq_emplace(&self->i8deq, 3, (i8_t[4]){4, 3, 2, 1}, 4)
+    i8deq_emplace(&self->i8deq, 3, vi84321, 4)
   );
   ASSERT_EQ(10, i8deq_size(&self->i8deq));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 0));
@@ -259,7 +261,7 @@ CUTEST(deq, emplace) {
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 8));
   ASSERT_EQ(3, i8deq_at(&self->i8deq, 9));
   ASSERT_EQ(RET_ERRNO,
-    i8deq_nomem_emplace(&self->i8deq_nomem, 0, (i8_t[4]){4, 3, 2, 1}, 1)
+    i8deq_nomem_emplace(&self->i8deq_nomem, 0, vi84321, 1)
   );
   return CUTE_SUCCESS;
 }
@@ -279,18 +281,18 @@ CUTEST(deq, push) {
 }
 
 CUTEST(deq, append) {
-  ASSERT_EQ(RET_SUCCESS, i8deq_append(&self->i8deq, (i8_t[4]){4, 3, 2, 1}, 0));
+  ASSERT_EQ(RET_SUCCESS, i8deq_append(&self->i8deq, vi84321, 0));
   ASSERT_EQ(0, i8deq_size(&self->i8deq));
   ASSERT_EQ(nil, self->i8deq.buf);
-  ASSERT_EQ(RET_SUCCESS, i8deq_append(&self->i8deq, (i8_t[4]){4, 3, 2, 1}, 1));
+  ASSERT_EQ(RET_SUCCESS, i8deq_append(&self->i8deq, vi84321, 1));
   ASSERT_EQ(1, i8deq_size(&self->i8deq));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 0));
-  ASSERT_EQ(RET_SUCCESS, i8deq_append(&self->i8deq, (i8_t[4]){4, 3, 2, 1}, 2));
+  ASSERT_EQ(RET_SUCCESS, i8deq_append(&self->i8deq, vi84321, 2));
   ASSERT_EQ(3, i8deq_size(&self->i8deq));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 0));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 1));
   ASSERT_EQ(3, i8deq_at(&self->i8deq, 2));
-  ASSERT_EQ(RET_SUCCESS, i8deq_append(&self->i8deq, (i8_t[4]){4, 3, 2, 1}, 3));
+  ASSERT_EQ(RET_SUCCESS, i8deq_append(&self->i8deq, vi84321, 3));
   ASSERT_EQ(6, i8deq_size(&self->i8deq));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 0));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 1));
@@ -298,7 +300,7 @@ CUTEST(deq, append) {
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 3));
   ASSERT_EQ(3, i8deq_at(&self->i8deq, 4));
   ASSERT_EQ(2, i8deq_at(&self->i8deq, 5));
-  ASSERT_EQ(RET_SUCCESS, i8deq_append(&self->i8deq, (i8_t[4]){4, 3, 2, 1}, 4));
+  ASSERT_EQ(RET_SUCCESS, i8deq_append(&self->i8deq, vi84321, 4));
   ASSERT_EQ(10, i8deq_size(&self->i8deq));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 0));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 1));
@@ -311,7 +313,7 @@ CUTEST(deq, append) {
   ASSERT_EQ(2, i8deq_at(&self->i8deq, 8));
   ASSERT_EQ(1, i8deq_at(&self->i8deq, 9));
   ASSERT_EQ(RET_ERRNO,
-    i8deq_nomem_append(&self->i8deq_nomem, (i8_t[4]){4, 3, 2, 1}, 4)
+    i8deq_nomem_append(&self->i8deq_nomem, vi84321, 4)
   );
   return CUTE_SUCCESS;
 }
@@ -319,7 +321,7 @@ CUTEST(deq, append) {
 CUTEST(deq, pop) {
   i8_t i;
 
-  ASSERT_EQ(RET_SUCCESS, i8deq_append(&self->i8deq, (i8_t[4]){4, 3, 2, 1}, 4));
+  ASSERT_EQ(RET_SUCCESS, i8deq_append(&self->i8deq, vi84321, 4));
   ASSERT_EQ(4, i8deq_size(&self->i8deq));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 0));
   ASSERT_EQ(3, i8deq_at(&self->i8deq, 1));
@@ -362,18 +364,18 @@ CUTEST(deq, unshift) {
 }
 
 CUTEST(deq, prepend) {
-  ASSERT_EQ(RET_SUCCESS, i8deq_prepend(&self->i8deq, (i8_t[4]){4, 3, 2, 1}, 0));
+  ASSERT_EQ(RET_SUCCESS, i8deq_prepend(&self->i8deq, vi84321, 0));
   ASSERT_EQ(0, i8deq_size(&self->i8deq));
   ASSERT_EQ(nil, self->i8deq.buf);
-  ASSERT_EQ(RET_SUCCESS, i8deq_prepend(&self->i8deq, (i8_t[4]){4, 3, 2, 1}, 1));
+  ASSERT_EQ(RET_SUCCESS, i8deq_prepend(&self->i8deq, vi84321, 1));
   ASSERT_EQ(1, i8deq_size(&self->i8deq));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 0));
-  ASSERT_EQ(RET_SUCCESS, i8deq_prepend(&self->i8deq, (i8_t[4]){4, 3, 2, 1}, 2));
+  ASSERT_EQ(RET_SUCCESS, i8deq_prepend(&self->i8deq, vi84321, 2));
   ASSERT_EQ(3, i8deq_size(&self->i8deq));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 0));
   ASSERT_EQ(3, i8deq_at(&self->i8deq, 1));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 2));
-  ASSERT_EQ(RET_SUCCESS, i8deq_prepend(&self->i8deq, (i8_t[4]){4, 3, 2, 1}, 3));
+  ASSERT_EQ(RET_SUCCESS, i8deq_prepend(&self->i8deq, vi84321, 3));
   ASSERT_EQ(6, i8deq_size(&self->i8deq));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 0));
   ASSERT_EQ(3, i8deq_at(&self->i8deq, 1));
@@ -381,7 +383,7 @@ CUTEST(deq, prepend) {
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 3));
   ASSERT_EQ(3, i8deq_at(&self->i8deq, 4));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 5));
-  ASSERT_EQ(RET_SUCCESS, i8deq_prepend(&self->i8deq, (i8_t[4]){4, 3, 2, 1}, 4));
+  ASSERT_EQ(RET_SUCCESS, i8deq_prepend(&self->i8deq, vi84321, 4));
   ASSERT_EQ(10, i8deq_size(&self->i8deq));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 0));
   ASSERT_EQ(3, i8deq_at(&self->i8deq, 1));
@@ -394,7 +396,7 @@ CUTEST(deq, prepend) {
   ASSERT_EQ(3, i8deq_at(&self->i8deq, 8));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 9));
   ASSERT_EQ(RET_ERRNO,
-    i8deq_nomem_prepend(&self->i8deq_nomem, (i8_t[4]){4, 3, 2, 1}, 4)
+    i8deq_nomem_prepend(&self->i8deq_nomem, vi84321, 4)
   );
   return CUTE_SUCCESS;
 }
@@ -402,7 +404,7 @@ CUTEST(deq, prepend) {
 CUTEST(deq, shift) {
   i8_t i;
 
-  ASSERT_EQ(RET_SUCCESS, i8deq_append(&self->i8deq, (i8_t[4]){4, 3, 2, 1}, 4));
+  ASSERT_EQ(RET_SUCCESS, i8deq_append(&self->i8deq, vi84321, 4));
   ASSERT_EQ(4, i8deq_size(&self->i8deq));
   ASSERT_EQ(4, i8deq_at(&self->i8deq, 0));
   ASSERT_EQ(3, i8deq_at(&self->i8deq, 1));
@@ -431,10 +433,11 @@ CUTEST(deq, shift) {
 
 CUTEST(deq, remove) {
   i8_t i;
+  i8_t vi8[4] = {0, 1, 2, 3};
 
   ASSERT_EQ(false, i8deq_remove(&self->i8deq, 0, nil));
   ASSERT_EQ(RET_SUCCESS,
-    i8deq_append(&self->i8deq, (i8_t[4]){0, 1, 2, 3}, 4)
+    i8deq_append(&self->i8deq, vi8, 4)
   );
   ASSERT_EQ(false, i8deq_remove(&self->i8deq, 4, nil));
   ASSERT_EQ(true, i8deq_remove(&self->i8deq, 2, nil));
@@ -460,11 +463,12 @@ CUTEST(deq, remove) {
 
 CUTEST(deq, removen) {
   i8_t buf[2], *ptr;
+  i8_t vi8[6] = {0, 1, 2, 3, 5, 6};
 
   ptr = buf;
   ASSERT_EQ(false, i8deq_removen(&self->i8deq, 0, 0, nil));
   ASSERT_EQ(RET_SUCCESS,
-    i8deq_append(&self->i8deq, (i8_t[6]){0, 1, 2, 3, 5, 6}, 6)
+    i8deq_append(&self->i8deq, vi8, 6)
   );
   ASSERT_EQ(false, i8deq_removen(&self->i8deq, 6, 0, nil));
   ASSERT_EQ(true, i8deq_removen(&self->i8deq, 2, 2, nil));
@@ -491,9 +495,11 @@ CUTEST(deq, removen) {
 }
 
 CUTEST(deq, erase) {
+  i8_t vi8[7] = {1, 2, 1, 2, 3, 3, 2};
+
   ASSERT_EQ(0, i8deq_erase(&self->i8deq, 0));
   ASSERT_EQ(RET_SUCCESS,
-    i8deq_append(&self->i8deq, (i8_t[7]){1, 2, 1, 2, 3, 3, 2}, 7)
+    i8deq_append(&self->i8deq, vi8, 7)
   );
   ASSERT_EQ(2, i8deq_erase(&self->i8deq, 1));
   ASSERT_EQ(5, i8deq_size(&self->i8deq));
@@ -513,9 +519,11 @@ CUTEST(deq, erase) {
 }
 
 CUTEST(deq, erasen) {
+  i8_t vi8[7] = {1, 2, 1, 2, 3, 3, 2};
+
   ASSERT_EQ(0, i8deq_erasen(&self->i8deq, 0, 1));
   ASSERT_EQ(RET_SUCCESS,
-    i8deq_append(&self->i8deq, (i8_t[7]){1, 2, 1, 2, 3, 3, 2}, 7)
+    i8deq_append(&self->i8deq, vi8, 7)
   );
   ASSERT_EQ(0, i8deq_erasen(&self->i8deq, 1, 0));
   ASSERT_EQ(2, i8deq_erasen(&self->i8deq, 1, 3));
@@ -541,9 +549,11 @@ CUTEST(deq, erasen) {
 }
 
 CUTEST(deq, eraseonce) {
+  i8_t vi8[7] = {1, 2, 1, 2, 3, 3, 2};
+
   ASSERT_EQ(false, i8deq_eraseonce(&self->i8deq, 0));
   ASSERT_EQ(RET_SUCCESS,
-    i8deq_append(&self->i8deq, (i8_t[7]){1, 2, 1, 2, 3, 3, 2}, 7)
+    i8deq_append(&self->i8deq, vi8, 7)
   );
   ASSERT_EQ(true, i8deq_eraseonce(&self->i8deq, 1));
   ASSERT_EQ(true, i8deq_eraseonce(&self->i8deq, 1));
@@ -571,10 +581,11 @@ CUTEST(deq, eraseonce) {
 
 CUTEST(deq, cpy) {
   i8deq_t src;
+  i8_t vi8[7] = {1, 2, 1, 2, 3, 3, 2};
 
   i8deq_ctor(&src);
   ASSERT_EQ(RET_SUCCESS,
-    i8deq_append(&src, (i8_t[7]){1, 2, 1, 2, 3, 3, 2}, 7)
+    i8deq_append(&src, vi8, 7)
   );
   ASSERT_EQ(RET_SUCCESS, i8deq_cpy(&self->i8deq, &src));
   ASSERT_EQ(7, i8deq_size(&self->i8deq));
@@ -586,10 +597,11 @@ CUTEST(deq, cpy) {
 
 CUTEST(deq, ncpy) {
   i8deq_t src;
+  i8_t vi8[7] = {0, 1, 2, 3, 4, 5, 6};
 
   i8deq_ctor(&src);
   ASSERT_EQ(RET_SUCCESS,
-    i8deq_append(&src, (i8_t[7]){1, 2, 1, 2, 3, 3, 2}, 7)
+    i8deq_append(&src, vi8, 7)
   );
   ASSERT_EQ(RET_SUCCESS, i8deq_ncpy(&self->i8deq, &src, 5));
   ASSERT_EQ(5, i8deq_size(&self->i8deq));
