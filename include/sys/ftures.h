@@ -477,7 +477,7 @@
 # if defined STD_C99 || \
      __has_include(<stdbool.h>) || \
      (defined CC_GCC && VERNO_GE(CC_GCC, 4, 9)) || \
-     (defined CC_MSVC && VERNO_GE(CC_MSVC, 12, 0))
+     (defined CC_MSVC && VERNO_GE(CC_MSVC, 18, 0))
 #   define __HAS_FEATURE_c_bool 1
 # else
 #   define __HAS_FEATURE_c_bool 0
@@ -642,7 +642,7 @@
 # endif
 # if __has_include(<uchar.h>) || \
      defined STD_C11 || \
-     (defined CC_MSVC && VERNO_GE(CC_MSVC, 18, 0))
+     (defined CC_MSVC && VERNO_GE(CC_MSVC, 19, 0))
 #   define __HAS_FEATURE_uchar_h 1
 # else
 #   define __HAS_FEATURE_uchar_h 0
