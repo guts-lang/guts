@@ -51,10 +51,10 @@
 #endif
 
 #if !defined FORCEINLINE
-# if defined U_DEBUG
+# if defined DEBUG
 #   define FORCEINLINE __inline
 # else
-#   define FORCEINLINE __always_inline __inline
+#   define FORCEINLINE __force_inline __inline
 # endif
 #endif
 

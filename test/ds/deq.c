@@ -79,14 +79,6 @@ CUTEST(deq, ensure) {
   ASSERT_EQ(pow2_next8(SEQ_MIN_CAP + 1), i8deq_cap(&self->i8deq));
   ASSERT_EQ(0, i8deq_size(&self->i8deq));
   ASSERT_NEQ(nil, self->i8deq.buf);
-  ASSERT_EQ(RET_SUCCESS, i8deq_ensure(&self->i8deq, U32_MAX));
-  ASSERT_EQ(U32_MAX, i8deq_cap(&self->i8deq));
-  ASSERT_EQ(0, i8deq_size(&self->i8deq));
-  ASSERT_NEQ(nil, self->i8deq.buf);
-  ASSERT_EQ(RET_SUCCESS, i8deq_ensure(&self->i8deq, U32_MAX));
-  ASSERT_EQ(U32_MAX, i8deq_cap(&self->i8deq));
-  ASSERT_EQ(0, i8deq_size(&self->i8deq));
-  ASSERT_NEQ(nil, self->i8deq.buf);
 
   ASSERT_EQ(RET_ERRNO, i8deq_nomem_ensure(&self->i8deq_nomem, 1));
   ASSERT_EQ(0, i8deq_nomem_cap(&self->i8deq_nomem));

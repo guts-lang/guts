@@ -79,14 +79,6 @@ CUTEST(vec, ensure) {
   ASSERT_EQ(pow2_next8(SEQ_MIN_CAP + 1), i8vec_cap(&self->i8vec));
   ASSERT_EQ(0, i8vec_size(&self->i8vec));
   ASSERT_NEQ(nil, self->i8vec.buf);
-  ASSERT_EQ(RET_SUCCESS, i8vec_ensure(&self->i8vec, U32_MAX));
-  ASSERT_EQ(U32_MAX, i8vec_cap(&self->i8vec));
-  ASSERT_EQ(0, i8vec_size(&self->i8vec));
-  ASSERT_NEQ(nil, self->i8vec.buf);
-  ASSERT_EQ(RET_SUCCESS, i8vec_ensure(&self->i8vec, U32_MAX));
-  ASSERT_EQ(U32_MAX, i8vec_cap(&self->i8vec));
-  ASSERT_EQ(0, i8vec_size(&self->i8vec));
-  ASSERT_NEQ(nil, self->i8vec.buf);
 
   ASSERT_EQ(RET_ERRNO, i8vec_nomem_ensure(&self->i8vec_nomem, 1));
   ASSERT_EQ(0, i8vec_nomem_cap(&self->i8vec_nomem));

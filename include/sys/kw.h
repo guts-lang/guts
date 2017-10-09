@@ -119,7 +119,7 @@
 #   endif
 #   define __import_link__
 # endif
-# if defined U_COMPILE
+# if defined API_COMPILE
 #   ifdef __cplusplus
 #     define __ext__ extern "C" __import_link__
 #     define __api__ extern "C" __export_link__
@@ -186,19 +186,13 @@
 # endif
 #endif
 
-#if !defined __always_inline
-# if defined __always_inline__
-#   define __always_inline __always_inline__
-# elif defined always_inline
-#   define __always_inline always_inline
-# elif defined __forceinline || CC_MSVC
-#   define __always_inline __forceinline
-# elif defined forceinline
-#   define __always_inline forceinline
+#if !defined __force_inline
+# if defined __forceinline || CC_MSVC
+#   define __force_inline __forceinline
 # elif __has_attribute__(always_inline)
-#   define __always_inline __attribute__((__always_inline__))
+#   define __force_inline __attribute__((__always_inline__))
 # else
-#   define __always_inline
+#   define __force_inline
 # endif
 #endif
 

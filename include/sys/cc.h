@@ -457,6 +457,7 @@
 # define _CRT_SECURE_NO_WARNINGS 1
 # pragma warning(disable: 4081)
 # pragma warning(disable: 4141)
+# pragma warning(disable: 4244) /* possible loss of data */
 #endif
 
 /*

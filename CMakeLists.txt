@@ -56,6 +56,8 @@ macro (add_module MOD TYPE)
     add_library(${MOD} INTERFACE)
     target_include_directories(${MOD} INTERFACE ${guts_INC_DIR})
 
+    target_compile_definitions(${MOD}
+      INTERFACE $<$<CONFIG:Debug>:DEBUG>$<$<CONFIG:Release>:NDEBUG>)
     if (MSVC)
       target_compile_options(${MOD}
         INTERFACE /MT$<$<CONFIG:Debug>:d> /Oy /Za /W3
@@ -78,6 +80,9 @@ macro (add_module MOD TYPE)
     target_include_directories(${MOD} PUBLIC ${guts_INC_DIR})
     target_compile_definitions(${MOD} PRIVATE U_COMPILE)
 
+    target_compile_definitions(${MOD}
+      PRIVATE $<$<CONFIG:Debug>:DEBUG>$<$<CONFIG:Release>:NDEBUG>
+      PRIVATE API_COMPILE)
     if (MSVC)
       target_compile_options(${MOD}
         PUBLIC /MT$<$<CONFIG:Debug>:d> /Oy /Za /W3
@@ -97,6 +102,9 @@ macro (add_module MOD TYPE)
     target_include_directories(${MOD} PUBLIC ${guts_INC_DIR})
     target_compile_definitions(${MOD} PRIVATE U_COMPILE)
 
+    target_compile_definitions(${MOD}
+      PRIVATE $<$<CONFIG:Debug>:DEBUG>$<$<CONFIG:Release>:NDEBUG>
+      PRIVATE API_COMPILE)
     if (MSVC)
       target_compile_options(${MOD}
         PRIVATE /MT$<$<CONFIG:Debug>:d> /Oy /Za /W3
