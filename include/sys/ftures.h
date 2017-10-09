@@ -57,201 +57,315 @@
 
 #if !defined __has_attribute__
 # define __has_attribute__(x) (__has_attribute(x) || __HAS_ATTRIBUTE_##x)
-# define __HAS_ATTRIBUTE_alias ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-    || (defined CC_CRAY) \
-  )
-# define __HAS_ATTRIBUTE_aligned ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-    || (defined CC_INTEL) \
-    || (defined CC_CRAY) \
-    || (defined CC_SUNPRO) \
-    || (defined CC_DIAB) \
-  )
-# define __HAS_ATTRIBUTE_always_inline ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 1)) \
-  )
-# define __HAS_ATTRIBUTE_cdecl ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_cleanup ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 3)) \
-  )
-# define __HAS_ATTRIBUTE_common ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 3)) \
-  )
-# define __HAS_ATTRIBUTE_const ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-    || (defined CC_INTEL) \
-  )
-# define __HAS_ATTRIBUTE_constructor ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_deprecated ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 1)) \
-    || (defined CC_CRAY) \
-  )
-# define __HAS_ATTRIBUTE_deprecated_message ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 4, 5)) \
-    || (defined CC_CRAY) \
-  )
-# define __HAS_ATTRIBUTE_destructor ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_dllexport ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_dllimport ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_eightbit_data ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_exception  ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_far  ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 3)) \
-  )
-# define __HAS_ATTRIBUTE_fastcall  ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 4)) \
-  )
-# define __HAS_ATTRIBUTE_format ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-    || (defined CC_CRAY) \
-  )
-# define __HAS_ATTRIBUTE_format_arg ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-    || (defined CC_CRAY) \
-  )
-# define __HAS_ATTRIBUTE_function_vector ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_interrupt ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_interrupt_handler ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_long_call ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 0)) \
-  )
-# define __HAS_ATTRIBUTE_longcall ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_malloc ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 0)) \
-  )
-# define __HAS_ATTRIBUTE_may_alias ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 3)) \
-  )
-# define __HAS_ATTRIBUTE_mode ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_model ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_naked ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 0)) \
-  )
-# define __HAS_ATTRIBUTE_near ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 3)) \
-  )
-# define __HAS_ATTRIBUTE_no_check_memory_usage ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_no_instrument_function ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_nocommon ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_noinline ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 1)) \
-  )
-# define __HAS_ATTRIBUTE_nonnull ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 3)) \
-  )
-# define __HAS_ATTRIBUTE_noreturn ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_nothrow ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 3)) \
-    || (defined CC_CRAY) \
-  )
-# define __HAS_ATTRIBUTE_packed ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-    || defined CC_DIAB \
-    || (defined CC_INTEL) \
-  )
-# define __HAS_ATTRIBUTE_pure ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 0)) \
-  )
-# define __HAS_ATTRIBUTE_regparm ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_saveall ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 4)) \
-  )
-# define __HAS_ATTRIBUTE_section ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-    || (defined CC_INTEL) \
-  )
-# define __HAS_ATTRIBUTE_shared ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 0)) \
-  )
-# define __HAS_ATTRIBUTE_signal ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 0)) \
-  )
-# define __HAS_ATTRIBUTE_short_call ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 0)) \
-  )
-# define __HAS_ATTRIBUTE_shortcall ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_sp_switch ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 0)) \
-  )
-# define __HAS_ATTRIBUTE_stdcall ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_tiny_data ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-  )
-# define __HAS_ATTRIBUTE_transparent_union ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-    || (defined CC_CRAY) \
-  )
-# define __HAS_ATTRIBUTE_trap_exit ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 0)) \
-  )
-# define __HAS_ATTRIBUTE_unused ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-    || (defined CC_CRAY) \
-    || (defined CC_INTEL) \
-  )
-# define __HAS_ATTRIBUTE_used ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 1)) \
-    || (defined CC_CRAY) \
-    || (defined CC_INTEL) \
-  )
-# define __HAS_ATTRIBUTE_vector_size ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 1)) \
-  )
-# define __HAS_ATTRIBUTE_visibility ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 3)) \
-    || (defined CC_SYSC && VERNO_GE(CC_SYSC, 1, 9)) \
-    || (defined CC_HPCC && VERNO_GE(CC_HPCC, 6, 26)) \
-  )
-# define __HAS_ATTRIBUTE_warn_unused_result ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 3, 3)) \
-    || (defined CC_CRAY) \
-    || (defined CC_HPCC && VERNO_GE(CC_HPCC, 6, 26)) \
-  )
-# define __HAS_ATTRIBUTE_weak ( \
-    (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
-    || (defined CC_CRAY) \
-  )
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
+     || (defined CC_CRAY) 
+#   define __HAS_ATTRIBUTE_alias 1
+# else
+#   define __HAS_ATTRIBUTE_alias 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
+     || (defined CC_INTEL) \
+     || (defined CC_CRAY) \
+     || (defined CC_SUNPRO) \
+     || (defined CC_DIAB) 
+#   define __HAS_ATTRIBUTE_aligned 1
+# else
+#   define __HAS_ATTRIBUTE_aligned 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 1)) 
+#   define __HAS_ATTRIBUTE_always_inline 1
+# else
+#   define __HAS_ATTRIBUTE_always_inline 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_cdecl 1
+# else
+#   define __HAS_ATTRIBUTE_cdecl 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 3)) 
+#   define __HAS_ATTRIBUTE_cleanup 1
+# else
+#   define __HAS_ATTRIBUTE_cleanup 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 3)) 
+#   define __HAS_ATTRIBUTE_common 1
+# else
+#   define __HAS_ATTRIBUTE_common 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
+     || (defined CC_INTEL) 
+#   define __HAS_ATTRIBUTE_const 1
+# else
+#   define __HAS_ATTRIBUTE_const 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_constructor 1
+# else
+#   define __HAS_ATTRIBUTE_constructor 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 1)) \
+     || (defined CC_CRAY) 
+#   define __HAS_ATTRIBUTE_deprecated 1
+# else
+#   define __HAS_ATTRIBUTE_deprecated 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 4, 5)) \
+     || (defined CC_CRAY) 
+#   define __HAS_ATTRIBUTE_deprecated_message 1
+# else
+#   define __HAS_ATTRIBUTE_deprecated_message 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_destructor 1
+# else
+#   define __HAS_ATTRIBUTE_destructor 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_dllexport 1
+# else
+#   define __HAS_ATTRIBUTE_dllexport 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_dllimport 1
+# else
+#   define __HAS_ATTRIBUTE_dllimport 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_eightbit_data 1
+# else
+#   define __HAS_ATTRIBUTE_eightbit_data 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_exception 1
+# else
+#   define __HAS_ATTRIBUTE_exception 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 3)) 
+#   define __HAS_ATTRIBUTE_far 1
+# else
+#   define __HAS_ATTRIBUTE_far 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 4)) 
+#   define __HAS_ATTRIBUTE_fastcall 1
+# else
+#   define __HAS_ATTRIBUTE_fastcall 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
+     || (defined CC_CRAY) 
+#   define __HAS_ATTRIBUTE_format 1
+# else
+#   define __HAS_ATTRIBUTE_format 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
+     || (defined CC_CRAY) 
+#   define __HAS_ATTRIBUTE_format_arg 1
+# else
+#   define __HAS_ATTRIBUTE_format_arg 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_function_vector 1
+# else
+#   define __HAS_ATTRIBUTE_function_vector 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_interrupt 1
+# else
+#   define __HAS_ATTRIBUTE_interrupt 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_interrupt_handler 1
+# else
+#   define __HAS_ATTRIBUTE_interrupt_handler 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 0)) 
+#   define __HAS_ATTRIBUTE_long_call 1
+# else
+#   define __HAS_ATTRIBUTE_long_call 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_longcall 1
+# else
+#   define __HAS_ATTRIBUTE_longcall 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 0)) 
+#   define __HAS_ATTRIBUTE_malloc 1
+# else
+#   define __HAS_ATTRIBUTE_malloc 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 3)) 
+#   define __HAS_ATTRIBUTE_may_alias 1
+# else
+#   define __HAS_ATTRIBUTE_may_alias 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_mode 1
+# else
+#   define __HAS_ATTRIBUTE_mode 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_model 1
+# else
+#   define __HAS_ATTRIBUTE_model 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 0)) 
+#   define __HAS_ATTRIBUTE_naked 1
+# else
+#   define __HAS_ATTRIBUTE_naked 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 3)) 
+#   define __HAS_ATTRIBUTE_near 1
+# else
+#   define __HAS_ATTRIBUTE_near 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_no_check_memory_usage 1
+# else
+#   define __HAS_ATTRIBUTE_no_check_memory_usage 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_no_instrument_function 1
+# else
+#   define __HAS_ATTRIBUTE_no_instrument_function 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_nocommon 1
+# else
+#   define __HAS_ATTRIBUTE_nocommon 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 1)) 
+#   define __HAS_ATTRIBUTE_noinline 1
+# else
+#   define __HAS_ATTRIBUTE_noinline 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 3)) 
+#   define __HAS_ATTRIBUTE_nonnull 1
+# else
+#   define __HAS_ATTRIBUTE_nonnull 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_noreturn 1
+# else
+#   define __HAS_ATTRIBUTE_noreturn 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 3)) \
+     || (defined CC_CRAY) 
+#   define __HAS_ATTRIBUTE_nothrow 1
+# else
+#   define __HAS_ATTRIBUTE_nothrow 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
+     || defined CC_DIAB \
+     || (defined CC_INTEL) 
+#   define __HAS_ATTRIBUTE_packed 1
+# else
+#   define __HAS_ATTRIBUTE_packed 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 0)) 
+#   define __HAS_ATTRIBUTE_pure 1
+# else
+#   define __HAS_ATTRIBUTE_pure 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_regparm 1
+# else
+#   define __HAS_ATTRIBUTE_regparm 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 4)) 
+#   define __HAS_ATTRIBUTE_saveall 1
+# else
+#   define __HAS_ATTRIBUTE_saveall 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
+     || (defined CC_INTEL) 
+#   define __HAS_ATTRIBUTE_section 1
+# else
+#   define __HAS_ATTRIBUTE_section 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 0)) 
+#   define __HAS_ATTRIBUTE_shared 1
+# else
+#   define __HAS_ATTRIBUTE_shared 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 0)) 
+#   define __HAS_ATTRIBUTE_signal 1
+# else
+#   define __HAS_ATTRIBUTE_signal 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 0)) 
+#   define __HAS_ATTRIBUTE_short_call 1
+# else
+#   define __HAS_ATTRIBUTE_short_call 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_shortcall 1
+# else
+#   define __HAS_ATTRIBUTE_shortcall 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 0)) 
+#   define __HAS_ATTRIBUTE_sp_switch 1
+# else
+#   define __HAS_ATTRIBUTE_sp_switch 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_stdcall 1
+# else
+#   define __HAS_ATTRIBUTE_stdcall 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) 
+#   define __HAS_ATTRIBUTE_tiny_data 1
+# else
+#   define __HAS_ATTRIBUTE_tiny_data 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
+     || (defined CC_CRAY) 
+#   define __HAS_ATTRIBUTE_transparent_union 1
+# else
+#   define __HAS_ATTRIBUTE_transparent_union 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 0)) 
+#   define __HAS_ATTRIBUTE_trap_exit 1
+# else
+#   define __HAS_ATTRIBUTE_trap_exit 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
+     || (defined CC_CRAY) \
+     || (defined CC_INTEL) 
+#   define __HAS_ATTRIBUTE_unused 1
+# else
+#   define __HAS_ATTRIBUTE_unused 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 1)) \
+     || (defined CC_CRAY) \
+     || (defined CC_INTEL) 
+#   define __HAS_ATTRIBUTE_used 1
+# else
+#   define __HAS_ATTRIBUTE_used 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 1)) 
+#   define __HAS_ATTRIBUTE_vector_size 1
+# else
+#   define __HAS_ATTRIBUTE_vector_size 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 3)) \
+     || (defined CC_SYSC && VERNO_GE(CC_SYSC, 1, 9)) \
+     || (defined CC_HPCC && VERNO_GE(CC_HPCC, 6, 26)) 
+#   define __HAS_ATTRIBUTE_visibility 1
+# else
+#   define __HAS_ATTRIBUTE_visibility 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 3, 3)) \
+     || (defined CC_CRAY) \
+     || (defined CC_HPCC && VERNO_GE(CC_HPCC, 6, 26)) 
+#   define __HAS_ATTRIBUTE_warn_unused_result 1
+# else
+#   define __HAS_ATTRIBUTE_warn_unused_result 0
+# endif
+# if (defined CC_GCC && VERNO_GE(CC_GCC, 2, 95)) \
+     || (defined CC_CRAY) 
+#   define __HAS_ATTRIBUTE_weak 1
+# else
+#   define __HAS_ATTRIBUTE_weak 0
+# endif
 #endif
 
 #if !defined __has_builtin__
@@ -261,21 +375,26 @@
 #if !defined __has_declspec_attribute__
 # define __has_declspec_attribute__(x) \
   (__has_declspec_attribute(x) || __HAS_DECLSPEC_ATTRIBUTE_##x)
-# define __HAS_DECLSPEC_ATTRIBUTE_align ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 13, 0) \
-  )
-# define __HAS_DECLSPEC_ATTRIBUTE_deprecated ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 13, 0) \
-  )
-# define __HAS_DECLSPEC_ATTRIBUTE_dllexport ( \
-    defined CC_COMEAU \
-    || (defined CC_DMC) \
-    || (defined CC_MSVC && VERNO_GE(CC_MSVC, 12, 0)) \
-  )
-# define __HAS_DECLSPEC_ATTRIBUTE_dllimport ( \
-    defined CC_COMEAU \
-    || (defined CC_DMC) \
-    || ( \
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 13, 0) 
+#   define __HAS_DECLSPEC_ATTRIBUTE_align 1
+# else
+#   define __HAS_DECLSPEC_ATTRIBUTE_align 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 13, 0) 
+#   define __HAS_DECLSPEC_ATTRIBUTE_deprecated 1
+# else
+#   define __HAS_DECLSPEC_ATTRIBUTE_deprecated 0
+# endif
+# if defined CC_COMEAU \
+     || (defined CC_DMC) \
+     || (defined CC_MSVC && VERNO_GE(CC_MSVC, 12, 0)) 
+#   define __HAS_DECLSPEC_ATTRIBUTE_dllexport 1
+# else
+#   define __HAS_DECLSPEC_ATTRIBUTE_dllexport 0
+# endif
+# if defined CC_COMEAU \
+     || (defined CC_DMC) \
+     || ( \
       defined CC_MSVC && ( \
         defined(_M_IX86) \
         || defined(_M_IA64) \
@@ -283,125 +402,189 @@
         || defined(_M_ARM) \
         || defined(_M_ARM64) \
       ) \
-    ) \
-  )
-# define __HAS_DECLSPEC_ATTRIBUTE_naked ( \
-    defined CC_COMEAU \
-    || (defined CC_DMC) \
-    || (defined CC_MSVC && VERNO_GE(CC_MSVC, 12, 0)) \
-  )
-# define __HAS_DECLSPEC_ATTRIBUTE_noinline ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 13, 0) \
-  )
-# define __HAS_DECLSPEC_ATTRIBUTE_noreturn ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 12, 0) \
-  )
-# define __HAS_DECLSPEC_ATTRIBUTE_nothrow ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 12, 0) \
-  )
-# define __HAS_DECLSPEC_ATTRIBUTE_safebuffers ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 16, 0) \
-  )
-# define __HAS_DECLSPEC_ATTRIBUTE_selectany ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 11, 0) \
-  )
-# define __HAS_DECLSPEC_ATTRIBUTE_thread ( \
-    defined CC_COMEAU \
-    || (defined CC_DMC) \
-    || (defined CC_INTEL) \
-    || (defined CC_BORLAND) \
-    || (defined CC_MSVC && VERNO_GE(CC_MSVC, 12, 0)) \
-  )
+    ) 
+#   define __HAS_DECLSPEC_ATTRIBUTE_dllimport 1
+# else
+#   define __HAS_DECLSPEC_ATTRIBUTE_dllimport 0
+# endif
+# if defined CC_COMEAU \
+     || (defined CC_DMC) \
+     || (defined CC_MSVC && VERNO_GE(CC_MSVC, 12, 0)) 
+#   define __HAS_DECLSPEC_ATTRIBUTE_naked 1
+# else
+#   define __HAS_DECLSPEC_ATTRIBUTE_naked 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 13, 0) 
+#   define __HAS_DECLSPEC_ATTRIBUTE_noinline 1
+# else
+#   define __HAS_DECLSPEC_ATTRIBUTE_noinline 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 12, 0) 
+#   define __HAS_DECLSPEC_ATTRIBUTE_noreturn 1
+# else
+#   define __HAS_DECLSPEC_ATTRIBUTE_noreturn 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 12, 0) 
+#   define __HAS_DECLSPEC_ATTRIBUTE_nothrow 1
+# else
+#   define __HAS_DECLSPEC_ATTRIBUTE_nothrow 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 16, 0) 
+#   define __HAS_DECLSPEC_ATTRIBUTE_safebuffers 1
+# else
+#   define __HAS_DECLSPEC_ATTRIBUTE_safebuffers 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 11, 0) 
+#   define __HAS_DECLSPEC_ATTRIBUTE_selectany 1
+# else
+#   define __HAS_DECLSPEC_ATTRIBUTE_selectany 0
+# endif
+# if defined CC_COMEAU \
+     || (defined CC_DMC) \
+     || (defined CC_INTEL) \
+     || (defined CC_BORLAND) \
+     || (defined CC_MSVC && VERNO_GE(CC_MSVC, 12, 0)) 
+#   define __HAS_DECLSPEC_ATTRIBUTE_thread 1
+# else
+#   define __HAS_DECLSPEC_ATTRIBUTE_thread 0
+# endif
 #endif
 
 #if !defined __has_feature__
 # define __has_feature__(x) (__has_feature(x) || __HAS_FEATURE_##x)
-# define __HAS_FEATURE_c_alignas ( \
-    defined STD_C11 \
-    || __has_include(<stdalign.h>) \
-    || (defined CC_GCC && VERNO_GE(CC_GCC, 4, 7)) \
-  )
-# define __HAS_FEATURE_c_alignof ( \
-    defined STD_C11 \
-    || __has_include(<stdalign.h>) \
-    || (defined CC_GCC && VERNO_GE(CC_GCC, 4, 7)) \
-  )
-# define __HAS_FEATURE_c_atomic ( \
-    !defined __STDC_NO_ATOMICS && !defined CC_INTEL \
-    && ( \
-      defined STD_C11 \
-      || __has_include(<stdatomic.h>) \
-      || (defined CC_GCC && VERNO_GE(CC_GCC, 4, 9)) \
-    ) \
-  )
-# define __HAS_FEATURE_c_bool ( \
-    defined STD_C99 \
-    || __has_include(<stdbool.h>) \
-    || (defined CC_GCC && VERNO_GE(CC_GCC, 4, 9)) \
-    || (defined CC_MSVC && VERNO_GE(CC_MSVC, 12, 0)) \
-  )
-# define __HAS_FEATURE_c_complex ( \
-    defined STD_C99 \
-    || __has_include(<complex.h>) \
-    || (defined CC_GCC && defined STD_C90) \
-  )
-# define __HAS_FEATURE_c_generic_selections ( \
-    defined STD_C11 \
-    || (defined CC_GCC && VERNO_GE(CC_GCC, 4, 9)) \
-  )
-# define __HAS_FEATURE_c_noreturn ( \
-    defined STD_C11 \
-    || defined _Noreturn \
-    || __has_include(<stdnoreturn.h>) \
-    || (defined CC_CLANG && VERNO_GT(CC_CLANG, 3, 2)) \
-  )
-# define __HAS_FEATURE_c_static_assert ( \
-    defined STD_C11 \
-    || (defined CC_GCC && VERNO_GE(CC_GCC, 4, 6)) \
-  )
-# define __HAS_FEATURE_c_thread_local ( \
-    defined STD_C11 \
-    || (defined CC_GCC && VERNO_GE(CC_GCC, 4, 9)) \
-  )
-# define __HAS_FEATURE_complex_h ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 15, 0) \
-  )
-# define __HAS_FEATURE_fcntl_h ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 15, 0) \
-  )
-# define __HAS_FEATURE_fenv_h ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 18, 0) \
-  )
-# define __HAS_FEATURE_inttypes_h ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 18, 0) \
-  )
-# define __HAS_FEATURE_io_h ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 15, 0) \
-  )
-# define __HAS_FEATURE_malloc_h ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 13, 0) \
-  )
-# define __HAS_FEATURE_stdint_h ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 17, 0) \
-  )
-# define __HAS_FEATURE_stdbool_h ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 18, 0) \
-  )
-# define __HAS_FEATURE_sys_stat_h ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 13, 0) \
-  )
-# define __HAS_FEATURE_sys_types_h ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 13, 0) \
-  )
-# define __HAS_FEATURE_uchar_h ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 18, 0) \
-  )
-# define __HAS_FEATURE_wchar_h ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 15, 0) \
-  )
-# define __HAS_FEATURE_wctype_h ( \
-    defined CC_MSVC && VERNO_GE(CC_MSVC, 15, 0) \
-  )
+# if defined STD_C11 \
+     || __has_include(<stdalign.h>) \
+     || (defined CC_GCC && VERNO_GE(CC_GCC, 4, 7)) 
+#   define __HAS_FEATURE_c_alignas 1
+# else
+#   define __HAS_FEATURE_c_alignas 0
+# endif
+# if defined STD_C11 \
+     || __has_include(<stdalign.h>) \
+     || (defined CC_GCC && VERNO_GE(CC_GCC, 4, 7)) 
+#   define __HAS_FEATURE_c_alignof 1
+# else
+#   define __HAS_FEATURE_c_alignof 0
+# endif
+# if !defined __STDC_NO_ATOMICS && !defined CC_INTEL && ( \
+     defined STD_C11 \
+     || __has_include(<stdatomic.h>) \
+     || (defined CC_GCC && VERNO_GE(CC_GCC, 4, 9)))
+#   define __HAS_FEATURE_c_atomic 1
+# else
+#   define __HAS_FEATURE_c_atomic 0
+# endif
+# if defined STD_C99 \
+     || __has_include(<stdbool.h>) \
+     || (defined CC_GCC && VERNO_GE(CC_GCC, 4, 9)) \
+     || (defined CC_MSVC && VERNO_GE(CC_MSVC, 12, 0)) 
+#   define __HAS_FEATURE_c_bool 1
+# else
+#   define __HAS_FEATURE_c_bool 0
+# endif
+# if defined STD_C99 \
+     || __has_include(<complex.h>) \
+     || (defined CC_GCC && defined STD_C90) 
+#   define __HAS_FEATURE_c_complex 1
+# else
+#   define __HAS_FEATURE_c_complex 0
+# endif
+# if defined STD_C11 \
+     || (defined CC_GCC && VERNO_GE(CC_GCC, 4, 9)) 
+#   define __HAS_FEATURE_c_generic_selections 1
+# else
+#   define __HAS_FEATURE_c_generic_selections 0
+# endif
+# if defined STD_C11 \
+     || defined _Noreturn \
+     || __has_include(<stdnoreturn.h>) \
+     || (defined CC_CLANG && VERNO_GT(CC_CLANG, 3, 2)) 
+#   define __HAS_FEATURE_c_noreturn 1
+# else
+#   define __HAS_FEATURE_c_noreturn 0
+# endif
+# if defined STD_C11 \
+     || (defined CC_GCC && VERNO_GE(CC_GCC, 4, 6)) 
+#   define __HAS_FEATURE_c_static_assert 1
+# else
+#   define __HAS_FEATURE_c_static_assert 0
+# endif
+# if defined STD_C11 \
+     || (defined CC_GCC && VERNO_GE(CC_GCC, 4, 9)) 
+#   define __HAS_FEATURE_c_thread_local 1
+# else
+#   define __HAS_FEATURE_c_thread_local 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 15, 0) 
+#   define __HAS_FEATURE_complex_h 1
+# else
+#   define __HAS_FEATURE_complex_h 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 15, 0)
+#   define __HAS_FEATURE_direct_h 1
+# else
+#   define __HAS_FEATURE_direct_h 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 15, 0) 
+#   define __HAS_FEATURE_fcntl_h 1
+# else
+#   define __HAS_FEATURE_fcntl_h 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 18, 0) 
+#   define __HAS_FEATURE_fenv_h 1
+# else
+#   define __HAS_FEATURE_fenv_h 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 18, 0) 
+#   define __HAS_FEATURE_inttypes_h 1
+# else
+#   define __HAS_FEATURE_inttypes_h 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 15, 0) 
+#   define __HAS_FEATURE_io_h 1
+# else
+#   define __HAS_FEATURE_io_h 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 13, 0) 
+#   define __HAS_FEATURE_malloc_h 1
+# else
+#   define __HAS_FEATURE_malloc_h 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 17, 0) 
+#   define __HAS_FEATURE_stdint_h 1
+# else
+#   define __HAS_FEATURE_stdint_h 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 18, 0) 
+#   define __HAS_FEATURE_stdbool_h 1
+# else
+#   define __HAS_FEATURE_stdbool_h 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 13, 0) 
+#   define __HAS_FEATURE_sys_stat_h 1
+# else
+#   define __HAS_FEATURE_sys_stat_h 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 13, 0) 
+#   define __HAS_FEATURE_sys_types_h 1
+# else
+#   define __HAS_FEATURE_sys_types_h 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 18, 0) 
+#   define __HAS_FEATURE_uchar_h 1
+# else
+#   define __HAS_FEATURE_uchar_h 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 15, 0) 
+#   define __HAS_FEATURE_wchar_h 1
+# else
+#   define __HAS_FEATURE_wchar_h 0
+# endif
+# if defined CC_MSVC && VERNO_GE(CC_MSVC, 15, 0) 
+#   define __HAS_FEATURE_wctype_h 1
+# else
+#   define __HAS_FEATURE_wctype_h 0
+# endif
 #endif
 
 #if !defined __has_extension__
