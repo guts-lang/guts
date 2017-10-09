@@ -67,6 +67,7 @@ macro (add_module MOD TYPE)
       target_compile_options(${MOD}
         INTERFACE -Wall -Werror -Wextra -fomit-frame-pointer -ansi
         INTERFACE -Wno-missing-field-initializers -Wno-missing-braces
+        INTERFACE -Wno-unused-function
         INTERFACE -O$<$<CONFIG:Debug>:0 -g3>$<$<CONFIG:Release>:3>)
     endif ()
   elseif ("${TYPE}" STREQUAL "LIBRARY")
@@ -92,6 +93,7 @@ macro (add_module MOD TYPE)
       target_compile_options(${MOD}
         PUBLIC -Wall -Werror -Wextra -fomit-frame-pointer -ansi
         PUBLIC -Wno-missing-field-initializers -Wno-missing-braces
+        PUBLIC -Wno-unused-function
         PUBLIC -O$<$<CONFIG:Debug>:0 -g3>$<$<CONFIG:Release>:3>)
     endif ()
   elseif ("${TYPE}" STREQUAL "EXECUTABLE")
@@ -114,6 +116,7 @@ macro (add_module MOD TYPE)
       target_compile_options(${MOD}
         PRIVATE -Wall -Werror -Wextra -fomit-frame-pointer -ansi
         PRIVATE -Wno-missing-field-initializers -Wno-missing-braces
+        PRIVATE -Wno-unused-function
         PRIVATE -O$<$<CONFIG:Debug>:0 -g3>$<$<CONFIG:Release>:3>)
     endif ()
   else ()
