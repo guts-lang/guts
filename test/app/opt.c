@@ -76,8 +76,8 @@ CUTEST_SETUP {
       "output file name", (optcb_t) my_app_set_output, true},
     {0, nil}
   };
-  self->my_app = (my_app_t) {0};
-  self->opts = (opts_t) {0};
+  init(&self->my_app, my_app_t);
+  init(&self->opts, opts_t);
   strvec_ctor(&self->my_app.inputs);
   opts_ctor(&self->opts, opts, (optcb_t) my_app_add_input);
 }
@@ -110,23 +110,26 @@ main(void) {
 }
 
 CUTEST(opt, input) {
-  opts_parse(&self->opts, &self->my_app, 5,
-    (char_t *[5]) {"cli", "-o", "bla", "-S", "test/app.c"});
+  char_t *args[5] = {"cli", "-o", "bla", "-S", "test/app.c"};
+
+  opts_parse(&self->opts, &self->my_app, 5, args);
   ASSERT(self->my_app.output && memcmp("bla", self->my_app.output, 3) == 0);
   ASSERT(self->my_app.pp == true);
   return CUTE_SUCCESS;
 }
 
 CUTEST(opt, catval) {
-  opts_parse(&self->opts, &self->my_app, 2,
-    (char_t *[2]) {"cli", "-obla"});
+  char_t *args[2] = {"cli", "-obla"};
+
+  opts_parse(&self->opts, &self->my_app, 2, args;
   ASSERT(self->my_app.output && memcmp("bla", self->my_app.output, 3) == 0);
   return CUTE_SUCCESS;
 }
 
 CUTEST(opt, mmatch) {
-  opts_parse(&self->opts, &self->my_app, 5,
-    (char_t *[5]) {"cli", "--output", "bla", "--echo", "--prepossess"});
+  char_t *args[5] = {"cli", "--output", "bla", "--echo", "--prepossess"};
+
+  opts_parse(&self->opts, &self->my_app, 5, args);
   ASSERT(self->my_app.output && memcmp("bla", self->my_app.output, 3) == 0);
   ASSERT(self->my_app.echo == true);
   ASSERT(self->my_app.pp == true);
@@ -135,9 +138,9 @@ CUTEST(opt, mmatch) {
 
 CUTEST(opt, unrecognized) {
   err_t err;
+  char_t *args[5] = {"cli", "--foo", "-foo", "-b", "--echo"};
 
-  opts_parse(&self->opts, &self->my_app, 5,
-    (char_t *[5]) {"cli", "--foo", "-foo", "-b", "--echo"});
+  opts_parse(&self->opts, &self->my_app, 5, args);
   ASSERT(self->opts.errs.len == 3);
   err = self->opts.errs.buf[0];
   ASSERT(memcmp(err.msg,
@@ -153,8 +156,9 @@ CUTEST(opt, unrecognized) {
 
 CUTEST(opt, missing1) {
   err_t err;
+  char_t *args[5] = {"cli", "--output"};
 
-  opts_parse(&self->opts, &self->my_app, 2, (char_t *[2]) {"cli", "--output"});
+  opts_parse(&self->opts, &self->my_app, 2, args);
   ASSERT(self->opts.errs.len == 1);
   err = self->opts.errs.buf[0];
   ASSERT(memcmp(err.msg,
@@ -164,8 +168,9 @@ CUTEST(opt, missing1) {
 
 CUTEST(opt, missing2) {
   err_t err;
+  char_t *args[5] = {"cli", "-o"};
 
-  opts_parse(&self->opts, &self->my_app, 2, (char_t *[2]) {"cli", "-o"});
+  opts_parse(&self->opts, &self->my_app, 2, args);
   ASSERT(self->opts.errs.len == 1);
   err = self->opts.errs.buf[0];
   ASSERT(memcmp(err.msg,
@@ -175,12 +180,13 @@ CUTEST(opt, missing2) {
 
 CUTEST(opt, duplicate) {
   err_t err;
+  char_t *args[4] = {"cli", "-obla", "--echo", "-S"};
+  char_t *args2[8] = {
+    "cli", "--output", "bla", "--echo", "-obla", "-o", "bla", "-S"
+  };
 
-  opts_parse(&self->opts, &self->my_app, 4,
-    (char_t *[4]) {"cli", "-obla", "--echo", "-S"});
-  opts_parse(&self->opts, &self->my_app, 8,
-    (char_t *[8])
-      {"cli", "--output", "bla", "--echo", "-obla", "-o", "bla", "-S"});
+  opts_parse(&self->opts, &self->my_app, 4, args);
+  opts_parse(&self->opts, &self->my_app, 8, args2);
   ASSERT(self->opts.errs.len == 5);
   err = self->opts.errs.buf[0];
   ASSERT(memcmp(err.msg,
