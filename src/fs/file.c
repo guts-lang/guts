@@ -151,7 +151,7 @@ fs_file_write(fs_file_t *__restrict self, char_t __const *buf, usize_t len, isiz
   if (r < 0) {
     return RET_ERRNO;
   }
-  *out = (u64_t) r;
+  *out = r;
   return RET_SUCCESS;
 }
 
@@ -174,7 +174,7 @@ fs_file_seek(fs_file_t *__restrict self, isize_t off, fs_seek_mod_t whence,
 
 isize_t
 fs_file_offset(fs_file_t *__restrict self) {
-  i64_t off;
+  isize_t off;
 
   switch (fs_file_seek(self, 0, FS_SEEK_CUR, &off)) {
     case RET_SUCCESS:

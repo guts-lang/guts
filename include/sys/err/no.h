@@ -29,7 +29,7 @@
 #ifndef __SYS_ERR_NO_H
 # define __SYS_ERR_NO_H
 
-#include <errno.h>
+#include "sys/libc.h"
 
 enum errno_wrap {
   ERRNO_PERM = EPERM,

@@ -69,13 +69,13 @@
 
 #if defined STD_C99 || __has_feature__(c_complex) || __has_feature__(complex_h)
 # if defined __cplusplus
-#   include <complex>
+#   include <ccomplex>
 # else
 #   include <complex.h>
 # endif
 #endif
 
-#if defined OS_WIN || __has_feature__(direct_h)
+#if __has_feature__(direct_h)
 # include <direct.h>
 #endif
 
@@ -103,7 +103,7 @@
 # endif
 #endif
 
-#if defined OS_WIN || __has_feature__(io_h)
+#if __has_feature__(io_h)
 # include <io.h>
 #endif
 
@@ -111,7 +111,7 @@
 # include <iso646.h>
 #endif
 
-#if defined OS_WIN || __has_feature__(malloc_h)
+#if __has_feature__(malloc_h)
 # include <malloc.h>
 #endif
 
@@ -173,7 +173,7 @@
 # if defined __cplusplus
 #   include <cwchar>
 # else
-#   include <stdbool.h>
+#   include <wchar.h>
 # endif
 #endif
 
