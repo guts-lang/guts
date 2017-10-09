@@ -67,7 +67,7 @@
 # include <time.h>
 #endif
 
-#if defined STD_C99 || __has_feature__(c_complex) || __has_feature__(complex_h)
+#if __has_feature__(complex_h)
 # if defined __cplusplus
 #   include <ccomplex>
 # else
@@ -79,15 +79,15 @@
 # include <direct.h>
 #endif
 
-#if defined STD_POSIX || __has_feature__(dirent_h)
+#if __has_feature__(dirent_h)
 # include <dirent.h>
 #endif
 
-#if (defined STD_POSIX || defined STD_XOPEN) || __has_feature__(fcntl_h)
+#if __has_feature__(fcntl_h)
 # include <fcntl.h>
 #endif
 
-#if defined STD_C99 || __has_feature__(fenv_h)
+#if __has_feature__(fenv_h)
 # if defined __cplusplus
 #   include <cfenv>
 # else
@@ -95,7 +95,7 @@
 # endif
 #endif
 
-#if defined STD_C99 || __has_feature__(inttypes_h)
+#if __has_feature__(inttypes_h)
 # if defined __cplusplus
 #   include <cinttypes>
 # else
@@ -107,7 +107,7 @@
 # include <io.h>
 #endif
 
-#if (defined STD_POSIX || defined STD_XOPEN) || __has_feature__(iso646_h)
+#if __has_feature__(iso646_h)
 # include <iso646.h>
 #endif
 
@@ -115,16 +115,15 @@
 # include <malloc.h>
 #endif
 
-#if defined STD_C11 || __has_feature__(c_alignas) || \
-    __has_feature__(c_alignof) || __has_feature__(stdalign_h)
+#if __has_feature__(stdalign_h)
 # include <stdalign.h>
 #endif
 
-#if defined STD_C11 || __has_feature__(c_atomic) || __has_feature__(stdatomic_h)
+#if __has_feature__(stdatomic_h)
 # include <stdatomic.h>
 #endif
 
-#if defined STD_C99 || __has_feature__(c_bool) || __has_feature__(stdbool_h)
+#if __has_feature__(stdbool_h)
 # if defined __cplusplus
 #   include <cstdbool>
 # else
@@ -132,7 +131,7 @@
 # endif
 #endif
 
-#if defined STD_C99 || __has_feature__(stdint_h)
+#if __has_feature__(stdint_h)
 # if defined __cplusplus
 #   include <cstdint>
 # else
@@ -140,36 +139,35 @@
 # endif
 #endif
 
-#if defined STD_C11 || __has_feature__(c_noreturn) || \
-    __has_feature__(stdnoreturn_h)
+#if __has_feature__(stdnoreturn_h)
 # include <stdnoreturn.h>
 #endif
 
-#if (defined STD_POSIX || defined STD_XOPEN) || __has_feature__(sys_stat_h)
+#if __has_feature__(sys_stat_h)
 # include <sys/stat.h>
 #endif
 
-#if (defined STD_POSIX || defined STD_XOPEN) || __has_feature__(sys_types_h)
+#if __has_feature__(sys_types_h)
 # include <sys/types.h>
 #endif
 
-#if defined STD_C99 || __has_feature__(tgmath_h)
+#if __has_feature__(tgmath_h)
 # include <tgmath.h>
 #endif
 
-#if defined STD_C11 || __has_feature__(threads_h)
+#if __has_feature__(threads_h)
 # include <threads.h>
 #endif
 
-#if defined STD_C11 || __has_feature__(uchar_h)
+#if __has_feature__(uchar_h)
 # include <uchar.h>
 #endif
 
-#if (defined STD_POSIX || defined STD_XOPEN) || __has_feature__(unistd_h)
+#if __has_feature__(unistd_h)
 # include <unistd.h>
 #endif
 
-#if defined STD_C90 || __has_feature__(wchar_h)
+#if __has_feature__(wchar_h)
 # if defined __cplusplus
 #   include <cwchar>
 # else
@@ -177,7 +175,7 @@
 # endif
 #endif
 
-#if defined STD_C90 || __has_feature__(wctype_h)
+#if __has_feature__(wctype_h)
 # if defined __cplusplus
 #   include <cwctype>
 # else

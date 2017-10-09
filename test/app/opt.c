@@ -68,11 +68,11 @@ CUTEST_DATA {
 
 CUTEST_SETUP {
   static opt_t opts[4] = {
-    {'S', "prepossess", 
+    {'S', "prepossess",
       "output the prepossessed input file", (optcb_t) my_app_pp},
-    {0, "echo", 
+    {0, "echo",
       "print the content of the input file", (optcb_t) my_app_echo},
-    {'o', "output", 
+    {'o', "output",
       "output file name", (optcb_t) my_app_set_output, true},
     {0, nil}
   };

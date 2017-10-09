@@ -84,7 +84,7 @@ CUTEST(deq, ensure) {
   ASSERT_EQ(0, i8deq_nomem_cap(&self->i8deq_nomem));
   ASSERT_EQ(0, i8deq_nomem_size(&self->i8deq_nomem));
   ASSERT_EQ(nil, self->i8deq_nomem.buf);
-  
+
   ASSERT_EQ(RET_SUCCESS, line_ensure(&self->line, 0));
   ASSERT_EQ(0, line_cap(&self->line));
   ASSERT_EQ(0, line_size(&self->line));
