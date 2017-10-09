@@ -5,7 +5,7 @@ dist: trusty
 install:
   - mkdir build && cd build
   - cmake ..
-  - cmake --build .
+  - cmake --build . --target all
 
 script: ctest --verbose
 
@@ -27,7 +27,7 @@ matrix:
       install:
         - mkdir build && cd build
         - cmake -DCOVERAGE=ON -DCMAKE_BUILD_TYPE=Debug ..
-        - cmake --build .
+        - cmake --build . --target all
       script:
         - ctest --verbose
       after_success:
