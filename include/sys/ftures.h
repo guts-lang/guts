@@ -364,22 +364,22 @@
     || (defined CC_GCC && VERNO_GE(CC_GCC, 4, 9)) \
   )
 # if defined CC_MSVC
-#   include <corecrt.h>
-#     if defined __STDC_SECURE_LIB__ && __STDC_SECURE_LIB__ >= 200411L
-#       define __HAS_FEATURE_complex_h 1
-#       define __HAS_FEATURE_fcntl_h 1
-#       define __HAS_FEATURE_fenv_h 1
-#       define __HAS_FEATURE_inttypes_h 1
-#       define __HAS_FEATURE_io_h 1
-#       define __HAS_FEATURE_stdint_h 1
-#       define __HAS_FEATURE_stdbool_h 1
-#       define __HAS_FEATURE_sys_stat_h 1
-#       define __HAS_FEATURE_sys_types_h 1
-#       define __HAS_FEATURE_uchar_h 1
-#       define __HAS_FEATURE_wchar_h 1
-#       define __HAS_FEATURE_wctype_h 1
-#     else
-#       error "Download and install the lastest ucrt from Microsoft."
+#   include <ctype.h>
+#   if defined __STDC_SECURE_LIB__ && __STDC_SECURE_LIB__ >= 200411L
+#     define __HAS_FEATURE_complex_h 1
+#     define __HAS_FEATURE_fcntl_h 1
+#     define __HAS_FEATURE_fenv_h 1
+#     define __HAS_FEATURE_inttypes_h 1
+#     define __HAS_FEATURE_io_h 1
+#     define __HAS_FEATURE_stdint_h 1
+#     define __HAS_FEATURE_stdbool_h 1
+#     define __HAS_FEATURE_sys_stat_h 1
+#     define __HAS_FEATURE_sys_types_h 1
+#     define __HAS_FEATURE_uchar_h 1
+#     define __HAS_FEATURE_wchar_h 1
+#     define __HAS_FEATURE_wctype_h 1
+#   else
+#     error "Download and install the lastest ucrt from Microsoft."
 #   endif
 # endif
 #endif
