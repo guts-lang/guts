@@ -29,7 +29,7 @@
 #ifndef __SYS_LIBC_H
 # define __SYS_LIBC_H
 
-#include "ftures.h"
+#include "defs.h"
 
 #ifdef __cplusplus
 # include <cassert>

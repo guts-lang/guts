@@ -30,8 +30,6 @@
 # define __DS_SEQ_H
 
 #include <sys/tys.h>
-
-#include <sys/tys.h>
 #include <sys/err.h>
 #include <stdlib.h>
 
@@ -570,7 +568,7 @@
       return false; \
     } \
     if (out != nil) { \
-      memcpy(*out, ID##_offset(self, idx), n); \
+      memcpy(*out, ID##_offset(self, idx), (usize_t) n); \
     } \
     if (idx + n > self->LEN) { \
       self->LEN = idx; \

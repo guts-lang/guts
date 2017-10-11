@@ -37,7 +37,6 @@ macro (add_module MOD TYPE)
   else ()
     set(MOD_DIR ${MOD})
   endif ()
-  project(${MOD} C)
   set(EXT c)
   if (PA_UNPARSED_ARGUMENTS)
     message(STATUS

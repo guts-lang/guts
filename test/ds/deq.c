@@ -38,7 +38,7 @@ i8_t point_cmp(__const point_t a, __const point_t b) {
   return f64cmp(a.x, b.x) + f64cmp(a.y, b.y);
 }
 
-DEQ64_DEFINE(line, point_t, point_cmp)
+DEQ_DEFINE(line, point_t, point_cmp)
 
 CUTEST_DATA {
   i8deq_t i8deq;
@@ -112,7 +112,7 @@ CUTEST(deq, ensure) {
   ASSERT_NEQ(nil, self->line.buf);
   line_dtor(&self->line);
   ASSERT_EQ(RET_SUCCESS,
-    line_ensure(&self->line, pow2_next64(SEQ_MIN_CAP + 1))
+    line_ensure(&self->line, pow2_nextsize(SEQ_MIN_CAP + 1))
   );
   ASSERT_EQ(pow2_next64(SEQ_MIN_CAP + 1), line_cap(&self->line));
   ASSERT_EQ(0, line_size(&self->line));

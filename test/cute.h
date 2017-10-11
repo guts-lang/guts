@@ -87,6 +87,7 @@ char __cute_str_err[255];
     } \
   } while (0)
 #define ASSERT_NEQ(v, e) do if ((v) == (e)) return LOCATION " -> " #v " != " #e; while (0)
+#define ASSERT_SEQ(expected, got) ASSERT_EQ(0, strcmp(got, expected))
 #define ASSERT_CLOSE(v, e, p) do if (double_close(v, e, p) == 0) return LOCATION " -> " #v " == " #e; while (0)
 
 #define CUTEST_PADDING "................................."

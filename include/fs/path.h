@@ -42,16 +42,16 @@ __api__ ret_t
 fs_path_cwd(fs_path_t *self);
 
 __api__ ret_t
-fs_path(fs_path_t *self, char_t const *path);
+fs_path(fs_path_t *self, char_t __const *path);
 
 __api__ ret_t
-fs_pathn(fs_path_t *self, char_t const *path, u16_t n);
+fs_pathn(fs_path_t *self, char_t __const *path, u16_t n);
 
 __api__ bool_t
-fs_path_is_abs(fs_path_t const *self);
+fs_path_is_abs(fs_path_t __const *self);
 
 __api__ bool_t
-fs_path_is_rel(fs_path_t const *self);
+fs_path_is_rel(fs_path_t __const *self);
 
 __api__ ret_t
 fs_path_absolute(fs_path_t *self, fs_path_t *out);

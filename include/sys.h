@@ -30,19 +30,15 @@
 # define __SYS_H
 
 #include "sys/arch.h"
-#include "sys/attr.h"
-#include "sys/builtin.h"
 #include "sys/cc.h"
 #include "sys/cpu.h"
 #include "sys/err.h"
-#include "sys/ftures.h"
-#include "sys/kw.h"
-#include "sys/libc.h"
-#include "sys/libs.h"
+#include "sys/exts.h"
+#include "sys/defs.h"
+#include "sys/incs.h"
 #include "sys/os.h"
 #include "sys/plat.h"
 #include "sys/pp.h"
-#include "sys/std.h"
 #include "sys/verno.h"
 
 #endif /* !__SYS_H */

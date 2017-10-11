@@ -206,7 +206,7 @@
       return false; \
     } \
     if (out != nil) { \
-      memcpy(*out, ID##_offset(self, idx), n); \
+      memcpy(*out, ID##_offset(self, idx), (usize_t) n); \
     } \
     if (idx == 0) { \
       self->head += n; \
@@ -408,22 +408,20 @@
 #define DEQ64_DEFINE_DFT(ID, T, REALLOC, FREE, CMP) \
   DEQ_DEFINE_DFT(ID, T, 64, REALLOC, FREE, CMP)
 
-#define DEQ_DEFINE(ID, T, BITS, CMP) \
+#define DEQ_DEFINE_X(ID, T, BITS, CMP) \
   DEQ_DEFINE_DFT(ID, T, BITS, realloc, free, CMP)
-#define DEQ8_DEFINE(ID, T, CMP) DEQ_DEFINE(ID, T, 8, CMP)
-#define DEQ16_DEFINE(ID, T, CMP) DEQ_DEFINE(ID, T, 16, CMP)
-#define DEQ32_DEFINE(ID, T, CMP) DEQ_DEFINE(ID, T, 32, CMP)
-#define DEQ64_DEFINE(ID, T, CMP) DEQ_DEFINE(ID, T, 64, CMP)
+#define DEQ8_DEFINE(ID, T, CMP) DEQ_DEFINE_X(ID, T, 8, CMP)
+#define DEQ16_DEFINE(ID, T, CMP) DEQ_DEFINE_X(ID, T, 16, CMP)
+#define DEQ32_DEFINE(ID, T, CMP) DEQ_DEFINE_X(ID, T, 32, CMP)
+#define DEQ_DEFINE(ID, T, CMP) DEQ_DEFINE_X(ID, T, size, CMP)
 
-DEQ32_DEFINE(i8deq, i8_t, i8cmp)
-DEQ32_DEFINE(u8deq, u8_t, u8cmp)
-DEQ32_DEFINE(i16deq, i16_t, i16cmp)
-DEQ32_DEFINE(u16deq, u16_t, u16cmp)
-DEQ32_DEFINE(i32deq, i32_t, i32cmp)
-DEQ32_DEFINE(u32deq, u32_t, u32cmp)
-DEQ32_DEFINE(i64deq, i64_t, i64cmp)
-DEQ32_DEFINE(u64deq, u64_t, u64cmp)
-DEQ32_DEFINE(chardeq, char_t, i8cmp)
-DEQ32_DEFINE(strdeq, char_t *, strcmp)
+DEQ_DEFINE(i8deq, i8_t, i8cmp)
+DEQ_DEFINE(u8deq, u8_t, u8cmp)
+DEQ_DEFINE(i16deq, i16_t, i16cmp)
+DEQ_DEFINE(u16deq, u16_t, u16cmp)
+DEQ_DEFINE(i32deq, i32_t, i32cmp)
+DEQ_DEFINE(u32deq, u32_t, u32cmp)
+DEQ_DEFINE(chardeq, char_t, i8cmp)
+DEQ_DEFINE(strdeq, char_t *, strcmp)
 
 #endif /* !__DS_DEQ_H */

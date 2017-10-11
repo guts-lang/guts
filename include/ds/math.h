@@ -113,4 +113,22 @@ pow2_next64(u64_t n) {
   return (j < n) ? (u64_t) U64_MAX : j;
 }
 
+static PURE CONST FORCEINLINE usize_t
+pow2_nextsize(usize_t n) {
+  usize_t j;
+
+  if (n == USIZE_MAX || ISPOW2(n)) {
+    return n;
+  }
+  j = (usize_t) (
+    (void) ((j = n & 0xFFFF0000) || (j = n)),
+      (void) ((n = j & 0xFF00FF00) || (n = j)),
+      (void) ((j = n & 0xF0F0F0F0) || (j = n)),
+      (void) ((n = j & 0xCCCCCCCC) || (n = j)),
+      (void) ((j = n & 0xAAAAAAAA) || (j = n)),
+      j << 1
+  );
+  return (j < n) ? (usize_t) USIZE_MAX : j;
+}
+
 #endif /* !__DS_MATH_H */

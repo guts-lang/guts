@@ -61,20 +61,17 @@ my_app_add_input(my_app_t *app, char_t __const *val) {
   return strvec_push(&app->inputs, (char_t *) val);
 }
 
-CUTEST_DATA {
-  my_app_t my_app;
-  opts_t opts;
-};
+CUTEST_DATA { my_app_t my_app;opts_t opts; };
 
 CUTEST_SETUP {
   static opt_t opts[4] = {
-    {'S', "prepossess",
-      "output the prepossessed input file", (optcb_t) my_app_pp},
-    {0, "echo",
-      "print the content of the input file", (optcb_t) my_app_echo},
-    {'o', "output",
-      "output file name", (optcb_t) my_app_set_output, true},
-    {0, nil}
+    {
+      'S', "prepossess", "output the prepossessed input file", 
+      (optcb_t) my_app_pp
+    },
+    { 0, "echo", "print the content of the input file", (optcb_t) my_app_echo },
+    { 'o', "output", "output file name", (optcb_t) my_app_set_output, true },
+    { 0, nil }
   };
   init(&self->my_app, my_app_t);
   init(&self->opts, opts_t);
@@ -97,7 +94,7 @@ CUTEST(opt, duplicate);
 
 i32_t
 main(void) {
-  CUTEST_DATA test = {0};
+  CUTEST_DATA test = { 0 };
 
   CUTEST_PASS(opt, input);
   CUTEST_PASS(opt, catval);
@@ -110,98 +107,91 @@ main(void) {
 }
 
 CUTEST(opt, input) {
-  char_t *args[5] = {"cli", "-o", "bla", "-S", "test/app.c"};
+  char_t *args[5] = { "cli", "-o", "bla", "-S", "test/app.c" };
 
   opts_parse(&self->opts, &self->my_app, 5, args);
-  ASSERT(self->my_app.output && memcmp("bla", self->my_app.output, 3) == 0);
-  ASSERT(self->my_app.pp == true);
+  ASSERT(self->my_app.output);
+  ASSERT_SEQ("bla", self->my_app.output);
+  ASSERT_EQ(true, self->my_app.pp);
   return CUTE_SUCCESS;
 }
 
 CUTEST(opt, catval) {
-  char_t *args[2] = {"cli", "-obla"};
+  char_t *args[2] = { "cli", "-obla" };
 
   opts_parse(&self->opts, &self->my_app, 2, args);
-  ASSERT(self->my_app.output && memcmp("bla", self->my_app.output, 3) == 0);
+  ASSERT(self->my_app.output);
+  ASSERT_SEQ("bla", self->my_app.output);
   return CUTE_SUCCESS;
 }
 
 CUTEST(opt, mmatch) {
-  char_t *args[5] = {"cli", "--output", "bla", "--echo", "--prepossess"};
+  char_t *args[5] = { "cli", "--output", "bla", "--echo", "--prepossess" };
 
   opts_parse(&self->opts, &self->my_app, 5, args);
-  ASSERT(self->my_app.output && memcmp("bla", self->my_app.output, 3) == 0);
-  ASSERT(self->my_app.echo == true);
-  ASSERT(self->my_app.pp == true);
+  ASSERT(self->my_app.output);
+  ASSERT_SEQ("bla", self->my_app.output);
+  ASSERT_EQ(true, self->my_app.echo);
+  ASSERT_EQ(true, self->my_app.pp);
   return CUTE_SUCCESS;
 }
 
 CUTEST(opt, unrecognized) {
-  err_t err;
-  char_t *args[5] = {"cli", "--foo", "-foo", "-b", "--echo"};
+  err_t er;
+  char_t *args[5] = { "cli", "--foo", "-foo", "-b", "--echo" };
 
   opts_parse(&self->opts, &self->my_app, 5, args);
-  ASSERT(self->opts.errs.len == 3);
-  err = self->opts.errs.buf[0];
-  ASSERT(memcmp(err.msg,
-    STRNSIZE("unrecognized command line option ‘foo’")) == 0);
-  err = self->opts.errs.buf[1];
-  ASSERT(memcmp(err.msg,
-    STRNSIZE("unrecognized command line option ‘f’")) == 0);
-  err = self->opts.errs.buf[2];
-  ASSERT(memcmp(err.msg,
-    STRNSIZE("unrecognized command line option ‘b’")) == 0);
+  ASSERT_EQ(3, self->opts.errs.len);
+  er = self->opts.errs.buf[0];
+  ASSERT_SEQ("unrecognized command line option ‘foo’", er.msg);
+  er = self->opts.errs.buf[1];
+  ASSERT_SEQ("unrecognized command line option ‘f’", er.msg);
+  er = self->opts.errs.buf[2];
+  ASSERT_SEQ("unrecognized command line option ‘b’", er.msg);
   return CUTE_SUCCESS;
 }
 
 CUTEST(opt, missing1) {
-  err_t err;
-  char_t *args[5] = {"cli", "--output"};
+  err_t er;
+  char_t *args[5] = { "cli", "--output" };
 
   opts_parse(&self->opts, &self->my_app, 2, args);
-  ASSERT(self->opts.errs.len == 1);
-  err = self->opts.errs.buf[0];
-  ASSERT(memcmp(err.msg,
-    STRNSIZE("missing argument for command line option ‘output’")) == 0);
+  ASSERT_EQ(1, self->opts.errs.len);
+  er = self->opts.errs.buf[0];
+  ASSERT_SEQ("missing argument for command line option ‘output’", er.msg);
   return CUTE_SUCCESS;
 }
 
 CUTEST(opt, missing2) {
-  err_t err;
-  char_t *args[5] = {"cli", "-o"};
+  err_t er;
+  char_t *args[5] = { "cli", "-o" };
 
   opts_parse(&self->opts, &self->my_app, 2, args);
-  ASSERT(self->opts.errs.len == 1);
-  err = self->opts.errs.buf[0];
-  ASSERT(memcmp(err.msg,
-    STRNSIZE("missing argument for command line option ‘o’")) == 0);
+  ASSERT_EQ(1, self->opts.errs.len);
+  er = self->opts.errs.buf[0];
+  ASSERT_SEQ("missing argument for command line option ‘o’", er.msg);
   return CUTE_SUCCESS;
 }
 
 CUTEST(opt, duplicate) {
-  err_t err;
-  char_t *args[4] = {"cli", "-obla", "--echo", "-S"};
+  err_t er;
+  char_t *args[4] = { "cli", "-obla", "--echo", "-S" };
   char_t *args2[8] = {
     "cli", "--output", "bla", "--echo", "-obla", "-o", "bla", "-S"
   };
 
   opts_parse(&self->opts, &self->my_app, 4, args);
   opts_parse(&self->opts, &self->my_app, 8, args2);
-  ASSERT(self->opts.errs.len == 5);
-  err = self->opts.errs.buf[0];
-  ASSERT(memcmp(err.msg,
-    STRNSIZE("duplicate value for command line option ‘output’: ‘bla’")) == 0);
-  err = self->opts.errs.buf[1];
-  ASSERT(memcmp(err.msg,
-    STRNSIZE("duplicate command line option ‘echo’")) == 0);
-  err = self->opts.errs.buf[2];
-  ASSERT(memcmp(err.msg,
-    STRNSIZE("duplicate value for command line option ‘o’: ‘bla’")) == 0);
-  err = self->opts.errs.buf[3];
-  ASSERT(memcmp(err.msg,
-    STRNSIZE("duplicate value for command line option ‘o’: ‘bla’")) == 0);
-  err = self->opts.errs.buf[4];
-  ASSERT(memcmp(err.msg,
-    STRNSIZE("duplicate command line option ‘S’")) == 0);
+  ASSERT_EQ(5, self->opts.errs.len);
+  er = self->opts.errs.buf[0];
+  ASSERT_SEQ("duplicate value for command line option ‘output’: ‘bla’", er.msg);
+  er = self->opts.errs.buf[1];
+  ASSERT_SEQ("duplicate command line option ‘echo’", er.msg);
+  er = self->opts.errs.buf[2];
+  ASSERT_SEQ("duplicate value for command line option ‘o’: ‘bla’", er.msg);
+  er = self->opts.errs.buf[3];
+  ASSERT_SEQ("duplicate value for command line option ‘o’: ‘bla’", er.msg);
+  er = self->opts.errs.buf[4];
+  ASSERT_SEQ("duplicate command line option ‘S’", er.msg);
   return CUTE_SUCCESS;
 }

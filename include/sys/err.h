@@ -70,7 +70,7 @@ __err_usr(err_t * self,
   self->fn = fn;
   self->file = file;
   self->line = line;
-  self->code = ERRNO_USR;
+  self->code = -1;
   va_start(args, msg);
   vsprintf(self->msg, msg, args);
   va_end(args);
@@ -303,7 +303,7 @@ err_dump(err_t *__restrict self, FILE *__restrict stream) {
       self->file
     );
   }
-  if (self->code > 0 && self->code != ERRNO_USR) {
+  if (self->code > 0) {
     fprintf(stream,
       _COLOR_BOLD "%s:%d:" _COLOR_RESET " %s" _COLOR_BOLD "%s (%d):"
         _COLOR_RESET " %s%s\n" _COLOR_RESET,

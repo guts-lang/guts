@@ -52,7 +52,7 @@ typedef struct lex_val lex_val_t;
 struct lex_val {
   lex_val_kind_t kind;
   union {
-    dstr64_t str;
+    dstr_t str;
     i8_t i8;
     i16_t i16;
     i32_t i32;

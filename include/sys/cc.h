@@ -449,9 +449,6 @@
 # endif
 # define CC_MSVC VERNO(_MSC_VER / 100, _MSC_VER % 100, CC_MSVC_BUILD)
 # define _CRT_SECURE_NO_WARNINGS 1
-# pragma warning(disable: 4081)
-# pragma warning(disable: 4141)
-# pragma warning(disable: 4244) /* possible loss of data */
 #endif
 
 /*

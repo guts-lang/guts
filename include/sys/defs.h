@@ -23,14 +23,13 @@
  * SOFTWARE.
  */
 
-/*!@file sys/kw.h
+/*!@file sys/defs.h
  * @author uael
  */
-#ifndef __SYS_KW_H
-# define __SYS_KW_H
+#ifndef __SYS_DEFS_H
+# define __SYS_DEFS_H
 
-#include "ftures.h"
-
+#include "exts.h"
 
 #if defined __STDC__ || defined __cplusplus
 # if !defined __const
@@ -186,16 +185,6 @@
 # endif
 #endif
 
-#if !defined __force_inline
-# if defined __forceinline || CC_MSVC
-#   define __force_inline __forceinline
-# elif __has_attribute__(always_inline)
-#   define __force_inline __attribute__((__always_inline__))
-# else
-#   define __force_inline
-# endif
-#endif
-
 #if !defined __noreturn
 # if defined __dead2
 #   define __noreturn __dead2
@@ -223,4 +212,83 @@
 # endif
 #endif
 
-#endif /* !__SYS_KW_H */
+#if !defined DEPRECATED
+# if __has_declspec_attribute__(deprecated)
+#   define DEPRECATED __declspec(deprecated)
+# elif __has_attribute__(deprecated)
+#   define DEPRECATED __attribute__((deprecated))
+# else
+#   define DEPRECATED
+# endif
+#endif
+
+#if !defined NOSANITIZE
+# if __has_feature__(address_sanitizer) || defined __SANITIZE_ADDRESS__ || \
+     __has_attribute__(no_sanitize_address)
+#   define NOSANITIZE __attribute__((no_sanitize_address))
+# else
+#   define NOSANITIZE
+# endif
+#endif
+
+#if !defined FORCEINLINE
+# if defined DEBUG
+#   define FORCEINLINE __inline
+# elif defined __forceinline || CC_MSVC
+#   define FORCEINLINE __forceinline
+# elif __has_attribute__(always_inline)
+#   define FORCEINLINE __attribute__((__always_inline__)) __inline
+# else
+#   define FORCEINLINE __inline
+# endif
+#endif
+
+#if !defined NORETURN
+# if defined U_DEBUG
+#   define NORETURN
+# else
+#   define NORETURN __noreturn
+# endif
+#endif
+
+#if !defined PURE
+# if __has_attribute__(pure)
+#   define PURE __attribute__((__pure__))
+# elif defined __pure
+#   define PURE __pure
+# else
+#   define PURE
+# endif
+#endif
+
+#if !defined CONST
+# if __has_attribute__(__const)
+#   define CONST __attribute__((__const__))
+# elif defined __pure2
+#   define CONST __pure2
+# else
+#   define CONST
+# endif
+#endif
+
+#if !defined UNUSED
+# if __has_attribute__(unused)
+#   define UNUSED __attribute__((unused))
+# elif defined __LCLINT__
+#   define UNUSED /*@unused@*/
+# elif defined __unused
+#   define UNUSED __unused
+# else
+#   define UNUSED
+# endif
+#endif
+
+#if __has_builtin__(expect)
+# define LIKELY(x) __builtin_expect(!!(x), 1)
+# define UNLIKELY(x) __builtin_expect(!!(x), 0)
+#else
+# define LIKELY(x) (x)
+# define UNLIKELY(x) (x)
+#endif
+
+#endif /* !__SYS_DEFS_H */

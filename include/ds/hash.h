@@ -40,6 +40,14 @@
 #define i64hash(key) ((u32_t)(((key)>>33^(key)^(key)<<11)))
 #define u64hash(key) ((u32_t)(((key)>>33^(key)^(key)<<11)))
 
+#if USIZE_MAX <= U32_MAX
+#define isizehash(key) i32hash(key)
+#define usizehash(key) u32hash(key)
+#else
+#define isizehash(key) i64hash(key)
+#define usizehash(key) u64hash(key)
+#endif
+
 static PURE CONST FORCEINLINE u32_t
 strhash(__const char_t *s) {
   u32_t h = (u32_t) *s;
