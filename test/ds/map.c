@@ -85,6 +85,8 @@ CUTEST(map, i8) {
         FAIL("allocation failure");
       case RET_FAILURE:
         FAIL("populated");
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     switch (test_i8map_put(&self->i8map, i, &out)) {
       case RET_SUCCESS:
@@ -93,6 +95,8 @@ CUTEST(map, i8) {
         FAIL("allocation failure");
       case RET_FAILURE:
         break;
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
   }
   ASSERT_EQ(i, self->i8map.len);
@@ -119,6 +123,8 @@ CUTEST(map, u8) {
         FAIL("allocation failure");
       case RET_FAILURE:
         FAIL("populated");
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     switch (test_u8map_put(&self->u8map, i, &out)) {
       case RET_SUCCESS:
@@ -127,6 +133,8 @@ CUTEST(map, u8) {
         FAIL("allocation failure");
       case RET_FAILURE:
         break;
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
   }
   ASSERT_EQ(i, self->u8map.len);
@@ -153,6 +161,8 @@ CUTEST(map, i16) {
         FAIL("allocation failure");
       case RET_FAILURE:
         FAIL("populated");
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     switch (test_i16map_put(&self->i16map, i, &out)) {
       case RET_SUCCESS:
@@ -161,6 +171,8 @@ CUTEST(map, i16) {
         FAIL("allocation failure");
       case RET_FAILURE:
         break;
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
   }
   ASSERT_EQ(i, self->i16map.len);
@@ -187,6 +199,8 @@ CUTEST(map, u16) {
         FAIL("allocation failure");
       case RET_FAILURE:
         FAIL("populated");
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     switch (test_u16map_put(&self->u16map, i, &out)) {
       case RET_SUCCESS:
@@ -195,6 +209,8 @@ CUTEST(map, u16) {
         FAIL("allocation failure");
       case RET_FAILURE:
         break;
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
   }
   ASSERT_EQ(i, self->u16map.len);
@@ -220,6 +236,8 @@ CUTEST(map, i32) {
         FAIL("allocation failure");
       case RET_FAILURE:
         FAIL("populated");
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     switch (test_i32map_put(&self->i32map, i, &out)) {
       case RET_SUCCESS:
@@ -228,6 +246,8 @@ CUTEST(map, i32) {
         FAIL("allocation failure");
       case RET_FAILURE:
         break;
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
   }
   ASSERT_EQ(i, self->i32map.len);
@@ -254,6 +274,8 @@ CUTEST(map, u32) {
         FAIL("allocation failure");
       case RET_FAILURE:
         FAIL("populated");
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     switch (test_u32map_put(&self->u32map, i, &out)) {
       case RET_SUCCESS:
@@ -262,6 +284,8 @@ CUTEST(map, u32) {
         FAIL("allocation failure");
       case RET_FAILURE:
         break;
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
   }
   ASSERT_EQ(i, self->u32map.len);
@@ -288,6 +312,8 @@ CUTEST(map, i64) {
         FAIL("allocation failure");
       case RET_FAILURE:
         FAIL("populated");
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     switch (test_i64map_put(&self->i64map, i, &out)) {
       case RET_SUCCESS:
@@ -296,6 +322,8 @@ CUTEST(map, i64) {
         FAIL("allocation failure");
       case RET_FAILURE:
         break;
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
   }
   ASSERT_EQ(i, self->i64map.len);
@@ -322,6 +350,8 @@ CUTEST(map, u64) {
         FAIL("allocation failure");
       case RET_FAILURE:
         FAIL("populated");
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     switch (test_u64map_put(&self->u64map, i, &out)) {
       case RET_SUCCESS:
@@ -330,6 +360,8 @@ CUTEST(map, u64) {
         FAIL("allocation failure");
       case RET_FAILURE:
         break;
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
   }
   ASSERT_EQ(i, self->u64map.len);
@@ -410,6 +442,8 @@ CUTEST(map, str) {
         FAIL("allocation failure");
       case RET_FAILURE:
         FAIL("populated");
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     switch (test_strmap_put(&self->strmap, *str, &out)) {
       case RET_SUCCESS:
@@ -418,6 +452,8 @@ CUTEST(map, str) {
         FAIL("allocation failure");
       case RET_FAILURE:
         break;
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     ++str;
   }

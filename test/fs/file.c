@@ -38,7 +38,7 @@ main(void) {
       buf[r] = '\0';
       puts(buf);
     }
+    fs_file_close(&file);
   }
-  fs_file_close(&file);
   return 0;
 }

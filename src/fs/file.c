@@ -25,51 +25,41 @@
 
 #include "fs/file.h"
 
-#if !defined O_RDONLY
-# define O_RDONLY _O_RDONLY
-# define O_WRONLY _O_WRONLY
-# define O_RDWR _O_RDWR
-# define O_APPEND _O_APPEND
-# define O_CREAT _O_CREAT
-# define O_TRUNC _O_TRUNC
-# define O_EXCL _O_EXCL
-# define O_TEXT _O_TEXT
-# define O_BINARY _O_BINARY
-# define O_RAW _O_BINARY
-# define O_TEMPORARY _O_TEMPORARY
-# define O_NOINHERIT _O_NOINHERIT
-# define O_SEQUENTIAL _O_SEQUENTIAL
-# define O_RANDOM _O_RANDOM
+#if defined FS_FILE_MODEL_WIN_UCRT
+# if !defined O_RDONLY
+#   define O_RDONLY _O_RDONLY
+#   define O_WRONLY _O_WRONLY
+#   define O_RDWR _O_RDWR
+#   define O_APPEND _O_APPEND
+#   define O_CREAT _O_CREAT
+#   define O_TRUNC _O_TRUNC
+#   define O_EXCL _O_EXCL
+#   define O_TEXT _O_TEXT
+#   define O_BINARY _O_BINARY
+#   define O_RAW _O_BINARY
+#   define O_TEMPORARY _O_TEMPORARY
+#   define O_NOINHERIT _O_NOINHERIT
+#   define O_SEQUENTIAL _O_SEQUENTIAL
+#   define O_RANDOM _O_RANDOM
+# endif
+# if !defined S_IFMT
+#   define S_IFMT _S_IFMT
+#   define S_IFDIR _S_IFDIR
+#   define S_IFCHR _S_IFCHR
+#   define S_IFREG _S_IFREG
+#   define S_IREAD _S_IREAD
+#   define S_IWRITE _S_IWRITE
+#   define S_IEXEC _S_IEXEC
+# endif
 #endif
-
-#if !defined S_IFMT
-# define S_IFMT _S_IFMT
-# define S_IFDIR _S_IFDIR
-# define S_IFCHR _S_IFCHR
-# define S_IFREG _S_IFREG
-# define S_IREAD _S_IREAD
-# define S_IWRITE _S_IWRITE
-# define S_IEXEC _S_IEXEC
-#endif
-
-FORCEINLINE bool_t
-fs_file_exists(fs_file_t *__restrict self) {
-  return fs_file_opened(self);
-}
-
-FORCEINLINE bool_t
-fs_file_opened(__const fs_file_t *__restrict self) {
-  return (bool_t) (self && *self != FS_FD_DFT);
-}
 
 ret_t
-fs_file_open(fs_file_t *__restrict self, char_t __const *filename,
-  u32_t flags) {
+fs_file_open(fs_file_t *__restrict self, char_t __const *filename, u32_t flags)
+{
+#if defined FS_FILE_MODEL_NONE
+  return RET_NOT_IMPL;
+#elif defined FS_FILE_MODEL_UNIX
   u32_t modes, uflags;
-
-  if (fs_file_opened(self)) {
-    return RET_SUCCESS;
-  }
 
   uflags = flags;
   flags = 0;
@@ -80,54 +70,69 @@ fs_file_open(fs_file_t *__restrict self, char_t __const *filename,
   if (uflags & FS_OPEN_APPEND) flags |= O_APPEND;
   if (uflags & FS_OPEN_TRUNC) flags |= O_TRUNC;
   modes = 0;
-#ifdef OS_UNIX
-# ifdef O_DIRECT
+#   ifdef O_DIRECT
   if (uflags & FS_OPEN_DIRECT) flags |= O_DIRECT;
-# else
+#   else
   if (uflags & FS_OPEN_DIRECT) flags |= 0x80000;
-# endif
+#   endif
   flags |= O_NONBLOCK;
   if (uflags & FS_OPEN_CREAT) {
     modes = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
   }
-#elif defined OS_WIN
-  if (uflags & FS_OPEN_CREAT) {
-    modes = S_IREAD | S_IWRITE;
-  }
-#endif
-#if defined OS_WIN
-  *self = _open(filename, flags, modes);
-#else
   *self = open(filename, flags, modes);
-#endif
   if (*self == FS_FD_DFT) {
     return RET_ERRNO;
   }
   return RET_SUCCESS;
+#elif defined FS_FILE_MODEL_WIN_UCRT
+  u32_t modes, uflags;
+
+  uflags = flags;
+  flags = 0;
+  if (uflags & FS_OPEN_RO) flags |= O_RDONLY;
+  else if (uflags & FS_OPEN_WO) flags |= O_WRONLY;
+  else if (uflags & FS_OPEN_RW) flags |= O_RDWR;
+  if (uflags & FS_OPEN_CREAT) flags |= O_CREAT;
+  if (uflags & FS_OPEN_APPEND) flags |= O_APPEND;
+  if (uflags & FS_OPEN_TRUNC) flags |= O_TRUNC;
+  modes = 0;
+  if (uflags & FS_OPEN_CREAT) {
+    modes = S_IREAD | S_IWRITE;
+  }
+  *self = _open(filename, flags, modes);
+  if (*self == FS_FD_DFT) {
+    return RET_ERRNO;
+  }
+  return RET_SUCCESS;
+#elif defined FS_FILE_MODEL_WIN_NT
+  return RET_NOT_IMPL;
+#endif
 }
 
 ret_t
-fs_file_close(fs_file_t *__restrict self) {
-  if (!fs_file_opened(self)) {
-    return RET_FAILURE;
-  }
-#if defined OS_WIN
-  return _close(*self) == 0 ? RET_SUCCESS : RET_ERRNO;
-#else
+fs_file_close(fs_file_t __const *__restrict self)
+{
+#if defined FS_FILE_MODEL_NONE
+  return RET_NOT_IMPL;
+#elif defined FS_FILE_MODEL_UNIX
   return close(*self) == 0 ? RET_SUCCESS : RET_ERRNO;
+#elif defined FS_FILE_MODEL_WIN_UCRT
+  return _close(*self) == 0 ? RET_SUCCESS : RET_ERRNO;
+#elif defined FS_FILE_MODEL_WIN_NT
+  return RET_NOT_IMPL;
 #endif
 }
 
 FORCEINLINE ret_t
-fs_file_read(fs_file_t *__restrict self, char_t *buf, usize_t len, isize_t *out) {
+fs_file_read(fs_file_t __const *__restrict self, char_t *buf, usize_t len,
+  isize_t *out)
+{
+#if defined FS_FILE_MODEL_NONE
+  return RET_NOT_IMPL;
+#elif defined FS_FILE_MODEL_UNIX
   isize_t r;
 
-  if (!fs_file_opened(self) ||
-#if defined OS_WIN
-    (r = _read(*self, buf, (unsigned) (len - 1))) == 0) {
-#else
-    (r = read(*self, buf, len)) == 0) {
-#endif
+  if ((r = read(*self, buf, len)) == 0) {
     return RET_FAILURE;
   }
   if (r < 0) {
@@ -135,18 +140,10 @@ fs_file_read(fs_file_t *__restrict self, char_t *buf, usize_t len, isize_t *out)
   }
   *out = r;
   return RET_SUCCESS;
-}
-
-FORCEINLINE ret_t
-fs_file_write(fs_file_t *__restrict self, char_t __const *buf, usize_t len, isize_t *out) {
+#elif defined FS_FILE_MODEL_WIN_UCRT
   isize_t r;
 
-  if (!fs_file_opened(self) ||
-#if defined OS_WIN
-    (r = _write(*self, buf, (unsigned) len)) == 0) {
-#else
-    (r = write(*self, buf, len)) == 0) {
-#endif
+  if ((r = _read(*self, buf, (unsigned) (len - 1))) == 0) {
     return RET_FAILURE;
   }
   if (r < 0) {
@@ -154,36 +151,84 @@ fs_file_write(fs_file_t *__restrict self, char_t __const *buf, usize_t len, isiz
   }
   *out = r;
   return RET_SUCCESS;
+#elif defined FS_FILE_MODEL_WIN_NT
+  return RET_NOT_IMPL;
+#endif
 }
 
 FORCEINLINE ret_t
-fs_file_seek(fs_file_t *__restrict self, isize_t off, fs_seek_mod_t whence,
-  isize_t *out) {
+fs_file_write(fs_file_t __const *__restrict self, char_t __const *buf,
+  usize_t len, isize_t *out)
+{
+#if defined FS_FILE_MODEL_NONE
+  return RET_NOT_IMPL;
+#elif defined FS_FILE_MODEL_UNIX
   isize_t r;
-#if defined OS_WIN
-  if ((r = _lseek(*self, (long) off, whence)) < 0) {
-#else
+
+  if ((r = write(*self, buf, len)) == 0) {
+    return RET_FAILURE;
+  }
+  if (r < 0) {
+    return RET_ERRNO;
+  }
+  *out = r;
+  return RET_SUCCESS;
+#elif defined FS_FILE_MODEL_WIN_UCRT
+  isize_t r;
+
+  if ((r = _write(*self, buf, (unsigned) len)) == 0) {
+    return RET_FAILURE;
+  }
+  if (r < 0) {
+    return RET_ERRNO;
+  }
+  *out = r;
+  return RET_SUCCESS;
+#elif defined FS_FILE_MODEL_WIN_NT
+  return RET_NOT_IMPL;
+#endif
+}
+
+FORCEINLINE ret_t
+fs_file_seek(fs_file_t __const *__restrict self, isize_t off,
+  fs_seek_mod_t whence, isize_t *out)
+{
+#if defined FS_FILE_MODEL_NONE
+  return RET_NOT_IMPL;
+#elif defined FS_FILE_MODEL_UNIX
+  isize_t r;
+
   if ((r = lseek(*self, (long) off, whence)) < 0) {
-#endif
     return errno != 0 ? RET_ERRNO : RET_FAILURE;
   }
   if (out != nil) {
     *out = r;
   }
   return RET_SUCCESS;
+#elif defined FS_FILE_MODEL_WIN_UCRT
+  isize_t r;
+
+  if ((r = _lseek(*self, (long) off, whence)) < 0) {
+    return errno != 0 ? RET_ERRNO : RET_FAILURE;
+  }
+  if (out != nil) {
+    *out = r;
+  }
+  return RET_SUCCESS;
+#elif defined FS_FILE_MODEL_WIN_NT
+  return RET_NOT_IMPL;
+#endif
 }
 
 isize_t
-fs_file_offset(fs_file_t *__restrict self) {
+fs_file_offset(fs_file_t __const *__restrict self)
+{
   isize_t off;
 
   switch (fs_file_seek(self, 0, FS_SEEK_CUR, &off)) {
-    case RET_SUCCESS:
-      return off;
-    case RET_FAILURE:
-      return 0;
+    case RET_SUCCESS: return off;
+    case RET_FAILURE: return 0;
     default:
-    case RET_ERRNO:
-      return -1;
+    case RET_ERRNO: return -1;
   }
 }

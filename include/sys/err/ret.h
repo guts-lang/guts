@@ -31,8 +31,9 @@
 
 enum ret {
   RET_SUCCESS = 0,
-  RET_FAILURE = 1,
-  RET_ERRNO = 2
+  RET_FAILURE,
+  RET_ERRNO,
+  RET_NOT_IMPL
 };
 
 typedef enum ret ret_t;

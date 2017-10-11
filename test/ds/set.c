@@ -75,6 +75,8 @@ CUTEST(set, i8) {
         FAIL("allocation failure");
       case RET_FAILURE:
         FAIL("populated");
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     switch (i8set_put(&self->i8set, i, &out)) {
       case RET_SUCCESS:
@@ -83,6 +85,8 @@ CUTEST(set, i8) {
         FAIL("allocation failure");
       case RET_FAILURE:
         break;
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
   }
   ASSERT_EQ(i, self->i8set.len);
@@ -109,6 +113,8 @@ CUTEST(set, u8) {
         FAIL("allocation failure");
       case RET_FAILURE:
         FAIL("populated");
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     switch (u8set_put(&self->u8set, i, &out)) {
       case RET_SUCCESS:
@@ -117,6 +123,8 @@ CUTEST(set, u8) {
         FAIL("allocation failure");
       case RET_FAILURE:
         break;
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
   }
   ASSERT_EQ(i, self->u8set.len);
@@ -143,6 +151,8 @@ CUTEST(set, i16) {
         FAIL("allocation failure");
       case RET_FAILURE:
         FAIL("populated");
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     switch (i16set_put(&self->i16set, i, &out)) {
       case RET_SUCCESS:
@@ -151,6 +161,8 @@ CUTEST(set, i16) {
         FAIL("allocation failure");
       case RET_FAILURE:
         break;
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
   }
   ASSERT_EQ(i, self->i16set.len);
@@ -177,6 +189,8 @@ CUTEST(set, u16) {
         FAIL("allocation failure");
       case RET_FAILURE:
         FAIL("populated");
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     switch (u16set_put(&self->u16set, i, &out)) {
       case RET_SUCCESS:
@@ -185,6 +199,8 @@ CUTEST(set, u16) {
         FAIL("allocation failure");
       case RET_FAILURE:
         break;
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
   }
   ASSERT_EQ(i, self->u16set.len);
@@ -211,6 +227,8 @@ CUTEST(set, i32) {
         FAIL("allocation failure");
       case RET_FAILURE:
         FAIL("populated");
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     switch (i32set_put(&self->i32set, i, &out)) {
       case RET_SUCCESS:
@@ -219,6 +237,8 @@ CUTEST(set, i32) {
         FAIL("allocation failure");
       case RET_FAILURE:
         break;
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
   }
   ASSERT_EQ(i, self->i32set.len);
@@ -245,6 +265,8 @@ CUTEST(set, u32) {
         FAIL("allocation failure");
       case RET_FAILURE:
         FAIL("populated");
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     switch (u32set_put(&self->u32set, i, &out)) {
       case RET_SUCCESS:
@@ -253,6 +275,8 @@ CUTEST(set, u32) {
         FAIL("allocation failure");
       case RET_FAILURE:
         break;
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
   }
   ASSERT_EQ(i, self->u32set.len);
@@ -279,6 +303,8 @@ CUTEST(set, i64) {
         FAIL("allocation failure");
       case RET_FAILURE:
         FAIL("populated");
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     switch (i64set_put(&self->i64set, i, &out)) {
       case RET_SUCCESS:
@@ -287,6 +313,8 @@ CUTEST(set, i64) {
         FAIL("allocation failure");
       case RET_FAILURE:
         break;
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
   }
   ASSERT_EQ(i, self->i64set.len);
@@ -313,6 +341,8 @@ CUTEST(set, u64) {
         FAIL("allocation failure");
       case RET_FAILURE:
         FAIL("populated");
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     switch (u64set_put(&self->u64set, i, &out)) {
       case RET_SUCCESS:
@@ -321,6 +351,8 @@ CUTEST(set, u64) {
         FAIL("allocation failure");
       case RET_FAILURE:
         break;
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
   }
   ASSERT_EQ(i, self->u64set.len);
@@ -401,6 +433,8 @@ CUTEST(set, str) {
         FAIL("allocation failure");
       case RET_FAILURE:
         FAIL("populated");
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     switch (strset_put(&self->strset, *str, &out)) {
       case RET_SUCCESS:
@@ -409,6 +443,8 @@ CUTEST(set, str) {
         FAIL("allocation failure");
       case RET_FAILURE:
         break;
+      case RET_NOT_IMPL:
+        FAIL("not implemented");
     }
     ++str;
   }

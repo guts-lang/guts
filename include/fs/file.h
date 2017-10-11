@@ -33,10 +33,20 @@
 #include "op.h"
 #include "mod.h"
 
+#if defined OS_WIN && __has_feature__(io_h)
+# define FS_FILE_MODEL_WIN_UCRT
+#elif defined OS_WIN
+# define FS_FILE_MODEL_WIN_NT
+#elif __has_feature__(unistd_h)
+# define FS_FILE_MODEL_UNIX
+#else
+# define FS_FILE_MODEL_NONE
+#endif
+
 #define FS_FD_DFT (-1)
 
 enum fs_kind {
-  FS_KIND_DIR,
+  FS_KIND_DIR = 0,
   FS_KIND_FILE,
   FS_FILE_DOT,
   FS8FILE_DOT2
@@ -45,31 +55,25 @@ enum fs_kind {
 typedef enum fs_kind fs_kind_t;
 typedef i32_t fs_file_t;
 
-__api__ bool_t
-fs_file_exists(fs_file_t *__restrict self);
-
-__api__ bool_t
-fs_file_opened(fs_file_t __const *__restrict self);
-
 __api__ ret_t
 fs_file_open(fs_file_t *__restrict self, char_t __const *filename, u32_t flags);
 
 __api__ ret_t
-fs_file_close(fs_file_t *__restrict self);
+fs_file_close(fs_file_t __const *__restrict self);
 
 __api__ ret_t
-fs_file_read(fs_file_t *__restrict self, char_t *buf, usize_t len,
+fs_file_read(fs_file_t __const *__restrict self, char_t *buf, usize_t len,
   isize_t *out);
 
 __api__ ret_t
-fs_file_write(fs_file_t *__restrict self, char_t __const *buf, usize_t len,
-  isize_t *out);
+fs_file_write(fs_file_t __const *__restrict self, char_t __const *buf,
+  usize_t len, isize_t *out);
 
 __api__ ret_t
-fs_file_seek(fs_file_t *__restrict self, isize_t off, fs_seek_mod_t whence,
-  isize_t *out);
+fs_file_seek(fs_file_t __const *__restrict self, isize_t off,
+  fs_seek_mod_t whence, isize_t *out);
 
 __api__ isize_t
-fs_file_offset(fs_file_t *__restrict self);
+fs_file_offset(fs_file_t __const *__restrict self);
 
 #endif /* !__FS_FILE_H */
