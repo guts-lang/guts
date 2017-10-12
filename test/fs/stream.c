@@ -29,18 +29,16 @@ i32_t
 main(void) {
   stream_t in, out;
 
-  init(&out, stream_t);
-  out.flags |= FS_OPEN_WO;
-  out.fd = 1;
   if (stream_open(&in, "LICENSE", FS_OPEN_RO) == RET_SUCCESS) {
     char_t buf[256];
     isize_t r;
 
+    stream_out(&out);
     while (stream_read(&in, buf, 255, &r) == RET_SUCCESS) {
       stream_write(&out, buf, (usize_t) r, &r);
     }
     stream_close(&in);
-    stream_close(&out);
+    stream_flush(&out);
   }
   return 0;
 }

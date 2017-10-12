@@ -25,6 +25,14 @@
 
 #include "fs/stream.h"
 
+#if defined PAGE_SIZE && PAGE_SIZE <= 4096
+# define FS_PAGE_SIZE PAGE_SIZE
+#elif defined PAGESIZE && PAGESIZE <= 4096
+# define FS_PAGE_SIZE PAGESIZE
+#else
+# define FS_PAGE_SIZE 4096
+#endif
+
 DEQ_IMPL(FORCEINLINE, sinbuf, char_t, size, i8cmp)
 VEC_IMPL(FORCEINLINE, soutbuf, char_t, size, i8cmp)
 
@@ -38,17 +46,35 @@ stream_open(stream_t *self, char_t __const *filename, u32_t flags)
   return fd_open(&self->fd, filename, flags);
 }
 
+FORCEINLINE void
+stream_in(stream_t *self)
+{
+  init(self, stream_t);
+  self->fd = 0;
+  self->flags |= FS_OPEN_RO;
+}
+
+FORCEINLINE void
+stream_out(stream_t *self)
+{
+  init(self, stream_t);
+  self->fd = 1;
+  self->flags |= FS_OPEN_WO;
+}
+
 FORCEINLINE ret_t
 stream_close(stream_t *self)
 {
-  ret_t ret;
+  ret_t ret, ret2;
 
+  ret = stream_flush(self);
+  if (self->fd > 1) {
+    ret2 = fd_close(&self->fd);
+    if (ret2 > ret) ret = ret2;
+  }
   sinbuf_dtor(&self->in);
-  if (self->out.len)
-    if ((ret = fd_write(&self->fd, self->out.buf, self->out.len, nil)) > 0)
-      return ret;
   soutbuf_dtor(&self->out);
-  return fd_close(&self->fd);
+  return ret;
 }
 
 ret_t
@@ -61,9 +87,12 @@ stream_read(stream_t *self, char_t *buf, usize_t len, isize_t *out)
   if (out) *out = 0;
   while (len) {
     if (sinbuf_size(&self->in) == 0) {
-      if (self->in.tail == 0 && (ret = sinbuf_realloc(&self->in, 4096)) > 0)
+      if (self->in.tail == 0
+        && (ret = sinbuf_realloc(&self->in, FS_PAGE_SIZE)) > 0)
         return ret;
-      if ((ret = fd_read(&self->fd, self->in.buf, 4096, &r)) > 0) return ret;
+      if (self->in.tail && self->in.tail < FS_PAGE_SIZE) return RET_FAILURE;
+      if ((ret = fd_read(&self->fd, self->in.buf, FS_PAGE_SIZE, &r)) > 0)
+        return ret;
       if (r <= 0) break;
       self->in.tail = (usize_t) r;
       self->in.head = 0;
@@ -72,7 +101,7 @@ stream_read(stream_t *self, char_t *buf, usize_t len, isize_t *out)
     buf += b;
     if (out) *out += b;
   }
-  return len == 0  ? RET_SUCCESS : RET_FAILURE;
+  return len == 0 ? RET_SUCCESS : RET_FAILURE;
 }
 
 ret_t
@@ -85,13 +114,13 @@ stream_write(stream_t *self, char_t __const *buf, usize_t len, isize_t *out)
   if (self->flags & FS_OPEN_WO) {
     if (out) *out = 0;
     while (len) {
-      b = 4096 - self->out.len;
+      b = FS_PAGE_SIZE - self->out.len;
       if (b > len) b = len;
       if ((ret = soutbuf_append(&self->out, (char_t *) buf, b)) > 0) return ret;
       len -= b;
       buf += b;
       if (out) *out += b;
-      if (self->out.len == 4096) {
+      if (self->out.len == FS_PAGE_SIZE) {
         if ((ret = fd_write(&self->fd, self->out.buf, self->out.len, &w)) > 0)
           return ret;
         if (w <= 0) break;
@@ -104,6 +133,19 @@ stream_write(stream_t *self, char_t __const *buf, usize_t len, isize_t *out)
     len -= w;
   }
   return len == 0 ? RET_SUCCESS : RET_FAILURE;
+}
+
+FORCEINLINE ret_t
+stream_flush(stream_t *self)
+{
+  ret_t ret;
+
+  if (self->out.len) {
+    if ((ret = fd_write(&self->fd, self->out.buf, self->out.len, nil)) > 0)
+      return ret;
+    self->out.len = 0;
+  }
+  return RET_SUCCESS;
 }
 
 ret_t

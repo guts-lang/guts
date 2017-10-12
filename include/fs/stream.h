@@ -45,6 +45,12 @@ struct stream {
 __api__ ret_t
 stream_open(stream_t *self, char_t __const *filename, u32_t flags);
 
+__api__ void
+stream_in(stream_t *self);
+
+__api__ void
+stream_out(stream_t *self);
+
 __api__ ret_t
 stream_close(stream_t *self);
 
@@ -54,6 +60,9 @@ stream_read(stream_t *self, char_t *buf, usize_t len, isize_t *out);
 __api__ ret_t
 stream_write(stream_t *self, char_t __const *buf, usize_t len,
   isize_t *out);
+
+__api__ ret_t
+stream_flush(stream_t *self);
 
 __api__ ret_t
 stream_seek(stream_t __const *self, isize_t off, fs_seek_mod_t whence,
