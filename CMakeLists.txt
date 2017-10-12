@@ -125,6 +125,16 @@ macro (add_module MOD TYPE)
       target_link_libraries(test_${MOD}_${${MOD}_TEST_NAME} ${MOD})
       add_test(${MOD}_${${MOD}_TEST_NAME} test_${MOD}_${${MOD}_TEST_NAME}
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+      if (MSVC)
+        target_compile_options(test_${MOD}_${${MOD}_TEST_NAME}
+          PRIVATE /MTd /Za /Oy /W3
+          PRIVATE /D_CRT_SECURE_NO_WARNINGS
+          PRIVATE /Od)
+      else ()
+        target_compile_options(test_${MOD}_${${MOD}_TEST_NAME}
+          PRIVATE -fomit-frame-pointer -ansi
+          PRIVATE -O0 -g3)
+      endif ()
     endforeach ()
   endif ()
 endmacro ()
