@@ -137,7 +137,7 @@ fd_read(fd_t __const *__restrict self, char_t *buf, usize_t len, isize_t *out)
   if (r < 0) {
     return RET_ERRNO;
   }
-  *out = r;
+  if (out) *out = r;
   return RET_SUCCESS;
 #elif defined FS_FD_MODEL_WIN_UCRT
   isize_t r;
@@ -148,7 +148,7 @@ fd_read(fd_t __const *__restrict self, char_t *buf, usize_t len, isize_t *out)
   if (r < 0) {
     return RET_ERRNO;
   }
-  *out = r;
+  if (out) *out = r;
   return RET_SUCCESS;
 #elif defined FS_FD_MODEL_WIN_NT
   return RET_NOT_IMPL;
@@ -170,7 +170,7 @@ fd_write(fd_t __const *__restrict self, char_t __const *buf, usize_t len,
   if (r < 0) {
     return RET_ERRNO;
   }
-  *out = r;
+  if (out) *out = r;
   return RET_SUCCESS;
 #elif defined FS_FD_MODEL_WIN_UCRT
   isize_t r;
@@ -181,7 +181,7 @@ fd_write(fd_t __const *__restrict self, char_t __const *buf, usize_t len,
   if (r < 0) {
     return RET_ERRNO;
   }
-  *out = r;
+  if (out) *out = r;
   return RET_SUCCESS;
 #elif defined FS_FD_MODEL_WIN_NT
   return RET_NOT_IMPL;

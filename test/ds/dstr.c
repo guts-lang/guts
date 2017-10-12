@@ -28,7 +28,7 @@
 #include "ds/dstr.h"
 
 #define NOMEM_REALLOC(x, y) ((errno = ENOMEM), nil)
-DSTR_DEFINE_DFT(dstr8_nomem, 8, NOMEM_REALLOC, free)
+DSTR_DEFINE_DFT(dstr8_nomem, 8, NOMEM_REALLOC, mem_free)
 
 
 CUTEST_DATA {
@@ -415,31 +415,31 @@ CUTEST(dstr, removen) {
   char_t vchar[7] = {7, 1, 2, 3, 5, 6, 0};
 
   ptr = buf;
-  ASSERT_EQ(false, dstr8_removen(&self->dstr8, 0, 0, nil));
+  ASSERT_EQ(0, dstr8_removen(&self->dstr8, 0, 0, nil));
   ASSERT_EQ(RET_SUCCESS,
     dstr8_append(&self->dstr8, vchar)
   );
-  ASSERT_EQ(false, dstr8_removen(&self->dstr8, 6, 0, nil));
-  ASSERT_EQ(true, dstr8_removen(&self->dstr8, 2, 2, nil));
+  ASSERT_EQ(0, dstr8_removen(&self->dstr8, 6, 0, nil));
+  ASSERT_EQ(2, dstr8_removen(&self->dstr8, 2, 2, nil));
   ASSERT_EQ(4, dstr8_size(&self->dstr8));
   ASSERT_EQ(7, dstr8_at(&self->dstr8, 0));
   ASSERT_EQ(1, dstr8_at(&self->dstr8, 1));
   ASSERT_EQ(5, dstr8_at(&self->dstr8, 2));
   ASSERT_EQ(6, dstr8_at(&self->dstr8, 3));
-  ASSERT_EQ(true, dstr8_removen(&self->dstr8, 1, 2, &ptr));
+  ASSERT_EQ(2, dstr8_removen(&self->dstr8, 1, 2, &ptr));
   ASSERT_EQ(2, dstr8_size(&self->dstr8));
   ASSERT_EQ(7, dstr8_at(&self->dstr8, 0));
   ASSERT_EQ(1, buf[0]);
   ASSERT_EQ(5, buf[1]);
   ASSERT_EQ(6, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(true, dstr8_removen(&self->dstr8, 0, 1, &ptr));
+  ASSERT_EQ(1, dstr8_removen(&self->dstr8, 0, 1, &ptr));
   ASSERT_EQ(1, dstr8_size(&self->dstr8));
   ASSERT_EQ(7, buf[0]);
   ASSERT_EQ(6, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(true, dstr8_removen(&self->dstr8, 0, 1, &ptr));
+  ASSERT_EQ(1, dstr8_removen(&self->dstr8, 0, 1, &ptr));
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_EQ(6, buf[0]);
-  ASSERT_EQ(false, dstr8_removen(&self->dstr8, 0, 1, &ptr));
+  ASSERT_EQ(0, dstr8_removen(&self->dstr8, 0, 1, &ptr));
   return CUTE_SUCCESS;
 }
 

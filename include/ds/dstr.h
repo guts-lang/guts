@@ -29,6 +29,8 @@
 #ifndef __DS_DSTR_H
 # define __DS_DSTR_H
 
+#include <mem.h>
+
 #include "seq.h"
 
 #define dstrof(TSizeBits) \
@@ -62,6 +64,7 @@
     SEQ_DECL_unshift, \
     SEQ_DECL_prepend_nt, \
     SEQ_DECL_shift, \
+    SEQ_DECL_nshift, \
     SEQ_DECL_insert, \
     SEQ_DECL_emplace_nt, \
     SEQ_DECL_remove, \
@@ -96,6 +99,7 @@
     SEQ_IMPL_unshift, \
     SEQ_IMPL_prepend_nt, \
     SEQ_IMPL_shift, \
+    SEQ_IMPL_nshift, \
     SEQ_IMPL_insert, \
     SEQ_IMPL_emplace_nt, \
     SEQ_IMPL_remove, \
@@ -116,7 +120,7 @@
   DSTR_IMPL_DFT(SCOPE, ID, 64, REALLOC, FREE)
 
 #define DSTR_IMPL(SCOPE, ID, BITS) \
-  DSTR_IMPL_DFT(SCOPE, ID, BITS, realloc, free)
+  DSTR_IMPL_DFT(SCOPE, ID, BITS, mem_realloc, mem_free)
 #define DSTR8_IMPL(SCOPE, ID) \
   DSTR_IMPL(SCOPE, ID, 8)
 #define DSTR16_IMPL(SCOPE, ID) \
@@ -139,7 +143,7 @@
   DSTR_DEFINE_DFT(ID, 64, REALLOC, FREE)
 
 #define DSTR_DEFINE_X(ID, BITS) \
-  DSTR_DEFINE_DFT(ID, BITS, realloc, free)
+  DSTR_DEFINE_DFT(ID, BITS, mem_realloc, mem_free)
 #define DSTR8_DEFINE(ID) DSTR_DEFINE_X(ID, 8)
 #define DSTR16_DEFINE(ID) DSTR_DEFINE_X(ID, 16)
 #define DSTR32_DEFINE(ID) DSTR_DEFINE_X(ID, 32)

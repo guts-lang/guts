@@ -28,7 +28,7 @@
 #include "ds/deq.h"
 
 #define NOMEM_REALLOC(x, y) ((errno = ENOMEM), nil)
-DEQ_DEFINE_DFT(i8deq_nomem, i8_t, 8, NOMEM_REALLOC, free, i8cmp)
+DEQ_DEFINE_DFT(i8deq_nomem, i8_t, 8, NOMEM_REALLOC, mem_free, i8cmp)
 
 typedef struct {
   f64_t x, y;
@@ -466,31 +466,31 @@ CUTEST(deq, removen) {
   i8_t vi8[6] = {0, 1, 2, 3, 5, 6};
 
   ptr = buf;
-  ASSERT_EQ(false, i8deq_removen(&self->i8deq, 0, 0, nil));
+  ASSERT_EQ(0, i8deq_removen(&self->i8deq, 0, 0, nil));
   ASSERT_EQ(RET_SUCCESS,
     i8deq_append(&self->i8deq, vi8, 6)
   );
-  ASSERT_EQ(false, i8deq_removen(&self->i8deq, 6, 0, nil));
-  ASSERT_EQ(true, i8deq_removen(&self->i8deq, 2, 2, nil));
+  ASSERT_EQ(0, i8deq_removen(&self->i8deq, 6, 0, nil));
+  ASSERT_EQ(2, i8deq_removen(&self->i8deq, 2, 2, nil));
   ASSERT_EQ(4, i8deq_size(&self->i8deq));
   ASSERT_EQ(0, i8deq_at(&self->i8deq, 0));
   ASSERT_EQ(1, i8deq_at(&self->i8deq, 1));
   ASSERT_EQ(5, i8deq_at(&self->i8deq, 2));
   ASSERT_EQ(6, i8deq_at(&self->i8deq, 3));
-  ASSERT_EQ(true, i8deq_removen(&self->i8deq, 1, 2, &ptr));
+  ASSERT_EQ(2, i8deq_removen(&self->i8deq, 1, 2, &ptr));
   ASSERT_EQ(2, i8deq_size(&self->i8deq));
   ASSERT_EQ(0, i8deq_at(&self->i8deq, 0));
   ASSERT_EQ(1, buf[0]);
   ASSERT_EQ(5, buf[1]);
   ASSERT_EQ(6, i8deq_at(&self->i8deq, 1));
-  ASSERT_EQ(true, i8deq_removen(&self->i8deq, 0, 1, &ptr));
+  ASSERT_EQ(1, i8deq_removen(&self->i8deq, 0, 1, &ptr));
   ASSERT_EQ(1, i8deq_size(&self->i8deq));
   ASSERT_EQ(0, buf[0]);
   ASSERT_EQ(6, i8deq_at(&self->i8deq, 0));
-  ASSERT_EQ(true, i8deq_removen(&self->i8deq, 0, 1, &ptr));
+  ASSERT_EQ(1, i8deq_removen(&self->i8deq, 0, 1, &ptr));
   ASSERT_EQ(0, i8deq_size(&self->i8deq));
   ASSERT_EQ(6, buf[0]);
-  ASSERT_EQ(false, i8deq_removen(&self->i8deq, 0, 1, &ptr));
+  ASSERT_EQ(0, i8deq_removen(&self->i8deq, 0, 1, &ptr));
   return CUTE_SUCCESS;
 }
 

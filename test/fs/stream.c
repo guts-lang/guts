@@ -23,21 +23,21 @@
  * SOFTWARE.
  */
 
-/*!@file lex/src.h
- * @author uael
- */
-#ifndef __LEX_SRC_H
-# define __LEX_SRC_H
+#include "fs/stream.h"
 
-#include <fs/stream.h>
+i32_t
+main(void) {
+  stream_t file = {0};
 
-#include "loc.h"
+  if (stream_open(&file, "LICENSE", FS_OPEN_RW) == RET_SUCCESS) {
+    char_t buf[256];
+    isize_t r;
 
-typedef struct lex_src lex_src_t;
-
-struct lex_src {
-  stream_t stream;
-  lex_loc_t cursor;
-};
-
-#endif /* !__LEX_SRC_H */
+    while (stream_read(&file, buf, 256, &r) == RET_SUCCESS) {
+      buf[r] = '\0';
+      puts(buf);
+    }
+    stream_close(&file);
+  }
+  return 0;
+}

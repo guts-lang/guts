@@ -60,6 +60,7 @@
     SEQ_DECL_unshift, \
     SEQ_DECL_prepend, \
     SEQ_DECL_shift, \
+    SEQ_DECL_nshift, \
     SEQ_DECL_remove, \
     SEQ_DECL_removen, \
     SEQ_DECL_erase, \
@@ -94,6 +95,7 @@
     SEQ_IMPL_unshift, \
     SEQ_IMPL_prepend, \
     SEQ_IMPL_shift, \
+    SEQ_IMPL_nshift, \
     SEQ_IMPL_remove, \
     SEQ_IMPL_removen, \
     SEQ_IMPL_erase, \

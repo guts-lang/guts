@@ -555,30 +555,55 @@
     return true; \
   }
 
+#define SEQ_DECL_nshift(SCOPE, ID, T, BITS) \
+  SCOPE u##BITS##_t \
+  ID##_nshift(ID##_t *__restrict self, __const u##BITS##_t n, T* out[])
+
+#define SEQ_IMPL_nshift(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
+  CMP) \
+  SEQ_DECL_nshift(SCOPE, ID, T, BITS) { \
+    u##BITS##_t n2; \
+    if ((n2 = ID##_size(self)) == 0) { \
+      return 0; \
+    } \
+    if (n2 > n) n2 = n; \
+    if (out != nil) { \
+      memcpy(*out, ID##_offset(self, 0), (usize_t) n2); \
+    } \
+    memmove( \
+      self->BUF, \
+      self->BUF + n2, \
+      (usize_t) ((self->LEN -= n2)) * sizeof(T) \
+    ); \
+    return n; \
+  }
+
 #define SEQ_DECL_removen(SCOPE, ID, T, BITS) \
-  SCOPE bool_t \
+  SCOPE u##BITS##_t \
   ID##_removen(ID##_t *__restrict self, __const u##BITS##_t idx, \
     __const u##BITS##_t n, T* out[])
 
 #define SEQ_IMPL_removen(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
   CMP) \
   SEQ_DECL_removen(SCOPE, ID, T, BITS) { \
-    if (idx >= ID##_size(self)) { \
-      return false; \
+    u##BITS##_t n2; \
+    if (idx >= (n2 = ID##_size(self))) { \
+      return 0; \
     } \
+    if (n2 > n) n2 = n; \
     if (out != nil) { \
-      memcpy(*out, ID##_offset(self, idx), (usize_t) n); \
+      memcpy(*out, ID##_offset(self, idx), (usize_t) n2); \
     } \
-    if (idx + n > self->LEN) { \
+    if (idx + n2 > self->LEN) { \
       self->LEN = idx; \
     } else { \
       memmove( \
         self->BUF + idx, \
-        self->BUF + idx + n, \
-        (usize_t) ((self->LEN -= n) - idx) * sizeof(T) \
+        self->BUF + idx + n2, \
+        (usize_t) ((self->LEN -= n2) - idx) * sizeof(T) \
       ); \
     } \
-    return true; \
+    return n2; \
   }
 
 #define SEQ_DECL_erase(SCOPE, ID, T, BITS) \
@@ -800,7 +825,7 @@
     DECL_realloc, DECL_ensure, DECL_grow, DECL_shrink, DECL_trim, \
     DECL_insert, DECL_emplace, \
     DECL_push, DECL_append, DECL_pop, \
-    DECL_unshift, DECL_prepend, DECL_shift, \
+    DECL_unshift, DECL_prepend, DECL_shift, DECL_nshift, \
     DECL_remove, DECL_removen, \
     DECL_erase, DECL_erasen, DECL_eraseonce, \
     DECL_cpy, DECL_ncpy) \
@@ -823,6 +848,7 @@
   DECL_unshift(SCOPE, ID, T, BITS); \
   DECL_prepend(SCOPE, ID, T, BITS); \
   DECL_shift(SCOPE, ID, T, BITS); \
+  DECL_nshift(SCOPE, ID, T, BITS); \
   DECL_remove(SCOPE, ID, T, BITS); \
   DECL_removen(SCOPE, ID, T, BITS); \
   DECL_erase(SCOPE, ID, T, BITS); \
@@ -838,7 +864,7 @@
     IMPL_realloc, IMPL_ensure, IMPL_grow, IMPL_shrink, IMPL_trim, \
     IMPL_insert, IMPL_emplace, \
     IMPL_push, IMPL_append, IMPL_pop, \
-    IMPL_unshift, IMPL_prepend, IMPL_shift, \
+    IMPL_unshift, IMPL_prepend, IMPL_shift, IMPL_nshift, \
     IMPL_remove, IMPL_removen, \
     IMPL_erase, IMPL_erasen, IMPL_eraseonce, \
     IMPL_cpy, IMPL_ncpy) \
@@ -861,6 +887,7 @@
   IMPL_unshift(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   IMPL_prepend(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   IMPL_shift(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  IMPL_nshift(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   IMPL_remove(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   IMPL_removen(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   IMPL_erase(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \

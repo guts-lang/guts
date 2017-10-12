@@ -31,11 +31,35 @@
 
 #include "fd.h"
 
-typedef struct fs_stream fs_stream_t;
+typedef struct stream stream_t;
+typedef deqof(char_t, size) sbuf_t;
 
-struct fs_stream {
-  fd_t file;
-  charvec_t cache;
+struct stream {
+  fd_t fd;
+  u32_t flags;
+  sbuf_t in, out;
 };
+
+DEQ_DECL(__api__, sbuf, char_t, size);
+
+__api__ ret_t
+stream_open(stream_t *self, char_t __const *filename, u32_t flags);
+
+__api__ ret_t
+stream_close(stream_t *self);
+
+__api__ ret_t
+stream_read(stream_t *self, char_t *buf, usize_t len, isize_t *out);
+
+__api__ ret_t
+stream_write(stream_t *self, char_t __const *buf, usize_t len,
+  isize_t *out);
+
+__api__ ret_t
+stream_seek(stream_t __const *self, isize_t off, fs_seek_mod_t whence,
+  isize_t *out);
+
+__api__ isize_t
+stream_offset(stream_t __const *self);
 
 #endif /* !__FS_STREAM_H */
