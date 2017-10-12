@@ -31,14 +31,14 @@
 
 #include <nt/tys.h>
 
-__api__ RESTRICT void *
-mem_malloc(usize_t size) MALLOC;
+__api__ void *
+mem_malloc(usize_t size);
 
 __api__ void
 mem_free(void *ptr);
 
-__api__ RESTRICT void *
-mem_calloc(usize_t num, usize_t size) MALLOC;
+__api__ void *
+mem_calloc(usize_t num, usize_t size);
 
 __api__ void *
 mem_realloc(void *ptr, usize_t size);
