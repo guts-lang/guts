@@ -51,18 +51,6 @@ macro (add_module MOD TYPE)
 
     target_compile_definitions(${MOD}
       INTERFACE $<$<CONFIG:Debug>:DEBUG>$<$<CONFIG:Release>:NDEBUG>)
-    if (MSVC)
-      target_compile_options(${MOD}
-        INTERFACE /MT$<$<CONFIG:Debug>:d> /Za /Oy /W3
-        INTERFACE /D_CRT_SECURE_NO_WARNINGS
-        INTERFACE /O$<$<CONFIG:Debug>:d>$<$<CONFIG:Release>:x>)
-    else ()
-      target_compile_options(${MOD}
-        INTERFACE -Wall -Werror -Wextra -fomit-frame-pointer -ansi
-        INTERFACE -Wno-missing-field-initializers -Wno-missing-braces
-        INTERFACE -Wno-unused-function
-        INTERFACE -O$<$<CONFIG:Debug>:0 -g3>$<$<CONFIG:Release>:3>)
-    endif ()
   elseif ("${TYPE}" STREQUAL "LIBRARY")
     file(GLOB_RECURSE ${MOD}_SRCS ${${MOD}_SRCS}
       ${guts_SRC_DIR}/${MOD_DIR}/*.${EXT})
@@ -80,15 +68,13 @@ macro (add_module MOD TYPE)
       PRIVATE API_COMPILE)
     if (MSVC)
       target_compile_options(${MOD}
-        PUBLIC /MT$<$<CONFIG:Debug>:d> /Za /Oy /W3
-        PUBLIC /D_CRT_SECURE_NO_WARNINGS
-        PUBLIC /O$<$<CONFIG:Debug>:d>$<$<CONFIG:Release>:x>)
+        PRIVATE /MT$<$<CONFIG:Debug>:d> /Za /Oy /W3
+        PRIVATE /D_CRT_SECURE_NO_WARNINGS
+        PRIVATE /O$<$<CONFIG:Debug>:d>$<$<CONFIG:Release>:x>)
     else ()
       target_compile_options(${MOD}
-        PUBLIC -Wall -Werror -Wextra -fomit-frame-pointer -ansi
-        PUBLIC -Wno-missing-field-initializers -Wno-missing-braces
-        PUBLIC -Wno-unused-function
-        PUBLIC -O$<$<CONFIG:Debug>:0 -g3>$<$<CONFIG:Release>:3>)
+        PRIVATE -Wall -Werror -Wextra -fomit-frame-pointer -ansi
+        PRIVATE -O$<$<CONFIG:Debug>:0 -g3>$<$<CONFIG:Release>:3>)
     endif ()
   elseif ("${TYPE}" STREQUAL "EXECUTABLE")
     file(GLOB_RECURSE ${MOD}_SRCS ${${MOD}_SRCS}
@@ -110,8 +96,6 @@ macro (add_module MOD TYPE)
     else ()
       target_compile_options(${MOD}
         PRIVATE -Wall -Werror -Wextra -fomit-frame-pointer -ansi
-        PRIVATE -Wno-missing-field-initializers -Wno-missing-braces
-        PRIVATE -Wno-unused-function
         PRIVATE -O$<$<CONFIG:Debug>:0 -g3>$<$<CONFIG:Release>:3>)
     endif ()
   else ()
