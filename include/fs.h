@@ -30,7 +30,7 @@
 # define __FS_H
 
 #include "fs/conf.h"
-#include "fs/file.h"
+#include "fs/fd.h"
 #include "fs/mod.h"
 #include "fs/op.h"
 #include "fs/path.h"

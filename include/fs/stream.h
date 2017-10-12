@@ -29,13 +29,13 @@
 #ifndef __FS_STREAM_H
 # define __FS_STREAM_H
 
-#include "file.h"
+#include "fd.h"
 
 typedef struct fs_stream fs_stream_t;
 
 struct fs_stream {
-  fs_file_t file;
-  vecof(i8_t, 64) cache;
+  fd_t file;
+  charvec_t cache;
 };
 
 #endif /* !__FS_STREAM_H */

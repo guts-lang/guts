@@ -23,9 +23,9 @@
  * SOFTWARE.
  */
 
-#include "fs/file.h"
+#include "fs/fd.h"
 
-#if defined FS_FILE_MODEL_WIN_UCRT
+#if defined FS_FD_MODEL_WIN_UCRT
 # if !defined O_RDONLY
 #   define O_RDONLY _O_RDONLY
 #   define O_WRONLY _O_WRONLY
@@ -54,11 +54,11 @@
 #endif
 
 ret_t
-fs_file_open(fs_file_t *__restrict self, char_t __const *filename, u32_t flags)
+fd_open(fd_t *__restrict self, char_t __const *filename, u32_t flags)
 {
-#if defined FS_FILE_MODEL_NONE
+#if defined FS_FD_MODEL_NONE
   return RET_NOT_IMPL;
-#elif defined FS_FILE_MODEL_UNIX
+#elif defined FS_FD_MODEL_UNIX
   u32_t modes, uflags;
 
   uflags = flags;
@@ -84,7 +84,7 @@ fs_file_open(fs_file_t *__restrict self, char_t __const *filename, u32_t flags)
     return RET_ERRNO;
   }
   return RET_SUCCESS;
-#elif defined FS_FILE_MODEL_WIN_UCRT
+#elif defined FS_FD_MODEL_WIN_UCRT
   u32_t modes, uflags;
 
   uflags = flags;
@@ -104,32 +104,31 @@ fs_file_open(fs_file_t *__restrict self, char_t __const *filename, u32_t flags)
     return RET_ERRNO;
   }
   return RET_SUCCESS;
-#elif defined FS_FILE_MODEL_WIN_NT
+#elif defined FS_FD_MODEL_WIN_NT
   return RET_NOT_IMPL;
 #endif
 }
 
 ret_t
-fs_file_close(fs_file_t __const *__restrict self)
+fd_close(fd_t __const *__restrict self)
 {
-#if defined FS_FILE_MODEL_NONE
+#if defined FS_FD_MODEL_NONE
   return RET_NOT_IMPL;
-#elif defined FS_FILE_MODEL_UNIX
+#elif defined FS_FD_MODEL_UNIX
   return close(*self) == 0 ? RET_SUCCESS : RET_ERRNO;
-#elif defined FS_FILE_MODEL_WIN_UCRT
+#elif defined FS_FD_MODEL_WIN_UCRT
   return _close(*self) == 0 ? RET_SUCCESS : RET_ERRNO;
-#elif defined FS_FILE_MODEL_WIN_NT
+#elif defined FS_FD_MODEL_WIN_NT
   return RET_NOT_IMPL;
 #endif
 }
 
 FORCEINLINE ret_t
-fs_file_read(fs_file_t __const *__restrict self, char_t *buf, usize_t len,
-  isize_t *out)
+fd_read(fd_t __const *__restrict self, char_t *buf, usize_t len, isize_t *out)
 {
-#if defined FS_FILE_MODEL_NONE
+#if defined FS_FD_MODEL_NONE
   return RET_NOT_IMPL;
-#elif defined FS_FILE_MODEL_UNIX
+#elif defined FS_FD_MODEL_UNIX
   isize_t r;
 
   if ((r = read(*self, buf, len)) == 0) {
@@ -140,7 +139,7 @@ fs_file_read(fs_file_t __const *__restrict self, char_t *buf, usize_t len,
   }
   *out = r;
   return RET_SUCCESS;
-#elif defined FS_FILE_MODEL_WIN_UCRT
+#elif defined FS_FD_MODEL_WIN_UCRT
   isize_t r;
 
   if ((r = _read(*self, buf, (unsigned) (len - 1))) == 0) {
@@ -151,18 +150,18 @@ fs_file_read(fs_file_t __const *__restrict self, char_t *buf, usize_t len,
   }
   *out = r;
   return RET_SUCCESS;
-#elif defined FS_FILE_MODEL_WIN_NT
+#elif defined FS_FD_MODEL_WIN_NT
   return RET_NOT_IMPL;
 #endif
 }
 
 FORCEINLINE ret_t
-fs_file_write(fs_file_t __const *__restrict self, char_t __const *buf,
-  usize_t len, isize_t *out)
+fd_write(fd_t __const *__restrict self, char_t __const *buf, usize_t len,
+  isize_t *out)
 {
-#if defined FS_FILE_MODEL_NONE
+#if defined FS_FD_MODEL_NONE
   return RET_NOT_IMPL;
-#elif defined FS_FILE_MODEL_UNIX
+#elif defined FS_FD_MODEL_UNIX
   isize_t r;
 
   if ((r = write(*self, buf, len)) == 0) {
@@ -173,7 +172,7 @@ fs_file_write(fs_file_t __const *__restrict self, char_t __const *buf,
   }
   *out = r;
   return RET_SUCCESS;
-#elif defined FS_FILE_MODEL_WIN_UCRT
+#elif defined FS_FD_MODEL_WIN_UCRT
   isize_t r;
 
   if ((r = _write(*self, buf, (unsigned) len)) == 0) {
@@ -184,18 +183,18 @@ fs_file_write(fs_file_t __const *__restrict self, char_t __const *buf,
   }
   *out = r;
   return RET_SUCCESS;
-#elif defined FS_FILE_MODEL_WIN_NT
+#elif defined FS_FD_MODEL_WIN_NT
   return RET_NOT_IMPL;
 #endif
 }
 
 FORCEINLINE ret_t
-fs_file_seek(fs_file_t __const *__restrict self, isize_t off,
-  fs_seek_mod_t whence, isize_t *out)
+fd_seek(fd_t __const *__restrict self, isize_t off, fs_seek_mod_t whence,
+  isize_t *out)
 {
-#if defined FS_FILE_MODEL_NONE
+#if defined FS_FD_MODEL_NONE
   return RET_NOT_IMPL;
-#elif defined FS_FILE_MODEL_UNIX
+#elif defined FS_FD_MODEL_UNIX
   isize_t r;
 
   if ((r = lseek(*self, (long) off, whence)) < 0) {
@@ -205,7 +204,7 @@ fs_file_seek(fs_file_t __const *__restrict self, isize_t off,
     *out = r;
   }
   return RET_SUCCESS;
-#elif defined FS_FILE_MODEL_WIN_UCRT
+#elif defined FS_FD_MODEL_WIN_UCRT
   isize_t r;
 
   if ((r = _lseek(*self, (long) off, whence)) < 0) {
@@ -215,17 +214,17 @@ fs_file_seek(fs_file_t __const *__restrict self, isize_t off,
     *out = r;
   }
   return RET_SUCCESS;
-#elif defined FS_FILE_MODEL_WIN_NT
+#elif defined FS_FD_MODEL_WIN_NT
   return RET_NOT_IMPL;
 #endif
 }
 
 isize_t
-fs_file_offset(fs_file_t __const *__restrict self)
+fd_offset(fd_t __const *__restrict self)
 {
   isize_t off;
 
-  switch (fs_file_seek(self, 0, FS_SEEK_CUR, &off)) {
+  switch (fd_seek(self, 0, FS_SEEK_CUR, &off)) {
     case RET_SUCCESS: return off;
     case RET_FAILURE: return 0;
     default:

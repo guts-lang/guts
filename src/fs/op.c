@@ -24,7 +24,7 @@
  */
 
 #include "fs/op.h"
-#include "fs/file.h"
+#include "fs/fd.h"
 
 FORCEINLINE ret_t
 fs_absolute(char_t __const *path, char_t *out) {
@@ -128,15 +128,15 @@ FORCEINLINE bool_t
 fs_touch(char_t __const *path) {
   i32_t fd;
 
-  if (fs_file_open(&fd, path, FS_OPEN_RO | FS_OPEN_CREAT) == RET_ERRNO) {
+  if (fd_open(&fd, path, FS_OPEN_RO | FS_OPEN_CREAT) == RET_ERRNO) {
     if (fs_mkdir(path) > 0) {
       return false;
     }
-    if (fs_file_open(&fd, path, FS_OPEN_RO | FS_OPEN_CREAT) == RET_ERRNO) {
+    if (fd_open(&fd, path, FS_OPEN_RO | FS_OPEN_CREAT) == RET_ERRNO) {
       return false;
     }
     return false;
   }
-  fs_file_close(&fd);
+  fd_close(&fd);
   return true;
 }

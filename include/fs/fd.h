@@ -23,24 +23,24 @@
  * SOFTWARE.
  */
 
-/*!@file fs/file.h
+/*!@file fs/fd.h
  * @author uael
  */
-#ifndef __FS_FILE_H
-# define __FS_FILE_H
+#ifndef __FS_FD_H
+# define __FS_FD_H
 
 #include "conf.h"
 #include "op.h"
 #include "mod.h"
 
 #if defined OS_WIN && __has_feature__(io_h)
-# define FS_FILE_MODEL_WIN_UCRT
+# define FS_FD_MODEL_WIN_UCRT
 #elif defined OS_WIN
-# define FS_FILE_MODEL_WIN_NT
+# define FS_FD_MODEL_WIN_NT
 #elif __has_feature__(unistd_h)
-# define FS_FILE_MODEL_UNIX
+# define FS_FD_MODEL_UNIX
 #else
-# define FS_FILE_MODEL_NONE
+# define FS_FD_MODEL_NONE
 #endif
 
 #define FS_FD_DFT (-1)
@@ -53,27 +53,26 @@ enum fs_kind {
 };
 
 typedef enum fs_kind fs_kind_t;
-typedef i32_t fs_file_t;
+typedef i32_t fd_t;
 
 __api__ ret_t
-fs_file_open(fs_file_t *__restrict self, char_t __const *filename, u32_t flags);
+fd_open(fd_t *__restrict self, char_t __const *filename, u32_t flags);
 
 __api__ ret_t
-fs_file_close(fs_file_t __const *__restrict self);
+fd_close(fd_t __const *__restrict self);
 
 __api__ ret_t
-fs_file_read(fs_file_t __const *__restrict self, char_t *buf, usize_t len,
+fd_read(fd_t __const *__restrict self, char_t *buf, usize_t len, isize_t *out);
+
+__api__ ret_t
+fd_write(fd_t __const *__restrict self, char_t __const *buf, usize_t len,
   isize_t *out);
 
 __api__ ret_t
-fs_file_write(fs_file_t __const *__restrict self, char_t __const *buf,
-  usize_t len, isize_t *out);
-
-__api__ ret_t
-fs_file_seek(fs_file_t __const *__restrict self, isize_t off,
-  fs_seek_mod_t whence, isize_t *out);
+fd_seek(fd_t __const *__restrict self, isize_t off, fs_seek_mod_t whence,
+  isize_t *out);
 
 __api__ isize_t
-fs_file_offset(fs_file_t __const *__restrict self);
+fd_offset(fd_t __const *__restrict self);
 
-#endif /* !__FS_FILE_H */
+#endif /* !__FS_FD_H */

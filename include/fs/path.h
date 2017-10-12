@@ -30,7 +30,7 @@
 # define __FS_PATH_H
 
 #include "conf.h"
-#include "file.h"
+#include "fd.h"
 
 typedef vecof(char_t, 16) fs_path_t;
 
@@ -57,7 +57,7 @@ __api__ ret_t
 fs_path_absolute(fs_path_t *self, fs_path_t *out);
 
 __api__ ret_t
-fs_path_open(fs_path_t *self, fs_file_t *out, u32_t flags);
+fs_path_open(fs_path_t *self, fd_t *out, u32_t flags);
 
 __api__ ret_t
 fs_path_join(fs_path_t *self, fs_path_t *other);

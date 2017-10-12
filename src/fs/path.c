@@ -136,7 +136,7 @@ fs_path_absolute(fs_path_t *self, fs_path_t *out) {
 }
 
 ret_t
-fs_path_open(fs_path_t *self, fs_file_t *out, u32_t flags) {
+fs_path_open(fs_path_t *self, fd_t *out, u32_t flags) {
   (void) self;
   (void) out;
   (void) flags;
