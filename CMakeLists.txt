@@ -31,16 +31,11 @@ else ()
 endif ()
 
 macro (add_module MOD TYPE)
-  cmake_parse_arguments(PA "" "IN" "" ${ARGN})
-  if (PA_IN)
-    set(MOD_DIR ${PA_IN}/${MOD})
-  else ()
-    set(MOD_DIR ${MOD})
-  endif ()
+  set(MOD_DIR ${MOD})
   set(EXT c)
-  if (PA_UNPARSED_ARGUMENTS)
+  if (ARGN)
     message(STATUS
-      "[guts] add module '${MOD}' depends on '${PA_UNPARSED_ARGUMENTS}'")
+      "[guts] add module '${MOD}' depends on '${ARGN}'")
   else ()
     message(STATUS "[guts] add module '${MOD}'")
   endif ()
@@ -58,7 +53,7 @@ macro (add_module MOD TYPE)
       INTERFACE $<$<CONFIG:Debug>:DEBUG>$<$<CONFIG:Release>:NDEBUG>)
     if (MSVC)
       target_compile_options(${MOD}
-        INTERFACE /MT$<$<CONFIG:Debug>:d> /Oy /Za /W3
+        INTERFACE /MT$<$<CONFIG:Debug>:d> /Oy /W3
         INTERFACE /D_CRT_SECURE_NO_WARNINGS
         INTERFACE /O$<$<CONFIG:Debug>:d>$<$<CONFIG:Release>:x>)
     else ()
@@ -85,7 +80,7 @@ macro (add_module MOD TYPE)
       PRIVATE API_COMPILE)
     if (MSVC)
       target_compile_options(${MOD}
-        PUBLIC /MT$<$<CONFIG:Debug>:d> /Oy /Za /W3
+        PUBLIC /MT$<$<CONFIG:Debug>:d> /Oy /W3
         PUBLIC /D_CRT_SECURE_NO_WARNINGS
         PUBLIC /O$<$<CONFIG:Debug>:d>$<$<CONFIG:Release>:x>)
     else ()
@@ -109,7 +104,7 @@ macro (add_module MOD TYPE)
       PRIVATE API_COMPILE)
     if (MSVC)
       target_compile_options(${MOD}
-        PRIVATE /MT$<$<CONFIG:Debug>:d> /Oy /Za /W3
+        PRIVATE /MT$<$<CONFIG:Debug>:d> /Oy /W3
         PRIVATE /D_CRT_SECURE_NO_WARNINGS
         PRIVATE /O$<$<CONFIG:Debug>:d>$<$<CONFIG:Release>:x>)
     else ()
@@ -123,7 +118,7 @@ macro (add_module MOD TYPE)
     message(FATAL_ERROR "Unrecognized module type : ${TYPE}")
   endif ()
 
-  foreach(dep IN LISTS ${PA_UNPARSED_ARGUMENTS})
+  foreach(dep ${ARGN})
     if ("${TYPE}" STREQUAL "INTERFACE")
       target_link_libraries(${MOD} INTERFACE ${dep})
     else ()
@@ -149,9 +144,10 @@ macro (add_module MOD TYPE)
   endif ()
 endmacro ()
 
-add_module(sys INTERFACE)
-add_module(ds INTERFACE sys)
-add_module(ev INTERFACE sys ds)
-add_module(fs LIBRARY sys ds)
-add_module(lex LIBRARY sys ds fs)
-add_module(app LIBRARY sys ds)
+add_module(nt INTERFACE)
+add_module(mem LIBRARY nt)
+add_module(ds LIBRARY nt mem)
+add_module(ev LIBRARY nt mem ds)
+add_module(fs LIBRARY nt mem ds)
+add_module(lex LIBRARY nt mem ds fs)
+add_module(app LIBRARY nt mem ds)

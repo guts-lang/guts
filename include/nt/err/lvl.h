@@ -23,20 +23,19 @@
  * SOFTWARE.
  */
 
-/*!@file lex/loc.h
+/*!@file nt/err/lvl.h
  * @author uael
  */
-#ifndef __LEX_LOC_H
-# define __LEX_LOC_H
+#ifndef __NT_ERR_LVL_H
+# define __NT_ERR_LVL_H
 
-#include <nt/tys.h>
-
-typedef struct lex_loc lex_loc_t;
-
-struct lex_loc {
-  u16_t lexer;
-  u32_t line, col;
-  u64_t cursor;
+enum errlvl {
+  ERRLVL_NOTICE,
+  ERRLVL_WARNING,
+  ERRLVL_ERROR,
+  ERRLVL_FATAL
 };
 
-#endif /* !__LEX_LOC_H */
+typedef enum errlvl errlvl_t;
+
+#endif /* !__NT_ERR_LVL_H */

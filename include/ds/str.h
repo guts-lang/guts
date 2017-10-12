@@ -29,7 +29,7 @@
 #ifndef __DS_STR_H
 # define __DS_STR_H
 
-#include <sys/tys.h>
+#include <nt/tys.h>
 
 
 #endif /* !__DS_STR_H */

@@ -23,20 +23,22 @@
  * SOFTWARE.
  */
 
-/*!@file lex/loc.h
+/*!@file nt.h
  * @author uael
  */
-#ifndef __LEX_LOC_H
-# define __LEX_LOC_H
+#ifndef __NT_H
+# define __NT_H
 
-#include <nt/tys.h>
+#include "nt/arch.h"
+#include "nt/cc.h"
+#include "nt/cpu.h"
+#include "nt/err.h"
+#include "nt/exts.h"
+#include "nt/defs.h"
+#include "nt/incs.h"
+#include "nt/os.h"
+#include "nt/plat.h"
+#include "nt/pp.h"
+#include "nt/verno.h"
 
-typedef struct lex_loc lex_loc_t;
-
-struct lex_loc {
-  u16_t lexer;
-  u32_t line, col;
-  u64_t cursor;
-};
-
-#endif /* !__LEX_LOC_H */
+#endif /* !__NT_H */

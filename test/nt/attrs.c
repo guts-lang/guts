@@ -23,20 +23,20 @@
  * SOFTWARE.
  */
 
-/*!@file lex/loc.h
- * @author uael
- */
-#ifndef __LEX_LOC_H
-# define __LEX_LOC_H
+#include <nt.h>
 
-#include <nt/tys.h>
+static PURE CONST FORCEINLINE int
+foo(int a, int b) {
+  return a + b;
+}
 
-typedef struct lex_loc lex_loc_t;
+NORETURN void
+die(int code) {
+  exit(code);
+}
 
-struct lex_loc {
-  u16_t lexer;
-  u32_t line, col;
-  u64_t cursor;
-};
-
-#endif /* !__LEX_LOC_H */
+int main(void) {
+  assert(10200003UL == VERNO(1, 2, 3));
+  assert(5 == foo(2, 3));
+  die(0);
+}

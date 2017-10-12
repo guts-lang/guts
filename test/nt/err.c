@@ -23,20 +23,17 @@
  * SOFTWARE.
  */
 
-/*!@file lex/loc.h
- * @author uael
- */
-#ifndef __LEX_LOC_H
-# define __LEX_LOC_H
+#include "nt/err.h"
 
-#include <nt/tys.h>
+i32_t
+main(void) {
+  err_stack_t stack;
 
-typedef struct lex_loc lex_loc_t;
-
-struct lex_loc {
-  u16_t lexer;
-  u32_t line, col;
-  u64_t cursor;
-};
-
-#endif /* !__LEX_LOC_H */
+  err_stack_ctor(&stack);
+  err_stack_push(&stack, syserr());
+  err_stack_push(&stack, notice("invalid app."));
+  err_stack_push(&stack, warning("Hello world !"));
+  err_stack_dump(&stack, stdout);
+  err_stack_dtor(&stack);
+  return 0;
+}

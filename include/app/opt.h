@@ -29,7 +29,7 @@
 #ifndef __APP_OPT_H
 # define __APP_OPT_H
 
-#include <sys/tys.h>
+#include <nt/tys.h>
 #include <ds/map.h>
 
 typedef struct opt opt_t;

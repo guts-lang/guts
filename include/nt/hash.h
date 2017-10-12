@@ -23,20 +23,42 @@
  * SOFTWARE.
  */
 
-/*!@file lex/loc.h
+/*!@file nt/hash.h
  * @author uael
  */
-#ifndef __LEX_LOC_H
-# define __LEX_LOC_H
+#ifndef __NT_HASH_H
+# define __NT_HASH_H
 
-#include <nt/tys.h>
+#include "tys.h"
 
-typedef struct lex_loc lex_loc_t;
+#define i8hash(key) ((u32_t)(key))
+#define u8hash(key) ((u32_t)(key))
+#define i16hash(key) ((u32_t)(key))
+#define u16hash(key) ((u32_t)(key))
+#define i32hash(key) ((u32_t)(key))
+#define u32hash(key) ((u32_t)(key))
 
-struct lex_loc {
-  u16_t lexer;
-  u32_t line, col;
-  u64_t cursor;
-};
+#if U64_MAX == U32_MAX
+# define i64hash(key) u32hash(key)
+# define u64hash(key) u32hash(key)
+#else
+# define i64hash(key) ((u32_t)(((key)>>33^(key)^(key)<<11)))
+# define u64hash(key) ((u32_t)(((key)>>33^(key)^(key)<<11)))
+#endif
 
-#endif /* !__LEX_LOC_H */
+#if USIZE_MAX <= U32_MAX
+# define isizehash(key) i32hash(key)
+# define usizehash(key) u32hash(key)
+#else
+# define isizehash(key) i64hash(key)
+# define usizehash(key) u64hash(key)
+#endif
+
+static PURE CONST FORCEINLINE u32_t
+strhash(__const char_t *s) {
+  u32_t h = (u32_t) *s;
+  if (h) for (++s; *s; ++s) h = (h << 5) - h + (u32_t) *s;
+  return h;
+}
+
+#endif /* !__NT_HASH_H */

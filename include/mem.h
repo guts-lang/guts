@@ -23,20 +23,13 @@
  * SOFTWARE.
  */
 
-/*!@file lex/loc.h
+/*!@file mem.h
  * @author uael
  */
-#ifndef __LEX_LOC_H
-# define __LEX_LOC_H
+#ifndef __MEM_H
+# define __MEM_H
 
-#include <nt/tys.h>
+#include "mem/alloc.h"
+#include "mem/ops.h"
 
-typedef struct lex_loc lex_loc_t;
-
-struct lex_loc {
-  u16_t lexer;
-  u32_t line, col;
-  u64_t cursor;
-};
-
-#endif /* !__LEX_LOC_H */
+#endif /* !__MEM_H */

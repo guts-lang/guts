@@ -23,20 +23,24 @@
  * SOFTWARE.
  */
 
-/*!@file lex/loc.h
- * @author uael
- */
-#ifndef __LEX_LOC_H
-# define __LEX_LOC_H
+#include "mem/alloc.h"
 
-#include <nt/tys.h>
+FORCEINLINE RESTRICT void *
+mem_malloc(usize_t size) {
+  return malloc(size);
+}
 
-typedef struct lex_loc lex_loc_t;
+FORCEINLINE void
+mem_free(void *ptr) {
+  free(ptr);
+}
 
-struct lex_loc {
-  u16_t lexer;
-  u32_t line, col;
-  u64_t cursor;
-};
+FORCEINLINE RESTRICT void *
+mem_calloc(usize_t num, usize_t size) {
+  return calloc(num, size);
+}
 
-#endif /* !__LEX_LOC_H */
+FORCEINLINE void *
+mem_realloc(void *ptr, usize_t size) {
+  return realloc(ptr, size);
+}

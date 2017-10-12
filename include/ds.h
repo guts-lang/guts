@@ -31,9 +31,7 @@
 
 #include "ds/deq.h"
 #include "ds/dstr.h"
-#include "ds/hash.h"
 #include "ds/map.h"
-#include "ds/math.h"
 #include "ds/seq.h"
 #include "ds/set.h"
 #include "ds/str.h"

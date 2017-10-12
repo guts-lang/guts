@@ -29,13 +29,12 @@
 #ifndef __DS_SET_H
 # define __DS_SET_H
 
-#include <sys/tys.h>
-#include <sys/err.h>
-#include <stdlib.h>
+#include <nt/tys.h>
+#include <nt/err.h>
+#include <nt/math.h>
+#include <nt/hash.h>
 
-#include "hash.h"
 #include "map.h"
-#include "math.h"
 
 #define setof(TItem) struct { \
     u32_t cap, len, occupieds, upper_bound; \

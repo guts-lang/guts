@@ -29,7 +29,7 @@
 #ifndef __EV_OBS_H
 # define __EV_OBS_H
 
-#include <sys/err.h>
+#include <nt/err.h>
 #include <ds/vec.h>
 
 #define OBSERVER(NAME, TObservable, TCode, ...) \

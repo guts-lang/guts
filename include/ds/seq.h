@@ -29,11 +29,10 @@
 #ifndef __DS_SEQ_H
 # define __DS_SEQ_H
 
-#include <sys/tys.h>
-#include <sys/err.h>
-#include <stdlib.h>
-
-#include "math.h"
+#include <nt/tys.h>
+#include <nt/err.h>
+#include <nt/math.h>
+#include <nt/hash.h>
 
 #ifndef SEQ_MIN_CAP
 # define SEQ_MIN_CAP 32

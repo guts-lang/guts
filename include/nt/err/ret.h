@@ -23,20 +23,19 @@
  * SOFTWARE.
  */
 
-/*!@file lex/loc.h
+/*!@file nt/err/ret.h
  * @author uael
  */
-#ifndef __LEX_LOC_H
-# define __LEX_LOC_H
+#ifndef __NT_ERR_RET_H
+# define __NT_ERR_RET_H
 
-#include <nt/tys.h>
-
-typedef struct lex_loc lex_loc_t;
-
-struct lex_loc {
-  u16_t lexer;
-  u32_t line, col;
-  u64_t cursor;
+enum ret {
+  RET_SUCCESS = 0,
+  RET_FAILURE,
+  RET_ERRNO,
+  RET_NOT_IMPL
 };
 
-#endif /* !__LEX_LOC_H */
+typedef enum ret ret_t;
+
+#endif /* !__NT_ERR_RET_H */

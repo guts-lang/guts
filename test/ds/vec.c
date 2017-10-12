@@ -28,7 +28,7 @@
 #include "ds/vec.h"
 
 #define NOMEM_REALLOC(x, y) ((errno = ENOMEM), nil)
-VEC_DEFINE_DFT(i8vec_nomem, i8_t, 8, NOMEM_REALLOC, free, i8cmp)
+VEC_DEFINE_DFT(i8vec_nomem, i8_t, 8, NOMEM_REALLOC, mem_free, i8cmp)
 
 typedef struct {
   f64_t x, y;

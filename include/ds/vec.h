@@ -29,11 +29,13 @@
 #ifndef __DS_VEC_H
 # define __DS_VEC_H
 
+#include <mem.h>
+
 #include "seq.h"
 
-#define vecof(T, TSizeBits) \
+#define vecof(T, BITS) \
   struct { \
-    u##TSizeBits##_t cap, len; \
+    u##BITS##_t cap, len; \
     T *buf; \
   }
 
@@ -110,7 +112,7 @@
   VEC_IMPL_DFT(SCOPE, ID, T, 64, REALLOC, FREE, CMP)
 
 #define VEC_IMPL(SCOPE, ID, T, BITS, CMP) \
-  VEC_IMPL_DFT(SCOPE, ID, T, BITS, realloc, free, CMP)
+  VEC_IMPL_DFT(SCOPE, ID, T, BITS, mem_realloc, mem_free, CMP)
 #define VEC8_IMPL(SCOPE, ID, T, CMP) \
   VEC_IMPL(SCOPE, ID, T, 8, CMP)
 #define VEC16_IMPL(SCOPE, ID, T, CMP) \
@@ -133,7 +135,7 @@
   VEC_DEFINE_DFT(ID, T, 64, REALLOC, FREE, CMP)
 
 #define VEC_DEFINE_X(ID, T, BITS, CMP) \
-  VEC_DEFINE_DFT(ID, T, BITS, realloc, free, CMP)
+  VEC_DEFINE_DFT(ID, T, BITS, mem_realloc, mem_free, CMP)
 #define VEC8_DEFINE(ID, T, CMP) VEC_DEFINE_X(ID, T, 8, CMP)
 #define VEC16_DEFINE(ID, T, CMP) VEC_DEFINE_X(ID, T, 16, CMP)
 #define VEC32_DEFINE(ID, T, CMP) VEC_DEFINE_X(ID, T, 32, CMP)

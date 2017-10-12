@@ -29,12 +29,10 @@
 #ifndef __DS_MAP_H
 # define __DS_MAP_H
 
-#include <sys/tys.h>
-#include <sys/err.h>
-#include <stdlib.h>
-
-#include "hash.h"
-#include "math.h"
+#include <nt/tys.h>
+#include <nt/err.h>
+#include <nt/math.h>
+#include <nt/hash.h>
 
 enum bucket {
   BUCKET_DELETED = 1,
