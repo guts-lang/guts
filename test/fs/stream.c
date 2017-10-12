@@ -27,17 +27,20 @@
 
 i32_t
 main(void) {
-  stream_t file = {0};
+  stream_t in, out;
 
-  if (stream_open(&file, "LICENSE", FS_OPEN_RW) == RET_SUCCESS) {
+  init(&out, stream_t);
+  out.flags |= FS_OPEN_WO;
+  out.fd = 1;
+  if (stream_open(&in, "LICENSE", FS_OPEN_RO) == RET_SUCCESS) {
     char_t buf[256];
     isize_t r;
 
-    while (stream_read(&file, buf, 256, &r) == RET_SUCCESS) {
-      buf[r] = '\0';
-      puts(buf);
+    while (stream_read(&in, buf, 255, &r) == RET_SUCCESS) {
+      stream_write(&out, buf, (usize_t) r, &r);
     }
-    stream_close(&file);
+    stream_close(&in);
+    stream_close(&out);
   }
   return 0;
 }

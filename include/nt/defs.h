@@ -195,8 +195,7 @@
 # elif defined _Noreturn
 #   define __noreturn _Noreturn
 # elif __has_feature__(stdnoreturn_h) || __has_feature__(c_noreturn)
-#   include <stdnoreturn.h>
-#   define __noreturn noreturn
+#   define __noreturn _Noreturn
 # elif __has_attribute__(noreturn)
 #   define __noreturn __attribute__((__noreturn__))
 # elif __has_declspec_attribute__(noreturn)

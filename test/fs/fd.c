@@ -34,7 +34,7 @@ main(void) {
     char_t buf[256];
     isize_t r;
 
-    while (fd_read(&file, buf, 256, &r) == RET_SUCCESS) {
+    while (fd_read(&file, buf, 255, &r) == RET_SUCCESS) {
       buf[r] = '\0';
       puts(buf);
     }

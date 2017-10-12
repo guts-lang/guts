@@ -25,15 +25,16 @@
 
 #include "fs/stream.h"
 
-DEQ_IMPL(FORCEINLINE, sbuf, char_t, size, i8cmp)
+DEQ_IMPL(FORCEINLINE, sinbuf, char_t, size, i8cmp)
+VEC_IMPL(FORCEINLINE, soutbuf, char_t, size, i8cmp)
 
 FORCEINLINE ret_t
 stream_open(stream_t *self, char_t __const *filename, u32_t flags)
 {
   init(self, stream_t);
   self->flags = flags;
-  sbuf_ctor(&self->in);
-  sbuf_ctor(&self->out);
+  sinbuf_ctor(&self->in);
+  soutbuf_ctor(&self->out);
   return fd_open(&self->fd, filename, flags);
 }
 
@@ -42,11 +43,11 @@ stream_close(stream_t *self)
 {
   ret_t ret;
 
-  sbuf_dtor(&self->in);
-  if (self->out.tail)
-    if ((ret = fd_write(&self->fd, self->out.buf, self->out.tail, nil)) > 0)
+  sinbuf_dtor(&self->in);
+  if (self->out.len)
+    if ((ret = fd_write(&self->fd, self->out.buf, self->out.len, nil)) > 0)
       return ret;
-  sbuf_dtor(&self->out);
+  soutbuf_dtor(&self->out);
   return fd_close(&self->fd);
 }
 
@@ -59,15 +60,15 @@ stream_read(stream_t *self, char_t *buf, usize_t len, isize_t *out)
 
   if (out) *out = 0;
   while (len) {
-    if (sbuf_size(&self->in) == 0) {
-      if (self->in.tail == 0 && (ret = sbuf_realloc(&self->in, 4096)) > 0)
+    if (sinbuf_size(&self->in) == 0) {
+      if (self->in.tail == 0 && (ret = sinbuf_realloc(&self->in, 4096)) > 0)
         return ret;
       if ((ret = fd_read(&self->fd, self->in.buf, 4096, &r)) > 0) return ret;
       if (r <= 0) break;
       self->in.tail = (usize_t) r;
       self->in.head = 0;
     }
-    len -= (b = sbuf_nshift(&self->in, len, &buf));
+    len -= (b = sinbuf_nshift(&self->in, len, &buf));
     buf += b;
     if (out) *out += b;
   }
@@ -75,8 +76,7 @@ stream_read(stream_t *self, char_t *buf, usize_t len, isize_t *out)
 }
 
 ret_t
-stream_write(stream_t *self, char_t __const *buf, usize_t len,
-  isize_t *out)
+stream_write(stream_t *self, char_t __const *buf, usize_t len, isize_t *out)
 {
   usize_t b;
   ret_t ret;
@@ -85,22 +85,18 @@ stream_write(stream_t *self, char_t __const *buf, usize_t len,
   if (self->flags & FS_OPEN_WO) {
     if (out) *out = 0;
     while (len) {
-      if (sbuf_size(&self->out) == 0) {
-        if (self->out.tail == 0 && (ret = sbuf_realloc(&self->out, 4096)) > 0)
-          return ret;
-        if (self->out.tail) {
-          if ((ret = fd_write(&self->fd, self->out.buf, self->out.tail, &w))
-            > 0) return ret;
-          if (w <= 0) break;
-          self->out.tail = self->out.head = 0;
-        }
-      }
-      b = self->out.cap - self->out.head;
+      b = 4096 - self->out.len;
       if (b > len) b = len;
-      if ((ret = sbuf_append(&self->out, (char_t *) buf, b)) > 0) return ret;
+      if ((ret = soutbuf_append(&self->out, (char_t *) buf, b)) > 0) return ret;
       len -= b;
       buf += b;
       if (out) *out += b;
+      if (self->out.len == 4096) {
+        if ((ret = fd_write(&self->fd, self->out.buf, self->out.len, &w)) > 0)
+          return ret;
+        if (w <= 0) break;
+        self->out.len = 0;
+      }
     }
   } else {
     if ((ret = fd_write(&self->fd, buf, len, &w)) > 0)

@@ -32,15 +32,15 @@
 #include "fd.h"
 
 typedef struct stream stream_t;
-typedef deqof(char_t, size) sbuf_t;
+typedef deqof(char_t, size) sinbuf_t;
+typedef vecof(char_t, size) soutbuf_t;
 
 struct stream {
   fd_t fd;
   u32_t flags;
-  sbuf_t in, out;
+  sinbuf_t in;
+  soutbuf_t out;
 };
-
-DEQ_DECL(__api__, sbuf, char_t, size);
 
 __api__ ret_t
 stream_open(stream_t *self, char_t __const *filename, u32_t flags);

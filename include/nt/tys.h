@@ -75,14 +75,38 @@ typedef unsigned long long u64_t;
 #if defined OS_WIN || !__has_feature__(stdint_h)
 # if CPU_64 && !defined WIN32
 typedef i64_t isize_t;
+#   if !defined _SIZE_T_DEFINED
 typedef u64_t usize_t;
-#   define ISIZE_MAX I64_MAX
-#   define USIZE_MAX U64_MAX
+#   else
+typedef size_t usize_t;
+#   endif
+#   if !defined SSIZE_MAX
+#     define ISIZE_MAX I64_MAX
+#   else
+#     define ISIZE_MAX SSIZE_MAX
+#   endif
+#   if !defined SIZE_MAX
+#     define USIZE_MAX U64_MAX
+#   else
+#     define USIZE_MAX SIZE_MAX
+#   endif
 # else
 typedef i32_t isize_t;
+#   if !defined _SIZE_T_DEFINED
 typedef u32_t usize_t;
-#   define ISIZE_MAX I32_MAX
-#   define USIZE_MAX U32_MAX
+#   else
+typedef size_t usize_t;
+#   endif
+#   if !defined SSIZE_MAX
+#     define ISIZE_MAX I32_MAX
+#   else
+#     define ISIZE_MAX SSIZE_MAX
+#   endif
+#   if !defined SIZE_MAX
+#     define USIZE_MAX U32_MAX
+#   else
+#     define USIZE_MAX SIZE_MAX
+#   endif
 # endif
 #else
 typedef ssize_t isize_t;
