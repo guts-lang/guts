@@ -25,7 +25,7 @@
 
 #include "mem/alloc.h"
 
-FORCEINLINE RESTRICT void *
+FORCEINLINE void *
 mem_malloc(usize_t size) {
   return malloc(size);
 }
@@ -35,7 +35,7 @@ mem_free(void *ptr) {
   free(ptr);
 }
 
-FORCEINLINE RESTRICT void *
+FORCEINLINE void *
 mem_calloc(usize_t num, usize_t size) {
   return calloc(num, size);
 }
