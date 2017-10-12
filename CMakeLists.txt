@@ -53,7 +53,7 @@ macro (add_module MOD TYPE)
       INTERFACE $<$<CONFIG:Debug>:DEBUG>$<$<CONFIG:Release>:NDEBUG>)
     if (MSVC)
       target_compile_options(${MOD}
-        INTERFACE /MT$<$<CONFIG:Debug>:d> /Oy /W3
+        INTERFACE /MT$<$<CONFIG:Debug>:d> /Za /Oy /W3
         INTERFACE /D_CRT_SECURE_NO_WARNINGS
         INTERFACE /O$<$<CONFIG:Debug>:d>$<$<CONFIG:Release>:x>)
     else ()
@@ -80,7 +80,7 @@ macro (add_module MOD TYPE)
       PRIVATE API_COMPILE)
     if (MSVC)
       target_compile_options(${MOD}
-        PUBLIC /MT$<$<CONFIG:Debug>:d> /Oy /W3
+        PUBLIC /MT$<$<CONFIG:Debug>:d> /Za /Oy /W3
         PUBLIC /D_CRT_SECURE_NO_WARNINGS
         PUBLIC /O$<$<CONFIG:Debug>:d>$<$<CONFIG:Release>:x>)
     else ()
@@ -104,7 +104,7 @@ macro (add_module MOD TYPE)
       PRIVATE API_COMPILE)
     if (MSVC)
       target_compile_options(${MOD}
-        PRIVATE /MT$<$<CONFIG:Debug>:d> /Oy /W3
+        PRIVATE /MT$<$<CONFIG:Debug>:d> /Za /Oy /W3
         PRIVATE /D_CRT_SECURE_NO_WARNINGS
         PRIVATE /O$<$<CONFIG:Debug>:d>$<$<CONFIG:Release>:x>)
     else ()
@@ -139,7 +139,8 @@ macro (add_module MOD TYPE)
       target_include_directories(test_${MOD}_${${MOD}_TEST_NAME} PUBLIC
         ${guts_TEST_DIR})
       target_link_libraries(test_${MOD}_${${MOD}_TEST_NAME} ${MOD})
-      add_test(${MOD}_${${MOD}_TEST_NAME} test_${MOD}_${${MOD}_TEST_NAME})
+      add_test(${MOD}_${${MOD}_TEST_NAME} test_${MOD}_${${MOD}_TEST_NAME}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
     endforeach ()
   endif ()
 endmacro ()
