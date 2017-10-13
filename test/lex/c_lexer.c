@@ -87,34 +87,34 @@ enum {
 
 #define CATCH(ret, expr) \
   if (((ret) = (expr)) == RET_ERRNO) { \
-    err_stack_push(&self->errs, syserr()); \
+    errs_push(&self->errs, syserr()); \
     return RET_FAILURE; \
   } \
   else if ((ret) > 0) return (ret)
 #define CATCH_SYS(ret, expr) \
   if (((ret) = (expr)) == RET_ERRNO) { \
-    err_stack_push(&self->errs, syserr()); \
+    errs_push(&self->errs, syserr()); \
     return RET_FAILURE; \
   }
 
 ret_t
-lex(lex_lexer_t *self)
+lex(lexer_t *self)
 {
-  lex_src_t *src;
+  src_t *src;
   char_t peek;
   ret_t ret;
   usize_t i;
-  lex_tok_t tok;
+  tok_t tok;
 
-  if (lex_srcs_size(&self->srcs) == 0) {
+  if (srcs_size(&self->srcs) == 0) {
     return RET_FAILURE;
   }
-  src = lex_srcs_offset(&self->srcs, 0);
-  CATCH(ret, lex_src_peek(src, 0, &peek));
-  init(&tok, lex_tok_t);
+  src = srcs_offset(&self->srcs, 0);
+  CATCH(ret, src_peek(src, 0, &peek));
+  init(&tok, tok_t);
   while (peek == ' ' || peek == '\t') {
     ++tok.lws;
-    CATCH_SYS(ret, lex_src_next(src, &peek));
+    CATCH_SYS(ret, src_next(src, &peek));
   }
   if (peek == '_' || isalpha(peek)) {
     char s[256];
@@ -123,156 +123,151 @@ lex(lex_lexer_t *self)
     i = 0;
     do {
       s[i++] = peek;
-      CATCH_SYS(ret, lex_src_next(src, &peek));
+      CATCH_SYS(ret, src_next(src, &peek));
     } while (peek == '_' || isalpha(peek));
     s[i] = '\0';
-    tok.kind = C_TOK_IDENTIFIER;
+    tok.id = C_TOK_IDENTIFIER;
     switch (s[0]) {
-      case 'a':if (M3(1, 'u', 't', 'o')) tok.kind = C_TOK_AUTO;
+      case 'a': if (M3(1, 'u', 't', 'o')) tok.id = C_TOK_AUTO;
         break;
-      case 'b':if (M4(1, 'r', 'e', 'a', 'k')) tok.kind = C_TOK_BREAK;
+      case 'b': if (M4(1, 'r', 'e', 'a', 'k')) tok.id = C_TOK_BREAK;
         break;
       case 'c':
-        if (M3(1, 'a', 's', 'e')) tok.kind = C_TOK_CASE;
-        else if (M3(1, 'h', 'a', 'r')) tok.kind = C_TOK_CHAR;
+        if (M3(1, 'a', 's', 'e')) tok.id = C_TOK_CASE;
+        else if (M3(1, 'h', 'a', 'r')) tok.id = C_TOK_CHAR;
         else if (i >= 4 && s[1] == 'o' && s[2] == 'n') {
-          if (M2(3, 's', 't')) tok.kind = C_TOK_CONST;
-          else if (M5(3, 't', 'i', 'n', 'u', 'e'))
-            tok.kind = C_TOK_CONTINUE;
+          if (M2(3, 's', 't')) tok.id = C_TOK_CONST;
+          else if (M5(3, 't', 'i', 'n', 'u', 'e')) tok.id = C_TOK_CONTINUE;
         }
         break;
       case 'd':
-        if (M6(1, 'e', 'f', 'a', 'u', 'l', 't')) tok.kind = C_TOK_DEFAULT;
+        if (M6(1, 'e', 'f', 'a', 'u', 'l', 't')) tok.id = C_TOK_DEFAULT;
         else if (i > 1 && s[1] == 'o') {
-          if (i == 2) tok.kind = C_TOK_DO;
-          else if (M4(2, 'u', 'b', 'l', 'e')) tok.kind = C_TOK_DOUBLE;
+          if (i == 2) tok.id = C_TOK_DO;
+          else if (M4(2, 'u', 'b', 'l', 'e')) tok.id = C_TOK_DOUBLE;
         }
         break;
       case 'e':
-        if (M3(1, 'l', 's', 'e')) tok.kind = C_TOK_ELSE;
-        else if (M3(1, 'n', 'u', 'm')) tok.kind = C_TOK_ENUM;
-        else if (M5(1, 'x', 't', 'e', 'r', 'n')) tok.kind = C_TOK_EXTERN;
+        if (M3(1, 'l', 's', 'e')) tok.id = C_TOK_ELSE;
+        else if (M3(1, 'n', 'u', 'm')) tok.id = C_TOK_ENUM;
+        else if (M5(1, 'x', 't', 'e', 'r', 'n')) tok.id = C_TOK_EXTERN;
         break;
       case 'f':
-        if (M4(1, 'l', 'o', 'a', 't')) tok.kind = C_TOK_FLOAT;
-        else if (M2(1, 'o', 'r')) tok.kind = C_TOK_FOR;
+        if (M4(1, 'l', 'o', 'a', 't')) tok.id = C_TOK_FLOAT;
+        else if (M2(1, 'o', 'r')) tok.id = C_TOK_FOR;
         break;
-      case 'g':if (M3(1, 'o', 't', 'o')) tok.kind = C_TOK_GOTO;
+      case 'g':if (M3(1, 'o', 't', 'o')) tok.id = C_TOK_GOTO;
         break;
       case 'i':
-        if (M1(1, 'f')) tok.kind = C_TOK_IF;
-        else if (M5(1, 'n', 'l', 'i', 'n', 'e')) tok.kind = C_TOK_INLINE;
-        else if (M2(1, 'n', 't')) tok.kind = C_TOK_INT;
+        if (M1(1, 'f')) tok.id = C_TOK_IF;
+        else if (M5(1, 'n', 'l', 'i', 'n', 'e')) tok.id = C_TOK_INLINE;
+        else if (M2(1, 'n', 't')) tok.id = C_TOK_INT;
         break;
-      case 'l':if (M3(1, 'o', 'n', 'g')) tok.kind = C_TOK_LONG;
+      case 'l':if (M3(1, 'o', 'n', 'g')) tok.id = C_TOK_LONG;
         break;
       case 'r':
         if (i > 4 && s[1] == 'e') {
           if (M6(2, 'g', 'i', 's', 't', 'e', 'r'))
-            tok.kind = C_TOK_REGISTER;
+            tok.id = C_TOK_REGISTER;
           else if (M6(2, 's', 't', 'r', 'i', 'c', 't'))
-            tok.kind = C_TOK_RESTRICT;
-          else if (M4(2, 't', 'u', 'r', 'n')) tok.kind = C_TOK_RETURN;
+            tok.id = C_TOK_RESTRICT;
+          else if (M4(2, 't', 'u', 'r', 'n')) tok.id = C_TOK_RETURN;
         }
         break;
       case 's':
-        if (M4(1, 'h', 'o', 'r', 't')) tok.kind = C_TOK_SHORT;
+        if (M4(1, 'h', 'o', 'r', 't')) tok.id = C_TOK_SHORT;
         else if (i == 6) {
           switch (s[1]) {
             case 'i':
-              if (__M4(2, 'g', 'n', 'e', 'd')) tok.kind = C_TOK_SIGNED;
-              else if (__M4(2, 'z', 'e', 'o', 'f')) tok.kind = C_TOK_SIZEOF;
+              if (__M4(2, 'g', 'n', 'e', 'd')) tok.id = C_TOK_SIGNED;
+              else if (__M4(2, 'z', 'e', 'o', 'f')) tok.id = C_TOK_SIZEOF;
               break;
             case 't':
-              if (__M4(2, 'a', 't', 'i', 'c')) tok.kind = C_TOK_STATIC;
-              else if (__M4(2, 'r', 'u', 'c', 't')) tok.kind = C_TOK_STRUCT;
+              if (__M4(2, 'a', 't', 'i', 'c')) tok.id = C_TOK_STATIC;
+              else if (__M4(2, 'r', 'u', 'c', 't')) tok.id = C_TOK_STRUCT;
               break;
             case 'w':
               if (__M4(2, 'i', 't', 'c', 'h'))
-                tok.kind = C_TOK_SWITCH;
+                tok.id = C_TOK_SWITCH;
               break;
             default:break;
           }
         }
         break;
       case 't':
-        if (M6(1, 'y', 'p', 'e', 'd', 'e', 'f'))
-          tok.kind = C_TOK_TYPEDEF;
+        if (M6(1, 'y', 'p', 'e', 'd', 'e', 'f')) tok.id = C_TOK_TYPEDEF;
         break;
       case 'u':
         if (i > 4 && s[1] == 'n') {
-          if (M3(2, 'i', 'o', 'n')) tok.kind = C_TOK_UNION;
+          if (M3(2, 'i', 'o', 'n')) tok.id = C_TOK_UNION;
           else if (M6(2, 's', 'i', 'g', 'n', 'e', 'd'))
-            tok.kind = C_TOK_UNSIGNED;
+            tok.id = C_TOK_UNSIGNED;
         }
         break;
       case 'v':
         if (i > 3 && s[1] == 'o') {
-          if (M2(2, 'i', 'd')) tok.kind = C_TOK_VOID;
+          if (M2(2, 'i', 'd')) tok.id = C_TOK_VOID;
           else if (M6(2, 'l', 'a', 't', 'i', 'l', 'e'))
-            tok.kind = C_TOK_VOLATILE;
+            tok.id = C_TOK_VOLATILE;
         }
         break;
-      case 'w':if (M4(1, 'h', 'i', 'l', 'e')) tok.kind = C_TOK_WHILE;
+      case 'w':if (M4(1, 'h', 'i', 'l', 'e')) tok.id = C_TOK_WHILE;
         break;
       case '_':
         switch (s[1]) {
           case 'A':
             if (i == 8 && __M4(2, 'l', 'i', 'g', 'n')) {
-              if (__M2(6, 'a', 's')) tok.kind = C_TOK_ALIGNAS;
-              else if (__M2(6, 'o', 'f')) tok.kind = C_TOK_ALIGNOF;
+              if (__M2(6, 'a', 's')) tok.id = C_TOK_ALIGNAS;
+              else if (__M2(6, 'o', 'f')) tok.id = C_TOK_ALIGNOF;
             } else if (M5(2, 't', 'o', 'm', 'i', 'c'))
-              tok.kind = C_TOK_ATOMIC;
+              tok.id = C_TOK_ATOMIC;
             break;
-          case 'B':if (M3(2, 'o', 'o', 'l')) tok.kind = C_TOK_BOOL;
+          case 'B':if (M3(2, 'o', 'o', 'l')) tok.id = C_TOK_BOOL;
             break;
           case 'C':
             if (M6(2, 'o', 'm', 'p', 'l', 'e', 'x'))
-              tok.kind = C_TOK_COMPLEX;
+              tok.id = C_TOK_COMPLEX;
             break;
           case 'G':
             if (M6(2, 'e', 'n', 'e', 'r', 'i', 'c'))
-              tok.kind = C_TOK_GENERIC;
+              tok.id = C_TOK_GENERIC;
             break;
           case 'I':
             if (M8(2, 'm', 'a', 'g', 'i', 'n', 'a', 'r', 'y'))
-              tok.kind = C_TOK_IMAGINARY;
+              tok.id = C_TOK_IMAGINARY;
             break;
           case 'N':
             if (M7(2, 'o', 'r', 'e', 't', 'u', 'r', 'n'))
-              tok.kind = C_TOK_NORETURN;
+              tok.id = C_TOK_NORETURN;
             break;
           case 'S':
             if (i == 14 && __M6(2, 't', 'a', 't', 'i', 'c', '_')
               && __M6(8, 'a', 's', 's', 'e', 'r', 't'))
-              tok.kind = C_TOK_STATIC_ASSERT;
+              tok.id = C_TOK_STATIC_ASSERT;
             break;
           case 'T':
             if (i == 13 && __M6(2, 'h', 'r', 'e', 'a', 'd', '_')
               && __M5(8, 'l', 'o', 'c', 'a', 'l'))
-              tok.kind = C_TOK_THREAD_LOCAL;
+              tok.id = C_TOK_THREAD_LOCAL;
             break;
           case '_':
             if (M6(2, 'f', 'u', 'n', 'c', '_', '_'))
-              tok.kind = C_TOK_FUNC_NAME;
+              tok.id = C_TOK_FUNC_NAME;
           default: break;
         }
       default: break;
     }
-    if (tok.kind == C_TOK_IDENTIFIER) {
-      lex_val_t val;
+    if (tok.id == C_TOK_IDENTIFIER) {
+      val_t val;
 
-      init(&val, lex_val_t);
-      val.kind = LEX_VAL_IDENT;
-      dstr8_ctor(&val.val.ident);
-      CATCH_SYS(ret, dstr8_append(&val.val.ident, s));
-      tok.type = LEX_TOK_VALUE;
-      tok.kind = self->vals.len;
-      CATCH_SYS(ret, lex_vals_push(&self->vals, val));
+      CATCH_SYS(ret, val_init_ident(&val, s));
+      tok.kind = TOK_VALUE;
+      tok.id = self->vals.len;
+      CATCH_SYS(ret, vals_push(&self->vals, val));
     } else {
-      tok.type = LEX_TOK_KEYWORD;
+      tok.kind = TOK_KEYWORD;
     }
-    CATCH_SYS(ret, lex_toks_push(&self->toks, tok));
+    CATCH_SYS(ret, toks_push(&self->toks, tok));
   }
   return RET_SUCCESS;
 }
@@ -280,17 +275,17 @@ lex(lex_lexer_t *self)
 i32_t
 main(void)
 {
-  lex_lexer_t lexer;
+  lexer_t lexer;
 
-  init(&lexer, lex_lexer_t);
-  lex_str(&lexer, " auto int double foo bar        float");
+  init(&lexer, lexer_t);
+  lexer_init_str(&lexer, " auto int double foo bar        float");
   while (lex(&lexer) == RET_SUCCESS) {
-    lex_tok_t tok;
+    tok_t tok;
 
-    if (lex_toks_shift(&lexer.toks, &tok)) {
-      switch (tok.type) {
-        case LEX_TOK_KEYWORD:
-          switch (tok.kind) {
+    if (toks_shift(&lexer.toks, &tok)) {
+      switch (tok.kind) {
+        case TOK_KEYWORD:
+          switch (tok.id) {
             case C_TOK_AUTO: puts("auto");
               break;
             case C_TOK_INT: puts("int");
@@ -302,11 +297,11 @@ main(void)
             default: break;
           }
           break;
-        case LEX_TOK_VALUE: {
-          lex_val_t *val;
+        case TOK_VALUE: {
+          val_t *val;
 
-          val = lex_vals_offset(&lexer.vals, tok.kind);
-          if (val->kind == LEX_VAL_IDENT) {
+          val = vals_offset(&lexer.vals, tok.id);
+          if (val->kind == VAL_IDENT) {
             puts(val->val.ident.buf);
           }
           break;
@@ -316,7 +311,7 @@ main(void)
     }
   }
   if (lexer.errs.len) {
-    err_stack_dump(&lexer.errs, stdout);
+    errs_dump(&lexer.errs, stdout);
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

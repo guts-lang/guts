@@ -27,13 +27,13 @@
 
 i32_t
 main(void) {
-  err_stack_t stack;
+  errs_t stack;
 
-  err_stack_ctor(&stack);
-  err_stack_push(&stack, syserr());
-  err_stack_push(&stack, notice("invalid app."));
-  err_stack_push(&stack, warning("Hello world !"));
-  err_stack_dump(&stack, stdout);
-  err_stack_dtor(&stack);
+  errs_ctor(&stack);
+  errs_push(&stack, syserr());
+  errs_push(&stack, notice("invalid app."));
+  errs_push(&stack, warning("Hello world !"));
+  errs_dump(&stack, stdout);
+  errs_dtor(&stack);
   return 0;
 }

@@ -31,9 +31,9 @@
 
 #include <nt/tys.h>
 
-typedef struct lex_loc lex_loc_t;
+typedef struct loc loc_t;
 
-struct lex_loc {
+struct loc {
   u16_t src;
   u32_t line, col;
   u64_t cursor;

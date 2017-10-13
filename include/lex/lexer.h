@@ -34,39 +34,39 @@
 
 #include "tok.h"
 
-enum lex_lexer_ev {
-  LEX_LEXER_ON_TOK_PUSH
+enum lexer_ev {
+  LEXER_ON_TOK_PUSH
 };
 
-typedef enum lex_lexer_ev lex_lexer_ev_t;
-typedef struct lex_lexer lex_lexer_t;
+typedef enum lexer_ev lexer_ev_t;
+typedef struct lexer lexer_t;
 
-DEQ32_DEFINE(lex_toks, lex_tok_t, addrcmp)
-VEC32_DEFINE(lex_vals, lex_val_t, addrcmp)
-DEQ16_DEFINE(lex_srcs, lex_src_t, addrcmp)
+DEQ32_DEFINE(toks, tok_t, addrcmp)
+VEC32_DEFINE(vals, val_t, addrcmp)
+DEQ16_DEFINE(srcs, src_t, addrcmp)
 
-struct lex_lexer {
+struct lexer {
   bool_t root;
   observers_t observers;
-  err_stack_t errs;
-  lex_srcs_t srcs;
-  lex_lexer_t *origin;
-  lex_toks_t toks;
-  lex_vals_t vals;
+  errs_t errs;
+  srcs_t srcs;
+  lexer_t *origin;
+  toks_t toks;
+  vals_t vals;
 };
 
-OBSERVABLE_DEFINE(lex_lexer, lex_lexer_t, lex_lexer_ev_t)
+OBSERVABLE_DEFINE(lex_lexer, lexer_t, lexer_ev_t)
 
 __api__ ret_t
-lex_file(lex_lexer_t *self, char_t __const *filename);
+lexer_init_file(lexer_t *self, char_t __const *filename);
 
 __api__ ret_t
-lex_stream(lex_lexer_t *self, stream_t *stream);
+lexer_init_stream(lexer_t *self, stream_t *stream);
 
 __api__ ret_t
-lex_str(lex_lexer_t *self, char_t __const *buf);
+lexer_init_str(lexer_t *self, char_t __const *buf);
 
 __api__ ret_t
-lex_nstr(lex_lexer_t *self, char_t __const *buf, usize_t n);
+lexer_init_nstr(lexer_t *self, char_t __const *buf, usize_t n);
 
 #endif /* !__LEX_VAL_H */

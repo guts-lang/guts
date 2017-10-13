@@ -26,41 +26,45 @@
 #include "lex/lexer.h"
 
 FORCEINLINE ret_t
-lex_file(lex_lexer_t *self, char_t __const *filename) {
+lexer_init_file(lexer_t *self, char_t __const *filename)
+{
   ret_t ret;
-  lex_src_t src;
+  src_t src;
 
-  if ((ret = lex_src_file(&src, filename)) > 0) return ret;
+  if ((ret = src_init_file(&src, filename)) > 0) return ret;
   src.loc.src = self->srcs.head;
-  return lex_srcs_unshift(&self->srcs, src);
+  return srcs_unshift(&self->srcs, src);
 }
 
 FORCEINLINE ret_t
-lex_stream(lex_lexer_t *self, stream_t *stream) {
+lexer_init_stream(lexer_t *self, stream_t *stream)
+{
   ret_t ret;
-  lex_src_t src;
+  src_t src;
 
-  if ((ret = lex_src_stream(&src, stream)) > 0) return ret;
+  if ((ret = src_init_stream(&src, stream)) > 0) return ret;
   src.loc.src = self->srcs.head;
-  return lex_srcs_unshift(&self->srcs, src);
+  return srcs_unshift(&self->srcs, src);
 }
 
 FORCEINLINE ret_t
-lex_str(lex_lexer_t *self, char_t __const *buf) {
+lexer_init_str(lexer_t *self, char_t __const *buf)
+{
   ret_t ret;
-  lex_src_t src;
+  src_t src;
 
-  if ((ret = lex_src_str(&src, buf)) > 0) return ret;
+  if ((ret = src_init_str(&src, buf)) > 0) return ret;
   src.loc.src = self->srcs.head;
-  return lex_srcs_unshift(&self->srcs, src);
+  return srcs_unshift(&self->srcs, src);
 }
 
 FORCEINLINE ret_t
-lex_nstr(lex_lexer_t *self, char_t __const *buf, usize_t n) {
+lexer_init_nstr(lexer_t *self, char_t __const *buf, usize_t n)
+{
   ret_t ret;
-  lex_src_t src;
+  src_t src;
 
-  if ((ret = lex_src_nstr(&src, buf, n)) > 0) return ret;
+  if ((ret = src_init_nstr(&src, buf, n)) > 0) return ret;
   src.loc.src = self->srcs.head;
-  return lex_srcs_unshift(&self->srcs, src);
+  return srcs_unshift(&self->srcs, src);
 }

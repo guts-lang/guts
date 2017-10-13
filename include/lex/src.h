@@ -33,17 +33,17 @@
 
 #include "loc.h"
 
-enum lex_src_kind {
+enum src_kind {
   LEX_SRC_FILE = 0,
   LEX_SRC_STREAM,
   LEX_SRC_STR
 };
 
-typedef enum lex_src_kind lex_src_kind_t;
-typedef struct lex_src lex_src_t;
+typedef enum src_kind src_kind_t;
+typedef struct src src_t;
 
-struct lex_src {
-  lex_src_kind_t kind;
+struct src {
+  src_kind_t kind;
   union {
     stream_t file;
     stream_t *stream;
@@ -52,25 +52,28 @@ struct lex_src {
       char_t __const *buf;
     } str;
   } src;
-  lex_loc_t loc;
+  loc_t loc;
 };
 
 __api__ ret_t
-lex_src_file(lex_src_t *self, char_t __const *filename);
+src_init_file(src_t *self, char_t __const *filename);
 
 __api__ ret_t
-lex_src_stream(lex_src_t *self, stream_t *stream);
+src_init_stream(src_t *self, stream_t *stream);
 
 __api__ ret_t
-lex_src_str(lex_src_t *self, char_t __const *buf);
+src_init_str(src_t *self, char_t __const *buf);
 
 __api__ ret_t
-lex_src_nstr(lex_src_t *self, char_t __const *buf, usize_t n);
+src_init_nstr(src_t *self, char_t __const *buf, usize_t n);
 
 __api__ ret_t
-lex_src_peek(lex_src_t *self, usize_t n, char_t *out);
+src_peek(src_t *self, usize_t n, char_t *out);
 
 __api__ ret_t
-lex_src_next(lex_src_t *self, char_t *out);
+src_next(src_t *self, char_t *out);
+
+__api__ ret_t
+src_dtor(src_t *self);
 
 #endif /* !__LEX_SRC_H */

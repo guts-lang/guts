@@ -61,7 +61,7 @@ struct opts {
   optmap_t conf;
   optmap_sc_t shortcuts;
   optcb_t callback;
-  err_stack_t errs;
+  errs_t errs;
 };
 
 __extern_c__

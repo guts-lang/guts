@@ -31,27 +31,27 @@
 
 #include <ds/dstr.h>
 
-enum lex_val_kind {
-  LEX_VAL_NULL,
-  LEX_VAL_STR,
-  LEX_VAL_IDENT,
-  LEX_VAL_I8,
-  LEX_VAL_I16,
-  LEX_VAL_I32,
-  LEX_VAL_I64,
-  LEX_VAL_U8,
-  LEX_VAL_U16,
-  LEX_VAL_U32,
-  LEX_VAL_U64,
-  LEX_VAL_F32,
-  LEX_VAL_F64
+enum val_kind {
+  VAL_NULL,
+  VAL_STR,
+  VAL_IDENT,
+  VAL_I8,
+  VAL_I16,
+  VAL_I32,
+  VAL_I64,
+  VAL_U8,
+  VAL_U16,
+  VAL_U32,
+  VAL_U64,
+  VAL_F32,
+  VAL_F64
 };
 
-typedef enum lex_val_kind lex_val_kind_t;
-typedef struct lex_val lex_val_t;
+typedef enum val_kind val_kind_t;
+typedef struct val val_t;
 
-struct lex_val {
-  lex_val_kind_t kind;
+struct val {
+  val_kind_t kind : 4;
   union {
     dstr_t str;
     dstr8_t ident;
@@ -67,5 +67,44 @@ struct lex_val {
     f64_t f64;
   } val;
 };
+
+__api__ ret_t
+val_init_str(val_t *self, char_t *str);
+
+__api__ ret_t
+val_init_ident(val_t *self, char_t *ident);
+
+__api__ void
+val_init_i8(val_t *self, i8_t i);
+
+__api__ void
+val_init_i16(val_t *self, i16_t i);
+
+__api__ void
+val_init_i32(val_t *self, i32_t i);
+
+__api__ void
+val_init_i64(val_t *self, i64_t i);
+
+__api__ void
+val_init_u8(val_t *self, u8_t i);
+
+__api__ void
+val_init_u16(val_t *self, u16_t i);
+
+__api__ void
+val_init_u32(val_t *self, u32_t i);
+
+__api__ void
+val_init_u64(val_t *self, u64_t i);
+
+__api__ void
+val_init_f32(val_t *self, f32_t f);
+
+__api__ void
+val_init_f64(val_t *self, f64_t f);
+
+__api__ void
+val_dtor(val_t *self);
 
 #endif /* !__LEX_VAL_H */

@@ -30,7 +30,7 @@ opts_ctor(opts_t *self, opt_t *opts, optcb_t callback) {
   u32_t it;
 
   self->callback = callback;
-  err_stack_ctor(&self->errs);
+  errs_ctor(&self->errs);
   if (opts) {
     while (opts->lf) {
       opt_t *opt = opts++;
@@ -52,7 +52,7 @@ void
 opts_dtor(opts_t *self) {
   optmap_dtor(&self->conf);
   optmap_sc_dtor(&self->shortcuts);
-  err_stack_dtor(&self->errs);
+  errs_dtor(&self->errs);
 }
 
 ret_t
@@ -137,7 +137,7 @@ opts_parse(opts_t *self, void *app_ptr, i32_t argc, char_t **argv) {
       }
       continue;
       fail:
-      if (err_stack_push(&self->errs, err)
+      if (errs_push(&self->errs, err)
         == RET_ERRNO) {
         return RET_ERRNO;
       }

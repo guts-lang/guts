@@ -36,7 +36,7 @@
 #include "err/ret.h"
 
 typedef struct err err_t;
-typedef struct err_stack err_stack_t;
+typedef struct errs errs_t;
 
 struct err {
   errlvl_t lvl;
@@ -124,14 +124,14 @@ err_t __err_last;
     __err_last, ERRLVL_ERROR, __pretty_func__, __file__, __line__, MSG, __VA_ARGS__ \
   ))
 
-struct err_stack {
+struct errs {
   u16_t cap, len;
   err_t *buf;
 };
 
 __extern_c__
 static FORCEINLINE void
-err_stack_ctor(err_stack_t *__restrict self) {
+errs_ctor(errs_t *__restrict self) {
   self->buf = nil;
   self->cap = 0;
   self->len = 0;
@@ -139,7 +139,7 @@ err_stack_ctor(err_stack_t *__restrict self) {
 
 __extern_c__
 static FORCEINLINE void
-err_stack_dtor(err_stack_t *__restrict self) {
+errs_dtor(errs_t *__restrict self) {
   self->cap = 0;
   self->len = 0;
   if (self->buf) {
@@ -150,7 +150,7 @@ err_stack_dtor(err_stack_t *__restrict self) {
 
 __extern_c__
 static FORCEINLINE ret_t
-err_stack_growth(err_stack_t *__restrict self, __const u16_t nmin) {
+errs_growth(errs_t *__restrict self, __const u16_t nmin) {
   if (nmin > 0) {
     if (self->cap) {
       if (self->cap < nmin) {
@@ -179,21 +179,22 @@ err_stack_growth(err_stack_t *__restrict self, __const u16_t nmin) {
 
 __extern_c__
 static FORCEINLINE ret_t
-err_stack_grow(err_stack_t *__restrict self, __const u16_t nmem) {
+errs_grow(errs_t *__restrict self, __const u16_t nmem) {
   u16_t u;
 
   u = self->len + nmem;
   if (u < self->len) {
     u = U16_MAX;
   }
-  return err_stack_growth(self, (__const u16_t) u);
+  return errs_growth(self, (__const u16_t) u);
 }
 
+__extern_c__
 static FORCEINLINE ret_t
-err_stack_push(err_stack_t *__restrict self, err_t item) {
+errs_push(errs_t *__restrict self, err_t item) {
   ret_t ret;
 
-  if ((ret = err_stack_grow(self, 1)) > 0) {
+  if ((ret = errs_grow(self, 1)) > 0) {
     return ret;
   }
   self->buf[self->len++] = item;
@@ -202,7 +203,7 @@ err_stack_push(err_stack_t *__restrict self, err_t item) {
 
 __extern_c__
 static FORCEINLINE ret_t
-err_stack_pop(err_stack_t *__restrict self, err_t *__restrict out) {
+errs_pop(errs_t *__restrict self, err_t *__restrict out) {
   if (self->len == 0) {
     return RET_FAILURE;
   }
@@ -234,16 +235,16 @@ err_stack_pop(err_stack_t *__restrict self, err_t *__restrict out) {
 
 __extern_c__
 static FORCEINLINE ret_t
-err_stack_merge(err_stack_t *__restrict self, err_stack_t *__restrict x) {
+errs_merge(errs_t *__restrict self, errs_t *__restrict x) {
   ret_t ret;
 
   if (x->len > 0) {
-    if ((ret = err_stack_grow(self, self->len)) > 0) {
+    if ((ret = errs_grow(self, self->len)) > 0) {
       return ret;
     }
     memcpy(self->buf + self->len, self->buf, (size_t) x->len * sizeof(err_t));
     self->len += x->len;
-    err_stack_dtor(x);
+    errs_dtor(x);
   }
   return RET_SUCCESS;
 }
@@ -350,11 +351,11 @@ err_dump(err_t *__restrict self, FILE *__restrict stream) {
 
 __extern_c__
 static FORCEINLINE ret_t
-err_stack_dump(err_stack_t *__restrict self, FILE *__restrict stream) {
+errs_dump(errs_t *__restrict self, FILE *__restrict stream) {
   ret_t ret;
   err_t err;
 
-  while ((ret = err_stack_pop(self, &err)) == RET_SUCCESS) {
+  while ((ret = errs_pop(self, &err)) == RET_SUCCESS) {
     err_dump(&err, stream);
   }
   if (ret == RET_ERRNO) {
