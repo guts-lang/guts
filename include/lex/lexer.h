@@ -57,37 +57,16 @@ struct lex_lexer {
 
 OBSERVABLE_DEFINE(lex_lexer, lex_lexer_t, lex_lexer_ev_t)
 
-__api__ void
-lex_lexer_ctor(lex_lexer_t *self);
-
-__api__ void
-lex_lexer_dtor(lex_lexer_t *self);
+__api__ ret_t
+lex_file(lex_lexer_t *self, char_t __const *filename);
 
 __api__ ret_t
-lex_lexer_push_file(lex_lexer_t *self, i8_t __const *filename);
+lex_stream(lex_lexer_t *self, stream_t *stream);
 
 __api__ ret_t
-lex_lexer_push_buf(lex_lexer_t *self, i8_t __const *buf, u64_t len);
+lex_str(lex_lexer_t *self, char_t __const *buf);
 
 __api__ ret_t
-lex_lexer_fork(lex_lexer_t *fork, lex_lexer_t *origin);
-
-__api__ ret_t
-lex_lexer_join(lex_lexer_t *fork);
-
-__api__ ret_t
-lex_lexer_push(lex_lexer_t *self, lex_tok_t tok);
-
-__api__ lex_tok_t
-lex_lexer_peek(lex_lexer_t *self);
-
-__api__ lex_tok_t
-lex_lexer_npeek(lex_lexer_t *self, u16_t n);
-
-__api__ lex_tok_t
-lex_lexer_next(lex_lexer_t *self);
-
-__api__ lex_tok_t
-lex_lexer_consume(lex_lexer_t *self, u32_t kind);
+lex_nstr(lex_lexer_t *self, char_t __const *buf, usize_t n);
 
 #endif /* !__LEX_VAL_H */

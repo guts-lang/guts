@@ -34,6 +34,7 @@
 enum lex_val_kind {
   LEX_VAL_NULL,
   LEX_VAL_STR,
+  LEX_VAL_IDENT,
   LEX_VAL_I8,
   LEX_VAL_I16,
   LEX_VAL_I32,
@@ -53,6 +54,7 @@ struct lex_val {
   lex_val_kind_t kind;
   union {
     dstr_t str;
+    dstr8_t ident;
     i8_t i8;
     i16_t i16;
     i32_t i32;

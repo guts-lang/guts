@@ -62,7 +62,7 @@ __api__ ret_t
 fd_close(fd_t __const *__restrict self);
 
 __api__ ret_t
-fd_read(fd_t __const *__restrict self, char_t *buf, usize_t len, isize_t *out);
+fd_read(fd_t __const *__restrict self, char_t *buf, usize_t len, usize_t *out);
 
 __api__ ret_t
 fd_write(fd_t __const *__restrict self, char_t __const *buf, usize_t len,

@@ -33,11 +33,44 @@
 
 #include "loc.h"
 
+enum lex_src_kind {
+  LEX_SRC_FILE = 0,
+  LEX_SRC_STREAM,
+  LEX_SRC_STR
+};
+
+typedef enum lex_src_kind lex_src_kind_t;
 typedef struct lex_src lex_src_t;
 
 struct lex_src {
-  stream_t stream;
-  lex_loc_t cursor;
+  lex_src_kind_t kind;
+  union {
+    stream_t file;
+    stream_t *stream;
+    struct {
+      usize_t cursor, len;
+      char_t __const *buf;
+    } str;
+  } src;
+  lex_loc_t loc;
 };
+
+__api__ ret_t
+lex_src_file(lex_src_t *self, char_t __const *filename);
+
+__api__ ret_t
+lex_src_stream(lex_src_t *self, stream_t *stream);
+
+__api__ ret_t
+lex_src_str(lex_src_t *self, char_t __const *buf);
+
+__api__ ret_t
+lex_src_nstr(lex_src_t *self, char_t __const *buf, usize_t n);
+
+__api__ ret_t
+lex_src_peek(lex_src_t *self, usize_t n, char_t *out);
+
+__api__ ret_t
+lex_src_next(lex_src_t *self, char_t *out);
 
 #endif /* !__LEX_SRC_H */

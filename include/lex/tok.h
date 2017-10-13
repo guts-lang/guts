@@ -54,10 +54,7 @@ typedef struct lex_tok lex_tok_t;
 struct lex_tok {
   u8_t type;
   u16_t lws;
-  union {
-    u32_t kind;
-    u32_t val;
-  } cnt;
+  u32_t kind;
   lex_loc_t loc;
 };
 

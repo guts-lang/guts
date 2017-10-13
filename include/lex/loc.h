@@ -34,7 +34,7 @@
 typedef struct lex_loc lex_loc_t;
 
 struct lex_loc {
-  u16_t lexer;
+  u16_t src;
   u32_t line, col;
   u64_t cursor;
 };

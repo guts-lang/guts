@@ -25,76 +25,42 @@
 
 #include "lex/lexer.h"
 
-void
-lex_lexer_ctor(lex_lexer_t *self) {
-  init(self, lex_lexer_t);
+FORCEINLINE ret_t
+lex_file(lex_lexer_t *self, char_t __const *filename) {
+  ret_t ret;
+  lex_src_t src;
+
+  if ((ret = lex_src_file(&src, filename)) > 0) return ret;
+  src.loc.src = self->srcs.head;
+  return lex_srcs_unshift(&self->srcs, src);
 }
 
-void
-lex_lexer_dtor(lex_lexer_t *self) {
-  lex_lexer_detach(self);
-  err_stack_dtor(&self->errs);
-  lex_toks_dtor(&self->toks);
-  lex_vals_dtor(&self->vals);
+FORCEINLINE ret_t
+lex_stream(lex_lexer_t *self, stream_t *stream) {
+  ret_t ret;
+  lex_src_t src;
+
+  if ((ret = lex_src_stream(&src, stream)) > 0) return ret;
+  src.loc.src = self->srcs.head;
+  return lex_srcs_unshift(&self->srcs, src);
 }
 
-ret_t
-lex_lexer_push_file(lex_lexer_t *self, i8_t __const *filename) {
-  (void) self;
-  (void) filename;
-  return RET_SUCCESS;
+FORCEINLINE ret_t
+lex_str(lex_lexer_t *self, char_t __const *buf) {
+  ret_t ret;
+  lex_src_t src;
+
+  if ((ret = lex_src_str(&src, buf)) > 0) return ret;
+  src.loc.src = self->srcs.head;
+  return lex_srcs_unshift(&self->srcs, src);
 }
 
-ret_t
-lex_lexer_push_buf(lex_lexer_t *self, i8_t __const *buf, u64_t len) {
-  (void) self;
-  (void) buf;
-  (void) len;
-  return RET_SUCCESS;
-}
+FORCEINLINE ret_t
+lex_nstr(lex_lexer_t *self, char_t __const *buf, usize_t n) {
+  ret_t ret;
+  lex_src_t src;
 
-ret_t
-lex_lexer_fork(lex_lexer_t *fork, lex_lexer_t *origin) {
-  fork->origin = origin;
-
-  return RET_SUCCESS;
-}
-
-ret_t
-lex_lexer_join(lex_lexer_t *fork) {
-  (void) fork;
-  return RET_SUCCESS;
-}
-
-ret_t
-lex_lexer_push(lex_lexer_t *self, lex_tok_t tok) {
-  (void) self;
-  (void) tok;
-  return RET_SUCCESS;
-}
-
-lex_tok_t
-lex_lexer_peek(lex_lexer_t *self) {
-  (void) self;
-  return lex_toks_at(&self->toks, 0);
-}
-
-lex_tok_t
-lex_lexer_npeek(lex_lexer_t *self, u16_t n) {
-  (void) self;
-  (void) n;
-  return lex_toks_at(&self->toks, 0);
-}
-
-lex_tok_t
-lex_lexer_next(lex_lexer_t *self) {
-  (void) self;
-  return lex_toks_at(&self->toks, 0);
-}
-
-lex_tok_t
-lex_lexer_consume(lex_lexer_t *self, u32_t kind) {
-  (void) self;
-  (void) kind;
-  return lex_toks_at(&self->toks, 0);
+  if ((ret = lex_src_nstr(&src, buf, n)) > 0) return ret;
+  src.loc.src = self->srcs.head;
+  return lex_srcs_unshift(&self->srcs, src);
 }

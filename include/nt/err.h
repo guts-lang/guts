@@ -30,6 +30,7 @@
 # define __NT_ERR_H
 
 #include "tys.h"
+#include "math.h"
 #include "err/no.h"
 #include "err/lvl.h"
 #include "err/ret.h"
@@ -199,12 +200,6 @@ err_stack_push(err_stack_t *__restrict self, err_t item) {
   return RET_SUCCESS;
 }
 
-#if __has_builtin__(popcount)
-#define __ISPOW2(n) (__builtin_popcount(n) == 1)
-#else
-#define __ISPOW2(n) (((n) != 0) && (((n) & (~(n) + 1)) == (n)))
-#endif
-
 __extern_c__
 static FORCEINLINE ret_t
 err_stack_pop(err_stack_t *__restrict self, err_t *__restrict out) {
@@ -223,7 +218,7 @@ err_stack_pop(err_stack_t *__restrict self, err_t *__restrict out) {
         (size_t) --self->len * sizeof(err_t)
       );
     }
-  if (__ISPOW2(self->len) && self->len < self->cap) {
+  if (ISPOW2(self->len) && self->len < self->cap) {
     u16_t cap;
     err_t *buf;
 

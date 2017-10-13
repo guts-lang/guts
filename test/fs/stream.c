@@ -31,11 +31,11 @@ main(void) {
 
   if (stream_open(&in, "LICENSE", FS_OPEN_RO) == RET_SUCCESS) {
     char_t buf[256];
-    isize_t r;
+    usize_t r;
 
     stream_out(&out);
-    while (stream_read(&in, buf, 255, &r) == RET_SUCCESS) {
-      stream_write(&out, buf, (usize_t) r, &r);
+    while (stream_read(&in, buf, 256, &r) == RET_SUCCESS) {
+      stream_write(&out, buf, r, &r);
     }
     stream_close(&in);
     stream_flush(&out);

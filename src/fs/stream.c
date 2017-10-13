@@ -23,6 +23,7 @@
  * SOFTWARE.
  */
 
+#include <fs.h>
 #include "fs/stream.h"
 
 #if defined PAGE_SIZE && PAGE_SIZE <= 4096
@@ -77,35 +78,61 @@ stream_close(stream_t *self)
   return ret;
 }
 
-ret_t
-stream_read(stream_t *self, char_t *buf, usize_t len, isize_t *out)
+static ret_t
+stream_bufferize(stream_t *self, usize_t len, usize_t *out)
 {
-  usize_t b;
-  isize_t r;
+  usize_t r;
   ret_t ret;
 
-  if (out) *out = 0;
-  while (len) {
-    if (sinbuf_size(&self->in) == 0) {
-      if (self->in.tail == 0
-        && (ret = sinbuf_realloc(&self->in, FS_PAGE_SIZE)) > 0)
-        return ret;
-      if (self->in.tail && self->in.tail < FS_PAGE_SIZE) return RET_FAILURE;
-      if ((ret = fd_read(&self->fd, self->in.buf, FS_PAGE_SIZE, &r)) > 0)
-        return ret;
-      if (r <= 0) break;
-      self->in.tail = (usize_t) r;
-      self->in.head = 0;
+  ret = RET_SUCCESS;
+  if (self->in.tail % 4096 != 0) {
+    if (out) {
+      *out = sinbuf_size(&self->in);
+      if (*out > len) *out = len;
     }
-    len -= (b = sinbuf_nshift(&self->in, len, &buf));
-    buf += b;
-    if (out) *out += b;
+  } else {
+    if (out) *out = len;
+    while (sinbuf_size(&self->in) < len) {
+      char_t buf[FS_PAGE_SIZE];
+
+      if ((ret = fd_read(&self->fd, buf, FS_PAGE_SIZE, &r)) > 0) break;
+      if ((ret = sinbuf_append(&self->in, buf, (usize_t __const) r)) > 0) break;
+      if (*out && r < *out) *out = r;
+    }
   }
-  return len == 0 ? RET_SUCCESS : RET_FAILURE;
+  return ret;
 }
 
 ret_t
-stream_write(stream_t *self, char_t __const *buf, usize_t len, isize_t *out)
+stream_read(stream_t *self, char_t *buf, usize_t len, usize_t *out)
+{
+  ret_t ret;
+  usize_t r;
+
+  if ((ret = stream_bufferize(self, len, &r)) > 0) return ret;
+  if ((r = sinbuf_nshift(&self->in, r, &buf)) == 0) return RET_FAILURE;
+  if (out) *out = r;
+  return RET_SUCCESS;
+}
+
+FORCEINLINE ret_t
+stream_getc(stream_t *self, char_t *out) {
+  return stream_read(self, out, 1, nil);
+}
+
+FORCEINLINE ret_t
+stream_peek(stream_t *self, usize_t n, char_t *out) {
+  ret_t ret;
+  usize_t r;
+
+  if ((ret = stream_bufferize(self, n, &r)) > 0) return ret;
+  if (r > n) return RET_FAILURE;
+  *out = sinbuf_at(&self->in, n);
+  return ret;
+}
+
+ret_t
+stream_write(stream_t *self, char_t __const *buf, usize_t len, usize_t *out)
 {
   usize_t b;
   ret_t ret;

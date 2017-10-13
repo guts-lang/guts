@@ -55,11 +55,17 @@ __api__ ret_t
 stream_close(stream_t *self);
 
 __api__ ret_t
-stream_read(stream_t *self, char_t *buf, usize_t len, isize_t *out);
+stream_read(stream_t *self, char_t *buf, usize_t len, usize_t *out);
+
+__api__ ret_t
+stream_getc(stream_t *self, char_t *out);
+
+__api__ ret_t
+stream_peek(stream_t *self, usize_t n, char_t *out);
 
 __api__ ret_t
 stream_write(stream_t *self, char_t __const *buf, usize_t len,
-  isize_t *out);
+  usize_t *out);
 
 __api__ ret_t
 stream_flush(stream_t *self);

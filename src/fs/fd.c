@@ -124,7 +124,7 @@ fd_close(fd_t __const *__restrict self)
 }
 
 FORCEINLINE ret_t
-fd_read(fd_t __const *__restrict self, char_t *buf, usize_t len, isize_t *out)
+fd_read(fd_t __const *__restrict self, char_t *buf, usize_t len, usize_t *out)
 {
 #if defined FS_FD_MODEL_NONE
   return RET_NOT_IMPL;
@@ -137,7 +137,7 @@ fd_read(fd_t __const *__restrict self, char_t *buf, usize_t len, isize_t *out)
   if (r < 0) {
     return RET_ERRNO;
   }
-  if (out) *out = r;
+  if (out) *out = (usize_t) r;
   return RET_SUCCESS;
 #elif defined FS_FD_MODEL_WIN_UCRT
   isize_t r;
@@ -148,7 +148,7 @@ fd_read(fd_t __const *__restrict self, char_t *buf, usize_t len, isize_t *out)
   if (r < 0) {
     return RET_ERRNO;
   }
-  if (out) *out = r;
+  if (out) *out = (usize_t) r;
   return RET_SUCCESS;
 #elif defined FS_FD_MODEL_WIN_NT
   return RET_NOT_IMPL;
