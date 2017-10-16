@@ -30,7 +30,7 @@
 # define __NT_EX_LVL_H
 
 enum errlvl {
-  ERRLVL_NOTICE,
+  ERRLVL_NOTICE = 0,
   ERRLVL_WARNING,
   ERRLVL_ERROR,
   ERRLVL_FATAL

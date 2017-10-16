@@ -74,6 +74,7 @@ macro (add_module MOD TYPE)
     else ()
       target_compile_options(${MOD}
         PRIVATE -Wall -Werror -Wextra -fomit-frame-pointer -ansi
+        PRIVATE -Wno-missing-field-initializers -Wno-missing-braces
         PRIVATE -O$<$<CONFIG:Debug>:0 -g3>$<$<CONFIG:Release>:3>)
     endif ()
   elseif ("${TYPE}" STREQUAL "EXECUTABLE")
@@ -96,6 +97,7 @@ macro (add_module MOD TYPE)
     else ()
       target_compile_options(${MOD}
         PRIVATE -Wall -Werror -Wextra -fomit-frame-pointer -ansi
+        PRIVATE -Wno-missing-field-initializers -Wno-missing-braces
         PRIVATE -O$<$<CONFIG:Debug>:0 -g3>$<$<CONFIG:Release>:3>)
     endif ()
   else ()
