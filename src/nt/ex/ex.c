@@ -111,7 +111,7 @@ ex_fatal(char_t __const *msg, ...)
 static void
 ex_dump_impl(ex_t *self, FILE *stream);
 
-FORCEINLINE void
+void
 ex_dump(ex_t *self, FILE *stream) {
   if (self->dump && self->dump != ex_dump) {
     self->dump(self, stream);
