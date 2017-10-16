@@ -25,28 +25,22 @@
 
 #include "lex/val.h"
 
-FORCEINLINE ret_t
+FORCEINLINE void
 val_init_str(val_t *self, char_t *str)
 {
-  ret_t ret;
-
   init(self, val_t);
   self->kind = VAL_STR;
   dstr_ctor(&self->val.str);
-  if ((ret = dstr_append(&self->val.str, str)) > 0) return ret;
-  return ret;
+  dstr_append(&self->val.str, str);
 }
 
-FORCEINLINE ret_t
+FORCEINLINE void
 val_init_ident(val_t *self, char_t *ident)
 {
-  ret_t ret;
-
   init(self, val_t);
   self->kind = VAL_IDENT;
   dstr8_ctor(&self->val.ident);
-  if ((ret = dstr8_append(&self->val.ident, ident)) > 0) return ret;
-  return ret;
+  dstr8_append(&self->val.ident, ident);
 }
 
 FORCEINLINE void

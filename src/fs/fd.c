@@ -53,12 +53,10 @@
 # endif
 #endif
 
-ret_t
+void
 fd_open(fd_t *__restrict self, char_t __const *filename, u32_t flags)
 {
-#if defined FS_FD_MODEL_NONE
-  return RET_NOT_IMPL;
-#elif defined FS_FD_MODEL_UNIX
+#if defined FS_FD_MODEL_UNIX
   u32_t modes, uflags;
 
   uflags = flags;
@@ -81,9 +79,8 @@ fd_open(fd_t *__restrict self, char_t __const *filename, u32_t flags)
   }
   *self = open(filename, flags, modes);
   if (*self == FS_FD_DFT) {
-    return RET_ERRNO;
+    THROW(ex_errno(ERRLVL_ERROR, errno, "Unable to open file '%s'", filename));
   }
-  return RET_SUCCESS;
 #elif defined FS_FD_MODEL_WIN_UCRT
   u32_t modes, uflags;
 
@@ -101,133 +98,107 @@ fd_open(fd_t *__restrict self, char_t __const *filename, u32_t flags)
   }
   *self = _open(filename, flags, modes);
   if (*self == FS_FD_DFT) {
-    return RET_ERRNO;
+    THROW(ex_errno(ERRLVL_ERROR, errno, "Unable to open file '%s'", filename));
   }
-  return RET_SUCCESS;
-#elif defined FS_FD_MODEL_WIN_NT
-  return RET_NOT_IMPL;
 #endif
 }
 
-ret_t
+void
 fd_close(fd_t __const *__restrict self)
 {
-#if defined FS_FD_MODEL_NONE
-  return RET_NOT_IMPL;
-#elif defined FS_FD_MODEL_UNIX
-  return close(*self) == 0 ? RET_SUCCESS : RET_ERRNO;
+#if defined FS_FD_MODEL_UNIX
+  if (close(*self) != 0)
+    THROW(ex_errno(ERRLVL_ERROR, errno, "Unable to close fd '%d'", *self));
 #elif defined FS_FD_MODEL_WIN_UCRT
-  return _close(*self) == 0 ? RET_SUCCESS : RET_ERRNO;
-#elif defined FS_FD_MODEL_WIN_NT
-  return RET_NOT_IMPL;
+  if (_close(*self) != 0)
+    THROW(ex_errno(ERRLVL_ERROR, errno, "Unable to close fd '%d'", *self));
 #endif
 }
 
-FORCEINLINE ret_t
-fd_read(fd_t __const *__restrict self, char_t *buf, usize_t len, usize_t *out)
+FORCEINLINE usize_t
+fd_read(fd_t __const *__restrict self, char_t *buf, usize_t len)
 {
-#if defined FS_FD_MODEL_NONE
-  return RET_NOT_IMPL;
-#elif defined FS_FD_MODEL_UNIX
   isize_t r;
 
+#if defined FS_FD_MODEL_UNIX
   if ((r = read(*self, buf, len)) == 0) {
-    return RET_FAILURE;
+    return false;
   }
-  if (r < 0) {
-    return RET_ERRNO;
-  }
-  if (out) *out = (usize_t) r;
-  return RET_SUCCESS;
 #elif defined FS_FD_MODEL_WIN_UCRT
-  isize_t r;
-
   if ((r = _read(*self, buf, (unsigned) (len - 1))) == 0) {
-    return RET_FAILURE;
+    return false;
   }
-  if (r < 0) {
-    return RET_ERRNO;
-  }
-  if (out) *out = (usize_t) r;
-  return RET_SUCCESS;
-#elif defined FS_FD_MODEL_WIN_NT
-  return RET_NOT_IMPL;
 #endif
+  if (r < 0) {
+    THROW(ex_errno(ERRLVL_ERROR, errno, "Unable to read fd '%d'", *self));
+  }
+  return (usize_t) r;
 }
 
-FORCEINLINE ret_t
-fd_write(fd_t __const *__restrict self, char_t __const *buf, usize_t len,
-  isize_t *out)
+FORCEINLINE usize_t
+fd_write(fd_t __const *__restrict self, char_t __const *buf, usize_t len)
 {
-#if defined FS_FD_MODEL_NONE
-  return RET_NOT_IMPL;
-#elif defined FS_FD_MODEL_UNIX
   isize_t r;
 
+#if defined FS_FD_MODEL_UNIX
   if ((r = write(*self, buf, len)) == 0) {
-    return RET_FAILURE;
+    return false;
   }
-  if (r < 0) {
-    return RET_ERRNO;
-  }
-  if (out) *out = r;
-  return RET_SUCCESS;
 #elif defined FS_FD_MODEL_WIN_UCRT
-  isize_t r;
-
   if ((r = _write(*self, buf, (unsigned) len)) == 0) {
-    return RET_FAILURE;
+    return false;
   }
-  if (r < 0) {
-    return RET_ERRNO;
-  }
-  if (out) *out = r;
-  return RET_SUCCESS;
-#elif defined FS_FD_MODEL_WIN_NT
-  return RET_NOT_IMPL;
 #endif
+  if (r < 0) {
+    THROW(ex_errno(ERRLVL_ERROR, errno, "Unable to write fd '%d'", *self));
+  }
+  return (usize_t) r;
 }
 
-FORCEINLINE ret_t
+FORCEINLINE bool_t
 fd_seek(fd_t __const *__restrict self, isize_t off, fs_seek_mod_t whence,
-  isize_t *out)
+  usize_t *out)
 {
 #if defined FS_FD_MODEL_NONE
-  return RET_NOT_IMPL;
+  return false;
 #elif defined FS_FD_MODEL_UNIX
   isize_t r;
 
   if ((r = lseek(*self, (long) off, whence)) < 0) {
-    return errno != 0 ? RET_ERRNO : RET_FAILURE;
+    if (errno) {
+      THROW(ex_errno(ERRLVL_ERROR, errno, "Unable to seek fd '%d'", *self));
+    }
+    return false;
   }
   if (out != nil) {
-    *out = r;
+    *out = (usize_t) r;
   }
-  return RET_SUCCESS;
+  return true;
 #elif defined FS_FD_MODEL_WIN_UCRT
   isize_t r;
 
   if ((r = _lseek(*self, (long) off, whence)) < 0) {
-    return errno != 0 ? RET_ERRNO : RET_FAILURE;
+    if (errno) {
+      THROW(ex_errno(ERRLVL_ERROR, errno, "Unable to seek fd '%d'", *self));
+    }
+    return false;
   }
   if (out != nil) {
-    *out = r;
+    *out = (usize_t) r;
   }
-  return RET_SUCCESS;
+  return true;
 #elif defined FS_FD_MODEL_WIN_NT
-  return RET_NOT_IMPL;
+  return false;
 #endif
 }
 
-isize_t
+usize_t
 fd_offset(fd_t __const *__restrict self)
 {
-  isize_t off;
+  usize_t off;
 
-  switch (fd_seek(self, 0, FS_SEEK_CUR, &off)) {
-    case RET_SUCCESS: return off;
-    case RET_FAILURE: return 0;
-    default:
-    case RET_ERRNO: return -1;
+  if (fd_seek(self, 0, FS_SEEK_CUR, &off)) {
+    return off;
   }
+  return 0;
 }

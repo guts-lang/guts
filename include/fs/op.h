@@ -31,7 +31,7 @@
 
 #include "conf.h"
 
-__api__ ret_t
+__api__ void
 fs_absolute(char_t __const *path, char_t *out);
 
 __api__ bool_t
@@ -46,7 +46,7 @@ fs_exists(char_t __const *path);
 __api__ bool_t
 fs_ln(char_t __const *path, char_t __const *dest);
 
-__api__ ret_t
+__api__ void
 fs_mkdir(char_t __const *path);
 
 __api__ bool_t
@@ -55,7 +55,7 @@ fs_mv(char_t __const *path, char_t __const *dest);
 __api__ bool_t
 fs_rm(char_t __const *path);
 
-__api__ bool_t
+__api__ void
 fs_touch(char_t __const *path);
 
 #endif /* !__FS_OP_H */

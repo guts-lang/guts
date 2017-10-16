@@ -23,17 +23,38 @@
  * SOFTWARE.
  */
 
-#include "nt/err.h"
+/*!@file nt/ex/tryenv.h
+ * @author uael
+ */
+#ifndef __NT_EX_TRYENV_H
+# define __NT_EX_TRYENV_H
 
-i32_t
-main(void) {
-  errs_t stack;
+#include "ex.h"
 
-  errs_ctor(&stack);
-  errs_push(&stack, syserr());
-  errs_push(&stack, notice("invalid app."));
-  errs_push(&stack, warning("Hello world !"));
-  errs_dump(&stack, stdout);
-  errs_dtor(&stack);
-  return 0;
-}
+#define TRYENV_SIZE (U8_MAX*4)
+
+typedef struct tryenv tryenv_t;
+
+struct tryenv {
+  jmp_buf jmp;
+  ex_t e;
+};
+
+#define TRY if (setjmp(tryenv_push()->jmp) == 0)
+#define CATCH(e) else if (tryenv_pop(&(e)))
+#define THROW(E) tryenv_throw(E, __func__, __file__, __line__)
+#define RETHROW() tryenv_rethrow(__func__, __file__, __line__)
+
+__api__ tryenv_t *
+tryenv_push(void);
+
+__api__ bool_t
+tryenv_pop(ex_t *e);
+
+__api__ NORETURN void
+tryenv_throw(ex_t e, char_t __const *fn, char_t __const *file, u32_t line);
+
+__api__ NORETURN void
+tryenv_rethrow(char_t __const *fn, char_t __const *file, u32_t line);
+
+#endif /* !__NT_EX_TRYENV_H */

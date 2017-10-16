@@ -38,13 +38,13 @@ SEQ_DECL_ctor(__api__, fs_path, char_t, 16);
 SEQ_DECL_dtor(__api__, fs_path, char_t, 16);
 SEQ_DECL_cpy(__api__, fs_path, char_t, 16);
 
-__api__ ret_t
+__api__ bool_t
 fs_path_cwd(fs_path_t *self);
 
-__api__ ret_t
+__api__ bool_t
 fs_path(fs_path_t *self, char_t __const *path);
 
-__api__ ret_t
+__api__ bool_t
 fs_pathn(fs_path_t *self, char_t __const *path, u16_t n);
 
 __api__ bool_t
@@ -53,13 +53,13 @@ fs_path_is_abs(fs_path_t __const *self);
 __api__ bool_t
 fs_path_is_rel(fs_path_t __const *self);
 
-__api__ ret_t
+__api__ bool_t
 fs_path_absolute(fs_path_t *self, fs_path_t *out);
 
-__api__ ret_t
+__api__ bool_t
 fs_path_open(fs_path_t *self, fd_t *out, u32_t flags);
 
-__api__ ret_t
+__api__ bool_t
 fs_path_join(fs_path_t *self, fs_path_t *other);
 
 #endif /* !__FS_PATH_H */

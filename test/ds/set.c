@@ -27,7 +27,7 @@
 
 #include "ds/set.h"
 
-CUTEST_DATA {
+CUTEST_DATA { 
   i8set_t i8set;
   u8set_t u8set;
   i16set_t i16set;
@@ -39,7 +39,8 @@ CUTEST_DATA {
   strset_t strset;
 };
 
-CUTEST_SETUP {
+CUTEST_SETUP
+{
   i8set_ctor(&self->i8set);
   u8set_ctor(&self->u8set);
   i16set_ctor(&self->i16set);
@@ -51,7 +52,8 @@ CUTEST_SETUP {
   strset_ctor(&self->strset);
 }
 
-CUTEST_TEARDOWN {
+CUTEST_TEARDOWN
+{
   i8set_ctor(&self->i8set);
   u8set_ctor(&self->u8set);
   i16set_dtor(&self->i16set);
@@ -63,31 +65,14 @@ CUTEST_TEARDOWN {
   strset_dtor(&self->strset);
 }
 
-CUTEST(set, i8) {
+CUTEST(set, i8)
+{
   u32_t out;
   i8_t i;
 
   for (i = 0; i < I8_MAX; ++i) {
-    switch (i8set_put(&self->i8set, i, &out)) {
-      case RET_SUCCESS:
-        break;
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        FAIL("populated");
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
-    switch (i8set_put(&self->i8set, i, &out)) {
-      case RET_SUCCESS:
-        FAIL("must be populated");
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        break;
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
+    ASSERT_EQ(true, i8set_put(&self->i8set, i, &out));
+    ASSERT_EQ(false, i8set_put(&self->i8set, i, &out));
   }
   ASSERT_EQ(i, self->i8set.len);
   ASSERT_EQ(pow2_next32(i + 2), self->i8set.cap);
@@ -101,31 +86,14 @@ CUTEST(set, i8) {
   return CUTE_SUCCESS;
 }
 
-CUTEST(set, u8) {
+CUTEST(set, u8)
+{
   u32_t out;
   u8_t i;
 
   for (i = 0; i < U8_MAX; ++i) {
-    switch (u8set_put(&self->u8set, i, &out)) {
-      case RET_SUCCESS:
-        break;
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        FAIL("populated");
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
-    switch (u8set_put(&self->u8set, i, &out)) {
-      case RET_SUCCESS:
-        FAIL("must be populated");
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        break;
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
+    ASSERT_EQ(true, u8set_put(&self->u8set, i, &out));
+    ASSERT_EQ(false, u8set_put(&self->u8set, i, &out));
   }
   ASSERT_EQ(i, self->u8set.len);
   ASSERT_EQ(pow2_next32(i + 2), self->u8set.cap);
@@ -139,31 +107,14 @@ CUTEST(set, u8) {
   return CUTE_SUCCESS;
 }
 
-CUTEST(set, i16) {
+CUTEST(set, i16)
+{
   u32_t out;
   i16_t i;
 
   for (i = 0; i < I16_MAX; ++i) {
-    switch (i16set_put(&self->i16set, i, &out)) {
-      case RET_SUCCESS:
-        break;
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        FAIL("populated");
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
-    switch (i16set_put(&self->i16set, i, &out)) {
-      case RET_SUCCESS:
-        FAIL("must be populated");
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        break;
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
+    ASSERT_EQ(true, i16set_put(&self->i16set, i, &out));
+    ASSERT_EQ(false, i16set_put(&self->i16set, i, &out));
   }
   ASSERT_EQ(i, self->i16set.len);
   ASSERT_EQ(pow2_next32(i + 2), self->i16set.cap);
@@ -177,31 +128,14 @@ CUTEST(set, i16) {
   return CUTE_SUCCESS;
 }
 
-CUTEST(set, u16) {
+CUTEST(set, u16)
+{
   u32_t out;
   u16_t i;
 
   for (i = 0; i < U16_MAX; ++i) {
-    switch (u16set_put(&self->u16set, i, &out)) {
-      case RET_SUCCESS:
-        break;
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        FAIL("populated");
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
-    switch (u16set_put(&self->u16set, i, &out)) {
-      case RET_SUCCESS:
-        FAIL("must be populated");
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        break;
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
+    ASSERT_EQ(true, u16set_put(&self->u16set, i, &out));
+    ASSERT_EQ(false, u16set_put(&self->u16set, i, &out));
   }
   ASSERT_EQ(i, self->u16set.len);
   ASSERT_EQ(pow2_next32(i + 2), self->u16set.cap);
@@ -215,31 +149,14 @@ CUTEST(set, u16) {
   return CUTE_SUCCESS;
 }
 
-CUTEST(set, i32) {
+CUTEST(set, i32)
+{
   u32_t out;
   u32_t i;
 
   for (i = 0; i < U16_MAX; ++i) {
-    switch (i32set_put(&self->i32set, i, &out)) {
-      case RET_SUCCESS:
-        break;
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        FAIL("populated");
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
-    switch (i32set_put(&self->i32set, i, &out)) {
-      case RET_SUCCESS:
-        FAIL("must be populated");
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        break;
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
+    ASSERT_EQ(true, i32set_put(&self->i32set, i, &out));
+    ASSERT_EQ(false, i32set_put(&self->i32set, i, &out));
   }
   ASSERT_EQ(i, self->i32set.len);
   ASSERT_EQ(pow2_next32(i + 2), self->i32set.cap);
@@ -253,31 +170,14 @@ CUTEST(set, i32) {
   return CUTE_SUCCESS;
 }
 
-CUTEST(set, u32) {
+CUTEST(set, u32)
+{
   u32_t out;
   u32_t i;
 
   for (i = 0; i < U16_MAX; ++i) {
-    switch (u32set_put(&self->u32set, i, &out)) {
-      case RET_SUCCESS:
-        break;
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        FAIL("populated");
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
-    switch (u32set_put(&self->u32set, i, &out)) {
-      case RET_SUCCESS:
-        FAIL("must be populated");
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        break;
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
+    ASSERT_EQ(true, u32set_put(&self->u32set, i, &out));
+    ASSERT_EQ(false, u32set_put(&self->u32set, i, &out));
   }
   ASSERT_EQ(i, self->u32set.len);
   ASSERT_EQ(pow2_next32(i + 2), self->u32set.cap);
@@ -291,31 +191,14 @@ CUTEST(set, u32) {
   return CUTE_SUCCESS;
 }
 
-CUTEST(set, i64) {
+CUTEST(set, i64)
+{
   u32_t out;
   i64_t i;
 
   for (i = 0; i < U16_MAX; ++i) {
-    switch (i64set_put(&self->i64set, i, &out)) {
-      case RET_SUCCESS:
-        break;
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        FAIL("populated");
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
-    switch (i64set_put(&self->i64set, i, &out)) {
-      case RET_SUCCESS:
-        FAIL("must be populated");
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        break;
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
+    ASSERT_EQ(true, i64set_put(&self->i64set, i, &out));
+    ASSERT_EQ(false, i64set_put(&self->i64set, i, &out));
   }
   ASSERT_EQ(i, self->i64set.len);
   ASSERT_EQ(pow2_next32((u32_t) i + 2), self->i64set.cap);
@@ -329,31 +212,14 @@ CUTEST(set, i64) {
   return CUTE_SUCCESS;
 }
 
-CUTEST(set, u64) {
+CUTEST(set, u64)
+{
   u32_t out;
   u64_t i;
 
   for (i = 0; i < U16_MAX; ++i) {
-    switch (u64set_put(&self->u64set, i, &out)) {
-      case RET_SUCCESS:
-        break;
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        FAIL("populated");
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
-    switch (u64set_put(&self->u64set, i, &out)) {
-      case RET_SUCCESS:
-        FAIL("must be populated");
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        break;
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
+    ASSERT_EQ(true, u64set_put(&self->u64set, i, &out));
+    ASSERT_EQ(false, u64set_put(&self->u64set, i, &out));
   }
   ASSERT_EQ(i, self->u64set.len);
   ASSERT_EQ(pow2_next32((u32_t) i + 2), self->u64set.cap);
@@ -367,7 +233,8 @@ CUTEST(set, u64) {
   return CUTE_SUCCESS;
 }
 
-CUTEST(set, str) {
+CUTEST(set, str)
+{
   u32_t out;
   __const char_t **str;
   __const char_t *strs[51] = {
@@ -426,26 +293,8 @@ CUTEST(set, str) {
 
   str = strs;
   while (*str) {
-    switch (strset_put(&self->strset, *str, &out)) {
-      case RET_SUCCESS:
-        break;
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        FAIL("populated");
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
-    switch (strset_put(&self->strset, *str, &out)) {
-      case RET_SUCCESS:
-        FAIL("must be populated");
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        break;
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
+    ASSERT_EQ(true, strset_put(&self->strset, *str, &out));
+    ASSERT_EQ(false, strset_put(&self->strset, *str, &out));
     ++str;
   }
   ASSERT_EQ(50, self->strset.len);
@@ -460,7 +309,9 @@ CUTEST(set, str) {
   return CUTE_SUCCESS;
 }
 
-i32_t main(void) {
+i32_t
+main(void)
+{
   CUTEST_DATA test;
 
   CUTEST_PASS(set, i8);

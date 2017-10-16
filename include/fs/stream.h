@@ -42,7 +42,7 @@ struct stream {
   soutbuf_t out;
 };
 
-__api__ ret_t
+__api__ void
 stream_open(stream_t *self, char_t __const *filename, u32_t flags);
 
 __api__ void
@@ -51,30 +51,28 @@ stream_in(stream_t *self);
 __api__ void
 stream_out(stream_t *self);
 
-__api__ ret_t
+__api__ void
 stream_close(stream_t *self);
 
-__api__ ret_t
-stream_read(stream_t *self, char_t *buf, usize_t len, usize_t *out);
+__api__ usize_t
+stream_read(stream_t *self, char_t *buf, usize_t len);
 
-__api__ ret_t
-stream_getc(stream_t *self, char_t *out);
+__api__ char_t
+stream_getc(stream_t *self);
 
-__api__ ret_t
-stream_peek(stream_t *self, usize_t n, char_t *out);
+__api__ char_t
+stream_peek(stream_t *self, usize_t n);
 
-__api__ ret_t
-stream_write(stream_t *self, char_t __const *buf, usize_t len,
-  usize_t *out);
+__api__ usize_t
+stream_write(stream_t *self, char_t __const *buf, usize_t len);
 
-__api__ ret_t
+__api__ void
 stream_flush(stream_t *self);
 
-__api__ ret_t
-stream_seek(stream_t __const *self, isize_t off, fs_seek_mod_t whence,
-  isize_t *out);
+__api__ bool_t
+stream_seek(stream_t __const *self, isize_t off, fs_seek_mod_t whence);
 
-__api__ isize_t
+__api__ usize_t
 stream_offset(stream_t __const *self);
 
 #endif /* !__FS_STREAM_H */

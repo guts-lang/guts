@@ -26,25 +26,29 @@
 #include "fs/op.h"
 #include "fs/fd.h"
 
-FORCEINLINE ret_t
-fs_absolute(char_t __const *path, char_t *out) {
+FORCEINLINE void
+fs_absolute(char_t __const *path, char_t *out)
+{
 #ifdef OS_WIN
   if (_fullpath(out, path, FS_PATH_MAX) == nil) {
-    return RET_ERRNO;
+    THROW(ex_errno(ERRLVL_ERROR, errno,
+      "Unable to get absolute path from '%s'", path));
   }
 #else
   char_t *ptr;
 
   if ((ptr = realpath(path, out)) == nil) {
-    return RET_ERRNO;
+    THROW(ex_errno(
+      ERRLVL_ERROR, errno, "Unable to get absolute path from '%s'", path
+    ));
   }
   (void) ptr;
 #endif
-  return RET_SUCCESS;
 }
 
 FORCEINLINE bool_t
-fs_exists(char_t __const *path) {
+fs_exists(char_t __const *path)
+{
 #ifdef OS_WIN
   if (_access(path, 00) == 0) {
 #else
@@ -56,7 +60,8 @@ fs_exists(char_t __const *path) {
 }
 
 FORCEINLINE u16_t
-fs_cwd(char_t *path, u16_t n) {
+fs_cwd(char_t *path, u16_t n)
+{
   char *ret;
 
 #ifdef OS_WIN
@@ -68,24 +73,22 @@ fs_cwd(char_t *path, u16_t n) {
   return (i16_t) strlen(ret);
 }
 
-FORCEINLINE ret_t
-fs_mkdir(char_t __const *path) {
+FORCEINLINE void
+fs_mkdir(char_t __const *path)
+{
 #ifdef OS_WIN
   if (_mkdir(path) < 0) {
 #else
   if (mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
 #endif
-    ret_t ret;
-    char_t *t, full[FS_PATH_MAX], temp[FS_PATH_MAX] = {0};
+    char_t *t, full[FS_PATH_MAX], temp[FS_PATH_MAX] = { 0 };
     char_t __const *p, *e;
 
-    if ((ret = fs_absolute(path, full)) > 0) {
-      return ret;
-    }
+    fs_absolute(path, full);
     p = full;
     t = temp;
     e = temp + FS_PATH_MAX - 1;
-    for (; t < e && *p; t++)  {
+    for (; t < e && *p; t++) {
       *t = *p;
       if (*p == '/') {
         if (!fs_exists(temp)) {
@@ -94,26 +97,29 @@ fs_mkdir(char_t __const *path) {
 #else
           if (mkdir(temp, S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
 #endif
-            return RET_ERRNO;
+            THROW(ex_errno(
+              ERRLVL_ERROR, errno, "Unable to create directory '%s'", path
+            ));
           }
         }
         while (*p == '/') p++;
-      }
-      else p++;
+      } else p++;
     }
 #ifdef OS_WIN
     if (_mkdir(path) < 0) {
 #else
     if (mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO) < 0) {
 #endif
-      return RET_ERRNO;
+      THROW(ex_errno(
+        ERRLVL_ERROR, errno, "Unable to create directory '%s'", path
+      ));
     }
   }
-  return RET_SUCCESS;
 }
 
 FORCEINLINE bool_t
-fs_rm(char_t __const *path) {
+fs_rm(char_t __const *path)
+{
 #ifdef OS_WIN
   if (UNLIKELY(_unlink(path) != 0)) {
 #else
@@ -124,19 +130,13 @@ fs_rm(char_t __const *path) {
   return true;
 }
 
-FORCEINLINE bool_t
-fs_touch(char_t __const *path) {
+FORCEINLINE void
+fs_touch(char_t __const *path)
+{
   i32_t fd;
 
-  if (fd_open(&fd, path, FS_OPEN_RO | FS_OPEN_CREAT) == RET_ERRNO) {
-    if (fs_mkdir(path) > 0) {
-      return false;
-    }
-    if (fd_open(&fd, path, FS_OPEN_RO | FS_OPEN_CREAT) == RET_ERRNO) {
-      return false;
-    }
-    return false;
-  }
+  if (!fs_exists(path))
+    fs_mkdir(path);
+  fd_open(&fd, path, FS_OPEN_RO | FS_OPEN_CREAT);
   fd_close(&fd);
-  return true;
 }

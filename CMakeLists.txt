@@ -139,7 +139,7 @@ macro (add_module MOD TYPE)
   endif ()
 endmacro ()
 
-add_module(nt INTERFACE)
+add_module(nt LIBRARY)
 add_module(mem LIBRARY nt)
 add_module(ds LIBRARY nt mem)
 add_module(ev LIBRARY nt mem ds)

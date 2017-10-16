@@ -44,17 +44,15 @@
 #define LOCKFREE_ATOR_IMPL_alloc(SCOPE, ID, BITS, ...) \
   ATOR_IMPL_alloc(SCOPE, ID, BITS, { \
     (void)self; \
-    (void)out; \
     (void)size; \
     (void)align; \
-    return RET_FAILURE; \
+    return nil; \
   })
 
 #define LOCKFREE_ATOR_IMPL_free(SCOPE, ID, BITS, ...) \
   ATOR_IMPL_free(SCOPE, ID, BITS, { \
     (void)self; \
     (void)ptr; \
-    return RET_FAILURE; \
   })
 
 #define LOCKFREE_ATOR_DECL(SCOPE, ID, BITS) \

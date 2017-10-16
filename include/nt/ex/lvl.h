@@ -23,14 +23,19 @@
  * SOFTWARE.
  */
 
-/*!@file nt/err/no.h
+/*!@file nt/ex/lvl.h
  * @author uael
  */
-#ifndef __NT_ERR_NO_H
-# define __NT_ERR_NO_H
+#ifndef __NT_EX_LVL_H
+# define __NT_EX_LVL_H
 
-#include "../tys.h"
+enum errlvl {
+  ERRLVL_NOTICE,
+  ERRLVL_WARNING,
+  ERRLVL_ERROR,
+  ERRLVL_FATAL
+};
 
-typedef i32_t err_no_t;
+typedef enum errlvl errlvl_t;
 
-#endif /* !__NT_ERR_NO_H */
+#endif /* !__NT_EX_LVL_H */

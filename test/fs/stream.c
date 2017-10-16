@@ -26,19 +26,21 @@
 #include "fs/stream.h"
 
 i32_t
-main(void) {
+main(void)
+{
   stream_t in, out;
+  char_t buf[256];
+  usize_t r;
+  ex_t e;
 
-  if (stream_open(&in, "LICENSE", FS_OPEN_RO) == RET_SUCCESS) {
-    char_t buf[256];
-    usize_t r;
-
+  TRY {
+    stream_open(&in, "LICENSE", FS_OPEN_RO);
     stream_out(&out);
-    while (stream_read(&in, buf, 256, &r) == RET_SUCCESS) {
-      stream_write(&out, buf, r, &r);
+    while ((r = stream_read(&in, buf, 256))) {
+      stream_write(&out, buf, r);
     }
     stream_close(&in);
     stream_flush(&out);
-  }
+  } CATCH(e);
   return 0;
 }

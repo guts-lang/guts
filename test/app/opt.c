@@ -24,11 +24,8 @@
  */
 
 #include <cute.h>
-#include <ds/vec.h>
 
 #include "app/opt.h"
-
-#define STRNSIZE(s) (s), (sizeof(s)-1)
 
 typedef struct my_app my_app_t;
 
@@ -38,25 +35,25 @@ struct my_app {
   strvec_t inputs;
 };
 
-ret_t
+bool_t
 my_app_echo(my_app_t *app, UNUSED char_t __const *val) {
   app->echo = true;
-  return RET_SUCCESS;
+  return true;
 }
 
-ret_t
+bool_t
 my_app_pp(my_app_t *app, UNUSED char_t __const *val) {
   app->pp = true;
-  return RET_SUCCESS;
+  return true;
 }
 
-ret_t
+bool_t
 my_app_set_output(my_app_t *app, char_t __const *val) {
   app->output = val;
-  return RET_SUCCESS;
+  return true;
 }
 
-ret_t
+bool_t
 my_app_add_input(my_app_t *app, char_t __const *val) {
   return strvec_push(&app->inputs, (char_t *) val);
 }
@@ -137,7 +134,7 @@ CUTEST(opt, mmatch) {
 }
 
 CUTEST(opt, unrecognized) {
-  err_t er;
+  ex_t er;
   char_t *args[5] = { "cli", "--foo", "-foo", "-b", "--echo" };
 
   opts_parse(&self->opts, &self->my_app, 5, args);
@@ -152,7 +149,7 @@ CUTEST(opt, unrecognized) {
 }
 
 CUTEST(opt, missing1) {
-  err_t er;
+  ex_t er;
   char_t *args[5] = { "cli", "--output" };
 
   opts_parse(&self->opts, &self->my_app, 2, args);
@@ -163,7 +160,7 @@ CUTEST(opt, missing1) {
 }
 
 CUTEST(opt, missing2) {
-  err_t er;
+  ex_t er;
   char_t *args[5] = { "cli", "-o" };
 
   opts_parse(&self->opts, &self->my_app, 2, args);
@@ -174,7 +171,7 @@ CUTEST(opt, missing2) {
 }
 
 CUTEST(opt, duplicate) {
-  err_t er;
+  ex_t er;
   char_t *args[4] = { "cli", "-obla", "--echo", "-S" };
   char_t *args2[8] = {
     "cli", "--output", "bla", "--echo", "-obla", "-o", "bla", "-S"

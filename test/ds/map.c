@@ -49,7 +49,8 @@ CUTEST_DATA {
   test_strmap_t strmap;
 };
 
-CUTEST_SETUP {
+CUTEST_SETUP
+{
   test_i8map_ctor(&self->i8map);
   test_u8map_ctor(&self->u8map);
   test_i16map_ctor(&self->i16map);
@@ -61,7 +62,8 @@ CUTEST_SETUP {
   test_strmap_ctor(&self->strmap);
 }
 
-CUTEST_TEARDOWN {
+CUTEST_TEARDOWN
+{
   test_i8map_ctor(&self->i8map);
   test_u8map_ctor(&self->u8map);
   test_i16map_dtor(&self->i16map);
@@ -73,31 +75,14 @@ CUTEST_TEARDOWN {
   test_strmap_dtor(&self->strmap);
 }
 
-CUTEST(map, i8) {
+CUTEST(map, i8)
+{
   u32_t out;
   i8_t i;
 
   for (i = 0; i < I8_MAX; ++i) {
-    switch (test_i8map_put(&self->i8map, i, &out)) {
-      case RET_SUCCESS:
-        break;
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        FAIL("populated");
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
-    switch (test_i8map_put(&self->i8map, i, &out)) {
-      case RET_SUCCESS:
-        FAIL("must be populated");
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        break;
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
+    ASSERT_EQ(true, test_i8map_put(&self->i8map, i, &out));
+    ASSERT_EQ(false, test_i8map_put(&self->i8map, i, &out));
   }
   ASSERT_EQ(i, self->i8map.len);
   ASSERT_EQ(pow2_next32(i + 2), self->i8map.cap);
@@ -111,31 +96,14 @@ CUTEST(map, i8) {
   return CUTE_SUCCESS;
 }
 
-CUTEST(map, u8) {
+CUTEST(map, u8)
+{
   u32_t out;
   u8_t i;
 
   for (i = 0; i < U8_MAX; ++i) {
-    switch (test_u8map_put(&self->u8map, i, &out)) {
-      case RET_SUCCESS:
-        break;
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        FAIL("populated");
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
-    switch (test_u8map_put(&self->u8map, i, &out)) {
-      case RET_SUCCESS:
-        FAIL("must be populated");
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        break;
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
+    ASSERT_EQ(true, test_u8map_put(&self->u8map, i, &out));
+    ASSERT_EQ(false, test_u8map_put(&self->u8map, i, &out));
   }
   ASSERT_EQ(i, self->u8map.len);
   ASSERT_EQ(pow2_next32(i + 2), self->u8map.cap);
@@ -149,31 +117,14 @@ CUTEST(map, u8) {
   return CUTE_SUCCESS;
 }
 
-CUTEST(map, i16) {
+CUTEST(map, i16)
+{
   u32_t out;
   i16_t i;
 
   for (i = 0; i < I16_MAX; ++i) {
-    switch (test_i16map_put(&self->i16map, i, &out)) {
-      case RET_SUCCESS:
-        break;
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        FAIL("populated");
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
-    switch (test_i16map_put(&self->i16map, i, &out)) {
-      case RET_SUCCESS:
-        FAIL("must be populated");
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        break;
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
+    ASSERT_EQ(true, test_i16map_put(&self->i16map, i, &out));
+    ASSERT_EQ(false, test_i16map_put(&self->i16map, i, &out));
   }
   ASSERT_EQ(i, self->i16map.len);
   ASSERT_EQ(pow2_next32(i + 2), self->i16map.cap);
@@ -187,31 +138,14 @@ CUTEST(map, i16) {
   return CUTE_SUCCESS;
 }
 
-CUTEST(map, u16) {
+CUTEST(map, u16)
+{
   u32_t out;
   u16_t i;
 
   for (i = 0; i < U16_MAX; ++i) {
-    switch (test_u16map_put(&self->u16map, i, &out)) {
-      case RET_SUCCESS:
-        break;
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        FAIL("populated");
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
-    switch (test_u16map_put(&self->u16map, i, &out)) {
-      case RET_SUCCESS:
-        FAIL("must be populated");
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        break;
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
+    ASSERT_EQ(true, test_u16map_put(&self->u16map, i, &out));
+    ASSERT_EQ(false, test_u16map_put(&self->u16map, i, &out));
   }
   ASSERT_EQ(i, self->u16map.len);
   ASSERT_EQ(pow2_next32(i + 2), self->u16map.cap);
@@ -225,30 +159,13 @@ CUTEST(map, u16) {
   return CUTE_SUCCESS;
 }
 
-CUTEST(map, i32) {
+CUTEST(map, i32)
+{
   u32_t out, i;
 
   for (i = 0; i < U16_MAX; ++i) {
-    switch (test_i32map_put(&self->i32map, i, &out)) {
-      case RET_SUCCESS:
-        break;
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        FAIL("populated");
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
-    switch (test_i32map_put(&self->i32map, i, &out)) {
-      case RET_SUCCESS:
-        FAIL("must be populated");
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        break;
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
+    ASSERT_EQ(true, test_i32map_put(&self->i32map, i, &out));
+    ASSERT_EQ(false, test_i32map_put(&self->i32map, i, &out));
   }
   ASSERT_EQ(i, self->i32map.len);
   ASSERT_EQ(pow2_next32(i + 2), self->i32map.cap);
@@ -262,31 +179,14 @@ CUTEST(map, i32) {
   return CUTE_SUCCESS;
 }
 
-CUTEST(map, u32) {
+CUTEST(map, u32)
+{
   u32_t out;
   u32_t i;
 
   for (i = 0; i < U16_MAX; ++i) {
-    switch (test_u32map_put(&self->u32map, i, &out)) {
-      case RET_SUCCESS:
-        break;
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        FAIL("populated");
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
-    switch (test_u32map_put(&self->u32map, i, &out)) {
-      case RET_SUCCESS:
-        FAIL("must be populated");
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        break;
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
+    ASSERT_EQ(true, test_u32map_put(&self->u32map, i, &out));
+    ASSERT_EQ(false, test_u32map_put(&self->u32map, i, &out));
   }
   ASSERT_EQ(i, self->u32map.len);
   ASSERT_EQ(pow2_next32(i + 2), self->u32map.cap);
@@ -300,31 +200,14 @@ CUTEST(map, u32) {
   return CUTE_SUCCESS;
 }
 
-CUTEST(map, i64) {
+CUTEST(map, i64)
+{
   u32_t out;
   i64_t i;
 
   for (i = 0; i < U16_MAX; ++i) {
-    switch (test_i64map_put(&self->i64map, i, &out)) {
-      case RET_SUCCESS:
-        break;
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        FAIL("populated");
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
-    switch (test_i64map_put(&self->i64map, i, &out)) {
-      case RET_SUCCESS:
-        FAIL("must be populated");
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        break;
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
+    ASSERT_EQ(true, test_i64map_put(&self->i64map, i, &out));
+    ASSERT_EQ(false, test_i64map_put(&self->i64map, i, &out));
   }
   ASSERT_EQ(i, self->i64map.len);
   ASSERT_EQ(pow2_next32((u32_t) i + 2), self->i64map.cap);
@@ -338,31 +221,14 @@ CUTEST(map, i64) {
   return CUTE_SUCCESS;
 }
 
-CUTEST(map, u64) {
+CUTEST(map, u64)
+{
   u32_t out;
   u64_t i;
 
   for (i = 0; i < U16_MAX; ++i) {
-    switch (test_u64map_put(&self->u64map, i, &out)) {
-      case RET_SUCCESS:
-        break;
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        FAIL("populated");
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
-    switch (test_u64map_put(&self->u64map, i, &out)) {
-      case RET_SUCCESS:
-        FAIL("must be populated");
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        break;
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
+    ASSERT_EQ(true, test_u64map_put(&self->u64map, i, &out));
+    ASSERT_EQ(false, test_u64map_put(&self->u64map, i, &out));
   }
   ASSERT_EQ(i, self->u64map.len);
   ASSERT_EQ(pow2_next32((u32_t) i + 2), self->u64map.cap);
@@ -376,7 +242,8 @@ CUTEST(map, u64) {
   return CUTE_SUCCESS;
 }
 
-CUTEST(map, str) {
+CUTEST(map, str)
+{
   u32_t out;
   __const char_t **str;
   __const char_t *strs[51] = {
@@ -435,26 +302,8 @@ CUTEST(map, str) {
 
   str = strs;
   while (*str) {
-    switch (test_strmap_put(&self->strmap, *str, &out)) {
-      case RET_SUCCESS:
-        break;
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        FAIL("populated");
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
-    switch (test_strmap_put(&self->strmap, *str, &out)) {
-      case RET_SUCCESS:
-        FAIL("must be populated");
-      case RET_ERRNO:
-        FAIL("allocation failure");
-      case RET_FAILURE:
-        break;
-      case RET_NOT_IMPL:
-        FAIL("not implemented");
-    }
+    ASSERT_EQ(true, test_strmap_put(&self->strmap, *str, &out));
+    ASSERT_EQ(false, test_strmap_put(&self->strmap, *str, &out));
     ++str;
   }
   ASSERT_EQ(50, self->strmap.len);
@@ -469,7 +318,9 @@ CUTEST(map, str) {
   return CUTE_SUCCESS;
 }
 
-i32_t main(void) {
+i32_t
+main(void)
+{
   CUTEST_DATA test;
 
   CUTEST_PASS(map, i8);

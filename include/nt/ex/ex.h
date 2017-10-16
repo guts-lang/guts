@@ -23,55 +23,63 @@
  * SOFTWARE.
  */
 
-/*!@file fs/fd.h
+/*!@file nt/ex/ex.h
  * @author uael
  */
-#ifndef __FS_FD_H
-# define __FS_FD_H
+#ifndef __NT_EX_EX_H
+# define __NT_EX_EX_H
 
-#include "conf.h"
-#include "op.h"
-#include "mod.h"
+#include "../tys.h"
+#include "lvl.h"
 
-#if defined OS_WIN && __has_feature__(io_h)
-# define FS_FD_MODEL_WIN_UCRT
-#elif defined OS_WIN
-# define FS_FD_MODEL_WIN_NT
-#elif __has_feature__(unistd_h)
-# define FS_FD_MODEL_UNIX
+#if defined __ELASTERROR
+# define EX_USR_BEGIN __ELASTERROR
 #else
-# define FS_FD_MODEL_NONE
+# define EX_USR_BEGIN 2000
 #endif
 
-#define FS_FD_DFT (-1)
+#define EX_REGISTER(E) do { \
+    if (E##_code == 0) E##_code = ex_register(); \
+  } while (false)
 
-enum fs_kind {
-  FS_KIND_DIR = 0,
-  FS_KIND_FILE,
-  FS_FILE_DOT,
-  FS8FILE_DOT2
+__api__ i32_t
+ex_register(void);
+
+typedef struct ex ex_t;
+
+struct ex {
+  errlvl_t lvl;
+  char_t __const *fn, *file;
+  u32_t line;
+  i32_t col, code;
+  char_t msg[U8_MAX];
+  ex_t *prev;
+  void (*dump)(ex_t *self, FILE *stream);
 };
 
-typedef enum fs_kind fs_kind_t;
-typedef i32_t fd_t;
+__api__ void
+ex_ctor(ex_t *self, errlvl_t lvl, i32_t code, char_t __const *msg,
+  va_list args);
 
 __api__ void
-fd_open(fd_t *__restrict self, char_t __const *filename, u32_t flags);
+ex_dump(ex_t *self, FILE *stream);
 
-__api__ void
-fd_close(fd_t __const *__restrict self);
+__api__ ex_t
+ex(errlvl_t lvl, char_t __const *msg, ...);
 
-__api__ usize_t
-fd_read(fd_t __const *__restrict self, char_t *buf, usize_t len);
+__api__ ex_t
+ex_errno(errlvl_t lvl, i32_t err_no, char_t __const *msg, ...);
 
-__api__ usize_t
-fd_write(fd_t __const *__restrict self, char_t __const *buf, usize_t len);
+__api__ ex_t
+ex_notice(char_t __const *msg, ...);
 
-__api__ bool_t
-fd_seek(fd_t __const *__restrict self, isize_t off, fs_seek_mod_t whence,
-  usize_t *out);
+__api__ ex_t
+ex_warn(char_t __const *msg, ...);
 
-__api__ usize_t
-fd_offset(fd_t __const *__restrict self);
+__api__ ex_t
+ex_error(char_t __const *msg, ...);
 
-#endif /* !__FS_FD_H */
+__api__ ex_t
+ex_fatal(char_t __const *msg, ...);
+
+#endif /* !__NT_EX_EX_H */

@@ -68,10 +68,10 @@ struct val {
   } val;
 };
 
-__api__ ret_t
+__api__ void
 val_init_str(val_t *self, char_t *str);
 
-__api__ ret_t
+__api__ void
 val_init_ident(val_t *self, char_t *ident);
 
 __api__ void

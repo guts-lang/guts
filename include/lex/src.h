@@ -55,25 +55,25 @@ struct src {
   loc_t loc;
 };
 
-__api__ ret_t
+__api__ void
 src_init_file(src_t *self, char_t __const *filename);
 
-__api__ ret_t
+__api__ void
 src_init_stream(src_t *self, stream_t *stream);
 
-__api__ ret_t
+__api__ void
 src_init_str(src_t *self, char_t __const *buf);
 
-__api__ ret_t
+__api__ void
 src_init_nstr(src_t *self, char_t __const *buf, usize_t n);
 
-__api__ ret_t
-src_peek(src_t *self, usize_t n, char_t *out);
+__api__ char_t
+src_peek(src_t *self, usize_t n);
 
-__api__ ret_t
-src_next(src_t *self, char_t *out);
+__api__ char_t
+src_next(src_t *self);
 
-__api__ ret_t
+__api__ void
 src_dtor(src_t *self);
 
 #endif /* !__LEX_SRC_H */

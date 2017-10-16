@@ -151,5 +151,6 @@ VEC_DEFINE(i32vec, i32_t, i32cmp)
 VEC_DEFINE(u32vec, u32_t, u32cmp)
 VEC_DEFINE(charvec, char_t, i8cmp)
 VEC_DEFINE(strvec, char_t *, strcmp)
+VEC_DEFINE(errs, ex_t, addrcmp)
 
 #endif /* !__DS_VEC_H */

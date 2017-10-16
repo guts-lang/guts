@@ -61,7 +61,7 @@ pp_dtor(pp_t *self) {
   macros_dtor(&self->macros);
 }
 
-ret_t
+bool_t
 pp_update(pp_t *self, lexer_t *lexer, lex_event_code_t code, void *arg) {
   token_t *tok;
 
@@ -75,7 +75,7 @@ pp_update(pp_t *self, lexer_t *lexer, lex_event_code_t code, void *arg) {
     case LEX_ON_TOK_POP:
       break;
   }
-  return RET_SUCCESS;
+  return true;
 }
 
 i32_t

@@ -67,13 +67,10 @@
 
 #define DEQ_IMPL_insert(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_insert(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
     if (idx > ID##_size(self)) { \
-      return RET_FAILURE; \
+      return false; \
     } \
-    if ((ret = ID##_grow(self, 1)) > 0) { \
-      return ret; \
-    } \
+    ID##_grow(self, 1); \
     if (idx == 0 && self->head) { \
       --self->head; \
     } else if (idx == ID##_size(self)) { \
@@ -86,19 +83,16 @@
       ); \
     } \
     self->BUF[idx] = item; \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define DEQ_IMPL_emplace(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
   CMP) \
   SEQ_DECL_emplace(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
     if (idx > ID##_size(self)) { \
-      return RET_FAILURE; \
+      return false; \
     } \
-    if ((ret = ID##_grow(self, n)) > 0) { \
-      return ret; \
-    } \
+    ID##_grow(self, n); \
     if (idx == 0 && self->head >= n) { \
       self->head -= n; \
     } else if (idx == ID##_size(self)) { \
@@ -112,16 +106,13 @@
       self->LEN += n; \
     } \
     memcpy(self->BUF + self->head + idx, items, (usize_t) n * sizeof(T)); \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define DEQ_IMPL_unshift(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
   CMP) \
   SEQ_DECL_unshift(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
-    if ((ret = ID##_grow(self, 1)) > 0) { \
-      return ret; \
-    } \
+    ID##_grow(self, 1); \
     if (self->head == 0) { \
       memmove( \
         self->BUF + 1, \
@@ -132,19 +123,16 @@
       --self->head; \
     } \
     self->BUF[self->head] = item; \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define DEQ_IMPL_prepend(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
   CMP) \
   SEQ_DECL_prepend(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
     if (n == 0) { \
-      return RET_SUCCESS; \
+      return true; \
     } \
-    if ((ret = ID##_grow(self, n)) > 0) { \
-      return ret; \
-    } \
+    ID##_grow(self, n); \
     if (self->head == 0) { \
       memmove( \
         self->BUF + n, \
@@ -164,7 +152,7 @@
       self->head -= n; \
     } \
     memcpy(self->BUF, items, (usize_t) n * sizeof(T)); \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define DEQ_IMPL_shift(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
@@ -310,25 +298,19 @@
 
 #define DEQ_IMPL_cpy(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_cpy(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
-    if ((ret = ID##_ensure(self, src->LEN)) > 0) { \
-      return ret; \
-    } \
+    ID##_ensure(self, src->LEN); \
     memcpy(self->BUF, src->BUF, (usize_t) (self->LEN = src->LEN)); \
     self->head = src->head; \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define DEQ_IMPL_ncpy(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_ncpy(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
-    if ((ret = ID##_ensure(self, src->LEN)) > 0) { \
-      return ret; \
-    } \
+    ID##_ensure(self, src->LEN); \
     self->head = src->head; \
     memcpy(self->BUF + src->head, src->BUF + src->head, (usize_t) (n)); \
     self->LEN = self->head + n; \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define DEQ_DECL(SCOPE, ID, T, BITS) \

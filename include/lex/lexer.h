@@ -57,16 +57,16 @@ struct lexer {
 
 OBSERVABLE_DEFINE(lex_lexer, lexer_t, lexer_ev_t)
 
-__api__ ret_t
+__api__ void
 lexer_init_file(lexer_t *self, char_t __const *filename);
 
-__api__ ret_t
+__api__ void
 lexer_init_stream(lexer_t *self, stream_t *stream);
 
-__api__ ret_t
+__api__ void
 lexer_init_str(lexer_t *self, char_t __const *buf);
 
-__api__ ret_t
+__api__ void
 lexer_init_nstr(lexer_t *self, char_t __const *buf, usize_t n);
 
 #endif /* !__LEX_VAL_H */

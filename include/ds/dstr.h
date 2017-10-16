@@ -42,7 +42,6 @@
 #define DSTR_IMPL_trim(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_trim(SCOPE, ID, T, BITS) { \
     (void) self; \
-    return RET_FAILURE; \
   }
 
 #define DSTR_DECL(SCOPE, ID, BITS) \

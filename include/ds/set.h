@@ -30,7 +30,7 @@
 # define __DS_SET_H
 
 #include <nt/tys.h>
-#include <nt/err.h>
+#include <nt/ex.h>
 #include <nt/math.h>
 #include <nt/hash.h>
 
@@ -85,7 +85,7 @@
     } \
     return false; \
   } \
-  static FORCEINLINE ret_t \
+  static FORCEINLINE void \
   ID##_resize(ID##_t *__restrict self, u32_t ensure) { \
     u8_t *new_buckets; \
     u32_t j; \
@@ -97,11 +97,11 @@
       if (self->len >= (u32_t)(ensure * MAP_HASH_UPPER + 0.5)) j = 0;  /* requested size is too small */ \
       else { /* hash table size to be changed (shrink or expand); rehash */ \
         new_buckets = (u8_t*)MALLOC_FN(ensure); \
-        if (!new_buckets) return RET_ERRNO; \
+        if (!new_buckets) THROW (ex_errno(ERRLVL_NOTICE, ENOMEM, nil)); \
         memset(new_buckets, 2, ensure); \
         if (self->cap < ensure) {  /* expand */ \
           TItem *new_items = (TItem*)REALLOC_FN((void *)self->items, ensure * sizeof(TItem)); \
-          if (!new_items) { FREE_FN(new_buckets); return RET_ERRNO; } \
+          if (!new_items) { FREE_FN(new_buckets); THROW (ex_errno(ERRLVL_NOTICE, ENOMEM, nil)); } \
           self->items = new_items; \
         } /* otherwise shrink */ \
       } \
@@ -138,18 +138,15 @@
       self->occupieds = self->len; \
       self->upper_bound = (u32_t)(self->cap * MAP_HASH_UPPER + 0.5); \
     } \
-    return RET_SUCCESS; \
   } \
-  static FORCEINLINE ret_t \
+  static FORCEINLINE bool_t \
   ID##_put(ID##_t *__restrict self, TItem item, u32_t *__restrict out) { \
     u32_t x; \
     if (self->occupieds >= self->upper_bound) { /* update the hash table */ \
       if (self->cap > (self->len << 1)) { \
-        if (ID##_resize(self, self->cap - 1) != 0) { /* clear "deleted" elements */ \
-          return RET_ERRNO; \
-        } \
-      } else if (ID##_resize(self, self->cap + 1) != 0) { /* expand the hash table */ \
-         return RET_ERRNO; \
+        ID##_resize(self, self->cap - 1); \
+      } else { /* expand the hash table */ \
+         ID##_resize(self, self->cap + 1); \
       } \
     } /* TODO: to implement automatically shrinking; resize() already support shrinking */ \
     { \
@@ -175,14 +172,14 @@
       bucket_set_isboth_false(self->buckets, x); \
       ++self->len; \
       ++self->occupieds; \
-      return RET_SUCCESS; \
+      return true; \
     } else if (bucket_isdel(self->buckets, x)) { /* deleted */ \
       self->items[x] = item; \
       bucket_set_isboth_false(self->buckets, x); \
       ++self->len; \
-      return RET_SUCCESS; \
+      return true; \
     } \
-    return RET_FAILURE; /* Don't touch self->items[x] if populated */ \
+    return false; /* Don't touch self->items[x] if populated */ \
   } \
   static FORCEINLINE bool_t \
   ID##_del(ID##_t *__restrict self, u32_t x) { \

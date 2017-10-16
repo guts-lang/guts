@@ -30,7 +30,7 @@
 # define __MEM_ATOR_BASE_H
 
 #include <nt/tys.h>
-#include <nt/err.h>
+#include <nt/ex.h>
 
 #define ATOR(BITS, ...) \
   struct { \
@@ -55,24 +55,23 @@
   ATOR_DECL_dtor(SCOPE, ID, BITS) __VA_ARGS__
 
 #define ATOR_DECL_alloc(SCOPE, ID, BITS) \
-  SCOPE ret_t \
-  ID##_alloc(ID##_t *__restrict self, void **out, UTY(BITS) size, \
+  SCOPE void * \
+  ID##_alloc(ID##_t *__restrict self, UTY(BITS) size, \
     UTY(BITS) align)
 
 #define ATOR_IMPL_alloc(SCOPE, ID, BITS, ...) \
   ATOR_DECL_alloc(SCOPE, ID, BITS) { \
     __VA_ARGS__ \
-    return RET_NOT_IMPL; \
+    return nil; \
   }
 
 #define ATOR_DECL_free(SCOPE, ID, BITS) \
-  SCOPE ret_t \
+  SCOPE void \
   ID##_free(ID##_t *__restrict self, void *ptr)
 
 #define ATOR_IMPL_free(SCOPE, ID, BITS, ...) \
   ATOR_DECL_free(SCOPE, ID, BITS) { \
     __VA_ARGS__ \
-    return RET_NOT_IMPL; \
   }
 
 #define ATOR_DECL( \

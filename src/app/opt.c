@@ -25,8 +25,42 @@
 
 #include "app/opt.h"
 
+FORCEINLINE i32_t
+opt_cmp(opt_t a, opt_t b)
+{
+  i32_t cmp;
+
+  if ((cmp = i8cmp(a.f, b.f)) != 0) {
+    return cmp;
+  }
+  return strcmp(a.lf, b.lf);
+}
+
+FORCEINLINE opt_t *
+opts_get(opts_t *opts, char_t id)
+{
+  u32_t it;
+
+  if (optmap_sc_get(&opts->shortcuts, id, &it)) {
+    return opts->shortcuts.vals[it];
+  }
+  return nil;
+}
+
+FORCEINLINE opt_t *
+opts_lget(opts_t *opts, char_t __const *id)
+{
+  unsigned it;
+
+  if (optmap_get(&opts->conf, id, &it)) {
+    return &opts->conf.vals[it];
+  }
+  return nil;
+}
+
 void
-opts_ctor(opts_t *self, opt_t *opts, optcb_t callback) {
+opts_ctor(opts_t *self, opt_t *opts, optcb_t callback)
+{
   u32_t it;
 
   self->callback = callback;
@@ -35,12 +69,12 @@ opts_ctor(opts_t *self, opt_t *opts, optcb_t callback) {
     while (opts->lf) {
       opt_t *opt = opts++;
 
-      if (optmap_put(&self->conf, opt->lf, &it) == RET_SUCCESS) {
+      if (optmap_put(&self->conf, opt->lf, &it)) {
         self->conf.vals[it] = *opt;
         opt = self->conf.vals + it;
       }
       if (opt->f) {
-        if (optmap_sc_put(&self->shortcuts, opt->f, &it) == RET_SUCCESS) {
+        if (optmap_sc_put(&self->shortcuts, opt->f, &it)) {
           self->shortcuts.vals[it] = opt;
         }
       }
@@ -49,18 +83,20 @@ opts_ctor(opts_t *self, opt_t *opts, optcb_t callback) {
 }
 
 void
-opts_dtor(opts_t *self) {
+opts_dtor(opts_t *self)
+{
   optmap_dtor(&self->conf);
   optmap_sc_dtor(&self->shortcuts);
   errs_dtor(&self->errs);
 }
 
-ret_t
-opts_parse(opts_t *self, void *app_ptr, i32_t argc, char_t **argv) {
+bool_t
+opts_parse(opts_t *self, void *app_ptr, i32_t argc, char_t **argv)
+{
   char_t *arg, key, *lkey, *val;
   opt_t *opt;
   i32_t i;
-  err_t err;
+  ex_t err;
 
   if (argc) {
     if ((self->program = strrchr(argv[0], '/'))) {
@@ -75,32 +111,32 @@ opts_parse(opts_t *self, void *app_ptr, i32_t argc, char_t **argv) {
         if (*(arg + 1) == '-') {
           opt = opts_lget(self, lkey = arg + 2);
           if (opt == nil) {
-            err = warningf("unrecognized command line option ‘%s’", lkey);
+            err = ex_warn("unrecognized command line option ‘%s’", lkey);
             goto fail;
           }
           if (opt->kval) {
             if (i < argc - 1) {
               val = argv[++i];
             } else {
-              err = warningf("missing argument for command line option ‘%s’",
-                lkey
+              err = ex_warn(
+                "missing argument for command line option ‘%s’", lkey
               );
               goto fail;
             }
             if (!opt->global && opt->match) {
-              err = warningf(
+              err = ex_warn(
                 "duplicate value for command line option ‘%s’: ‘%s’", lkey, val
               );
               goto fail;
             }
           } else if (!opt->global && opt->match) {
-            err = warningf("duplicate command line option ‘%s’", lkey);
+            err = ex_warn("duplicate command line option ‘%s’", lkey);
             goto fail;
           }
         } else {
           opt = opts_get(self, key = arg[1]);
           if (opt == nil) {
-            err = warningf("unrecognized command line option ‘%c’", key);
+            err = ex_warn("unrecognized command line option ‘%c’", key);
             goto fail;
           }
           if (opt->kval) {
@@ -109,39 +145,36 @@ opts_parse(opts_t *self, void *app_ptr, i32_t argc, char_t **argv) {
             } else if (i < argc - 1) {
               val = argv[++i];
             } else {
-              err = warningf("missing argument for command line option ‘%c’",
-                key
+              err = ex_warn(
+                "missing argument for command line option ‘%c’", key
               );
               goto fail;
             }
             if (!opt->global && opt->match) {
-              err = warningf(
+              err = ex_warn(
                 "duplicate value for command line option ‘%c’: ‘%s’", key, val
               );
               goto fail;
             }
           } else if (arg[2] != '\0') {
-            err = warningf("unrecognized command line option ‘%c’", key);
+            err = ex_warn("unrecognized command line option ‘%c’", key);
             goto fail;
           } else if (!opt->global && opt->match) {
-            err = warningf( "duplicate command line option ‘%c’", key);
+            err = ex_warn("duplicate command line option ‘%c’", key);
             goto fail;
           }
         }
-        if (opt->callback == nil || opt->callback(app_ptr, val) == 0) {
+        if (opt->callback == nil || opt->callback(app_ptr, val)) {
           opt->match = true;
         }
-      } else if (self->callback && (self->callback(app_ptr, arg) != 0)) {
-        err = errorf("invalid command line argument ‘%s’", arg);
+      } else if (self->callback && !self->callback(app_ptr, arg)) {
+        err = ex_error("invalid command line argument ‘%s’", arg);
         goto fail;
       }
       continue;
       fail:
-      if (errs_push(&self->errs, err)
-        == RET_ERRNO) {
-        return RET_ERRNO;
-      }
+      errs_push(&self->errs, err);
     }
   }
-  return self->errs.len ? RET_FAILURE : RET_SUCCESS;
+  return self->errs.len ? false : true;
 }

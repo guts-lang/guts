@@ -23,19 +23,38 @@
  * SOFTWARE.
  */
 
-/*!@file nt/err/ret.h
- * @author uael
- */
-#ifndef __NT_ERR_RET_H
-# define __NT_ERR_RET_H
+#include "nt/ex.h"
 
-enum ret {
-  RET_SUCCESS = 0,
-  RET_FAILURE,
-  RET_ERRNO,
-  RET_NOT_IMPL
-};
+void
+doit2()
+{
+  THROW (ex_errno(ERRLVL_NOTICE, ENOMEM, nil));
+}
 
-typedef enum ret ret_t;
+void
+doit()
+{
+  ex_t e;
 
-#endif /* !__NT_ERR_RET_H */
+  TRY {
+    doit2();
+  } CATCH(e) {
+    RETHROW();
+  }
+}
+
+i32_t
+main(void)
+{
+  ex_t e;
+
+  TRY {
+    puts("A");
+    doit();
+    puts("B");
+  } CATCH(e) {
+    puts("C");
+    ex_dump(&e, stdout);
+  }
+  return 0;
+}

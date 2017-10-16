@@ -32,7 +32,7 @@
 #include "nt/arch.h"
 #include "nt/cc.h"
 #include "nt/cpu.h"
-#include "nt/err.h"
+#include "nt/ex.h"
 #include "nt/exts.h"
 #include "nt/defs.h"
 #include "nt/incs.h"

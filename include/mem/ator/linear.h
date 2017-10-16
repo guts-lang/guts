@@ -56,7 +56,7 @@
     if (self->begin == nil) { \
       if (self->limit == 0) self->limit = UMAX(32); \
       if ((self->begin = malloc(self->limit)) == nil) { \
-        return RET_ERRNO; \
+        THROW(ex_errno(ERRLVL_FATAL, errno, nil)); \
       } \
     } \
     padding = 0; \
@@ -71,15 +71,13 @@
     if (self->used > self->peak) { \
       self->peak = self->used; \
     } \
-    *out = (void *) next; \
-    return RET_SUCCESS; \
+    return (void *) next; \
   })
 
 #define LINEAR_ATOR_IMPL_free(SCOPE, ID, BITS, ...) \
   ATOR_IMPL_free(SCOPE, ID, BITS, { \
     (void)self; \
     (void)ptr; \
-    return RET_FAILURE; \
   })
 
 #define LINEAR_ATOR_DECL(SCOPE, ID, BITS) \

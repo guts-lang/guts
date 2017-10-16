@@ -23,25 +23,53 @@
  * SOFTWARE.
  */
 
-/*!@file mem/alloc.h
- * @author uael
- */
-#ifndef __MEM_ALLOC_H
-# define __MEM_ALLOC_H
+#include "nt/ex/tryenv.h"
 
-#include <nt/tys.h>
-#include <nt/ex.h>
+static __thread_local tryenv_t tryenvs[TRYENV_SIZE] = { 0 };
+static __thread_local u16_t tryenv_idx = 0;
 
-__api__ void *
-mem_malloc(usize_t size);
+FORCEINLINE tryenv_t *
+tryenv_push(void)
+{
+  return tryenvs + tryenv_idx++;
+}
 
-__api__ void
-mem_free(void *ptr);
+FORCEINLINE bool_t
+tryenv_pop(ex_t *e)
+{
+  tryenv_t env;
 
-__api__ void *
-mem_calloc(usize_t num, usize_t size);
+  if (tryenv_idx) {
+    env = tryenvs[--tryenv_idx];
+    if (env.e.code) {
+      *e = env.e;
+      return true;
+    }
+  }
+  return false;
+}
 
-__api__ void *
-mem_realloc(void *ptr, usize_t size);
+FORCEINLINE NORETURN void
+tryenv_throw(ex_t e, char_t __const *fn, char_t __const *file, u32_t line)
+{
+  e.fn = fn;
+  e.file = file;
+  e.line = line;
+  if (tryenv_idx > 0) {
+    tryenvs[tryenv_idx - 1].e = e;
+    longjmp(tryenvs[tryenv_idx - 1].jmp, 1);
+  } else {
+    ex_dump(&e, stdout);
+    exit(e.code);
+  }
+}
 
-#endif /* !__MEM_ALLOC_H */
+FORCEINLINE NORETURN void
+tryenv_rethrow(char_t __const *fn, char_t __const *file, u32_t line)
+{
+  ex_t e;
+
+  e = tryenvs[tryenv_idx].e;
+  e.prev = &tryenvs[tryenv_idx].e;
+  tryenv_throw(e, fn, file, line);
+}

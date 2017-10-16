@@ -26,19 +26,22 @@
 #include "fs/fd.h"
 
 i32_t
-main(void) {
+main(void)
+{
   fd_t file;
+  char_t buf[256];
+  isize_t r;
+  ex_t e;
 
-  file = FS_FD_DFT;
-  if (fd_open(&file, "LICENSE", FS_OPEN_RO) == RET_SUCCESS) {
-    char_t buf[256];
-    isize_t r;
+  TRY {
+    file = FS_FD_DFT;
+    fd_open(&file, "LICENSE", FS_OPEN_RO);
 
-    while (fd_read(&file, buf, 255, &r) == RET_SUCCESS) {
+    while ((r = fd_read(&file, buf, 255))) {
       buf[r] = '\0';
       puts(buf);
     }
     fd_close(&file);
-  }
+  } CATCH(e);
   return 0;
 }

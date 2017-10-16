@@ -31,10 +31,11 @@
 
 #include <nt/tys.h>
 #include <ds/map.h>
+#include <ds/vec.h>
 
 typedef struct opt opt_t;
 typedef struct opts opts_t;
-typedef ret_t (*optcb_t)(void *app, __const char *val);
+typedef bool_t (*optcb_t)(void *app, __const char *val);
 
 struct opt {
   char_t f, *lf, *help;
@@ -42,16 +43,8 @@ struct opt {
   bool_t kval, global, match;
 };
 
-__extern_c__
-static FORCEINLINE i32_t
-opt_cmp(__const opt_t a, __const opt_t b) {
-  i32_t cmp;
-
-  if ((cmp = i8cmp(a.f, b.f)) != 0) {
-    return cmp;
-  }
-  return strcmp(a.lf, b.lf);
-}
+__api__ i32_t
+opt_cmp(opt_t a, opt_t b);
 
 STR_MAP_DEFINE(optmap, opt_t, opt_cmp)
 I8_MAP_DEFINE(optmap_sc, opt_t *, i64cmp)
@@ -64,27 +57,11 @@ struct opts {
   errs_t errs;
 };
 
-__extern_c__
-static FORCEINLINE opt_t *
-opts_get(opts_t *opts, char_t id) {
-  u32_t it;
+__api__ opt_t *
+opts_get(opts_t *opts, char_t id);
 
-  if (optmap_sc_get(&opts->shortcuts, id, &it)) {
-    return opts->shortcuts.vals[it];
-  }
-  return nil;
-}
-
-__extern_c__
-static FORCEINLINE opt_t *
-opts_lget(opts_t *opts, char_t __const *id) {
-  unsigned it;
-
-  if (optmap_get(&opts->conf, id, &it)) {
-    return &opts->conf.vals[it];
-  }
-  return nil;
-}
+__api__ opt_t *
+opts_lget(opts_t *opts, char_t __const *id);
 
 __api__ void
 opts_ctor(opts_t *self, opt_t *opts, optcb_t callback);
@@ -92,7 +69,7 @@ opts_ctor(opts_t *self, opt_t *opts, optcb_t callback);
 __api__ void
 opts_dtor(opts_t *self);
 
-__api__ ret_t
+__api__ bool_t
 opts_parse(opts_t *self, void *app_ptr, i32_t argc, char_t **argv);
 
 #endif /* !__APP_OPT_H */

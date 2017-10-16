@@ -30,7 +30,7 @@
 # define __DS_SEQ_H
 
 #include <nt/tys.h>
-#include <nt/err.h>
+#include <nt/ex.h>
 #include <nt/math.h>
 #include <nt/hash.h>
 
@@ -98,7 +98,7 @@
   }
 
 #define SEQ_DECL_realloc(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE void \
   ID##_realloc(ID##_t *__restrict self, u##BITS##_t n)
 
 #define SEQ_IMPL_realloc(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
@@ -107,16 +107,15 @@
     if (self->CAP != n) { \
       void *buf; \
       if ((buf = REALLOC(self->BUF, (usize_t) n * sizeof(T))) == nil) { \
-        return RET_ERRNO; \
+        THROW (ex_errno(ERRLVL_NOTICE, ENOMEM, nil)); \
       } \
       self->BUF = buf; \
       if (self->LEN > (self->CAP = n)) self->LEN = n; \
     } \
-    return RET_SUCCESS; \
   }
 
 #define SEQ_DECL_ensure(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE void \
   ID##_ensure(ID##_t *__restrict self, u##BITS##_t n)
 
 #define SEQ_IMPL_ensure(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
@@ -124,21 +123,19 @@
     if (self->CAP < n) { \
       if (n < SEQ_MIN_CAP) n = SEQ_MIN_CAP; \
       else if (!ISPOW2(n)) n = pow2_next##BITS(n); \
-      return ID##_realloc(self, n); \
+      ID##_realloc(self, n); \
     } \
-    return RET_SUCCESS; \
   }
 
 #define SEQ_IMPL_ensure_strict(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_ensure(SCOPE, ID, T, BITS) { \
     if (self->CAP < n) { \
-      return ID##_realloc(self, n); \
+      ID##_realloc(self, n); \
     } \
-    return RET_SUCCESS; \
   }
 
 #define SEQ_DECL_grow(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE void \
   ID##_grow(ID##_t *__restrict self, u##BITS##_t n)
 
 #define SEQ_IMPL_grow(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
@@ -147,59 +144,52 @@
     if (self->CAP < n) { \
       if (n < SEQ_MIN_CAP) n = SEQ_MIN_CAP; \
       else if (!ISPOW2(n)) n = pow2_next##BITS(n); \
-      return ID##_realloc(self, n); \
+      ID##_realloc(self, n); \
     } \
-    return RET_SUCCESS; \
   }
 
 #define SEQ_IMPL_grow_strict(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_grow(SCOPE, ID, T, BITS) { \
     n += self->LEN; \
     if (self->CAP < n) { \
-      return ID##_realloc(self, n); \
+      ID##_realloc(self, n); \
     } \
-    return RET_SUCCESS; \
   }
 
 #define SEQ_DECL_shrink(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE void \
   ID##_shrink(ID##_t *__restrict self, u##BITS##_t n)
 
 #define SEQ_IMPL_shrink(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_shrink(SCOPE, ID, T, BITS) { \
     n = self->CAP - n; \
     if (n < self->CAP && ISPOW2(n)) { \
-      return ID##_realloc(self, n); \
+      ID##_realloc(self, n); \
     } \
-    return RET_SUCCESS; \
   }
 
 #define SEQ_DECL_trim(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE void \
   ID##_trim(ID##_t *__restrict self)
 
 #define SEQ_IMPL_trim(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_trim(SCOPE, ID, T, BITS) { \
     if (self->LEN == 0 && self->CAP) ID##_dtor(self); \
     else if (self->CAP > self->LEN) { \
-      return ID##_realloc(self, self->LEN); \
+      ID##_realloc(self, self->LEN); \
     } \
-    return RET_SUCCESS; \
   }
 
 #define SEQ_DECL_insert(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE bool_t \
   ID##_insert(ID##_t *__restrict self, __const u##BITS##_t idx, T item)
 
 #define SEQ_IMPL_insert(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_insert(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
     if (idx > ID##_size(self)) { \
-      return RET_FAILURE; \
+      return false; \
     } \
-    if ((ret = ID##_grow(self, 1)) > 0) { \
-      return ret; \
-    } \
+    ID##_grow(self, 1); \
     if (idx == ID##_size(self)) { \
       ++self->LEN; \
     } else { \
@@ -210,24 +200,21 @@
       ); \
     } \
     self->BUF[idx] = item; \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define SEQ_DECL_emplace(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE bool_t \
   ID##_emplace(ID##_t *__restrict self, __const u##BITS##_t idx, T *items, \
     __const u##BITS##_t n)
 
 #define SEQ_IMPL_emplace(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
   CMP) \
   SEQ_DECL_emplace(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
     if (idx > ID##_size(self)) { \
-      return RET_FAILURE; \
+      return false; \
     } \
-    if ((ret = ID##_grow(self, n)) > 0) { \
-      return ret; \
-    } \
+    ID##_grow(self, n); \
     if (idx != ID##_size(self)) { \
       memmove( \
         self->BUF + idx + n, \
@@ -237,24 +224,21 @@
     } \
     memcpy(self->BUF + idx, items, (usize_t) n * sizeof(T)); \
     self->LEN += n; \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define SEQ_DECL_nemplace(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE bool_t \
   ID##_nemplace(ID##_t *__restrict self, __const u##BITS##_t idx, T *items, \
     __const u##BITS##_t n)
 
 #define SEQ_IMPL_nemplace(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
   CMP) \
   SEQ_DECL_nemplace(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
     if (idx > ID##_size(self)) { \
-      return RET_FAILURE; \
+      return false; \
     } \
-    if ((ret = ID##_grow(self, n)) > 0) { \
-      return ret; \
-    } \
+    ID##_grow(self, n); \
     if (idx != ID##_size(self)) { \
       memmove( \
         self->BUF + idx + n, \
@@ -264,17 +248,16 @@
     } \
     memcpy(self->BUF + idx, items, (usize_t) n * sizeof(T)); \
     self->LEN += n; \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define SEQ_DECL_emplace_nt(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE bool_t \
   ID##_emplace(ID##_t *__restrict self, __const u##BITS##_t idx, T *items)
 
 #define SEQ_IMPL_emplace_nt(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
   CMP) \
   SEQ_DECL_emplace_nt(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
     u##BITS##_t n; \
     if (idx == ID##_size(self)) { \
       return ID##_append(self, items); \
@@ -283,12 +266,10 @@
       return ID##_prepend(self, items); \
     } \
     if (idx > ID##_size(self)) { \
-      return RET_FAILURE; \
+      return false; \
     } \
     n = (u##BITS##_t) strlen((char_t __const *) items); \
-    if ((ret = ID##_grow(self, n + 1)) > 0) { \
-      return ret; \
-    } \
+    ID##_grow(self, n + 1); \
     if (idx != ID##_size(self)) { \
       memmove( \
         self->BUF + idx + n, \
@@ -298,87 +279,72 @@
     } \
     memcpy(self->BUF + idx, items, (usize_t) n * sizeof(T)); \
     self->LEN += n; \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define SEQ_DECL_push(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE bool_t \
   ID##_push(ID##_t *__restrict self, T item)
 
 #define SEQ_IMPL_push(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_push(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
-    if ((ret = ID##_grow(self, 1)) > 0) { \
-      return ret; \
-    } \
+    ID##_grow(self, 1); \
     self->BUF[self->LEN++] = item; \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define SEQ_IMPL_push_nt(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_push(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
-    if ((ret = ID##_grow(self, 2)) > 0) { \
-      return ret; \
-    } \
+    ID##_grow(self, 2); \
     self->BUF[self->LEN++] = item; \
     self->BUF[self->LEN] = '\0'; \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define SEQ_DECL_append(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE bool_t \
   ID##_append(ID##_t *__restrict self, T *items, __const u##BITS##_t n)
 
 #define SEQ_IMPL_append(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_append(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
     if (n == 0) { \
-      return RET_SUCCESS; \
+      return true; \
     } \
-    if ((ret = ID##_grow(self, n)) > 0) { \
-      return ret; \
-    } \
+    ID##_grow(self, n); \
     memcpy(self->BUF + self->LEN, items, (usize_t) n * sizeof(T)); \
     self->LEN += n; \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define SEQ_DECL_nappend(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE bool_t \
   ID##_nappend(ID##_t *__restrict self, T *items, __const u##BITS##_t n)
 
 #define SEQ_IMPL_nappend(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_nappend(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
     if (n == 0) { \
-      return RET_SUCCESS; \
+      return true; \
     } \
-    if ((ret = ID##_grow(self, n)) > 0) { \
-      return ret; \
-    } \
+    ID##_grow(self, n); \
     memcpy(self->BUF + self->LEN, items, (usize_t) n * sizeof(T)); \
     self->LEN += n; \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define SEQ_DECL_append_nt(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE bool_t \
   ID##_append(ID##_t *__restrict self, T *items)
 
 #define SEQ_IMPL_append_nt(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_append_nt(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
     u##BITS##_t n; \
     if ((n = (u##BITS##_t) strlen((char_t __const *) items)) == 0) { \
-      return RET_SUCCESS; \
+      return true; \
     } \
-    if ((ret = ID##_grow(self, n + 1)) > 0) { \
-      return ret; \
-    } \
+    ID##_grow(self, n + 1); \
     memcpy(self->BUF + self->LEN, items, (usize_t) (n + 1) * sizeof(T)); \
     self->LEN += n; \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define SEQ_DECL_pop(SCOPE, ID, T, BITS) \
@@ -411,39 +377,33 @@
   }
 
 #define SEQ_DECL_unshift(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE bool_t \
   ID##_unshift(ID##_t *__restrict self, T item)
 
 #define SEQ_IMPL_unshift(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
   CMP) \
   SEQ_DECL_unshift(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
-    if ((ret = ID##_grow(self, 1)) > 0) { \
-      return ret; \
-    } \
+    ID##_grow(self, 1); \
     memmove( \
       self->BUF + 1, \
       self->BUF, \
       (usize_t) self->LEN++ * sizeof(T) \
     ); \
     self->BUF[0] = item; \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define SEQ_DECL_prepend(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE bool_t \
   ID##_prepend(ID##_t *__restrict self, T *items, __const u##BITS##_t n)
 
 #define SEQ_IMPL_prepend(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
   CMP) \
   SEQ_DECL_prepend(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
     if (n == 0) { \
-      return RET_SUCCESS; \
+      return true; \
     } \
-    if ((ret = ID##_grow(self, n)) > 0) { \
-      return ret; \
-    } \
+    ID##_grow(self, n); \
     memmove( \
       self->BUF + n, \
       self->BUF, \
@@ -451,23 +411,20 @@
     ); \
     memcpy(self->BUF, items, (usize_t) n * sizeof(T)); \
     self->LEN += n; \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define SEQ_DECL_nprepend(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE bool_t \
   ID##_nprepend(ID##_t *__restrict self, T *items, __const u##BITS##_t n)
 
 #define SEQ_IMPL_nprepend(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
   CMP) \
   SEQ_DECL_nprepend(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
     if (n == 0) { \
-      return RET_SUCCESS; \
+      return true; \
     } \
-    if ((ret = ID##_grow(self, n)) > 0) { \
-      return ret; \
-    } \
+    ID##_grow(self, n); \
     memmove( \
       self->BUF + n, \
       self->BUF, \
@@ -475,28 +432,25 @@
     ); \
     memcpy(self->BUF, items, (usize_t) n * sizeof(T)); \
     self->LEN += n; \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define SEQ_DECL_prepend_nt(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE bool_t \
   ID##_prepend(ID##_t *__restrict self, T *items)
 
 #define SEQ_IMPL_prepend_nt(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
   CMP) \
   SEQ_DECL_prepend_nt(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
     u##BITS##_t n; \
     n = (u##BITS##_t) strlen((char_t __const *) items); \
     if (n == 0) { \
-      return RET_SUCCESS; \
+      return true; \
     } \
     if (ID##_size(self) == 0) { \
       return ID##_append(self, items); \
     } \
-    if ((ret = ID##_grow(self, n)) > 0) { \
-      return ret; \
-    } \
+    ID##_grow(self, n); \
     memmove( \
       self->BUF + n, \
       self->BUF, \
@@ -504,7 +458,7 @@
     ); \
     memcpy(self->BUF, items, (usize_t) n * sizeof(T)); \
     self->LEN += n; \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define SEQ_DECL_shift(SCOPE, ID, T, BITS) \
@@ -687,52 +641,40 @@
   }
 
 #define SEQ_DECL_cpy(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE bool_t \
   ID##_cpy(ID##_t *__restrict self, ID##_t *__restrict src)
 
 #define SEQ_IMPL_cpy(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_cpy(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
-    if ((ret = ID##_ensure(self, src->LEN)) > 0) { \
-      return ret; \
-    } \
+    ID##_ensure(self, src->LEN); \
     memcpy(self->BUF, src->BUF, (usize_t) (self->LEN = src->LEN)); \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define SEQ_IMPL_cpy_nt(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_cpy(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
-    if ((ret = ID##_ensure(self, src->LEN + 1)) > 0) { \
-      return ret; \
-    } \
+    ID##_ensure(self, src->LEN + 1); \
     memcpy(self->BUF, src->BUF, (usize_t) ((self->LEN = src->LEN) + 1)); \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define SEQ_DECL_ncpy(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE bool_t \
   ID##_ncpy(ID##_t *__restrict self, ID##_t *__restrict src, \
     __const u##BITS##_t n)
 
 #define SEQ_IMPL_ncpy(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_ncpy(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
-    if ((ret = ID##_ensure(self, n)) > 0) { \
-      return ret; \
-    } \
+    ID##_ensure(self, n); \
     memcpy(self->BUF, src->BUF, (usize_t) (self->LEN = n)); \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define SEQ_IMPL_ncpy_nt(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_ncpy(SCOPE, ID, T, BITS) { \
-    ret_t ret; \
-    if ((ret = ID##_ensure(self, n + 1)) > 0) { \
-      return ret; \
-    } \
+    ID##_ensure(self, n + 1); \
     memcpy(self->BUF, src->BUF, (usize_t) ((self->LEN = n) + 1)); \
-    return RET_SUCCESS; \
+    return true; \
   }
 
 #define SEQ_DECL_has(SCOPE, ID, T, BITS) \
@@ -799,20 +741,18 @@
   }
 
 #define SEQ_DECL_select(SCOPE, ID, T, BITS) \
-  SCOPE ret_t \
+  SCOPE bool_t \
   ID##_select(ID##_t *__restrict self, ID##_t *__restrict dest, \
     bool_t (*cb)(T *, void *), void *data)
 
 #define SEQ_IMPL_select(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_select(SCOPE, ID, T, BITS) { \
     u##BITS##_t i; \
-    ret_t ret; \
-    ret = RET_FAILURE; \
+    bool_t ret; \
+    ret = false; \
     for (i = 0; i < self->LEN; ++i) { \
       if (cb(self->BUF + i, data) == true) { \
-        if ((ret = ID##_push(dest, self->BUF[i])) > 0) { \
-          return ret; \
-        } \
+        if (ID##_push(dest, self->BUF[i])) ret = true; \
       } \
     } \
     return ret; \

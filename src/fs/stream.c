@@ -37,14 +37,14 @@
 DEQ_IMPL(FORCEINLINE, sinbuf, char_t, size, i8cmp)
 VEC_IMPL(FORCEINLINE, soutbuf, char_t, size, i8cmp)
 
-FORCEINLINE ret_t
+FORCEINLINE void
 stream_open(stream_t *self, char_t __const *filename, u32_t flags)
 {
   init(self, stream_t);
   self->flags = flags;
   sinbuf_ctor(&self->in);
   soutbuf_ctor(&self->out);
-  return fd_open(&self->fd, filename, flags);
+  fd_open(&self->fd, filename, flags);
 }
 
 FORCEINLINE void
@@ -63,132 +63,107 @@ stream_out(stream_t *self)
   self->flags |= FS_OPEN_WO;
 }
 
-FORCEINLINE ret_t
+FORCEINLINE void
 stream_close(stream_t *self)
 {
-  ret_t ret, ret2;
-
-  ret = stream_flush(self);
-  if (self->fd > 1) {
-    ret2 = fd_close(&self->fd);
-    if (ret2 > ret) ret = ret2;
-  }
+  stream_flush(self);
+  fd_close(&self->fd);
   sinbuf_dtor(&self->in);
   soutbuf_dtor(&self->out);
-  return ret;
 }
 
-static ret_t
-stream_bufferize(stream_t *self, usize_t len, usize_t *out)
+static usize_t
+stream_bufferize(stream_t *self, usize_t len)
 {
-  usize_t r;
-  ret_t ret;
+  usize_t r, b;
 
-  ret = RET_SUCCESS;
   if (self->in.tail % 4096 != 0) {
-    if (out) {
-      *out = sinbuf_size(&self->in);
-      if (*out > len) *out = len;
-    }
+    b = sinbuf_size(&self->in);
   } else {
-    if (out) *out = len;
+    b = 0;
     while (sinbuf_size(&self->in) < len) {
       char_t buf[FS_PAGE_SIZE];
 
-      if ((ret = fd_read(&self->fd, buf, FS_PAGE_SIZE, &r)) > 0) break;
-      if ((ret = sinbuf_append(&self->in, buf, (usize_t __const) r)) > 0) break;
-      if (*out && r < *out) *out = r;
+      if ((r = fd_read(&self->fd, buf, FS_PAGE_SIZE)) == 0) break;
+      sinbuf_append(&self->in, buf, (usize_t __const) r);
+      b += r;
     }
   }
-  return ret;
+  if (b > len) return len;
+  return b;
 }
 
-ret_t
-stream_read(stream_t *self, char_t *buf, usize_t len, usize_t *out)
+usize_t
+stream_read(stream_t *self, char_t *buf, usize_t len)
 {
-  ret_t ret;
-  usize_t r;
-
-  if ((ret = stream_bufferize(self, len, &r)) > 0) return ret;
-  if ((r = sinbuf_nshift(&self->in, r, &buf)) == 0) return RET_FAILURE;
-  if (out) *out = r;
-  return RET_SUCCESS;
+  return sinbuf_nshift(&self->in, stream_bufferize(self, len), &buf);
 }
 
-FORCEINLINE ret_t
-stream_getc(stream_t *self, char_t *out) {
-  return stream_read(self, out, 1, nil);
-}
-
-FORCEINLINE ret_t
-stream_peek(stream_t *self, usize_t n, char_t *out) {
-  ret_t ret;
-  usize_t r;
-
-  if ((ret = stream_bufferize(self, n, &r)) > 0) return ret;
-  if (r > n) return RET_FAILURE;
-  *out = sinbuf_at(&self->in, n);
-  return ret;
-}
-
-ret_t
-stream_write(stream_t *self, char_t __const *buf, usize_t len, usize_t *out)
+FORCEINLINE char_t
+stream_getc(stream_t *self)
 {
-  usize_t b;
-  ret_t ret;
-  isize_t w;
+  char_t c;
 
+  if (stream_read(self, &c, 1) == 1)
+    return c;
+  return '\0';
+}
+
+FORCEINLINE char_t
+stream_peek(stream_t *self, usize_t n)
+{
+  if (n > stream_bufferize(self, n))
+    return '\0';
+  return sinbuf_at(&self->in, n);
+}
+
+usize_t
+stream_write(stream_t *self, char_t __const *buf, usize_t len)
+{
+  usize_t b, tw;
+  bool_t ret;
+
+  tw = 0;
   if (self->flags & FS_OPEN_WO) {
-    if (out) *out = 0;
     while (len) {
       b = FS_PAGE_SIZE - self->out.len;
       if (b > len) b = len;
       if ((ret = soutbuf_append(&self->out, (char_t *) buf, b)) > 0) return ret;
       len -= b;
       buf += b;
-      if (out) *out += b;
+      tw += b;
       if (self->out.len == FS_PAGE_SIZE) {
-        if ((ret = fd_write(&self->fd, self->out.buf, self->out.len, &w)) > 0)
-          return ret;
-        if (w <= 0) break;
+        if (fd_write(&self->fd, self->out.buf, self->out.len) == 0)
+          break;
         self->out.len = 0;
       }
     }
-  } else {
-    if ((ret = fd_write(&self->fd, buf, len, &w)) > 0)
-      return ret;
-    len -= w;
+    return tw;
   }
-  return len == 0 ? RET_SUCCESS : RET_FAILURE;
+  return fd_write(&self->fd, buf, len);
 }
 
-FORCEINLINE ret_t
+FORCEINLINE void
 stream_flush(stream_t *self)
 {
-  ret_t ret;
-
   if (self->out.len) {
-    if ((ret = fd_write(&self->fd, self->out.buf, self->out.len, nil)) > 0)
-      return ret;
+    fd_write(&self->fd, self->out.buf, self->out.len);
     self->out.len = 0;
   }
-  return RET_SUCCESS;
 }
 
-ret_t
-stream_seek(stream_t __const *self, isize_t off, fs_seek_mod_t whence,
-  isize_t *out)
+bool_t
+stream_seek(stream_t __const *self, isize_t off, fs_seek_mod_t whence)
 {
   (void) self;
   (void) off;
   (void) whence;
-  (void) out;
-  return RET_NOT_IMPL;
+  return 0;
 }
 
-isize_t
+usize_t
 stream_offset(stream_t __const *self)
 {
   (void) self;
-  return RET_NOT_IMPL;
+  return 0;
 }

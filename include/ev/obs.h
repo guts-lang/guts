@@ -29,12 +29,12 @@
 #ifndef __EV_OBS_H
 # define __EV_OBS_H
 
-#include <nt/err.h>
+#include <nt/ex.h>
 #include <ds/vec.h>
 
 #define OBSERVER(NAME, TObservable, TCode, ...) \
   struct NAME { \
-    ret_t (*update)(struct NAME *self, TObservable *sender, \
+    bool_t (*update)(struct NAME *self, TObservable *sender, \
       TCode code, void *arg); \
     void (*dtor)(struct NAME *self); \
     __VA_ARGS__ \
@@ -53,25 +53,25 @@ VEC16_DEFINE(observers, observer_t *, observer_cmp)
   }
 
 #define OBSERVABLE_DEFINE(ID, TObservable, TCode) \
-  static FORCEINLINE ret_t \
+  static FORCEINLINE bool_t \
   ID##_attach(TObservable *__restrict self, void *observer) { \
     return observers_push( \
       &self->observers, \
       (observer_t *) observer \
     ); \
   } \
-  static FORCEINLINE ret_t \
+  static FORCEINLINE bool_t \
   ID##_notify(TObservable *__restrict self, TCode code, void *arg) { \
     u16_t i; \
-    ret_t ret; \
+    bool_t ret; \
     for (i = 0; i < self->observers.len; ++i) { \
       if ((ret = self->observers.buf[i]->update( \
         self->observers.buf[i], self, code, arg)) \
-        != RET_SUCCESS) { \
+        != true) { \
         return ret; \
       } \
     } \
-    return RET_SUCCESS; \
+    return true; \
   } \
   static FORCEINLINE void \
   ID##_detach(TObservable *__restrict self) { \

@@ -85,36 +85,23 @@ enum {
 #define M7(n, a, b, c, d, e, f, g) i == (7+n) && __M7(n, a, b, c, d, e, f, g)
 #define M8(n, a, b, c, d, e, f, g, h) i == (8+n) && __M8(n, a, b, c, d, e, f, g, h)
 
-#define CATCH(ret, expr) \
-  if (((ret) = (expr)) == RET_ERRNO) { \
-    errs_push(&self->errs, syserr()); \
-    return RET_FAILURE; \
-  } \
-  else if ((ret) > 0) return (ret)
-#define CATCH_SYS(ret, expr) \
-  if (((ret) = (expr)) == RET_ERRNO) { \
-    errs_push(&self->errs, syserr()); \
-    return RET_FAILURE; \
-  }
-
-ret_t
+bool_t
 lex(lexer_t *self)
 {
   src_t *src;
   char_t peek;
-  ret_t ret;
   usize_t i;
   tok_t tok;
 
   if (srcs_size(&self->srcs) == 0) {
-    return RET_FAILURE;
+    return false;
   }
   src = srcs_offset(&self->srcs, 0);
-  CATCH(ret, src_peek(src, 0, &peek));
+  peek = src_peek(src, 0);
   init(&tok, tok_t);
   while (peek == ' ' || peek == '\t') {
     ++tok.lws;
-    CATCH_SYS(ret, src_next(src, &peek));
+    peek = src_next(src);
   }
   if (peek == '_' || isalpha(peek)) {
     char s[256];
@@ -123,7 +110,7 @@ lex(lexer_t *self)
     i = 0;
     do {
       s[i++] = peek;
-      CATCH_SYS(ret, src_next(src, &peek));
+      peek = src_next(src);
     } while (peek == '_' || isalpha(peek));
     s[i] = '\0';
     tok.id = C_TOK_IDENTIFIER;
@@ -260,16 +247,17 @@ lex(lexer_t *self)
     if (tok.id == C_TOK_IDENTIFIER) {
       val_t val;
 
-      CATCH_SYS(ret, val_init_ident(&val, s));
+      val_init_ident(&val, s);
       tok.kind = TOK_VALUE;
       tok.id = self->vals.len;
-      CATCH_SYS(ret, vals_push(&self->vals, val));
+      vals_push(&self->vals, val);
     } else {
       tok.kind = TOK_KEYWORD;
     }
-    CATCH_SYS(ret, toks_push(&self->toks, tok));
+    toks_push(&self->toks, tok);
+    return true;
   }
-  return RET_SUCCESS;
+  return false;
 }
 
 i32_t
@@ -279,7 +267,7 @@ main(void)
 
   init(&lexer, lexer_t);
   lexer_init_str(&lexer, " auto int double foo bar        float");
-  while (lex(&lexer) == RET_SUCCESS) {
+  while (lex(&lexer)) {
     tok_t tok;
 
     if (toks_shift(&lexer.toks, &tok)) {
@@ -311,7 +299,6 @@ main(void)
     }
   }
   if (lexer.errs.len) {
-    errs_dump(&lexer.errs, stdout);
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

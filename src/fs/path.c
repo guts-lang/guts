@@ -23,109 +23,97 @@
  * SOFTWARE.
  */
 
-#include <ctype.h>
-#include <fs.h>
-
 #include "fs/path.h"
-#include "fs/op.h"
 
-SEQ_IMPL_realloc(
-  static FORCEINLINE, fs_path, char_t, 16, cap, len, buf, realloc, free, i8cmp
-)
+SEQ_IMPL_realloc(static FORCEINLINE, fs_path, char_t, 16, cap, len, buf,
+  realloc, free, i8cmp)
 
-SEQ_IMPL_ensure_strict(
-  static FORCEINLINE, fs_path, char_t, 16, cap, len, buf, realloc, free, i8cmp
-)
+SEQ_IMPL_ensure_strict(static FORCEINLINE, fs_path, char_t, 16, cap, len, buf,
+  realloc, free, i8cmp)
 
-SEQ_IMPL_grow_strict(
-  static FORCEINLINE, fs_path, char_t, 16, cap, len, buf, realloc, free, i8cmp
-)
+SEQ_IMPL_grow_strict(static FORCEINLINE, fs_path, char_t, 16, cap, len, buf,
+  realloc, free, i8cmp)
 
-SEQ_IMPL_append_nt(
-  static FORCEINLINE, fs_path, char_t, 16, cap, len, buf, realloc, free, i8cmp
-)
+SEQ_IMPL_append_nt(static FORCEINLINE, fs_path, char_t, 16, cap, len, buf,
+  realloc, free, i8cmp)
 
-SEQ_IMPL_nappend(
-  static FORCEINLINE, fs_path, char_t, 16, cap, len, buf, realloc, free, i8cmp
-)
+SEQ_IMPL_nappend(static FORCEINLINE, fs_path, char_t, 16, cap, len, buf,
+  realloc, free, i8cmp)
 
-SEQ_IMPL_dtor(
-  FORCEINLINE, fs_path, char_t, 16, cap, len, buf, realloc, free, i8cmp
-)
+SEQ_IMPL_dtor(FORCEINLINE, fs_path, char_t, 16, cap, len, buf, realloc, free,
+  i8cmp)
 
-SEQ_IMPL_cpy_nt(
-  FORCEINLINE, fs_path, char_t, 16, cap, len, buf, realloc, free, i8cmp
-)
+SEQ_IMPL_cpy_nt(FORCEINLINE, fs_path, char_t, 16, cap, len, buf, realloc, free,
+  i8cmp)
 
 void
-fs_path_ctor(fs_path_t *__restrict self) {
+fs_path_ctor(fs_path_t *__restrict self)
+{
   self->buf = nil;
   self->cap = 0;
   self->len = 0;
 }
 
-ret_t
-fs_path(fs_path_t *self, char_t __const *path) {
-  ret_t ret;
-
+bool_t
+fs_path(fs_path_t *self, char_t __const *path)
+{
   fs_path_ctor(self);
-  if ((ret = fs_path_append(self, (char_t *) path)) > 0) {
-    return ret;
-  }
-  return RET_SUCCESS;
+  return fs_path_append(self, (char_t *) path);
 }
 
-ret_t
-fs_pathn(fs_path_t *self, char_t __const *path, u16_t n) {
-  ret_t ret;
-
+bool_t
+fs_pathn(fs_path_t *self, char_t __const *path, u16_t n)
+{
   fs_path_ctor(self);
-  if ((ret = fs_path_nappend(self, (char_t *) path, (__const u16_t) n)) > 0) {
-    return ret;
-  }
-  return RET_SUCCESS;
+  return fs_path_nappend(self, (char_t *) path, (__const u16_t) n);
 }
 
-ret_t
-fs_path_cwd(fs_path_t *self) {
+bool_t
+fs_path_cwd(fs_path_t *self)
+{
   char_t path[FS_PATH_MAX];
   u16_t n;
 
   if ((n = fs_cwd(path, FS_PATH_MAX)) > 0) {
     return fs_pathn(self, path, n);
   }
-  return RET_FAILURE;
+  return false;
 }
 
 bool_t
-fs_path_is_abs(fs_path_t __const *self) {
+fs_path_is_abs(fs_path_t __const *self)
+{
 #ifdef OS_WIN
   return *self->buf == '~' || (self->len > 2
     && isalpha(self->buf[0])
     && self->buf[1] == ':'
     && (self->buf[2] == '/' || self->buf[2] == '\\'));
 #else
-  return *self->buf == '/' || *self->buf == '\\' ||*self->buf == '~';
+  return *self->buf == '/' || *self->buf == '\\' || *self->buf == '~';
 #endif
 }
 
 bool_t
-fs_path_is_rel(fs_path_t __const *self) {
+fs_path_is_rel(fs_path_t __const *self)
+{
   return !fs_path_is_abs(self);
 }
 
-ret_t
-fs_path_absolute(fs_path_t *self, fs_path_t *out) {
+bool_t
+fs_path_absolute(fs_path_t *self, fs_path_t *out)
+{
   char_t path[FS_PATH_MAX], *ptr;
 
 #ifdef OS_WIN
   if (_fullpath(self->buf, path, FS_PATH_MAX) == nil) {
-    return RET_ERRNO;
+    THROW(ex_errno(ERRLVL_ERROR, errno,
+      "Unable to get absolute path from '%s'", self->buf));
   }
   ptr = path;
 #else
   if ((ptr = realpath(self->buf, path)) == nil) {
-    return RET_ERRNO;
+    THROW(ex_errno(ERRLVL_ERROR, errno,
+      "Unable to get absolute path from '%s'", self->buf));
   }
 #endif
   if (out != nil) {
@@ -135,21 +123,19 @@ fs_path_absolute(fs_path_t *self, fs_path_t *out) {
   return fs_path_append(self, ptr);
 }
 
-ret_t
-fs_path_open(fs_path_t *self, fd_t *out, u32_t flags) {
+bool_t
+fs_path_open(fs_path_t *self, fd_t *out, u32_t flags)
+{
   (void) self;
   (void) out;
   (void) flags;
-  return RET_FAILURE;
+  return false;
 }
 
-ret_t
-fs_path_join(fs_path_t *self, fs_path_t *other) {
-  ret_t ret;
-
-  if ((ret = fs_path_ensure(self, (u16_t) (other->len + 1))) > 0) {
-    return ret;
-  }
+bool_t
+fs_path_join(fs_path_t *self, fs_path_t *other)
+{
+  fs_path_ensure(self, (u16_t) (other->len + 1));
   self->buf[self->len++] = DS;
   return fs_path_nappend(self, other->buf, other->len);
 }
