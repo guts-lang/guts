@@ -25,8 +25,9 @@
 
 #include "fs/ostream.h"
 
+static char_t __cout_buf[FS_PAGE_SIZE];
 static ostream_t __cout = {
-  1, true, 0, 0, 0, { 0, 0, nil }, { 0, 0, nil }
+  1, true, 0, 0, 0, { FS_PAGE_SIZE, 0, __cout_buf }, { 0, 0, nil }
 };
 
 ostream_t *cout = &__cout;
