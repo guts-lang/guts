@@ -28,19 +28,5 @@
 i32_t
 main(void)
 {
-  stream_t in, out;
-  char_t buf[256];
-  usize_t r;
-  ex_t e;
-
-  TRY {
-    stream_open(&in, "LICENSE", FS_OPEN_RO);
-    stream_out(&out);
-    while ((r = stream_read(&in, buf, 256))) {
-      stream_write(&out, buf, r);
-    }
-    stream_close(&in);
-    stream_flush(&out);
-  } CATCH(e);
   return 0;
 }

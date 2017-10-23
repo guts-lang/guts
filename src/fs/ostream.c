@@ -31,34 +31,6 @@ static ostream_t __cout = {
 
 ostream_t *cout = &__cout;
 
-static FORCEINLINE void
-ostream_alloc(ostream_t *self)
-{
-  if (self->buf.cap == 0) {
-    if ((self->buf.buf = mem_malloc(FS_PAGE_SIZE * sizeof(char_t))) == nil) {
-      THROW(ex_errno(ERRLVL_FATAL, errno, nil));
-    }
-    self->buf.cap = FS_PAGE_SIZE;
-  }
-}
-
-static FORCEINLINE void
-ostream_bufferize(ostream_t *self, char_t __const *items, usize_t n)
-{
-  usize_t cur;
-
-  assert(n <= FS_PAGE_SIZE);
-  ostream_alloc(self);
-  cur = self->cur - self->beg;
-  memcpy(self->buf.buf + cur, items, (usize_t) n * sizeof(char_t));
-  self->cur += n;
-  cur += n;
-  if (cur > self->buf.len) {
-    self->buf.len = cur;
-    self->end += n;
-  }
-}
-
 FORCEINLINE bool_t
 ostream_open(ostream_t *self, char_t __const *filename)
 {
@@ -106,7 +78,7 @@ ostream_write(ostream_t *self, char_t __const *buf, usize_t len)
 
   beg = buf;
   while (len) {
-    usize_t b;
+    usize_t b, cur;
 
     if (!self->buf.len) {
       while (len > FS_PAGE_SIZE) {
@@ -119,7 +91,20 @@ ostream_write(ostream_t *self, char_t __const *buf, usize_t len)
     }
     b = FS_PAGE_SIZE - self->buf.len;
     if (b > len) b = len;
-    ostream_bufferize(self, buf, b);
+    if (self->buf.cap == 0) {
+      if ((self->buf.buf = mem_malloc(FS_PAGE_SIZE * sizeof(char_t))) == nil) {
+        THROW(ex_errno(ERRLVL_FATAL, errno, nil));
+      }
+      self->buf.cap = FS_PAGE_SIZE;
+    }
+    cur = self->cur - self->beg;
+    memcpy(self->buf.buf + cur, buf, (usize_t) b * sizeof(char_t));
+    self->cur += b;
+    cur += b;
+    if (cur > self->buf.len) {
+      self->buf.len = cur;
+      self->end += b;
+    }
     len -= b;
     buf += b;
     if (self->buf.len == FS_PAGE_SIZE) {
