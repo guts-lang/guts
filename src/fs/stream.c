@@ -28,7 +28,7 @@
 DEQ_IMPL(FORCEINLINE, sinbuf, char_t, size, i8cmp)
 VEC_IMPL(FORCEINLINE, soutbuf, char_t, size, i8cmp)
 
-FORCEINLINE bool_t
+__inline bool_t
 stream_open(stream_t *self, char_t __const *filename, u32_t flags)
 {
   ex_t e;
