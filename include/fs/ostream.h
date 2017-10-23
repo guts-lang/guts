@@ -46,6 +46,12 @@ struct ostream {
 
 extern ostream_t *cout;
 
+#define cout_write(BUF, LEN) ostream_write(cout, BUF, LEN)
+#define cout_writef(BUF, ...) ostream_writef(cout, BUF, __VA_ARGS__)
+#define cout_puts(BUF) ostream_puts(cout, BUF)
+#define cout_putc(C) ostream_putc(cout, C)
+#define cout_flush() ostream_flush(cout)
+
 __api__ bool_t
 ostream_open(ostream_t *self, char_t __const *filename);
 

@@ -29,11 +29,8 @@ i32_t
 main(void)
 {
   ex_t e;
-  ostream_t s1, *s2;
-  s2 = cout;
+  ostream_t s1;
 
-  ostream_write(s2, "Hello world", 11);
-  ostream_flush(s2);
   init(&s1, ostream_t);
   if (ostream_open(&s1, "some1.log")) {
     usize_t off;
@@ -63,5 +60,10 @@ main(void)
     ex_dump(errs_offset(&s1.errs, 0), stdout);
     errs_dtor(&s1.errs);
   }
+  cout_puts("Hello world");
+  cout_putc('!');
+  cout_write(" uael", 5);
+  cout_writef(" with %s.", "love");
+  cout_flush();
   return 0;
 }
