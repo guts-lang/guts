@@ -25,22 +25,8 @@
 
 #include "fs/ostream.h"
 
-#if defined PAGE_SIZE && PAGE_SIZE <= 4096
-# define FS_PAGE_SIZE PAGE_SIZE
-#elif defined PAGESIZE && PAGESIZE <= 4096
-# define FS_PAGE_SIZE PAGESIZE
-#else
-# define FS_PAGE_SIZE 4096
-#endif
-
 static ostream_t __cout = {
-  .fd = 1,
-  .opened = true,
-  .beg = 0,
-  .cur = 0,
-  .end = 0,
-  .buf = { 0, 0, nil },
-  .errs = { 0, 0, nil }
+  1, true, 0, 0, 0, { 0, 0, nil }, { 0, 0, nil }
 };
 
 ostream_t *cout = &__cout;

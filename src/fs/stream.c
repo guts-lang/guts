@@ -23,16 +23,7 @@
  * SOFTWARE.
  */
 
-#include <fs.h>
 #include "fs/stream.h"
-
-#if defined PAGE_SIZE && PAGE_SIZE <= 4096
-# define FS_PAGE_SIZE PAGE_SIZE
-#elif defined PAGESIZE && PAGESIZE <= 4096
-# define FS_PAGE_SIZE PAGESIZE
-#else
-# define FS_PAGE_SIZE 4096
-#endif
 
 DEQ_IMPL(FORCEINLINE, sinbuf, char_t, size, i8cmp)
 VEC_IMPL(FORCEINLINE, soutbuf, char_t, size, i8cmp)

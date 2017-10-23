@@ -69,4 +69,12 @@
 # define FS_FILENAME_MAX (U8_MAX)
 #endif
 
+#if defined PAGE_SIZE && PAGE_SIZE <= 4096
+# define FS_PAGE_SIZE PAGE_SIZE
+#elif defined PAGESIZE && PAGESIZE <= 4096
+# define FS_PAGE_SIZE PAGESIZE
+#else
+# define FS_PAGE_SIZE 4096
+#endif
+
 #endif /* !__FS_CONF_H */
