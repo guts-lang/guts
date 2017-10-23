@@ -23,39 +23,66 @@
  * SOFTWARE.
  */
 
-/*!@file fs/op.h
+/*!@file fs/ostream.h
  * @author uael
  */
-#ifndef __FS_OP_H
-# define __FS_OP_H
+#ifndef __FS_OSTREAM_H
+# define __FS_OSTREAM_H
 
-#include "defs.h"
+#include "fd.h"
+
+typedef struct ostream ostream_t;
+typedef struct osbuf osbuf_t;
+
+struct osbuf {
+  usize_t cap, len;
+  char_t *buf;
+};
+
+struct ostream {
+  fd_t fd;
+  bool_t opened;
+  usize_t beg, cur, end;
+  osbuf_t buf;
+  errs_t errs;
+};
+
+extern ostream_t *cout;
+
+__api__ bool_t
+ostream_open(ostream_t *self, char_t __const *filename);
 
 __api__ void
-fs_absolute(char_t __const *path, char_t *out);
+ostream_close(ostream_t *self);
 
-__api__ bool_t
-fs_cp(char_t __const *path, char_t __const *dest);
+__api__ usize_t
+ostream_write(ostream_t *self, char_t __const *buf, usize_t len);
 
-__api__ u16_t
-fs_cwd(char_t *path, u16_t n);
+__api__ usize_t
+ostream_writef(ostream_t *self, char_t __const *format, ...);
 
-__api__ bool_t
-fs_exists(char_t __const *path);
+__api__ usize_t
+ostream_swrite(ostream_t *self, char_t __const *buf);
 
-__api__ bool_t
-fs_ln(char_t __const *path, char_t __const *dest);
-
-__api__ void
-fs_mkdir(char_t __const *path);
-
-__api__ bool_t
-fs_mv(char_t __const *path, char_t __const *dest);
-
-__api__ bool_t
-fs_rm(char_t __const *path);
+__api__ usize_t
+ostream_put(ostream_t *self, char_t c);
 
 __api__ void
-fs_touch(char_t __const *path);
+ostream_flush(ostream_t *self);
 
-#endif /* !__FS_OP_H */
+__api__ bool_t
+ostream_rewind(ostream_t *self, usize_t n);
+
+__api__ bool_t
+ostream_forward(ostream_t *self, usize_t n);
+
+__api__ void
+ostream_resume(ostream_t *self);
+
+__api__ bool_t
+ostream_seek(ostream_t *self, usize_t off);
+
+__api__ usize_t
+ostream_tell(ostream_t __const *self);
+
+#endif /* !__FS_OSTREAM_H */

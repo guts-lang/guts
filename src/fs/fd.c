@@ -53,7 +53,7 @@
 # endif
 #endif
 
-void
+FORCEINLINE void
 fd_open(fd_t *__restrict self, char_t __const *filename, u32_t flags)
 {
 #if defined FS_FD_MODEL_UNIX
@@ -103,7 +103,7 @@ fd_open(fd_t *__restrict self, char_t __const *filename, u32_t flags)
 #endif
 }
 
-void
+FORCEINLINE void
 fd_close(fd_t __const *__restrict self)
 {
 #if defined FS_FD_MODEL_UNIX
@@ -155,50 +155,32 @@ fd_write(fd_t __const *__restrict self, char_t __const *buf, usize_t len)
   return (usize_t) r;
 }
 
-FORCEINLINE bool_t
-fd_seek(fd_t __const *__restrict self, isize_t off, fs_seek_mod_t whence,
-  usize_t *out)
+FORCEINLINE usize_t
+fd_seek(fd_t __const *__restrict self, isize_t off, fs_seek_mod_t whence)
 {
 #if defined FS_FD_MODEL_NONE
-  return false;
+  return 0;
 #elif defined FS_FD_MODEL_UNIX
   isize_t r;
 
   if ((r = lseek(*self, (long) off, whence)) < 0) {
-    if (errno) {
-      THROW(ex_errno(ERRLVL_ERROR, errno, "Unable to seek fd '%d'", *self));
-    }
-    return false;
+    THROW(ex_errno(ERRLVL_ERROR, errno, "Unable to seek fd '%d'", *self));
   }
-  if (out != nil) {
-    *out = (usize_t) r;
-  }
-  return true;
+  return (usize_t) r;
 #elif defined FS_FD_MODEL_WIN_UCRT
   isize_t r;
 
   if ((r = _lseek(*self, (long) off, whence)) < 0) {
-    if (errno) {
-      THROW(ex_errno(ERRLVL_ERROR, errno, "Unable to seek fd '%d'", *self));
-    }
-    return false;
+    THROW(ex_errno(ERRLVL_ERROR, errno, "Unable to seek fd '%d'", *self));
   }
-  if (out != nil) {
-    *out = (usize_t) r;
-  }
-  return true;
+  return (usize_t) r;
 #elif defined FS_FD_MODEL_WIN_NT
-  return false;
+  return 0;
 #endif
 }
 
-usize_t
+FORCEINLINE usize_t
 fd_offset(fd_t __const *__restrict self)
 {
-  usize_t off;
-
-  if (fd_seek(self, 0, FS_SEEK_CUR, &off)) {
-    return off;
-  }
-  return 0;
+  return fd_seek(self, 0, FS_SEEK_CUR);
 }

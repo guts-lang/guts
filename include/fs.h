@@ -29,7 +29,7 @@
 #ifndef __FS_H
 # define __FS_H
 
-#include "fs/conf.h"
+#include "fs/defs.h"
 #include "fs/fd.h"
 #include "fs/mod.h"
 #include "fs/op.h"

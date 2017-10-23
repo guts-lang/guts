@@ -40,9 +40,10 @@ struct stream {
   u32_t flags;
   sinbuf_t in;
   soutbuf_t out;
+  errs_t errs;
 };
 
-__api__ void
+__api__ bool_t
 stream_open(stream_t *self, char_t __const *filename, u32_t flags);
 
 __api__ void

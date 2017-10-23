@@ -29,7 +29,7 @@
 #ifndef __FS_FD_H
 # define __FS_FD_H
 
-#include "conf.h"
+#include "defs.h"
 #include "op.h"
 #include "mod.h"
 
@@ -67,9 +67,8 @@ fd_read(fd_t __const *__restrict self, char_t *buf, usize_t len);
 __api__ usize_t
 fd_write(fd_t __const *__restrict self, char_t __const *buf, usize_t len);
 
-__api__ bool_t
-fd_seek(fd_t __const *__restrict self, isize_t off, fs_seek_mod_t whence,
-  usize_t *out);
+__api__ usize_t
+fd_seek(fd_t __const *__restrict self, isize_t off, fs_seek_mod_t whence);
 
 __api__ usize_t
 fd_offset(fd_t __const *__restrict self);

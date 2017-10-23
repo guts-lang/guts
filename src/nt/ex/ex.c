@@ -108,6 +108,20 @@ ex_fatal(char_t __const *msg, ...)
   return e;
 }
 
+ex_t
+inval(char_t __const *msg, ...)
+{
+  ex_t e;
+  va_list args;
+
+  va_start(args, msg);
+  ex_ctor(&e, ERRLVL_ERROR, EINVAL, msg, args);
+  va_end(args);
+  if (msg) strcat(e.msg, "; ");
+  strcat(e.msg, strerror(EINVAL));
+  return e;
+}
+
 static void
 ex_dump_impl(ex_t *self, FILE *stream);
 

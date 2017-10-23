@@ -82,4 +82,7 @@ ex_error(char_t __const *msg, ...);
 __api__ ex_t
 ex_fatal(char_t __const *msg, ...);
 
+ex_t
+inval(char_t __const *msg, ...);
+
 #endif /* !__NT_EX_EX_H */

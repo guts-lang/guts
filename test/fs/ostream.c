@@ -23,39 +23,45 @@
  * SOFTWARE.
  */
 
-/*!@file fs/op.h
- * @author uael
- */
-#ifndef __FS_OP_H
-# define __FS_OP_H
+#include "fs/ostream.h"
 
-#include "defs.h"
+i32_t
+main(void)
+{
+  ex_t e;
+  ostream_t s1, *s2;
+  s2 = cout;
 
-__api__ void
-fs_absolute(char_t __const *path, char_t *out);
+  ostream_write(s2, "Hello world", 11);
+  ostream_flush(s2);
+  init(&s1, ostream_t);
+  if (ostream_open(&s1, "some1.log")) {
+    usize_t off;
 
-__api__ bool_t
-fs_cp(char_t __const *path, char_t __const *dest);
-
-__api__ u16_t
-fs_cwd(char_t *path, u16_t n);
-
-__api__ bool_t
-fs_exists(char_t __const *path);
-
-__api__ bool_t
-fs_ln(char_t __const *path, char_t __const *dest);
-
-__api__ void
-fs_mkdir(char_t __const *path);
-
-__api__ bool_t
-fs_mv(char_t __const *path, char_t __const *dest);
-
-__api__ bool_t
-fs_rm(char_t __const *path);
-
-__api__ void
-fs_touch(char_t __const *path);
-
-#endif /* !__FS_OP_H */
+    ostream_swrite(&s1, "This is an apple");
+    off = ostream_tell(&s1);
+    ostream_seek(&s1, off - 7);
+    ostream_swrite(&s1, " sam");
+    ostream_resume(&s1);
+    ostream_rewind(&s1, 6);
+    ostream_put(&s1, 'S');
+    ostream_forward(&s1, 5);
+    ostream_put(&s1, '.');
+    TRY {
+      ostream_rewind(&s1, 18);
+    } CATCH(e) {
+      ex_dump(&e, stdout);
+    }
+    TRY {
+      ostream_forward(&s1, 1);
+    } CATCH(e) {
+      ex_dump(&e, stdout);
+    }
+    ostream_writef(&s1, " This is a digit: '%d'.", 5);
+    ostream_close(&s1);
+  } else {
+    ex_dump(errs_offset(&s1.errs, 0), stdout);
+    errs_dtor(&s1.errs);
+  }
+  return 0;
+}

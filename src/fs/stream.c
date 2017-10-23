@@ -37,14 +37,22 @@
 DEQ_IMPL(FORCEINLINE, sinbuf, char_t, size, i8cmp)
 VEC_IMPL(FORCEINLINE, soutbuf, char_t, size, i8cmp)
 
-FORCEINLINE void
+FORCEINLINE bool_t
 stream_open(stream_t *self, char_t __const *filename, u32_t flags)
 {
+  ex_t e;
+
   init(self, stream_t);
   self->flags = flags;
   sinbuf_ctor(&self->in);
   soutbuf_ctor(&self->out);
-  fd_open(&self->fd, filename, flags);
+  TRY {
+    fd_open(&self->fd, filename, flags);
+  } CATCH(e) {
+    errs_push(&self->errs, e);
+    return false;
+  }
+  return true;
 }
 
 FORCEINLINE void
@@ -121,14 +129,13 @@ usize_t
 stream_write(stream_t *self, char_t __const *buf, usize_t len)
 {
   usize_t b, tw;
-  bool_t ret;
 
   tw = 0;
   if (self->flags & FS_OPEN_WO) {
     while (len) {
       b = FS_PAGE_SIZE - self->out.len;
       if (b > len) b = len;
-      if ((ret = soutbuf_append(&self->out, (char_t *) buf, b)) > 0) return ret;
+      soutbuf_append(&self->out, (char_t *) buf, b);
       len -= b;
       buf += b;
       tw += b;

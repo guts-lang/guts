@@ -29,7 +29,7 @@
 #ifndef __FS_PATH_H
 # define __FS_PATH_H
 
-#include "conf.h"
+#include "defs.h"
 #include "fd.h"
 
 typedef vecof(char_t, 16) fs_path_t;
