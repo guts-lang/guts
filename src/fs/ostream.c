@@ -32,23 +32,6 @@ static ostream_t __cout = {
 ostream_t *cout = &__cout;
 
 static FORCEINLINE void
-osbuf_ctor(osbuf_t *self)
-{
-  init(self, osbuf_t);
-}
-
-static FORCEINLINE void
-osbuf_dtor(osbuf_t *self)
-{
-  self->cap = 0;
-  self->len = 0;
-  if (self->buf) {
-    mem_free(self->buf);
-    self->buf = nil;
-  }
-}
-
-static FORCEINLINE void
 ostream_alloc(ostream_t *self)
 {
   if (self->buf.cap == 0) {
@@ -91,7 +74,6 @@ ostream_open(ostream_t *self, char_t __const *filename)
       errs_push(&self->errs, e);
       return false;
     }
-    osbuf_ctor(&self->buf);
     self->cur = self->beg = fd_offset(&self->fd);
     return self->opened = true;
   }
@@ -109,7 +91,10 @@ ostream_close(ostream_t *self)
     } CATCH(e) {
       errs_push(&self->errs, e);
     }
-    osbuf_dtor(&self->buf);
+    if (self->buf.buf) {
+      mem_free(self->buf.buf);
+      self->buf.buf = nil;
+    }
     self->opened = false;
   }
 }
@@ -161,13 +146,13 @@ ostream_writef(ostream_t *self, char_t __const *format, ...)
 }
 
 FORCEINLINE usize_t
-ostream_swrite(ostream_t *self, char_t __const *buf)
+ostream_puts(ostream_t *self, char_t __const *buf)
 {
   return ostream_write(self, buf, strlen(buf));
 }
 
 FORCEINLINE usize_t
-ostream_put(ostream_t *self, char_t c)
+ostream_putc(ostream_t *self, char_t c)
 {
   return ostream_write(self, &c, 1);
 }

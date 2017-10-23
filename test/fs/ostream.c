@@ -38,15 +38,15 @@ main(void)
   if (ostream_open(&s1, "some1.log")) {
     usize_t off;
 
-    ostream_swrite(&s1, "This is an apple");
+    ostream_puts(&s1, "This is an apple");
     off = ostream_tell(&s1);
     ostream_seek(&s1, off - 7);
-    ostream_swrite(&s1, " sam");
+    ostream_puts(&s1, " sam");
     ostream_resume(&s1);
     ostream_rewind(&s1, 6);
-    ostream_put(&s1, 'S');
+    ostream_putc(&s1, 'S');
     ostream_forward(&s1, 5);
-    ostream_put(&s1, '.');
+    ostream_putc(&s1, '.');
     TRY {
       ostream_rewind(&s1, 18);
     } CATCH(e) {

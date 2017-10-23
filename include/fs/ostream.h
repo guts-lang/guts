@@ -32,18 +32,15 @@
 #include "fd.h"
 
 typedef struct ostream ostream_t;
-typedef struct osbuf osbuf_t;
-
-struct osbuf {
-  usize_t cap, len;
-  char_t *buf;
-};
 
 struct ostream {
   fd_t fd;
   bool_t opened;
   usize_t beg, cur, end;
-  osbuf_t buf;
+  struct {
+    usize_t cap, len;
+    char_t *buf;
+  } buf;
   errs_t errs;
 };
 
@@ -62,10 +59,10 @@ __api__ usize_t
 ostream_writef(ostream_t *self, char_t __const *format, ...);
 
 __api__ usize_t
-ostream_swrite(ostream_t *self, char_t __const *buf);
+ostream_puts(ostream_t *self, char_t __const *buf);
 
 __api__ usize_t
-ostream_put(ostream_t *self, char_t c);
+ostream_putc(ostream_t *self, char_t c);
 
 __api__ void
 ostream_flush(ostream_t *self);
