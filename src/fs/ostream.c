@@ -31,7 +31,7 @@ static ostream_t __cout = {
 
 ostream_t *cout = &__cout;
 
-FORCEINLINE bool_t
+__inline bool_t
 ostream_open(ostream_t *self, char_t __const *filename)
 {
   if (self->opened)
@@ -51,7 +51,7 @@ ostream_open(ostream_t *self, char_t __const *filename)
   }
 }
 
-FORCEINLINE void
+__inline void
 ostream_close(ostream_t *self)
 {
   if (self->opened && self->fd > 1) {
@@ -71,7 +71,7 @@ ostream_close(ostream_t *self)
   }
 }
 
-FORCEINLINE usize_t
+usize_t
 ostream_write(ostream_t *self, char_t __const *buf, usize_t len)
 {
   char_t __const *beg;
@@ -142,7 +142,7 @@ ostream_putc(ostream_t *self, char_t c)
   return ostream_write(self, &c, 1);
 }
 
-FORCEINLINE void
+__inline void
 ostream_flush(ostream_t *self)
 {
   if (self->buf.len) {
@@ -157,7 +157,7 @@ ostream_flush(ostream_t *self)
   }
 }
 
-FORCEINLINE bool_t
+__inline bool_t
 ostream_rewind(ostream_t *self, usize_t n)
 {
   if (!self->opened)
@@ -184,7 +184,7 @@ ostream_rewind(ostream_t *self, usize_t n)
   }
 }
 
-FORCEINLINE bool_t
+__inline bool_t
 ostream_forward(ostream_t *self, usize_t n)
 {
   if (!self->opened)
