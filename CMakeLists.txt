@@ -118,22 +118,24 @@ macro (add_module MOD TYPE)
       ${guts_TEST_DIR}/${MOD_DIR}/*.${EXT})
     foreach (${MOD}_TEST_SRC ${${MOD}_TEST_SRCS})
       get_filename_component(${MOD}_TEST_NAME ${${MOD}_TEST_SRC} NAME_WE)
-      add_executable(test_${MOD}_${${MOD}_TEST_NAME} ${${MOD}_TEST_SRC})
-      set_property(TARGET test_${MOD}_${${MOD}_TEST_NAME} PROPERTY C_STANDARD 90)
-      add_dependencies(test_${MOD}_${${MOD}_TEST_NAME} ${MOD})
-      add_dependencies(check test_${MOD}_${${MOD}_TEST_NAME})
-      target_include_directories(test_${MOD}_${${MOD}_TEST_NAME} PUBLIC
+      set(test test_${MOD}_${${MOD}_TEST_NAME})
+      add_executable(${test} ${${MOD}_TEST_SRC})
+      set_property(TARGET ${test}
+        PROPERTY C_STANDARD 90)
+      add_dependencies(${test} ${MOD})
+      add_dependencies(check ${test})
+      target_include_directories(${test} PUBLIC
         ${guts_TEST_DIR})
-      target_link_libraries(test_${MOD}_${${MOD}_TEST_NAME} ${MOD})
-      add_test(${MOD}_${${MOD}_TEST_NAME} test_${MOD}_${${MOD}_TEST_NAME}
+      target_link_libraries(${test} ${MOD})
+      add_test(${MOD}_${${MOD}_TEST_NAME} ${test}
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
       if (MSVC)
-        target_compile_options(test_${MOD}_${${MOD}_TEST_NAME}
+        target_compile_options(${test}
           PRIVATE /MTd /Za /Oy /W3
           PRIVATE /D_CRT_SECURE_NO_WARNINGS
           PRIVATE /Od)
       else ()
-        target_compile_options(test_${MOD}_${${MOD}_TEST_NAME}
+        target_compile_options(${test}
           PRIVATE -fomit-frame-pointer -ansi
           PRIVATE -O0 -g3)
       endif ()

@@ -23,40 +23,70 @@
  * SOFTWARE.
  */
 
-/*!@file fs/path.h
+/*!@file fs/istream.h
  * @author uael
  */
-#ifndef __FS_PATH_H
-# define __FS_PATH_H
+#ifndef __FS_ISTREAM_H
+# define __FS_ISTREAM_H
 
-#include "defs.h"
 #include "fd.h"
 
-typedef vecof(char_t, 16) fs_path_t;
+typedef struct istream istream_t;
 
-SEQ_DECL_ctor(__api__, fs_path, char_t, 16);
-SEQ_DECL_dtor(__api__, fs_path, char_t, 16);
-SEQ_DECL_cpy(__api__, fs_path, char_t, 16);
+struct istream {
+  char_t __const *filename;
+  fd_t fd;
+  bool_t opened;
+  char_t *buf;
+  usize_t beg, cur, end, cap, len;
+  ex_t *ex;
+};
 
-__api__ bool_t
-fs_path_cwd(fs_path_t *self);
+extern istream_t *cin;
 
-__api__ bool_t
-fs_path(fs_path_t *self, char_t __const *path);
-
-__api__ bool_t
-fs_pathn(fs_path_t *self, char_t __const *path, u16_t n);
-
-__api__ bool_t
-fs_path_is_abs(fs_path_t __const *self);
-
-__api__ bool_t
-fs_path_is_rel(fs_path_t __const *self);
+#define cin_read(BUF, LEN) istream_read(cin, BUF, LEN)
+#define cin_readf(BUF, ...) istream_readf(cin, BUF, __VA_ARGS__)
+#define cin_puts(BUF) istream_puts(cin, BUF)
+#define cin_putc(C) istream_putc(cin, C)
+#define cin_flush() istream_flush(cin)
 
 __api__ bool_t
-fs_path_absolute(fs_path_t *self, fs_path_t *out);
+istream_open(istream_t *self, char_t __const *filename);
 
 __api__ bool_t
-fs_path_join(fs_path_t *self, fs_path_t *other);
+istream_close(istream_t *self);
 
-#endif /* !__FS_PATH_H */
+__api__ usize_t
+istream_read(istream_t *self, char_t *buf, usize_t len);
+
+__api__ usize_t
+istream_readf(istream_t *self, char_t *fmt, ...);
+
+__api__ usize_t
+istream_vreadf(istream_t *self, char_t *fmt, va_list ap);
+
+__api__ char_t
+istream_getc(istream_t *self);
+
+__api__ char_t
+istream_peek(istream_t *self, usize_t n);
+
+__api__ void
+istream_flush(istream_t *self);
+
+__api__ bool_t
+istream_rewind(istream_t *self, usize_t n);
+
+__api__ bool_t
+istream_forward(istream_t *self, usize_t n);
+
+__api__ void
+istream_resume(istream_t *self);
+
+__api__ bool_t
+istream_seek(istream_t *self, usize_t off);
+
+__api__ usize_t
+istream_tell(istream_t __const *self);
+
+#endif /* !__FS_ISTREAM_H */

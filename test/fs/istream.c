@@ -23,30 +23,26 @@
  * SOFTWARE.
  */
 
-/*!@file fs/mod.h
- * @author uael
- */
-#ifndef __FS_MOD_H
-# define __FS_MOD_H
+#include "fs/istream.h"
+#include "fs/ostream.h"
 
-enum fs_open_mod {
-  FS_OPEN_RO = 1 << 0,
-  FS_OPEN_WO = 1 << 1,
-  FS_OPEN_RW = 1 << 2,
-  FS_OPEN_CREAT = 1 << 3,
-  FS_OPEN_APPEND = 1 << 4,
-  FS_OPEN_TRUNC = 1 << 5,
-  FS_OPEN_DIRECT = 1 << 6,
-  FS_OPEN_ASIO = 1 << 7
-};
+i32_t
+main(void)
+{
+  istream_t s1;
 
-enum fs_seek_mod {
-  FS_SEEK_BEG = 0,
-  FS_SEEK_CUR,
-  FS_SEEK_END
-};
+  init(&s1, istream_t);
+  if (istream_open(&s1, "CMakeLists.txt")) {
+    char_t buf[FS_PAGE_SIZE];
+    usize_t r;
 
-typedef enum fs_open_mod fs_open_mod_t;
-typedef enum fs_seek_mod fs_seek_mod_t;
-
-#endif /* !__FS_MOD_H */
+    while ((r = istream_read(&s1, buf, FS_PAGE_SIZE)) > 0) {
+      cout_write(buf, r);
+    }
+    istream_close(&s1);
+  } else {
+    ex_dump(s1.ex, stdout);
+  }
+  cout_flush();
+  return 0;
+}

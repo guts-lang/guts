@@ -31,8 +31,9 @@
 
 #include "fs/defs.h"
 #include "fs/fd.h"
-#include "fs/mod.h"
+#include "fs/istream.h"
 #include "fs/op.h"
+#include "fs/ostream.h"
 #include "fs/path.h"
 #include "fs/stream.h"
 

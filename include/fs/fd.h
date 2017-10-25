@@ -31,7 +31,6 @@
 
 #include "defs.h"
 #include "op.h"
-#include "mod.h"
 
 #if defined OS_WIN && __has_feature__(io_h)
 # define FS_FD_MODEL_WIN_UCRT
@@ -45,14 +44,25 @@
 
 #define FS_FD_DFT (-1)
 
-enum fs_kind {
-  FS_KIND_DIR = 0,
-  FS_KIND_FILE,
-  FS_FILE_DOT,
-  FS8FILE_DOT2
+enum fs_open_mod {
+  FS_OPEN_RO = 1 << 0,
+  FS_OPEN_WO = 1 << 1,
+  FS_OPEN_RW = 1 << 2,
+  FS_OPEN_CREAT = 1 << 3,
+  FS_OPEN_APPEND = 1 << 4,
+  FS_OPEN_TRUNC = 1 << 5,
+  FS_OPEN_DIRECT = 1 << 6,
+  FS_OPEN_ASIO = 1 << 7
 };
 
-typedef enum fs_kind fs_kind_t;
+enum fs_seek_mod {
+  FS_SEEK_BEG = 0,
+  FS_SEEK_CUR,
+  FS_SEEK_END
+};
+
+typedef enum fs_open_mod fs_open_mod_t;
+typedef enum fs_seek_mod fs_seek_mod_t;
 typedef i32_t fd_t;
 
 __api__ void

@@ -35,7 +35,7 @@ ostream_t *cout = &__cout;
 __inline bool_t
 ostream_open(ostream_t *self, char_t __const *filename)
 {
-  if (self->opened)
+  if (self->filename && self->fd > 0)
     return true;
   else {
     ex_t *e;
@@ -49,14 +49,14 @@ ostream_open(ostream_t *self, char_t __const *filename)
     }
     self->beg = self->cur = self->end = fd_offset(&self->fd);
     self->filename = filename;
-    return self->opened = true;
+    return true;
   }
 }
 
 __inline void
 ostream_close(ostream_t *self)
 {
-  if (self->opened && self->fd > 1) {
+  if (self->filename && self->fd > 1) {
     ex_t *e;
 
     ostream_flush(self);
@@ -69,7 +69,7 @@ ostream_close(ostream_t *self)
       mem_free(self->buf);
       self->buf = nil;
     }
-    self->opened = false;
+    self->filename = nil;
   }
 }
 
@@ -83,7 +83,7 @@ ostream_write(ostream_t *self, char_t __const *buf, usize_t len)
     usize_t b, cur;
 
     if (!self->len) {
-      while (len > FS_PAGE_SIZE) {
+      while (len >= FS_PAGE_SIZE) {
         usize_t n;
 
         n = fd_write(&self->fd, buf, FS_PAGE_SIZE);

@@ -46,7 +46,7 @@ SEQ_IMPL_dtor(FORCEINLINE, fs_path, char_t, 16, cap, len, buf, realloc, free,
 SEQ_IMPL_cpy_nt(FORCEINLINE, fs_path, char_t, 16, cap, len, buf, realloc, free,
   i8cmp)
 
-void
+FORCEINLINE void
 fs_path_ctor(fs_path_t *__restrict self)
 {
   self->buf = nil;
@@ -54,21 +54,21 @@ fs_path_ctor(fs_path_t *__restrict self)
   self->len = 0;
 }
 
-bool_t
+FORCEINLINE bool_t
 fs_path(fs_path_t *self, char_t __const *path)
 {
   fs_path_ctor(self);
   return fs_path_append(self, (char_t *) path);
 }
 
-bool_t
+FORCEINLINE bool_t
 fs_pathn(fs_path_t *self, char_t __const *path, u16_t n)
 {
   fs_path_ctor(self);
   return fs_path_nappend(self, (char_t *) path, (__const u16_t) n);
 }
 
-bool_t
+FORCEINLINE bool_t
 fs_path_cwd(fs_path_t *self)
 {
   char_t path[FS_PATH_MAX];
@@ -80,7 +80,7 @@ fs_path_cwd(fs_path_t *self)
   return false;
 }
 
-bool_t
+FORCEINLINE bool_t
 fs_path_is_abs(fs_path_t __const *self)
 {
 #ifdef OS_WIN
@@ -93,13 +93,13 @@ fs_path_is_abs(fs_path_t __const *self)
 #endif
 }
 
-bool_t
+FORCEINLINE bool_t
 fs_path_is_rel(fs_path_t __const *self)
 {
   return !fs_path_is_abs(self);
 }
 
-bool_t
+FORCEINLINE bool_t
 fs_path_absolute(fs_path_t *self, fs_path_t *out)
 {
   char_t path[FS_PATH_MAX], *ptr;
@@ -123,16 +123,7 @@ fs_path_absolute(fs_path_t *self, fs_path_t *out)
   return fs_path_append(self, ptr);
 }
 
-bool_t
-fs_path_open(fs_path_t *self, fd_t *out, u32_t flags)
-{
-  (void) self;
-  (void) out;
-  (void) flags;
-  return false;
-}
-
-bool_t
+FORCEINLINE bool_t
 fs_path_join(fs_path_t *self, fs_path_t *other)
 {
   fs_path_ensure(self, (u16_t) (other->len + 1));
