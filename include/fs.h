@@ -35,6 +35,5 @@
 #include "fs/op.h"
 #include "fs/ostream.h"
 #include "fs/path.h"
-#include "fs/stream.h"
 
 #endif /* !__FS_H */

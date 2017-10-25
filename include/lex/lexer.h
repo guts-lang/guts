@@ -61,7 +61,7 @@ __api__ void
 lexer_init_file(lexer_t *self, char_t __const *filename);
 
 __api__ void
-lexer_init_stream(lexer_t *self, stream_t *stream);
+lexer_init_stream(lexer_t *self, istream_t *stream);
 
 __api__ void
 lexer_init_str(lexer_t *self, char_t __const *buf);

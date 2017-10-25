@@ -36,7 +36,7 @@ lexer_init_file(lexer_t *self, char_t __const *filename)
 }
 
 FORCEINLINE void
-lexer_init_stream(lexer_t *self, stream_t *stream)
+lexer_init_stream(lexer_t *self, istream_t *stream)
 {
   src_t src;
 

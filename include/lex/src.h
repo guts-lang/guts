@@ -29,7 +29,7 @@
 #ifndef __LEX_SRC_H
 # define __LEX_SRC_H
 
-#include <fs/stream.h>
+#include <fs/istream.h>
 
 #include "loc.h"
 
@@ -45,8 +45,8 @@ typedef struct src src_t;
 struct src {
   src_kind_t kind;
   union {
-    stream_t file;
-    stream_t *stream;
+    istream_t file;
+    istream_t *stream;
     struct {
       usize_t cursor, len;
       char_t __const *buf;
@@ -59,7 +59,7 @@ __api__ void
 src_init_file(src_t *self, char_t __const *filename);
 
 __api__ void
-src_init_stream(src_t *self, stream_t *stream);
+src_init_stream(src_t *self, istream_t *stream);
 
 __api__ void
 src_init_str(src_t *self, char_t __const *buf);
