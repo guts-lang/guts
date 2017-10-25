@@ -60,7 +60,7 @@ CUTEST_TEARDOWN
 
 CUTEST(vec, ensure)
 {
-  ex_t e;
+  ex_t *e;
 
   i8vec_ensure(&self->i8vec, 0);
   ASSERT_EQ(0, i8vec_cap(&self->i8vec));
@@ -201,7 +201,7 @@ CUTEST(vec, trim)
 
 CUTEST(vec, insert)
 {
-  ex_t e;
+  ex_t *e;
 
   ASSERT_EQ(true, i8vec_insert(&self->i8vec, 0, 2));
   ASSERT_EQ(1, i8vec_size(&self->i8vec));
@@ -233,7 +233,7 @@ static i8_t vi84321[4] = { 4, 3, 2, 1 };
 
 CUTEST(vec, emplace)
 {
-  ex_t e;
+  ex_t *e;
 
   ASSERT_EQ(true, i8vec_emplace(&self->i8vec, 0, vi84321, 0));
   ASSERT_EQ(0, i8vec_size(&self->i8vec));
@@ -276,7 +276,7 @@ CUTEST(vec, emplace)
 CUTEST(vec, push)
 {
   u8_t i, j;
-  ex_t e;
+  ex_t *e;
 
   for (i = 0; i < 10; ++i) {
     ASSERT_EQ(true, i8vec_push(&self->i8vec, i));
@@ -294,7 +294,7 @@ CUTEST(vec, push)
 
 CUTEST(vec, append)
 {
-  ex_t e;
+  ex_t *e;
 
   ASSERT_EQ(true, i8vec_append(&self->i8vec, vi84321, 0));
   ASSERT_EQ(0, i8vec_size(&self->i8vec));
@@ -369,7 +369,7 @@ CUTEST(vec, unshift)
 {
   u8_t i, j;
   i8_t k;
-  ex_t e;
+  ex_t *e;
 
   for (i = 0; i < 10; ++i) {
     ASSERT_EQ(true, i8vec_unshift(&self->i8vec, i));
@@ -387,7 +387,7 @@ CUTEST(vec, unshift)
 
 CUTEST(vec, prepend)
 {
-  ex_t e;
+  ex_t *e;
 
   ASSERT_EQ(true, i8vec_prepend(&self->i8vec, vi84321, 0));
   ASSERT_EQ(0, i8vec_size(&self->i8vec));

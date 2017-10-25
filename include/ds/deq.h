@@ -35,8 +35,8 @@
 
 #define deqof(T, TSizeBits) \
   struct { \
-    u##TSizeBits##_t cap, head, tail; \
     T *buf; \
+    u##TSizeBits##_t cap, head, tail; \
   }
 
 #define DEQ_IMPL_dtor(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \

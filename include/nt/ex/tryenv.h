@@ -41,15 +41,15 @@ struct tryenv {
 };
 
 #define TRY if (setjmp(tryenv_push()->jmp) == 0)
-#define CATCH(e) else if (tryenv_pop(&(e)))
+#define CATCH(e) else if (((e) = tryenv_pop()) != nil)
 #define THROW(E) tryenv_throw(E, __func__, __file__, __line__)
 #define RETHROW() tryenv_rethrow(__func__, __file__, __line__)
 
 __api__ tryenv_t *
 tryenv_push(void);
 
-__api__ bool_t
-tryenv_pop(ex_t *e);
+__api__ ex_t *
+tryenv_pop(void);
 
 __api__ NORETURN void
 tryenv_throw(ex_t e, char_t __const *fn, char_t __const *file, u32_t line);

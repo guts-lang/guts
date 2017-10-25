@@ -34,7 +34,7 @@ doit2()
 void
 doit()
 {
-  ex_t e;
+  ex_t *e;
 
   TRY {
     doit2();
@@ -46,7 +46,7 @@ doit()
 i32_t
 main(void)
 {
-  ex_t e;
+  ex_t *e;
 
   TRY {
     puts("A");
@@ -54,7 +54,7 @@ main(void)
     puts("B");
   } CATCH(e) {
     puts("C");
-    ex_dump(&e, stdout);
+    ex_dump(e, stdout);
   }
   return 0;
 }

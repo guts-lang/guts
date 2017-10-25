@@ -31,7 +31,7 @@ VEC_IMPL(FORCEINLINE, soutbuf, char_t, size, i8cmp)
 __inline bool_t
 stream_open(stream_t *self, char_t __const *filename, u32_t flags)
 {
-  ex_t e;
+  ex_t *e;
 
   init(self, stream_t);
   self->flags = flags;
@@ -40,7 +40,7 @@ stream_open(stream_t *self, char_t __const *filename, u32_t flags)
   TRY {
     fd_open(&self->fd, filename, flags);
   } CATCH(e) {
-    errs_push(&self->errs, e);
+    errs_push(&self->errs, *e);
     return false;
   }
   return true;

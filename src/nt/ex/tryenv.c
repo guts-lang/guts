@@ -34,19 +34,18 @@ tryenv_push(void)
   return tryenvs + tryenv_idx++;
 }
 
-FORCEINLINE bool_t
-tryenv_pop(ex_t *e)
+FORCEINLINE ex_t *
+tryenv_pop(void)
 {
-  tryenv_t env;
+  tryenv_t *env;
 
   if (tryenv_idx) {
-    env = tryenvs[--tryenv_idx];
-    if (env.e.code) {
-      *e = env.e;
-      return true;
+    env = tryenvs + --tryenv_idx;
+    if (env->e.code) {
+      return &env->e;
     }
   }
-  return false;
+  return nil;
 }
 
 FORCEINLINE NORETURN void

@@ -34,14 +34,12 @@
 typedef struct ostream ostream_t;
 
 struct ostream {
+  char_t __const *filename;
   fd_t fd;
   bool_t opened;
-  usize_t beg, cur, end;
-  struct {
-    usize_t cap, len;
-    char_t *buf;
-  } buf;
-  errs_t errs;
+  char_t *buf;
+  usize_t beg, cur, end, len;
+  ex_t *ex;
 };
 
 extern ostream_t *cout;
@@ -62,7 +60,10 @@ __api__ usize_t
 ostream_write(ostream_t *self, char_t __const *buf, usize_t len);
 
 __api__ usize_t
-ostream_writef(ostream_t *self, char_t __const *format, ...);
+ostream_writef(ostream_t *self, char_t __const *fmt, ...);
+
+__api__ usize_t
+ostream_vwritef(ostream_t *self, char_t __const *fmt, va_list ap);
 
 __api__ usize_t
 ostream_puts(ostream_t *self, char_t __const *buf);

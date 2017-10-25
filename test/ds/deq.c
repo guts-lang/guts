@@ -60,7 +60,7 @@ CUTEST_TEARDOWN
 
 CUTEST(deq, ensure)
 {
-  ex_t e;
+  ex_t *e;
 
   i8deq_ensure(&self->i8deq, 0);
   ASSERT_EQ(0, i8deq_cap(&self->i8deq));
@@ -201,7 +201,7 @@ CUTEST(deq, trim)
 
 CUTEST(deq, insert)
 {
-  ex_t e;
+  ex_t *e;
 
   ASSERT_EQ(true, i8deq_insert(&self->i8deq, 0, 2));
   ASSERT_EQ(1, i8deq_size(&self->i8deq));
@@ -233,7 +233,7 @@ static i8_t vi84321[4] = { 4, 3, 2, 1 };
 
 CUTEST(deq, emplace)
 {
-  ex_t e;
+  ex_t *e;
 
   ASSERT_EQ(true, i8deq_emplace(&self->i8deq, 0, vi84321, 0));
   ASSERT_EQ(0, i8deq_size(&self->i8deq));
@@ -276,7 +276,7 @@ CUTEST(deq, emplace)
 CUTEST(deq, push)
 {
   u8_t i, j;
-  ex_t e;
+  ex_t *e;
 
   for (i = 0; i < 10; ++i) {
     ASSERT_EQ(true, i8deq_push(&self->i8deq, i));
@@ -294,7 +294,7 @@ CUTEST(deq, push)
 
 CUTEST(deq, append)
 {
-  ex_t e;
+  ex_t *e;
 
   ASSERT_EQ(true, i8deq_append(&self->i8deq, vi84321, 0));
   ASSERT_EQ(0, i8deq_size(&self->i8deq));
@@ -369,7 +369,7 @@ CUTEST(deq, unshift)
 {
   u8_t i, j;
   i8_t k;
-  ex_t e;
+  ex_t *e;
 
   for (i = 0; i < 10; ++i) {
     ASSERT_EQ(true, i8deq_unshift(&self->i8deq, i));
@@ -387,7 +387,7 @@ CUTEST(deq, unshift)
 
 CUTEST(deq, prepend)
 {
-  ex_t e;
+  ex_t *e;
 
   ASSERT_EQ(true, i8deq_prepend(&self->i8deq, vi84321, 0));
   ASSERT_EQ(0, i8deq_size(&self->i8deq));

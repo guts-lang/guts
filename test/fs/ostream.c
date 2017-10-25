@@ -28,7 +28,7 @@
 i32_t
 main(void)
 {
-  ex_t e;
+  ex_t *e;
   ostream_t s1;
 
   init(&s1, ostream_t);
@@ -47,18 +47,17 @@ main(void)
     TRY {
       ostream_rewind(&s1, 18);
     } CATCH(e) {
-      ex_dump(&e, stdout);
+      ex_dump(e, stdout);
     }
     TRY {
       ostream_forward(&s1, 1);
     } CATCH(e) {
-      ex_dump(&e, stdout);
+      ex_dump(e, stdout);
     }
     ostream_writef(&s1, " This is a digit: '%d'.", 5);
     ostream_close(&s1);
   } else {
-    ex_dump(errs_offset(&s1.errs, 0), stdout);
-    errs_dtor(&s1.errs);
+    ex_dump(s1.ex, stdout);
   }
   cout_puts("Hello world");
   cout_putc('!');

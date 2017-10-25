@@ -31,7 +31,7 @@ main(void)
   fd_t file;
   char_t buf[256];
   isize_t r;
-  ex_t e;
+  ex_t *e;
 
   TRY {
     file = FS_FD_DFT;

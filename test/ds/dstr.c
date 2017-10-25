@@ -46,7 +46,7 @@ CUTEST_TEARDOWN
 
 CUTEST(dstr, ensure)
 {
-  ex_t e;
+  ex_t *e;
 
   dstr8_ensure(&self->dstr8, 0);
   ASSERT_EQ(0, dstr8_cap(&self->dstr8));
@@ -144,7 +144,7 @@ CUTEST(dstr, trim)
 
 CUTEST(dstr, insert)
 {
-  ex_t e;
+  ex_t *e;
 
   ASSERT_EQ(true, dstr8_insert(&self->dstr8, 0, 2));
   ASSERT_EQ(1, dstr8_size(&self->dstr8));
@@ -174,7 +174,7 @@ CUTEST(dstr, insert)
 
 CUTEST(dstr, emplace)
 {
-  ex_t e;
+  ex_t *e;
 
   ASSERT_EQ(true, dstr8_emplace(&self->dstr8, 0, "a"));
   ASSERT_EQ(1, dstr8_size(&self->dstr8));
@@ -214,7 +214,7 @@ CUTEST(dstr, emplace)
 CUTEST(dstr, push)
 {
   u8_t i, j;
-  ex_t e;
+  ex_t *e;
 
   for (i = 0; i < 10; ++i) {
     ASSERT_EQ(true, dstr8_push(&self->dstr8, i));
@@ -238,7 +238,7 @@ static char_t vchar43210[5] = { 4, 3, 2, 1, 0 };
 
 CUTEST(dstr, append)
 {
-  ex_t e;
+  ex_t *e;
 
   ASSERT_EQ(true, dstr8_append(&self->dstr8, vchar0));
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
@@ -313,7 +313,7 @@ CUTEST(dstr, unshift)
 {
   u8_t i, j;
   i8_t k;
-  ex_t e;
+  ex_t *e;
 
   for (i = 0; i < 10; ++i) {
     ASSERT_EQ(true, dstr8_unshift(&self->dstr8, i));
@@ -331,7 +331,7 @@ CUTEST(dstr, unshift)
 
 CUTEST(dstr, prepend)
 {
-  ex_t e;
+  ex_t *e;
 
   ASSERT_EQ(true, dstr8_prepend(&self->dstr8, vchar0));
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
