@@ -25,77 +25,6 @@
 
 #include "fe/c/lex.h"
 
-static char_t __const *idents[] = {
-  [C_TOK_AUTO] = "auto",
-  [C_TOK_BREAK] = "break",
-  [C_TOK_CASE] = "case",
-  [C_TOK_CHAR] = "char",
-  [C_TOK_CONST] = "const",
-  [C_TOK_CONTINUE] = "continue",
-  [C_TOK_DEFAULT] = "default",
-  [C_TOK_DO] = "do",
-  [C_TOK_DOUBLE] = "double",
-  [C_TOK_ELSE] = "else",
-  [C_TOK_ENUM] = "enum",
-  [C_TOK_EXTERN] = "extern",
-  [C_TOK_FLOAT] = "float",
-  [C_TOK_FOR] = "for",
-  [C_TOK_GOTO] = "goto",
-  [C_TOK_IF] = "if",
-  [C_TOK_INLINE] = "inline",
-  [C_TOK_INT] = "int",
-  [C_TOK_LONG] = "long",
-  [C_TOK_REGISTER] = "register",
-  [C_TOK_RESTRICT] = "restrict",
-  [C_TOK_RETURN] = "return",
-  [C_TOK_SHORT] = "short",
-  [C_TOK_SIGNED] = "signed",
-  [C_TOK_SIZEOF] = "sizeof",
-  [C_TOK_STATIC] = "static",
-  [C_TOK_STRUCT] = "struct",
-  [C_TOK_SWITCH] = "switch",
-  [C_TOK_TYPEDEF] = "typedef",
-  [C_TOK_UNION] = "union",
-  [C_TOK_UNSIGNED] = "unsigned",
-  [C_TOK_VOID] = "void",
-  [C_TOK_VOLATILE] = "volatile",
-  [C_TOK_WHILE] = "while",
-  [C_TOK_ALIGNAS] = "_Alignas",
-  [C_TOK_ALIGNOF] = "_Alignof",
-  [C_TOK_ATOMIC] = "_Atomic",
-  [C_TOK_BOOL] = "_Bool",
-  [C_TOK_COMPLEX] = "_Complex",
-  [C_TOK_GENERIC] = "_Generic",
-  [C_TOK_IMAGINARY] = "_Imaginary",
-  [C_TOK_NORETURN] = "_Noreturn",
-  [C_TOK_STATIC_ASSERT] = "_Static_assert",
-  [C_TOK_THREAD_LOCAL] = "_Thread_local",
-  [C_TOK_FUNC_NAME] = "__func__",
-  [C_TOK_NE_OP] = "!=",
-  [C_TOK_TOKEN_PASTE] = "##",
-  [C_TOK_MOD_ASSIGN] = "%=",
-  [C_TOK_LOGICAL_AND] = "&&",
-  [C_TOK_AND_ASSIGN] = "&=",
-  [C_TOK_MUL_ASSIGN] = "*=",
-  [C_TOK_PLUS_ASSIGN] = "+=",
-  [C_TOK_INCREMENT] = "++",
-  [C_TOK_MINUS_ASSIGN] = "-=",
-  [C_TOK_DECREMENT] = "--",
-  [C_TOK_PTR_OP] = "->",
-  [C_TOK_DOTS] = "...",
-  [C_TOK_DIV_ASSIGN] = "/=",
-  [C_TOK_LSHIFT_ASSIGN] = "<<=",
-  [C_TOK_LEFT_OP] = "<<",
-  [C_TOK_LE_OP] = "<=",
-  [C_TOK_EQ_OP] = "==",
-  [C_TOK_RSHIFT_ASSIGN] = ">>=",
-  [C_TOK_RIGHT_OP] = ">>",
-  [C_TOK_GE_OP] = ">=",
-  [C_TOK_XOR_ASSIGN] = "^=",
-  [C_TOK_LOGICAL_OR] = "||",
-  [C_TOK_OR_ASSIGN] = "|=",
-};
-
 static FORCEINLINE bool_t
 c_lex_ident(tok_t *self, char_t peek, val_t *val, src_t *src)
 {
@@ -568,7 +497,77 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
 static FORCEINLINE char_t __const *
 c_tok_str(tok_t *self)
 {
-  return idents[self->id];
+  switch (self->id) {
+    case C_TOK_AUTO: return "auto";
+    case C_TOK_BREAK: return "break";
+    case C_TOK_CASE: return "case";
+    case C_TOK_CHAR: return "char";
+    case C_TOK_CONST: return "const";
+    case C_TOK_CONTINUE: return "continue";
+    case C_TOK_DEFAULT: return "default";
+    case C_TOK_DO: return "do";
+    case C_TOK_DOUBLE: return "double";
+    case C_TOK_ELSE: return "else";
+    case C_TOK_ENUM: return "enum";
+    case C_TOK_EXTERN: return "extern";
+    case C_TOK_FLOAT: return "float";
+    case C_TOK_FOR: return "for";
+    case C_TOK_GOTO: return "goto";
+    case C_TOK_IF: return "if";
+    case C_TOK_INLINE: return "inline";
+    case C_TOK_INT: return "int";
+    case C_TOK_LONG: return "long";
+    case C_TOK_REGISTER: return "register";
+    case C_TOK_RESTRICT: return "restrict";
+    case C_TOK_RETURN: return "return";
+    case C_TOK_SHORT: return "short";
+    case C_TOK_SIGNED: return "signed";
+    case C_TOK_SIZEOF: return "sizeof";
+    case C_TOK_STATIC: return "static";
+    case C_TOK_STRUCT: return "struct";
+    case C_TOK_SWITCH: return "switch";
+    case C_TOK_TYPEDEF: return "typedef";
+    case C_TOK_UNION: return "union";
+    case C_TOK_UNSIGNED: return "unsigned";
+    case C_TOK_VOID: return "void";
+    case C_TOK_VOLATILE: return "volatile";
+    case C_TOK_WHILE: return "while";
+    case C_TOK_ALIGNAS: return "_Alignas";
+    case C_TOK_ALIGNOF: return "_Alignof";
+    case C_TOK_ATOMIC: return "_Atomic";
+    case C_TOK_BOOL: return "_Bool";
+    case C_TOK_COMPLEX: return "_Complex";
+    case C_TOK_GENERIC: return "_Generic";
+    case C_TOK_IMAGINARY: return "_Imaginary";
+    case C_TOK_NORETURN: return "_Noreturn";
+    case C_TOK_STATIC_ASSERT: return "_Static_assert";
+    case C_TOK_THREAD_LOCAL: return "_Thread_local";
+    case C_TOK_FUNC_NAME: return "__func__";
+    case C_TOK_NE_OP: return "!=";
+    case C_TOK_TOKEN_PASTE: return "##";
+    case C_TOK_MOD_ASSIGN: return "%=";
+    case C_TOK_LOGICAL_AND: return "&&";
+    case C_TOK_AND_ASSIGN: return "&=";
+    case C_TOK_MUL_ASSIGN: return "*=";
+    case C_TOK_PLUS_ASSIGN: return "+=";
+    case C_TOK_INCREMENT: return "++";
+    case C_TOK_MINUS_ASSIGN: return "-=";
+    case C_TOK_DECREMENT: return "--";
+    case C_TOK_PTR_OP: return "->";
+    case C_TOK_DOTS: return "...";
+    case C_TOK_DIV_ASSIGN: return "/=";
+    case C_TOK_LSHIFT_ASSIGN: return "<<=";
+    case C_TOK_LEFT_OP: return "<<";
+    case C_TOK_LE_OP: return "<=";
+    case C_TOK_EQ_OP: return "==";
+    case C_TOK_RSHIFT_ASSIGN: return ">>=";
+    case C_TOK_RIGHT_OP: return ">>";
+    case C_TOK_GE_OP: return ">=";
+    case C_TOK_XOR_ASSIGN: return "^=";
+    case C_TOK_LOGICAL_OR: return "||";
+    case C_TOK_OR_ASSIGN: return "|=";
+    default: return nil;
+  }
 }
 
 FORCEINLINE void
