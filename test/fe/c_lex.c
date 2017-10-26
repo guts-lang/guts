@@ -24,7 +24,8 @@
  */
 
 #include <cute.h>
-#include <fe/c/lex.h>
+
+#include "fe/c/lex.h"
 
 #define TOKS_COUNT 21
 
