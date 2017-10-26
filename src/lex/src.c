@@ -30,72 +30,36 @@ FORCEINLINE void
 src_init_file(src_t *self, char_t __const *filename)
 {
   init(self, src_t);
-  self->kind = LEX_SRC_FILE;
   self->loc.col = self->loc.line = 1;
-  istream_open(&self->src.file, filename);
+  istream_open(&self->stream, filename);
 }
 
 FORCEINLINE void
-src_init_stream(src_t *self, istream_t *stream)
+src_init_str(src_t *self, char_t __const *str)
 {
   init(self, src_t);
-  self->kind = LEX_SRC_STREAM;
   self->loc.col = self->loc.line = 1;
-  self->src.stream = stream;
+  istream_memopen(&self->stream, str);
 }
 
 FORCEINLINE void
-src_init_str(src_t *self, char_t __const *buf)
+src_init_nstr(src_t *self, char_t __const *str, usize_t n)
 {
   init(self, src_t);
-  self->kind = LEX_SRC_STR;
   self->loc.col = self->loc.line = 1;
-  self->src.str.len = strlen(buf);
-  self->src.str.buf = buf;
-}
-
-FORCEINLINE void
-src_init_nstr(src_t *self, char_t __const *buf, usize_t n)
-{
-  init(self, src_t);
-  self->kind = LEX_SRC_STR;
-  self->loc.col = self->loc.line = 1;
-  self->src.str.len = n;
-  self->src.str.buf = buf;
+  istream_nmemopen(&self->stream, str, n);
 }
 
 FORCEINLINE char_t
 src_peek(src_t *self, usize_t n)
 {
-  switch (self->kind) {
-    case LEX_SRC_FILE:return istream_peek(&self->src.file, n);
-    case LEX_SRC_STREAM:return istream_peek(self->src.stream, n);
-    case LEX_SRC_STR:
-      if (self->src.str.cursor + n > self->src.str.len)
-        return '\0';
-      return self->src.str.buf[self->src.str.cursor + n];
-  }
-  return '\0';
+  return istream_peek(&self->stream, n);
 }
 
 FORCEINLINE usize_t
 src_get(src_t *self, char_t *buf, usize_t n)
 {
-  switch (self->kind) {
-    case LEX_SRC_FILE: return istream_get(&self->src.file, buf, n);
-    case LEX_SRC_STREAM: return istream_get(self->src.stream, buf, n);
-    case LEX_SRC_STR: {
-      usize_t c;
-
-      c =  self->src.str.len - self->src.str.cursor;
-      if (c > 0) {
-        if (c > n) c = n;
-        memcpy(buf, self->src.str.buf + self->src.str.cursor, c);
-      }
-      return c;
-    }
-  }
-  return 0;
+  return istream_get(&self->stream, buf, n);
 }
 
 FORCEINLINE char_t
@@ -104,21 +68,11 @@ src_next(src_t *self)
   char_t c;
 
   getc_one:
-  c = '\0';
-  switch (self->kind) {
-    case LEX_SRC_FILE: c = istream_getc(&self->src.file);
-      break;
-    case LEX_SRC_STREAM: c = istream_getc(self->src.stream);
-      break;
-    case LEX_SRC_STR:
-      if (self->src.str.cursor > self->src.str.len)
-        return '\0';
-      c = self->src.str.buf[self->src.str.cursor++];
-      break;
+  if (!(c = istream_getc(&self->stream))) {
+    return c;
   }
   ++self->loc.cursor;
   switch (c) {
-    case '\0': return c;
     case '\r': goto getc_one;
     case '\v': case '\f': case '\n':
       ++self->loc.line;
@@ -133,8 +87,5 @@ src_next(src_t *self)
 FORCEINLINE void
 src_dtor(src_t *self)
 {
-  switch (self->kind) {
-    case LEX_SRC_FILE: istream_close(&self->src.file);
-    default: break;
-  }
+  istream_close(&self->stream);
 }

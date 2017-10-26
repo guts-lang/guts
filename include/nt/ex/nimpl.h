@@ -23,42 +23,17 @@
  * SOFTWARE.
  */
 
-/*!@file lex/src.h
+/*!@file nt/ex/nimpl.h
  * @author uael
  */
-#ifndef __LEX_SRC_H
-# define __LEX_SRC_H
+#ifndef __NT_EX_NIMPL_H
+# define __NT_EX_NIMPL_H
 
-#include <fs/istream.h>
+#include "ex.h"
 
-#include "loc.h"
+extern i32_t nimpl_code;
 
-typedef struct src src_t;
+__api__ ex_t
+nimpl(char_t __const *fn);
 
-struct src {
-  istream_t stream;
-  loc_t loc;
-};
-
-__api__ void
-src_init_file(src_t *self, char_t __const *filename);
-
-__api__ void
-src_init_str(src_t *self, char_t __const *str);
-
-__api__ void
-src_init_nstr(src_t *self, char_t __const *str, usize_t n);
-
-__api__ char_t
-src_peek(src_t *self, usize_t n);
-
-__api__ usize_t
-src_get(src_t *self, char_t *buf, usize_t n);
-
-__api__ char_t
-src_next(src_t *self);
-
-__api__ void
-src_dtor(src_t *self);
-
-#endif /* !__LEX_SRC_H */
+#endif /* !__NT_EX_NIMPL_H */

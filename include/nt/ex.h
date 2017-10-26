@@ -30,7 +30,9 @@
 # define __NT_EX_H
 
 #include "ex/ex.h"
+#include "ex/inval.h"
 #include "ex/lvl.h"
+#include "ex/nimpl.h"
 #include "ex/tryenv.h"
 
 #endif /* !__NT_EX_H */

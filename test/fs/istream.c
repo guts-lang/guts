@@ -33,15 +33,16 @@ main(void)
 
   init(&s1, istream_t);
   if (istream_open(&s1, "CMakeLists.txt")) {
-    char_t buf[FS_PAGE_SIZE];
+    char_t buf[10];
     usize_t r;
 
-    while ((r = istream_read(&s1, buf, FS_PAGE_SIZE)) > 0) {
+    assert(istream_peek(&s1, 5000));
+    while ((r = istream_read(&s1, buf, 10)) > 0) {
       cout_write(buf, r);
     }
     istream_close(&s1);
   } else {
-    ex_dump(s1.ex, stdout);
+    ex_dump(s1.u.file.ex, stdout);
   }
   cout_flush();
   return 0;

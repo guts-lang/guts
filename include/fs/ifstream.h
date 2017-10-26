@@ -23,42 +23,64 @@
  * SOFTWARE.
  */
 
-/*!@file lex/src.h
+/*!@file fs/ifstream.h
  * @author uael
  */
-#ifndef __LEX_SRC_H
-# define __LEX_SRC_H
+#ifndef __FS_IFSTREAM_H
+# define __FS_IFSTREAM_H
 
-#include <fs/istream.h>
+#include "fd.h"
 
-#include "loc.h"
+typedef struct ifstream ifstream_t;
 
-typedef struct src src_t;
-
-struct src {
-  istream_t stream;
-  loc_t loc;
+struct ifstream {
+  char_t __const *filename;
+  fd_t fd;
+  char_t *buf;
+  usize_t beg, cur, end, cap, len;
+  ex_t *ex;
 };
 
-__api__ void
-src_init_file(src_t *self, char_t __const *filename);
+__api__ bool_t
+ifstream_open(ifstream_t *self, char_t __const *filename);
 
-__api__ void
-src_init_str(src_t *self, char_t __const *str);
-
-__api__ void
-src_init_nstr(src_t *self, char_t __const *str, usize_t n);
-
-__api__ char_t
-src_peek(src_t *self, usize_t n);
+__api__ bool_t
+ifstream_close(ifstream_t *self);
 
 __api__ usize_t
-src_get(src_t *self, char_t *buf, usize_t n);
+ifstream_read(ifstream_t *self, char_t *buf, usize_t len);
+
+__api__ usize_t
+ifstream_readf(ifstream_t *self, char_t *fmt, ...);
+
+__api__ usize_t
+ifstream_vreadf(ifstream_t *self, char_t *fmt, va_list ap);
 
 __api__ char_t
-src_next(src_t *self);
+ifstream_getc(ifstream_t *self);
+
+__api__ usize_t
+ifstream_get(ifstream_t *self, char_t *buf, usize_t len);
+
+__api__ char_t
+ifstream_peek(ifstream_t *self, usize_t n);
 
 __api__ void
-src_dtor(src_t *self);
+ifstream_flush(ifstream_t *self);
 
-#endif /* !__LEX_SRC_H */
+__api__ bool_t
+ifstream_rewind(ifstream_t *self, usize_t n);
+
+__api__ bool_t
+ifstream_forward(ifstream_t *self, usize_t n);
+
+__api__ void
+ifstream_resume(ifstream_t *self);
+
+__api__ bool_t
+ifstream_seek(ifstream_t *self, usize_t off);
+
+__api__ usize_t
+ifstream_tell(ifstream_t __const *self);
+
+#endif /* !__FS_IFSTREAM_H */

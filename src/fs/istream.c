@@ -27,139 +27,55 @@
 
 static char_t __cin_buf[FS_PAGE_SIZE];
 static istream_t __cin = {
-  nil, 0, true, __cin_buf, 0, 0, 0, 0, 0, nil
+  ISTREAM_FILE, { { nil, 0, __cin_buf, 0, 0, 0, 0, 0, nil } }
 };
 
 istream_t *cin = &__cin;
 
-__inline bool_t
+FORCEINLINE bool_t
 istream_open(istream_t *self, char_t __const *filename)
 {
-  if (self->filename && self->fd >= 0)
-    return true;
-  else {
-    ex_t *e;
-
-    init(self, istream_t);
-    TRY {
-      fd_open(&self->fd, filename, FS_OPEN_RO);
-    } CATCH(e) {
-      self->ex = e;
-      return false;
-    }
-    self->filename = filename;
-    return true;
-  }
+  self->kind = ISTREAM_FILE;
+  return ifstream_open(&self->u.file, filename);
 }
 
-__inline bool_t
+FORCEINLINE bool_t
+istream_memopen(istream_t *self, char_t __const *str)
+{
+  self->kind = ISTREAM_MEM;
+  return imstream_open(&self->u.mem, str);
+}
+
+FORCEINLINE bool_t
+istream_nmemopen(istream_t *self, char_t __const *str, usize_t n)
+{
+  self->kind = ISTREAM_MEM;
+  return imstream_nopen(&self->u.mem, str, n);
+}
+
+FORCEINLINE bool_t
 istream_close(istream_t *self)
 {
-  if (!self->filename || self->fd <= 1)
-    return true;
-  else {
-    ex_t *e;
-
-    istream_flush(self);
-    TRY {
-      fd_close(&self->fd);
-    } CATCH(e) {
-      self->ex = e;
-      return false;
-    }
-    if (self->buf) {
-      mem_free(self->buf);
-      self->buf = nil;
-    }
-    self->filename = nil;
-    return true;
+  switch (self->kind) {
+    case ISTREAM_FILE:
+      return ifstream_close(&self->u.file);
+    case ISTREAM_MEM:
+      return imstream_close(&self->u.mem);
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
   }
 }
 
-static usize_t
-istream_bufferize(istream_t *self, usize_t len)
-{
-  usize_t cur;
-
-  cur = self->cur - self->beg;
-  if (self->len - cur >= len) {
-    return len;
-  } else {
-    usize_t b, r;
-
-    b = 0;
-    while (self->len - cur < len) {
-      if (self->cap - self->len < FS_PAGE_SIZE) {
-        usize_t cap;
-        void *buf;
-
-        cap = self->cap + FS_PAGE_SIZE;
-        if ((buf = mem_realloc(self->buf, cap * sizeof(char_t))) == nil) {
-          THROW(ex_errno(ERRLVL_FATAL, errno, nil));
-        }
-        self->buf = buf;
-        self->cap = cap;
-      }
-      if ((r = fd_read(&self->fd, self->buf + self->len, FS_PAGE_SIZE)) == 0)
-        break;
-      b += r;
-      cur += r;
-      self->len += r;
-      self->end += r;
-    }
-    if (b > len) return len;
-    return b;
-  }
-}
-
-usize_t
+FORCEINLINE usize_t
 istream_read(istream_t *self, char_t *buf, usize_t len)
 {
-  if (!self->filename || self->fd < 0)
-    return 0;
-  else {
-    char_t *beg;
-    usize_t cur, r;
-
-    beg = buf;
-    while (len) {
-      cur = self->cur - self->beg;
-      if (self->len - cur <= 0) {
-        if (len >= FS_PAGE_SIZE) {
-          if ((r = fd_read(&self->fd, buf, FS_PAGE_SIZE)) == 0)
-            break;
-          if (r < FS_PAGE_SIZE)
-            return buf - beg + r;
-          len -= r;
-          buf += r;
-        } else {
-          self->beg += self->len;
-          if (self->cap < FS_PAGE_SIZE) {
-            if ((self->buf = mem_malloc(FS_PAGE_SIZE * sizeof(char_t)))
-              == nil) {
-              THROW(ex_errno(ERRLVL_FATAL, errno, nil));
-            }
-            self->cap = FS_PAGE_SIZE;
-          }
-          if ((self->len = fd_read(&self->fd, self->buf, FS_PAGE_SIZE)) == 0)
-            break;
-          goto inject;
-        }
-      } else {
-        inject:
-        r = self->len - cur;
-        if (r > len) {
-          memcpy(buf, self->buf + cur, len * sizeof(char_t));
-          self->cur += len;
-          return len;
-        }
-        memcpy(buf, self->buf + cur, r * sizeof(char_t));
-        self->cur += r;
-        len -= r;
-        buf += r;
-      }
-    }
-    return buf - beg;
+  switch (self->kind) {
+    case ISTREAM_FILE:
+      return ifstream_read(&self->u.file, buf, len);
+    case ISTREAM_MEM:
+      return imstream_read(&self->u.mem, buf, len);
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
   }
 }
 
@@ -178,81 +94,131 @@ istream_readf(istream_t *self, char_t *fmt, ...)
 FORCEINLINE usize_t
 istream_vreadf(istream_t *self, char_t *fmt, va_list ap)
 {
-  (void) self;
-  (void) fmt;
-  (void) ap;
-  return 0;
+  switch (self->kind) {
+    case ISTREAM_FILE:
+      return ifstream_vreadf(&self->u.file, fmt, ap);
+    case ISTREAM_MEM:
+      return imstream_vreadf(&self->u.mem, fmt, ap);
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
+  }
 }
 
 FORCEINLINE char_t
 istream_getc(istream_t *self)
 {
-  char_t c;
-
-  if (istream_read(self, &c, 1) == 1)
-    return c;
-  return '\0';
+  switch (self->kind) {
+    case ISTREAM_FILE:
+      return ifstream_getc(&self->u.file);
+    case ISTREAM_MEM:
+      return imstream_getc(&self->u.mem);
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
+  }
 }
 
 FORCEINLINE usize_t
 istream_get(istream_t *self, char_t *buf, usize_t len)
 {
-  if ((len = istream_bufferize(self, len)) > 0) {
-    memcpy(buf, self->buf + self->cur - self->beg, len);
+  switch (self->kind) {
+    case ISTREAM_FILE:
+      return ifstream_get(&self->u.file, buf, len);
+    case ISTREAM_MEM:
+      return imstream_get(&self->u.mem, buf, len);
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
   }
-  return len;
 }
 
 FORCEINLINE char_t
 istream_peek(istream_t *self, usize_t n)
 {
-  if (n > istream_bufferize(self, n + 1))
-    return '\0';
-  return self->buf[self->cur - self->beg + n];
+  switch (self->kind) {
+    case ISTREAM_FILE:
+      return ifstream_peek(&self->u.file, n);
+    case ISTREAM_MEM:
+      return imstream_peek(&self->u.mem, n);
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
+  }
 }
 
 FORCEINLINE void
 istream_flush(istream_t *self)
 {
-  (void) self;
+  switch (self->kind) {
+    case ISTREAM_FILE:
+      return ifstream_flush(&self->u.file);
+    case ISTREAM_MEM:
+      return imstream_flush(&self->u.mem);
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
+  }
 }
 
 FORCEINLINE bool_t
 istream_rewind(istream_t *self, usize_t n)
 {
-  (void) self;
-  (void) n;
-  return false;
+  switch (self->kind) {
+    case ISTREAM_FILE:
+      return ifstream_rewind(&self->u.file, n);
+    case ISTREAM_MEM:
+      return imstream_rewind(&self->u.mem, n);
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
+  }
 }
 
 FORCEINLINE bool_t
 istream_forward(istream_t *self, usize_t n)
 {
-  (void) self;
-  (void) n;
-  return false;
+  switch (self->kind) {
+    case ISTREAM_FILE:
+      return ifstream_forward(&self->u.file, n);
+    case ISTREAM_MEM:
+      return imstream_forward(&self->u.mem, n);
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
+  }
 }
 
 FORCEINLINE void
 istream_resume(istream_t *self)
 {
-  if (self->cur - self->beg < self->len) {
-    self->cur = self->beg + self->len;
+  switch (self->kind) {
+    case ISTREAM_FILE:
+      ifstream_resume(&self->u.file);
+      break;
+    case ISTREAM_MEM:
+      imstream_resume(&self->u.mem);
+      break;
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
   }
 }
 
 FORCEINLINE bool_t
 istream_seek(istream_t *self, usize_t off)
 {
-  if (!self->opened)
-    return 0;
-  if (self->cur > off)
-    return istream_rewind(self, self->cur - off);
-  return istream_forward(self, off - self->cur);
+  switch (self->kind) {
+    case ISTREAM_FILE:
+      return ifstream_seek(&self->u.file, off);
+    case ISTREAM_MEM:
+      return imstream_seek(&self->u.mem, off);
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
+  }
 }
 
 FORCEINLINE usize_t
 istream_tell(istream_t __const *self)
 {
-  return self->cur;
+  switch (self->kind) {
+    case ISTREAM_FILE:
+      return ifstream_tell(&self->u.file);
+    case ISTREAM_MEM:
+      return imstream_tell(&self->u.mem);
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
+  }
 }

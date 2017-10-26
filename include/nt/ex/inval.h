@@ -23,42 +23,15 @@
  * SOFTWARE.
  */
 
-/*!@file lex/src.h
+/*!@file nt/ex/inval.h
  * @author uael
  */
-#ifndef __LEX_SRC_H
-# define __LEX_SRC_H
+#ifndef __NT_EX_INVAL_H
+# define __NT_EX_INVAL_H
 
-#include <fs/istream.h>
+#include "inval/enum.h"
 
-#include "loc.h"
+__api__ ex_t
+inval(char_t __const *msg, ...);
 
-typedef struct src src_t;
-
-struct src {
-  istream_t stream;
-  loc_t loc;
-};
-
-__api__ void
-src_init_file(src_t *self, char_t __const *filename);
-
-__api__ void
-src_init_str(src_t *self, char_t __const *str);
-
-__api__ void
-src_init_nstr(src_t *self, char_t __const *str, usize_t n);
-
-__api__ char_t
-src_peek(src_t *self, usize_t n);
-
-__api__ usize_t
-src_get(src_t *self, char_t *buf, usize_t n);
-
-__api__ char_t
-src_next(src_t *self);
-
-__api__ void
-src_dtor(src_t *self);
-
-#endif /* !__LEX_SRC_H */
+#endif /* !__NT_EX_INVAL_H */

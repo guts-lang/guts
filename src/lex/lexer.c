@@ -57,17 +57,6 @@ lexer_init_file(lexer_t *self, char_t __const *filename)
 }
 
 FORCEINLINE void
-lexer_init_stream(lexer_t *self, istream_t *stream)
-{
-  src_t src;
-
-  lexer_ctor(self);
-  src_init_stream(&src, stream);
-  src.loc.src = self->srcs.head;
-  srcs_unshift(&self->srcs, src);
-}
-
-FORCEINLINE void
 lexer_init_str(lexer_t *self, char_t __const *buf)
 {
   src_t src;

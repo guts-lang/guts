@@ -23,42 +23,65 @@
  * SOFTWARE.
  */
 
-/*!@file lex/src.h
+/*!@file fs/imstream.h
  * @author uael
  */
-#ifndef __LEX_SRC_H
-# define __LEX_SRC_H
+#ifndef __FS_IMSTREAM_H
+# define __FS_IMSTREAM_H
 
-#include <fs/istream.h>
+#include "fd.h"
 
-#include "loc.h"
+typedef struct imstream imstream_t;
 
-typedef struct src src_t;
-
-struct src {
-  istream_t stream;
-  loc_t loc;
+struct imstream {
+  char_t __const* buf;
+  usize_t cur, len;
+  ex_t *ex;
 };
 
-__api__ void
-src_init_file(src_t *self, char_t __const *filename);
+__api__ bool_t
+imstream_open(imstream_t *self, char_t __const *str);
 
-__api__ void
-src_init_str(src_t *self, char_t __const *str);
+__api__ bool_t
+imstream_nopen(imstream_t *self, char_t __const *str, usize_t n);
 
-__api__ void
-src_init_nstr(src_t *self, char_t __const *str, usize_t n);
-
-__api__ char_t
-src_peek(src_t *self, usize_t n);
+__api__ bool_t
+imstream_close(imstream_t *self);
 
 __api__ usize_t
-src_get(src_t *self, char_t *buf, usize_t n);
+imstream_read(imstream_t *self, char_t *buf, usize_t len);
+
+__api__ usize_t
+imstream_readf(imstream_t *self, char_t *fmt, ...);
+
+__api__ usize_t
+imstream_vreadf(imstream_t *self, char_t *fmt, va_list ap);
 
 __api__ char_t
-src_next(src_t *self);
+imstream_getc(imstream_t *self);
+
+__api__ usize_t
+imstream_get(imstream_t *self, char_t *buf, usize_t len);
+
+__api__ char_t
+imstream_peek(imstream_t *self, usize_t n);
 
 __api__ void
-src_dtor(src_t *self);
+imstream_flush(imstream_t *self);
 
-#endif /* !__LEX_SRC_H */
+__api__ bool_t
+imstream_rewind(imstream_t *self, usize_t n);
+
+__api__ bool_t
+imstream_forward(imstream_t *self, usize_t n);
+
+__api__ void
+imstream_resume(imstream_t *self);
+
+__api__ bool_t
+imstream_seek(imstream_t *self, usize_t off);
+
+__api__ usize_t
+imstream_tell(imstream_t __const *self);
+
+#endif /* !__FS_IMSTREAM_H */

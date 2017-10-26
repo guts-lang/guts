@@ -25,6 +25,14 @@
 
 #include "nt/ex/ex.h"
 
+static i32_t usr_code = 2000;
+
+FORCEINLINE i32_t
+ex_register(void)
+{
+  return usr_code++;
+}
+
 FORCEINLINE void
 ex_ctor(ex_t *self, errlvl_t lvl, i32_t code, char_t __const *msg, va_list args)
 {
@@ -32,6 +40,18 @@ ex_ctor(ex_t *self, errlvl_t lvl, i32_t code, char_t __const *msg, va_list args)
   self->lvl = lvl;
   self->code = code;
   if (msg) vsprintf(self->msg, msg, args);
+}
+
+ex_t
+ex_usr(errlvl_t lvl, i32_t no, char_t __const *msg, ...)
+{
+  ex_t e;
+  va_list args;
+
+  va_start(args, msg);
+  ex_ctor(&e, lvl, no, msg, args);
+  va_end(args);
+  return e;
 }
 
 ex_t
@@ -105,20 +125,6 @@ ex_fatal(char_t __const *msg, ...)
   va_start(args, msg);
   ex_ctor(&e, ERRLVL_FATAL, -1, msg, args);
   va_end(args);
-  return e;
-}
-
-ex_t
-inval(char_t __const *msg, ...)
-{
-  ex_t e;
-  va_list args;
-
-  va_start(args, msg);
-  ex_ctor(&e, ERRLVL_ERROR, EINVAL, msg, args);
-  va_end(args);
-  if (msg) strcat(e.msg, "; ");
-  strcat(e.msg, strerror(EINVAL));
   return e;
 }
 

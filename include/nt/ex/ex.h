@@ -65,6 +65,9 @@ __api__ void
 ex_dump(ex_t *self, FILE *stream);
 
 __api__ ex_t
+ex_usr(errlvl_t lvl, i32_t no, char_t __const *msg, ...);
+
+__api__ ex_t
 ex(errlvl_t lvl, char_t __const *msg, ...);
 
 __api__ ex_t
@@ -81,8 +84,5 @@ ex_error(char_t __const *msg, ...);
 
 __api__ ex_t
 ex_fatal(char_t __const *msg, ...);
-
-ex_t
-inval(char_t __const *msg, ...);
 
 #endif /* !__NT_EX_EX_H */

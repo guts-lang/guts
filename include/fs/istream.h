@@ -29,17 +29,23 @@
 #ifndef __FS_ISTREAM_H
 # define __FS_ISTREAM_H
 
-#include "fd.h"
+#include "ifstream.h"
+#include "imstream.h"
 
+enum istream_kind {
+  ISTREAM_FILE = 0,
+  ISTREAM_MEM
+};
+
+typedef enum istream_kind istream_kind_t;
 typedef struct istream istream_t;
 
 struct istream {
-  char_t __const *filename;
-  fd_t fd;
-  bool_t opened;
-  char_t *buf;
-  usize_t beg, cur, end, cap, len;
-  ex_t *ex;
+  istream_kind_t kind : 1;
+  union {
+    ifstream_t file;
+    imstream_t mem;
+  } u;
 };
 
 extern istream_t *cin;
@@ -50,6 +56,12 @@ extern istream_t *cin;
 
 __api__ bool_t
 istream_open(istream_t *self, char_t __const *filename);
+
+__api__ bool_t
+istream_memopen(istream_t *self, char_t __const *str);
+
+__api__ bool_t
+istream_nmemopen(istream_t *self, char_t __const *str, usize_t n);
 
 __api__ bool_t
 istream_close(istream_t *self);
