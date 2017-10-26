@@ -237,9 +237,9 @@ c_lex_number(tok_t *self, char_t peek, val_t *val, src_t *src)
     }
     self->kind = TOK_VALUE;
     if (floating) {
-      val_init_f64(val, atof(str));
+      val_parse_f64(val, str);
     } else {
-      val_init_i64(val, atoll(str));
+      val_parse_i64(val, str);
     }
     return true;
   }

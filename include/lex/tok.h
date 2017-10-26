@@ -44,9 +44,9 @@ typedef enum tok_kind tok_kind_t;
 typedef struct tok tok_t;
 
 /*!@brief The 32 bytes token structure
- * When type is TOK_VALUE instead of kind an index to the value on the lexer
- * values cache is provided. The loc struct provide also an index to the related
- * stream.
+ * When kind is TOK_VALUE, instead of the type, an index to the value on the
+ * lexer values cache is provided in the 'id' field. The loc struct provide also
+ * an index to the related stream by the 'src' field.
  */
 struct tok {
   tok_kind_t kind: 4;

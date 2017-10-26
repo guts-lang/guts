@@ -124,6 +124,36 @@ val_init_f64(val_t *self, f64_t f)
 }
 
 FORCEINLINE void
+val_parse_i64(val_t *self, char_t __const *str)
+{
+  i64_t i64;
+
+  for (i64 = 0; *str; ++str)
+    if (isdigit(*str))
+      i64 = i64 * 10 + *str - '0';
+  val_init_i64(self, i64);
+}
+
+FORCEINLINE void
+val_parse_f64(val_t *self, char_t __const *str)
+{
+  f64_t f64, f;
+  bool_t floating;
+
+  for (floating = false, f64 = 0.0, f = 1; *str; ++str){
+    if (*str == '.'){
+      floating = true;
+      continue;
+    };
+    if (isdigit(*str)) {
+      if (floating) f /= 10.0f;
+      f64 = f64 * 10.0f + (float) *str - '0';
+    }
+  }
+  val_init_f64(self, f64 * f);
+}
+
+FORCEINLINE void
 val_dtor(val_t *self)
 {
   switch (self->kind) {

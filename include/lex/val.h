@@ -106,6 +106,12 @@ __api__ void
 val_init_f64(val_t *self, f64_t f);
 
 __api__ void
+val_parse_i64(val_t *self, char_t __const *str);
+
+__api__ void
+val_parse_f64(val_t *self, char_t __const *str);
+
+__api__ void
 val_dtor(val_t *self);
 
 __api__ void
