@@ -66,7 +66,7 @@ enum {
 };
 
 bool_t
-c_tok_parse_ident(tok_t *self, char_t peek, val_t *val, src_t *src)
+c_lex_ident(tok_t *self, char_t peek, val_t *val, src_t *src)
 {
   char_t str[256];
   u8_t len;
@@ -255,7 +255,7 @@ c_tok_parse_ident(tok_t *self, char_t peek, val_t *val, src_t *src)
 }
 
 bool_t
-c_tok_parse_number(tok_t *self, char_t peek, val_t *val, src_t *src)
+c_lex_number(tok_t *self, char_t peek, val_t *val, src_t *src)
 {
   char_t str[256];
   u8_t len;
@@ -287,7 +287,7 @@ c_tok_parse_number(tok_t *self, char_t peek, val_t *val, src_t *src)
 }
 
 bool_t
-c_tok_parse_syn(tok_t *self, char_t peek, val_t *val, src_t *src)
+c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
 {
   (void) val;
   switch (peek) {
@@ -511,7 +511,7 @@ c_tok_parse_syn(tok_t *self, char_t peek, val_t *val, src_t *src)
 }
 
 char_t __const *
-c_tok_ident_str(tok_t *self)
+c_tok_str(tok_t *self)
 {
   static char_t __const *idents[] = {
     [C_TOK_AUTO] = "auto",
@@ -594,16 +594,16 @@ main(void)
 
   init(&lexer, lexer_t);
   lexer_init_str(&lexer,
-    "i32_t\n"
+    "int\n"
     "main(void)\n"
     "{\n"
     "  return EXIT_SUCCESS;\n"
     "}"
   );
-  lrules_push(&lexer.rules, c_tok_parse_ident);
-  lrules_push(&lexer.rules, c_tok_parse_number);
-  lrules_push(&lexer.rules, c_tok_parse_syn);
-  lexer.tok_str = c_tok_ident_str;
+  lrules_push(&lexer.rules, c_lex_ident);
+  lrules_push(&lexer.rules, c_lex_number);
+  lrules_push(&lexer.rules, c_lex_syntax);
+  lexer.tok_str = c_tok_str;
   while (lexer_scan(&lexer, 1)) {
     tok_t tok;
 
