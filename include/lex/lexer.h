@@ -88,7 +88,7 @@ typedef struct lexer lexer_t;
 
 DEQ32_DEFINE(toks, tok_t, addrcmp)
 VEC32_DEFINE(vals, val_t, addrcmp)
-DEQ16_DEFINE(srcs, src_t, addrcmp)
+DEQ8_DEFINE(srcs, src_t, addrcmp)
 VEC8_DEFINE(lrules, lrule_t, addrcmp)
 
 struct lexer {

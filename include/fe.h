@@ -23,20 +23,12 @@
  * SOFTWARE.
  */
 
-/*!@file lex/loc.h
+/*!@file fe.h
  * @author uael
  */
-#ifndef __LEX_LOC_H
-# define __LEX_LOC_H
+#ifndef __FE_H
+# define __FE_H
 
-#include <nt/tys.h>
+#include "fe/c.h"
 
-typedef struct loc loc_t;
-
-struct loc {
-  u8_t src, len;
-  u32_t line, col;
-  u64_t cursor;
-};
-
-#endif /* !__LEX_LOC_H */
+#endif /* !__FE_H */
