@@ -194,10 +194,19 @@ istream_getc(istream_t *self)
   return '\0';
 }
 
+FORCEINLINE usize_t
+istream_get(istream_t *self, char_t *buf, usize_t len)
+{
+  if ((len = istream_bufferize(self, len)) > 0) {
+    memcpy(buf, self->buf + self->cur - self->beg, len);
+  }
+  return len;
+}
+
 FORCEINLINE char_t
 istream_peek(istream_t *self, usize_t n)
 {
-  if (n > istream_bufferize(self, n))
+  if (n > istream_bufferize(self, n + 1))
     return '\0';
   return self->buf[self->cur - self->beg + n];
 }

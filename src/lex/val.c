@@ -134,3 +134,36 @@ val_dtor(val_t *self)
     default: break;
   }
 }
+
+FORCEINLINE void
+val_dump(val_t *self, ostream_t *stream)
+{
+  switch (self->kind) {
+    case VAL_NULL: ostream_puts(stream, "nil");
+      break;
+    case VAL_STR: ostream_puts(stream, self->val.str.buf);
+      break;
+    case VAL_IDENT: ostream_puts(stream, self->val.ident.buf);
+      break;
+    case VAL_I8: ostream_writef(stream, "%d", self->val.i8);
+      break;
+    case VAL_I16: ostream_writef(stream, "%d", self->val.i16);
+      break;
+    case VAL_I32: ostream_writef(stream, "%d", self->val.i32);
+      break;
+    case VAL_I64: ostream_writef(stream, "%li", self->val.i64);
+      break;
+    case VAL_U8: ostream_writef(stream, "%d", self->val.u8);
+      break;
+    case VAL_U16: ostream_writef(stream, "%d", self->val.u16);
+      break;
+    case VAL_U32: ostream_writef(stream, "%d", self->val.u32);
+      break;
+    case VAL_U64: ostream_writef(stream, "%lu", self->val.u64);
+      break;
+    case VAL_F32: ostream_writef(stream, "%f", self->val.f32);
+      break;
+    case VAL_F64: ostream_writef(stream, "%lf", self->val.f64);
+      break;
+  }
+}

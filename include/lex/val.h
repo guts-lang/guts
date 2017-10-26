@@ -30,6 +30,7 @@
 # define __LEX_VAL_H
 
 #include <ds/dstr.h>
+#include <fs/ostream.h>
 
 enum val_kind {
   VAL_NULL,
@@ -106,5 +107,8 @@ val_init_f64(val_t *self, f64_t f);
 
 __api__ void
 val_dtor(val_t *self);
+
+__api__ void
+val_dump(val_t *self, ostream_t *stream);
 
 #endif /* !__LEX_VAL_H */

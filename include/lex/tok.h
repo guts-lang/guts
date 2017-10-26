@@ -34,9 +34,8 @@
 #include "val.h"
 
 enum tok_kind {
-  TOK_NONE = 0,
-  TOK_PONCTUATION,
-  TOK_OPERATOR,
+  TOK_SYNTAX = 0,
+  TOK_PONCT,
   TOK_KEYWORD,
   TOK_VALUE
 };

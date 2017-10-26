@@ -38,6 +38,16 @@
 # define SEQ_MIN_CAP 32
 #endif
 
+#define foreach(idx, val, in) \
+  PP_MCALL(foreach_nx, idx, val, PP_EVAL(in))
+
+#define foreach_nx(idx, val, buf, len) \
+  for ( \
+    (val) = (buf), (idx) = 0; \
+    (idx) < (len); \
+    (val) = (buf) + ++(idx) \
+  )
+
 #define SEQ_DECL_ctor(SCOPE, ID, T, BITS) \
   SCOPE void \
   ID##_ctor(ID##_t *__restrict self)

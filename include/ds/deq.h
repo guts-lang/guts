@@ -33,6 +33,7 @@
 
 #include "seq.h"
 
+#define indeq(D) ((D).buf + (D).head), (D).tail
 #define deqof(T, TSizeBits) \
   struct { \
     T *buf; \

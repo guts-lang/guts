@@ -70,6 +70,9 @@ src_init_nstr(src_t *self, char_t __const *buf, usize_t n);
 __api__ char_t
 src_peek(src_t *self, usize_t n);
 
+__api__ usize_t
+src_get(src_t *self, char_t *buf, usize_t n);
+
 __api__ char_t
 src_next(src_t *self);
 

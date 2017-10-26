@@ -78,6 +78,26 @@ src_peek(src_t *self, usize_t n)
   return '\0';
 }
 
+FORCEINLINE usize_t
+src_get(src_t *self, char_t *buf, usize_t n)
+{
+  switch (self->kind) {
+    case LEX_SRC_FILE: return istream_get(&self->src.file, buf, n);
+    case LEX_SRC_STREAM: return istream_get(self->src.stream, buf, n);
+    case LEX_SRC_STR: {
+      usize_t c;
+
+      c =  self->src.str.len - self->src.str.cursor;
+      if (c > 0) {
+        if (c > n) c = n;
+        memcpy(buf, self->src.str.buf + self->src.str.cursor, c);
+      }
+      return c;
+    }
+  }
+  return 0;
+}
+
 FORCEINLINE char_t
 src_next(src_t *self)
 {
@@ -100,9 +120,8 @@ src_next(src_t *self)
   switch (c) {
     case '\0': return c;
     case '\r': goto getc_one;
-    case '\v':
-    case '\f':
-    case '\n':++self->loc.line;
+    case '\v': case '\f': case '\n':
+      ++self->loc.line;
       self->loc.col = 1;
       break;
     default: ++self->loc.col;

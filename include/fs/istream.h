@@ -46,8 +46,6 @@ extern istream_t *cin;
 
 #define cin_read(BUF, LEN) istream_read(cin, BUF, LEN)
 #define cin_readf(BUF, ...) istream_readf(cin, BUF, __VA_ARGS__)
-#define cin_puts(BUF) istream_puts(cin, BUF)
-#define cin_putc(C) istream_putc(cin, C)
 #define cin_flush() istream_flush(cin)
 
 __api__ bool_t
@@ -67,6 +65,9 @@ istream_vreadf(istream_t *self, char_t *fmt, va_list ap);
 
 __api__ char_t
 istream_getc(istream_t *self);
+
+__api__ usize_t
+istream_get(istream_t *self, char_t *buf, usize_t len);
 
 __api__ char_t
 istream_peek(istream_t *self, usize_t n);

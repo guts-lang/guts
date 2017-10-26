@@ -33,6 +33,7 @@
 
 #include "seq.h"
 
+#define indstr(D) (D).buf, (D).len
 #define dstrof(TSizeBits) \
   struct { \
     u##TSizeBits##_t len, cap; \

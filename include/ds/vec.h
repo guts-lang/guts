@@ -33,6 +33,7 @@
 
 #include "seq.h"
 
+#define invec(V) (V).buf, (V).len
 #define vecof(T, BITS) \
   struct { \
     u##BITS##_t cap, len; \

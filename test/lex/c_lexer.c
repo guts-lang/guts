@@ -25,8 +25,6 @@
 
 
 #include <lex.h>
-#include <lex/tok.h>
-#include <ds.h>
 
 enum {
   C_TOK_END = '\0', C_TOK_AUTO = C_TOK_END + 1, C_TOK_BREAK, C_TOK_CASE,
@@ -67,197 +65,526 @@ enum {
   C_TOK_NUMBER = 116, C_TOK_IDENTIFIER = C_TOK_NUMBER + 1, C_TOK_STRING
 };
 
-#define __M(n, i, c) s[i + n] == (c)
-#define __M1(n, a) __M(n, 0, a)
-#define __M2(n, a, b) __M1(n, a) && __M(n, 1, b)
-#define __M3(n, a, b, c) __M2(n, a, b) && __M(n, 2, c)
-#define __M4(n, a, b, c, d) __M3(n, a, b, c) && __M(n, 3, d)
-#define __M5(n, a, b, c, d, e) __M4(n, a, b, c, d) && __M(n, 4, e)
-#define __M6(n, a, b, c, d, e, f) __M5(n, a, b, c, d, e) && __M(n, 5, f)
-#define __M7(n, a, b, c, d, e, f, g) __M6(n, a, b, c, d, e, f) && __M(n, 6, g)
-#define __M8(n, a, b, c, d, e, f, g, h) __M7(n, a, b, c, d, e, f, g) && __M(n, 7, h)
-#define M1(n, a) i == (1+n) && __M1(n, a)
-#define M2(n, a, b) i == (2+n) && __M2(n, a, b)
-#define M3(n, a, b, c) i == (3+n) && __M3(n, a, b, c)
-#define M4(n, a, b, c, d) i == (4+n) && __M4(n, a, b, c, d)
-#define M5(n, a, b, c, d, e) i == (5+n) && __M5(n, a, b, c, d, e)
-#define M6(n, a, b, c, d, e, f) i == (6+n) && __M6(n, a, b, c, d, e, f)
-#define M7(n, a, b, c, d, e, f, g) i == (7+n) && __M7(n, a, b, c, d, e, f, g)
-#define M8(n, a, b, c, d, e, f, g, h) i == (8+n) && __M8(n, a, b, c, d, e, f, g, h)
-
 bool_t
-lex(lexer_t *self)
+c_tok_parse_ident(tok_t *self, char_t peek, val_t *val, src_t *src)
 {
-  src_t *src;
-  char_t peek;
-  usize_t i;
-  tok_t tok;
+  char_t str[256];
+  u8_t len;
 
-  if (srcs_size(&self->srcs) == 0) {
-    return false;
-  }
-  src = srcs_offset(&self->srcs, 0);
-  peek = src_peek(src, 0);
-  init(&tok, tok_t);
-  while (peek == ' ' || peek == '\t') {
-    ++tok.lws;
-    peek = src_next(src);
-  }
   if (peek == '_' || isalpha(peek)) {
-    char s[256];
-
-    tok.loc = src->loc;
-    i = 0;
+    len = 0;
     do {
-      s[i++] = peek;
+      str[len++] = peek;
       peek = src_next(src);
-    } while (peek == '_' || isalpha(peek));
-    s[i] = '\0';
-    tok.id = C_TOK_IDENTIFIER;
-    switch (s[0]) {
-      case 'a': if (M3(1, 'u', 't', 'o')) tok.id = C_TOK_AUTO;
+    } while (peek == '_' || isalnum(peek));
+    str[len] = '\0';
+    switch (str[0]) {
+      case 'a':
+        if (MSTRN(str, len, 1, 'u', 't', 'o'))
+          self->id = C_TOK_AUTO;
         break;
-      case 'b': if (M4(1, 'r', 'e', 'a', 'k')) tok.id = C_TOK_BREAK;
+      case 'b':
+        if (MSTRN(str, len, 1, 'r', 'e', 'a', 'k'))
+          self->id = C_TOK_BREAK;
         break;
       case 'c':
-        if (M3(1, 'a', 's', 'e')) tok.id = C_TOK_CASE;
-        else if (M3(1, 'h', 'a', 'r')) tok.id = C_TOK_CHAR;
-        else if (i >= 4 && s[1] == 'o' && s[2] == 'n') {
-          if (M2(3, 's', 't')) tok.id = C_TOK_CONST;
-          else if (M5(3, 't', 'i', 'n', 'u', 'e')) tok.id = C_TOK_CONTINUE;
+        if (MSTRN(str, len, 1, 'a', 's', 'e'))
+          self->id = C_TOK_CASE;
+        else if (MSTRN(str, len, 1, 'h', 'a', 'r'))
+          self->id = C_TOK_CHAR;
+        else if (len >= 4 && str[1] == 'o' && str[2] == 'n') {
+          if (MSTRN(str, len, 3, 's', 't'))
+            self->id = C_TOK_CONST;
+          else if (MSTRN(str, len, 3, 't', 'i', 'n', 'u', 'e'))
+            self->id = C_TOK_CONTINUE;
         }
         break;
       case 'd':
-        if (M6(1, 'e', 'f', 'a', 'u', 'l', 't')) tok.id = C_TOK_DEFAULT;
-        else if (i > 1 && s[1] == 'o') {
-          if (i == 2) tok.id = C_TOK_DO;
-          else if (M4(2, 'u', 'b', 'l', 'e')) tok.id = C_TOK_DOUBLE;
+        if (MSTRN(str, len, 1, 'e', 'f', 'a', 'u', 'l', 't'))
+          self->id = C_TOK_DEFAULT;
+        else if (len > 1 && str[1] == 'o') {
+          if (len == 2)
+            self->id = C_TOK_DO;
+          else if (MSTRN(str, len, 2, 'u', 'b', 'l', 'e'))
+            self->id = C_TOK_DOUBLE;
         }
         break;
       case 'e':
-        if (M3(1, 'l', 's', 'e')) tok.id = C_TOK_ELSE;
-        else if (M3(1, 'n', 'u', 'm')) tok.id = C_TOK_ENUM;
-        else if (M5(1, 'x', 't', 'e', 'r', 'n')) tok.id = C_TOK_EXTERN;
+        if (MSTRN(str, len, 1, 'l', 's', 'e'))
+          self->id = C_TOK_ELSE;
+        else if (MSTRN(str, len, 1, 'n', 'u', 'm'))
+          self->id = C_TOK_ENUM;
+        else if (MSTRN(str, len, 1, 'x', 't', 'e', 'r', 'n'))
+          self->id = C_TOK_EXTERN;
         break;
       case 'f':
-        if (M4(1, 'l', 'o', 'a', 't')) tok.id = C_TOK_FLOAT;
-        else if (M2(1, 'o', 'r')) tok.id = C_TOK_FOR;
+        if (MSTRN(str, len, 1, 'l', 'o', 'a', 't'))
+          self->id = C_TOK_FLOAT;
+        else if (MSTRN(str, len, 1, 'o', 'r'))
+          self->id = C_TOK_FOR;
         break;
-      case 'g':if (M3(1, 'o', 't', 'o')) tok.id = C_TOK_GOTO;
+      case 'g':if (MSTRN(str, len, 1, 'o', 't', 'o'))
+          self->id = C_TOK_GOTO;
         break;
       case 'i':
-        if (M1(1, 'f')) tok.id = C_TOK_IF;
-        else if (M5(1, 'n', 'l', 'i', 'n', 'e')) tok.id = C_TOK_INLINE;
-        else if (M2(1, 'n', 't')) tok.id = C_TOK_INT;
+        if (MSTRN(str, len, 1, 'f'))
+          self->id = C_TOK_IF;
+        else if (MSTRN(str, len, 1, 'n', 'l', 'i', 'n', 'e'))
+          self->id = C_TOK_INLINE;
+        else if (MSTRN(str, len, 1, 'n', 't'))
+          self->id = C_TOK_INT;
         break;
-      case 'l':if (M3(1, 'o', 'n', 'g')) tok.id = C_TOK_LONG;
+      case 'l':if (MSTRN(str, len, 1, 'o', 'n', 'g'))
+          self->id = C_TOK_LONG;
         break;
       case 'r':
-        if (i > 4 && s[1] == 'e') {
-          if (M6(2, 'g', 'i', 's', 't', 'e', 'r'))
-            tok.id = C_TOK_REGISTER;
-          else if (M6(2, 's', 't', 'r', 'i', 'c', 't'))
-            tok.id = C_TOK_RESTRICT;
-          else if (M4(2, 't', 'u', 'r', 'n')) tok.id = C_TOK_RETURN;
+        if (len > 4 && str[1] == 'e') {
+          if (MSTRN(str, len, 2, 'g', 'i', 's', 't', 'e', 'r'))
+            self->id = C_TOK_REGISTER;
+          else if (MSTRN(str, len, 2, 's', 't', 'r', 'i', 'c', 't'))
+            self->id = C_TOK_RESTRICT;
+          else if (MSTRN(str, len, 2, 't', 'u', 'r', 'n'))
+            self->id = C_TOK_RETURN;
         }
         break;
       case 's':
-        if (M4(1, 'h', 'o', 'r', 't')) tok.id = C_TOK_SHORT;
-        else if (i == 6) {
-          switch (s[1]) {
+        if (MSTRN(str, len, 1, 'h', 'o', 'r', 't'))
+          self->id = C_TOK_SHORT;
+        else if (len == 6) {
+          switch (str[1]) {
             case 'i':
-              if (__M4(2, 'g', 'n', 'e', 'd')) tok.id = C_TOK_SIGNED;
-              else if (__M4(2, 'z', 'e', 'o', 'f')) tok.id = C_TOK_SIZEOF;
+              if (MSTR(str, 2, 'g', 'n', 'e', 'd'))
+                self->id = C_TOK_SIGNED;
+              else if (MSTR(str, 2, 'z', 'e', 'o', 'f'))
+                self->id = C_TOK_SIZEOF;
               break;
             case 't':
-              if (__M4(2, 'a', 't', 'i', 'c')) tok.id = C_TOK_STATIC;
-              else if (__M4(2, 'r', 'u', 'c', 't')) tok.id = C_TOK_STRUCT;
+              if (MSTR(str, 2, 'a', 't', 'i', 'c'))
+                self->id = C_TOK_STATIC;
+              else if (MSTR(str, 2, 'r', 'u', 'c', 't'))
+                self->id = C_TOK_STRUCT;
               break;
             case 'w':
-              if (__M4(2, 'i', 't', 'c', 'h'))
-                tok.id = C_TOK_SWITCH;
+              if (MSTR(str, 2, 'i', 't', 'c', 'h'))
+                self->id = C_TOK_SWITCH;
               break;
             default:break;
           }
         }
         break;
       case 't':
-        if (M6(1, 'y', 'p', 'e', 'd', 'e', 'f')) tok.id = C_TOK_TYPEDEF;
+        if (MSTRN(str, len, 1, 'y', 'p', 'e', 'd', 'e', 'f'))
+          self->id = C_TOK_TYPEDEF;
         break;
       case 'u':
-        if (i > 4 && s[1] == 'n') {
-          if (M3(2, 'i', 'o', 'n')) tok.id = C_TOK_UNION;
-          else if (M6(2, 's', 'i', 'g', 'n', 'e', 'd'))
-            tok.id = C_TOK_UNSIGNED;
+        if (len > 4 && str[1] == 'n') {
+          if (MSTRN(str, len, 2, 'i', 'o', 'n'))
+            self->id = C_TOK_UNION;
+          else if (MSTRN(str, len, 2, 's', 'i', 'g', 'n', 'e', 'd'))
+            self->id = C_TOK_UNSIGNED;
         }
         break;
       case 'v':
-        if (i > 3 && s[1] == 'o') {
-          if (M2(2, 'i', 'd')) tok.id = C_TOK_VOID;
-          else if (M6(2, 'l', 'a', 't', 'i', 'l', 'e'))
-            tok.id = C_TOK_VOLATILE;
+        if (len > 3 && str[1] == 'o') {
+          if (MSTRN(str, len, 2, 'i', 'd'))
+            self->id = C_TOK_VOID;
+          else if (MSTRN(str, len, 2, 'l', 'a', 't', 'i', 'l', 'e'))
+            self->id = C_TOK_VOLATILE;
         }
         break;
-      case 'w':if (M4(1, 'h', 'i', 'l', 'e')) tok.id = C_TOK_WHILE;
+      case 'w':if (MSTRN(str, len, 1, 'h', 'i', 'l', 'e'))
+          self->id = C_TOK_WHILE;
         break;
       case '_':
-        switch (s[1]) {
+        switch (str[1]) {
           case 'A':
-            if (i == 8 && __M4(2, 'l', 'i', 'g', 'n')) {
-              if (__M2(6, 'a', 's')) tok.id = C_TOK_ALIGNAS;
-              else if (__M2(6, 'o', 'f')) tok.id = C_TOK_ALIGNOF;
-            } else if (M5(2, 't', 'o', 'm', 'i', 'c'))
-              tok.id = C_TOK_ATOMIC;
+            if (len == 8 && MSTR(str, 2, 'l', 'i', 'g', 'n')) {
+              if (MSTR(str, 6, 'a', 's'))
+                self->id = C_TOK_ALIGNAS;
+              else if (MSTR(str, 6, 'o', 'f'))
+                self->id = C_TOK_ALIGNOF;
+            } else if (MSTRN(str, len, 2, 't', 'o', 'm', 'i', 'c'))
+              self->id = C_TOK_ATOMIC;
             break;
-          case 'B':if (M3(2, 'o', 'o', 'l')) tok.id = C_TOK_BOOL;
+          case 'B':if (MSTRN(str, len, 2, 'o', 'o', 'l'))
+              self->id = C_TOK_BOOL;
             break;
           case 'C':
-            if (M6(2, 'o', 'm', 'p', 'l', 'e', 'x'))
-              tok.id = C_TOK_COMPLEX;
+            if (MSTRN(str, len, 2, 'o', 'm', 'p', 'l', 'e', 'x'))
+              self->id = C_TOK_COMPLEX;
             break;
           case 'G':
-            if (M6(2, 'e', 'n', 'e', 'r', 'i', 'c'))
-              tok.id = C_TOK_GENERIC;
+            if (MSTRN(str, len, 2, 'e', 'n', 'e', 'r', 'i', 'c'))
+              self->id = C_TOK_GENERIC;
             break;
           case 'I':
-            if (M8(2, 'm', 'a', 'g', 'i', 'n', 'a', 'r', 'y'))
-              tok.id = C_TOK_IMAGINARY;
+            if (MSTRN(str, len, 2, 'm', 'a', 'g', 'i', 'n', 'a', 'r', 'y'))
+              self->id = C_TOK_IMAGINARY;
             break;
           case 'N':
-            if (M7(2, 'o', 'r', 'e', 't', 'u', 'r', 'n'))
-              tok.id = C_TOK_NORETURN;
+            if (MSTRN(str, len, 2, 'o', 'r', 'e', 't', 'u', 'r', 'n'))
+              self->id = C_TOK_NORETURN;
             break;
           case 'S':
-            if (i == 14 && __M6(2, 't', 'a', 't', 'i', 'c', '_')
-              && __M6(8, 'a', 's', 's', 'e', 'r', 't'))
-              tok.id = C_TOK_STATIC_ASSERT;
+            if (len == 14 && MSTR(str, 2, 't', 'a', 't', 'i', 'c', '_')
+              && MSTR(str, 8, 'a', 's', 's', 'e', 'r', 't'))
+              self->id = C_TOK_STATIC_ASSERT;
             break;
           case 'T':
-            if (i == 13 && __M6(2, 'h', 'r', 'e', 'a', 'd', '_')
-              && __M5(8, 'l', 'o', 'c', 'a', 'l'))
-              tok.id = C_TOK_THREAD_LOCAL;
+            if (len == 13 && MSTR(str, 2, 'h', 'r', 'e', 'a', 'd', '_')
+              && MSTR(str, 8, 'l', 'o', 'c', 'a', 'l'))
+              self->id = C_TOK_THREAD_LOCAL;
             break;
           case '_':
-            if (M6(2, 'f', 'u', 'n', 'c', '_', '_'))
-              tok.id = C_TOK_FUNC_NAME;
+            if (MSTRN(str, len, 2, 'f', 'u', 'n', 'c', '_', '_'))
+              self->id = C_TOK_FUNC_NAME;
           default: break;
         }
+        break;
       default: break;
     }
-    if (tok.id == C_TOK_IDENTIFIER) {
-      val_t val;
-
-      val_init_ident(&val, s);
-      tok.kind = TOK_VALUE;
-      tok.id = self->vals.len;
-      vals_push(&self->vals, val);
+    if (self->id == 0) {
+      val_init_ident(val, str);
+      self->kind = TOK_VALUE;
     } else {
-      tok.kind = TOK_KEYWORD;
+      self->kind = TOK_KEYWORD;
     }
-    toks_push(&self->toks, tok);
     return true;
   }
   return false;
+}
+
+bool_t
+c_tok_parse_number(tok_t *self, char_t peek, val_t *val, src_t *src)
+{
+  char_t str[256];
+  u8_t len;
+  bool_t floating;
+
+  if (isdigit(peek) || (peek == '.' && isdigit(src_peek(src, 1)))) {
+    floating = peek == '.';
+    str[len = 0] = peek;
+    while (true) {
+      if (isdigit(peek = src_next(src))) {
+        str[++len] = peek;
+      } else if (!floating && peek == '.') {
+        floating = true;
+        str[++len] = peek;
+      } else {
+        str[++len] = '\0';
+        break;
+      }
+    }
+    self->kind = TOK_VALUE;
+    if (floating) {
+      val_init_f64(val, atof(str));
+    } else {
+      val_init_i64(val, atoll(str));
+    }
+    return true;
+  }
+  return false;
+}
+
+bool_t
+c_tok_parse_syn(tok_t *self, char_t peek, val_t *val, src_t *src)
+{
+  (void) val;
+  switch (peek) {
+    case '!':
+      if (src_peek(src, 1) == '=') {
+        self->id = C_TOK_NE_OP;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      self->id = '!';
+      break;
+    case '#':
+      if (src_peek(src, 1) == '#') {
+        self->id = C_TOK_TOKEN_PASTE;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      self->id = '#';
+      break;
+    case '%':
+      if (src_peek(src, 1) == '=') {
+        self->id = C_TOK_MOD_ASSIGN;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      self->id = '%';
+      break;
+    case '&':
+      if (src_peek(src, 1) == '&') {
+        self->id = C_TOK_LOGICAL_AND;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      if (src_peek(src, 1) == '=') {
+        self->id = C_TOK_AND_ASSIGN;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      self->id = '&';
+      break;
+    case '(':
+      self->id = '(';
+      break;
+    case ')':
+      self->id = ')';
+      break;
+    case '*':
+      if (src_peek(src, 1) == '=') {
+        self->id = C_TOK_MUL_ASSIGN;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      self->id = '*';
+      break;
+    case '+':
+      if (src_peek(src, 1) == '=') {
+        self->id = C_TOK_PLUS_ASSIGN;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      if (src_peek(src, 1) == '+') {
+        self->id = C_TOK_INCREMENT;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      self->id = '+';
+      break;
+    case ',':
+      self->id = ',';
+      break;
+    case '-':
+      if (src_peek(src, 1) == '=') {
+        self->id = C_TOK_MINUS_ASSIGN;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      if (src_peek(src, 1) == '-') {
+        self->id = C_TOK_DECREMENT;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      if (src_peek(src, 1) == '>') {
+        self->id = C_TOK_PTR_OP;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      self->id = '-';
+      break;
+    case '.':
+      if (src_peek(src, 1) == '.' && src_peek(src, 2) == '.') {
+        self->id = C_TOK_DOTS;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      self->id = '.';
+      break;
+    case '/':
+      if (src_peek(src, 1) == '*') {
+        while ((peek = src_next(src)) != 0) {
+          if (peek == '*') {
+            while ((peek = src_next(src)) == '*');
+            if (peek == '/') {
+              src_next(src);
+              break;
+            }
+          } else if (src_peek(src, 1) == 0) {
+            exit(1);
+          }
+        }
+        src_next(src);
+        break;
+      }
+      if (src_peek(src, 1) == '=') {
+        self->id = C_TOK_DIV_ASSIGN;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      self->id = '/';
+      break;
+    case ':':
+      self->id = ':';
+      break;
+    case ';':
+      self->id = ';';
+      break;
+    case '<':
+      if (src_peek(src, 1) == '<') {
+        if (src_peek(src, 2) == '=') {
+          self->id = C_TOK_LSHIFT_ASSIGN;
+          self->kind = TOK_PONCT;
+          break;
+        }
+        self->id = C_TOK_LEFT_OP;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      if (src_peek(src, 1) == '=') {
+        self->id = C_TOK_LE_OP;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      self->id = '<';
+      break;
+    case '=':
+      if (src_peek(src, 1) == '=') {
+        self->id = C_TOK_EQ_OP;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      self->id = '=';
+      break;
+    case '>':
+      if (src_peek(src, 1) == '>') {
+        if (src_peek(src, 2) == '=') {
+          self->id = C_TOK_RSHIFT_ASSIGN;
+          self->kind = TOK_PONCT;
+          break;
+        }
+        self->id = C_TOK_RIGHT_OP;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      if (src_peek(src, 1) == '=') {
+        self->id = C_TOK_GE_OP;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      self->id = '>';
+      break;
+    case '?':
+      self->id = '?';
+      break;
+    case '[':
+      self->id = '[';
+      break;
+    case '\\':
+      self->id = '\\';
+      break;
+    case ']':
+      self->id = ']';
+      break;
+    case '^':
+      if (src_peek(src, 1) == '=') {
+        self->id = C_TOK_XOR_ASSIGN;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      self->id = '^';
+      break;
+    case '{':
+      self->id = '{';
+      break;
+    case '|':
+      if (src_peek(src, 1) == '|') {
+        self->id = C_TOK_LOGICAL_OR;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      if (src_peek(src, 1) == '=') {
+        self->id = C_TOK_OR_ASSIGN;
+        self->kind = TOK_PONCT;
+        break;
+      }
+      self->id = '|';
+      break;
+    case '}':
+      self->id = '}';
+      break;
+    case '~':
+      self->id = '~';
+      break;
+    default:
+      src_next(src);
+      break;
+  }
+  if (self->id) {
+    src_next(src);
+    return true;
+  }
+  return false;
+}
+
+char_t __const *
+c_tok_ident_str(tok_t *self)
+{
+  static char_t __const *idents[] = {
+    [C_TOK_AUTO] = "auto",
+    [C_TOK_BREAK] = "break",
+    [C_TOK_CASE] = "case",
+    [C_TOK_CHAR] = "char",
+    [C_TOK_CONST] = "const",
+    [C_TOK_CONTINUE] = "continue",
+    [C_TOK_DEFAULT] = "default",
+    [C_TOK_DO] = "do",
+    [C_TOK_DOUBLE] = "double",
+    [C_TOK_ELSE] = "else",
+    [C_TOK_ENUM] = "enum",
+    [C_TOK_EXTERN] = "extern",
+    [C_TOK_FLOAT] = "float",
+    [C_TOK_FOR] = "for",
+    [C_TOK_GOTO] = "goto",
+    [C_TOK_IF] = "if",
+    [C_TOK_INLINE] = "inline",
+    [C_TOK_INT] = "int",
+    [C_TOK_LONG] = "long",
+    [C_TOK_REGISTER] = "register",
+    [C_TOK_RESTRICT] = "restrict",
+    [C_TOK_RETURN] = "return",
+    [C_TOK_SHORT] = "short",
+    [C_TOK_SIGNED] = "signed",
+    [C_TOK_SIZEOF] = "sizeof",
+    [C_TOK_STATIC] = "static",
+    [C_TOK_STRUCT] = "struct",
+    [C_TOK_SWITCH] = "switch",
+    [C_TOK_TYPEDEF] = "typedef",
+    [C_TOK_UNION] = "union",
+    [C_TOK_UNSIGNED] = "unsigned",
+    [C_TOK_VOID] = "void",
+    [C_TOK_VOLATILE] = "volatile",
+    [C_TOK_WHILE] = "while",
+    [C_TOK_ALIGNAS] = "_Alignas",
+    [C_TOK_ALIGNOF] = "_Alignof",
+    [C_TOK_ATOMIC] = "_Atomic",
+    [C_TOK_BOOL] = "_Bool",
+    [C_TOK_COMPLEX] = "_Complex",
+    [C_TOK_GENERIC] = "_Generic",
+    [C_TOK_IMAGINARY] = "_Imaginary",
+    [C_TOK_NORETURN] = "_Noreturn",
+    [C_TOK_STATIC_ASSERT] = "_Static_assert",
+    [C_TOK_THREAD_LOCAL] = "_Thread_local",
+    [C_TOK_FUNC_NAME] = "__func__",
+    [C_TOK_NE_OP] = "!=",
+    [C_TOK_TOKEN_PASTE] = "##",
+    [C_TOK_MOD_ASSIGN] = "%=",
+    [C_TOK_LOGICAL_AND] = "&&",
+    [C_TOK_AND_ASSIGN] = "&=",
+    [C_TOK_MUL_ASSIGN] = "*=",
+    [C_TOK_PLUS_ASSIGN] = "+=",
+    [C_TOK_INCREMENT] = "++",
+    [C_TOK_MINUS_ASSIGN] = "-=",
+    [C_TOK_DECREMENT] = "--",
+    [C_TOK_PTR_OP] = "->",
+    [C_TOK_DOTS] = "...",
+    [C_TOK_DIV_ASSIGN] = "/=",
+    [C_TOK_LSHIFT_ASSIGN] = "<<=",
+    [C_TOK_LEFT_OP] = "<<",
+    [C_TOK_LE_OP] = "<=",
+    [C_TOK_EQ_OP] = "==",
+    [C_TOK_RSHIFT_ASSIGN] = ">>=",
+    [C_TOK_RIGHT_OP] = ">>",
+    [C_TOK_GE_OP] = ">=",
+    [C_TOK_XOR_ASSIGN] = "^=",
+    [C_TOK_LOGICAL_OR] = "||",
+    [C_TOK_OR_ASSIGN] = "|=",
+  };
+
+  return idents[self->id];
 }
 
 i32_t
@@ -266,40 +593,26 @@ main(void)
   lexer_t lexer;
 
   init(&lexer, lexer_t);
-  lexer_init_str(&lexer, " auto int double foo bar        float");
-  while (lex(&lexer)) {
+  lexer_init_str(&lexer,
+    "i32_t\n"
+    "main(void)\n"
+    "{\n"
+    "  return EXIT_SUCCESS;\n"
+    "}"
+  );
+  lrules_push(&lexer.rules, c_tok_parse_ident);
+  lrules_push(&lexer.rules, c_tok_parse_number);
+  lrules_push(&lexer.rules, c_tok_parse_syn);
+  lexer.tok_str = c_tok_ident_str;
+  while (lexer_scan(&lexer, 1)) {
     tok_t tok;
 
-    if (toks_shift(&lexer.toks, &tok)) {
-      switch (tok.kind) {
-        case TOK_KEYWORD:
-          switch (tok.id) {
-            case C_TOK_AUTO: puts("auto");
-              break;
-            case C_TOK_INT: puts("int");
-              break;
-            case C_TOK_DOUBLE: puts("double");
-              break;
-            case C_TOK_FLOAT: puts("float");
-              break;
-            default: break;
-          }
-          break;
-        case TOK_VALUE: {
-          val_t *val;
-
-          val = vals_offset(&lexer.vals, tok.id);
-          if (val->kind == VAL_IDENT) {
-            puts(val->val.ident.buf);
-          }
-          break;
-        }
-        default: break;
-      }
+    while (toks_shift(&lexer.toks, &tok)) {
+      lexer_tok_dump(&lexer, &tok, cout);
+      cout_putc(' ');
     }
   }
-  if (lexer.errs.len) {
-    return EXIT_FAILURE;
-  }
+  lexer_ctor(&lexer);
+  cout_flush();
   return EXIT_SUCCESS;
 }
