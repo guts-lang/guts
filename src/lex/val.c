@@ -140,8 +140,8 @@ val_parse_f64(val_t *self, char_t __const *str)
   f64_t f64, f;
   bool_t floating;
 
-  for (floating = false, f64 = 0.0, f = 1; *str; ++str){
-    if (*str == '.'){
+  for (floating = false, f64 = 0.0, f = 1; *str; ++str) {
+    if (*str == '.') {
       floating = true;
       continue;
     };
