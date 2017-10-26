@@ -48,13 +48,14 @@ main(void)
 {
   ex_t *e;
 
+  e = nil;
   TRY {
     puts("A");
     doit();
     puts("B");
-  } CATCH(e) {
-    puts("C");
-    ex_dump(e, stdout);
-  }
+  } CATCH(e);
+  assert(e);
+  assert(ENOMEM == e->code);
+  assert(ERRLVL_NOTICE == e->lvl);
   return 0;
 }
