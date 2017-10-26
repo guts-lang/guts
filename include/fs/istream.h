@@ -41,7 +41,7 @@ typedef enum istream_kind istream_kind_t;
 typedef struct istream istream_t;
 
 struct istream {
-  istream_kind_t kind : 1;
+  istream_kind_t kind : 2;
   union {
     ifstream_t file;
     imstream_t mem;

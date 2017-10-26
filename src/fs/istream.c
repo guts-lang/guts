@@ -148,9 +148,11 @@ istream_flush(istream_t *self)
 {
   switch (self->kind) {
     case ISTREAM_FILE:
-      return ifstream_flush(&self->u.file);
+      ifstream_flush(&self->u.file);
+      break;
     case ISTREAM_MEM:
-      return imstream_flush(&self->u.mem);
+      imstream_flush(&self->u.mem);
+      break;
     default:
       THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
   }
