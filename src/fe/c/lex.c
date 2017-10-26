@@ -253,7 +253,7 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
   switch (peek) {
     case '!':
       if (src_peek(src, 1) == '=') {
-        self->id = C_TOK_NE_OP;
+        self->id = C_TOK_NEQ;
         self->kind = TOK_PONCT;
         src_next(src);
         break;
@@ -262,7 +262,7 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
       break;
     case '#':
       if (src_peek(src, 1) == '#') {
-        self->id = C_TOK_TOKEN_PASTE;
+        self->id = C_TOK_PASTE;
         self->kind = TOK_PONCT;
         src_next(src);
         break;
@@ -280,7 +280,7 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
       break;
     case '&':
       if (src_peek(src, 1) == '&') {
-        self->id = C_TOK_LOGICAL_AND;
+        self->id = C_TOK_LAND;
         self->kind = TOK_PONCT;
         src_next(src);
         break;
@@ -310,13 +310,13 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
       break;
     case '+':
       if (src_peek(src, 1) == '=') {
-        self->id = C_TOK_PLUS_ASSIGN;
+        self->id = C_TOK_ADD_ASSIGN;
         self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
       if (src_peek(src, 1) == '+') {
-        self->id = C_TOK_INCREMENT;
+        self->id = C_TOK_INC;
         self->kind = TOK_PONCT;
         src_next(src);
         break;
@@ -328,19 +328,19 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
       break;
     case '-':
       if (src_peek(src, 1) == '=') {
-        self->id = C_TOK_MINUS_ASSIGN;
+        self->id = C_TOK_SUB_ASSIGN;
         self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
       if (src_peek(src, 1) == '-') {
-        self->id = C_TOK_DECREMENT;
+        self->id = C_TOK_DEC;
         self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
       if (src_peek(src, 1) == '>') {
-        self->id = C_TOK_PTR_OP;
+        self->id = C_TOK_ARROW;
         self->kind = TOK_PONCT;
         src_next(src);
         break;
@@ -390,18 +390,18 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
     case '<':
       if (src_peek(src, 1) == '<') {
         if (src_peek(src, 2) == '=') {
-          self->id = C_TOK_LSHIFT_ASSIGN;
+          self->id = C_TOK_LS_ASSIGN;
           self->kind = TOK_PONCT;
           src_next(src);
           break;
         }
-        self->id = C_TOK_LEFT_OP;
+        self->id = C_TOK_LS;
         self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
       if (src_peek(src, 1) == '=') {
-        self->id = C_TOK_LE_OP;
+        self->id = C_TOK_LE;
         self->kind = TOK_PONCT;
         src_next(src);
         break;
@@ -410,7 +410,7 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
       break;
     case '=':
       if (src_peek(src, 1) == '=') {
-        self->id = C_TOK_EQ_OP;
+        self->id = C_TOK_EQ;
         self->kind = TOK_PONCT;
         src_next(src);
         break;
@@ -420,18 +420,18 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
     case '>':
       if (src_peek(src, 1) == '>') {
         if (src_peek(src, 2) == '=') {
-          self->id = C_TOK_RSHIFT_ASSIGN;
+          self->id = C_TOK_RS_ASSIGN;
           self->kind = TOK_PONCT;
           src_next(src);
           break;
         }
-        self->id = C_TOK_RIGHT_OP;
+        self->id = C_TOK_RS;
         self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
       if (src_peek(src, 1) == '=') {
-        self->id = C_TOK_GE_OP;
+        self->id = C_TOK_GE;
         self->kind = TOK_PONCT;
         src_next(src);
         break;
@@ -464,7 +464,7 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
       break;
     case '|':
       if (src_peek(src, 1) == '|') {
-        self->id = C_TOK_LOGICAL_OR;
+        self->id = C_TOK_LOR;
         self->kind = TOK_PONCT;
         src_next(src);
         break;
@@ -543,28 +543,28 @@ c_tok_str(tok_t *self)
     case C_TOK_STATIC_ASSERT: return "_Static_assert";
     case C_TOK_THREAD_LOCAL: return "_Thread_local";
     case C_TOK_FUNC_NAME: return "__func__";
-    case C_TOK_NE_OP: return "!=";
-    case C_TOK_TOKEN_PASTE: return "##";
+    case C_TOK_NEQ: return "!=";
+    case C_TOK_PASTE: return "##";
     case C_TOK_MOD_ASSIGN: return "%=";
-    case C_TOK_LOGICAL_AND: return "&&";
+    case C_TOK_LAND: return "&&";
     case C_TOK_AND_ASSIGN: return "&=";
     case C_TOK_MUL_ASSIGN: return "*=";
-    case C_TOK_PLUS_ASSIGN: return "+=";
-    case C_TOK_INCREMENT: return "++";
-    case C_TOK_MINUS_ASSIGN: return "-=";
-    case C_TOK_DECREMENT: return "--";
-    case C_TOK_PTR_OP: return "->";
+    case C_TOK_ADD_ASSIGN: return "+=";
+    case C_TOK_INC: return "++";
+    case C_TOK_SUB_ASSIGN: return "-=";
+    case C_TOK_DEC: return "--";
+    case C_TOK_ARROW: return "->";
     case C_TOK_DOTS: return "...";
     case C_TOK_DIV_ASSIGN: return "/=";
-    case C_TOK_LSHIFT_ASSIGN: return "<<=";
-    case C_TOK_LEFT_OP: return "<<";
-    case C_TOK_LE_OP: return "<=";
-    case C_TOK_EQ_OP: return "==";
-    case C_TOK_RSHIFT_ASSIGN: return ">>=";
-    case C_TOK_RIGHT_OP: return ">>";
-    case C_TOK_GE_OP: return ">=";
+    case C_TOK_LS_ASSIGN: return "<<=";
+    case C_TOK_LS: return "<<";
+    case C_TOK_LE: return "<=";
+    case C_TOK_EQ: return "==";
+    case C_TOK_RS_ASSIGN: return ">>=";
+    case C_TOK_RS: return ">>";
+    case C_TOK_GE: return ">=";
     case C_TOK_XOR_ASSIGN: return "^=";
-    case C_TOK_LOGICAL_OR: return "||";
+    case C_TOK_LOR: return "||";
     case C_TOK_OR_ASSIGN: return "|=";
     default: return nil;
   }
