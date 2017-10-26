@@ -144,10 +144,10 @@ val_parse_f64(val_t *self, char_t __const *str)
     if (*str == '.') {
       floating = true;
       continue;
-    };
+    }
     if (isdigit(*str)) {
       if (floating) f /= 10.0f;
-      f64 = f64 * 10.0f + (float) *str - '0';
+      f64 = f64 * 10.0f + (f32_t) *str - '0';
     }
   }
   val_init_f64(self, f64 * f);
