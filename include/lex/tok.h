@@ -31,27 +31,17 @@
 
 #include "loc.h"
 #include "src.h"
-#include "val.h"
+#include "tokval.h"
 
-enum tok_kind {
-  TOK_SYNTAX = 0,
-  TOK_PONCT,
-  TOK_KEYWORD,
-  TOK_VALUE
-};
-
-typedef enum tok_kind tok_kind_t;
 typedef struct tok tok_t;
 
-/*!@brief The 32 bytes token structure
- * When kind is TOK_VALUE, instead of the type, an index to the value on the
- * lexer values cache is provided in the 'id' field. The loc struct provide also
- * an index to the related stream by the 'src' field.
- */
 struct tok {
-  tok_kind_t kind: 4;
   u16_t lws;
-  u32_t id;
+  bool_t is_id;
+  union {
+    u32_t id;
+    tokval_t *val;
+  };
   loc_t loc;
 };
 

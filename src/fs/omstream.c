@@ -54,11 +54,11 @@ SEQ_IMPL_grow(
 FORCEINLINE usize_t
 omstream_write(omstream_t *self, char_t __const *str, usize_t len)
 {
-  omstream_grow(self, len);
+  omstream_grow(self, len + 1);
   memcpy(self->buf + self->cur, str, len);
   self->cur += len;
   if (self->cur > self->len) {
-    self->len = self->cur;
+    self->buf[self->len = self->cur] = '\0';
   }
   return len;
 }

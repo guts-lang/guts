@@ -23,7 +23,6 @@
  * SOFTWARE.
  */
 
-#include <lex.h>
 #include "lex/src.h"
 
 FORCEINLINE void

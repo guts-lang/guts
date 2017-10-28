@@ -33,8 +33,6 @@
 
 #include "loc.h"
 
-typedef struct src src_t;
-
 struct src {
   istream_t stream;
   loc_t loc;

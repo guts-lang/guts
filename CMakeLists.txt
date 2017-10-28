@@ -68,7 +68,7 @@ macro (add_module MOD TYPE)
       PRIVATE API_COMPILE)
     if (MSVC)
       target_compile_options(${MOD}
-        PRIVATE /MT$<$<CONFIG:Debug>:d> /Za /Oy /W3
+        PRIVATE /MT$<$<CONFIG:Debug>:d> /Oy /W3
         PRIVATE /D_CRT_SECURE_NO_WARNINGS
         PRIVATE /O$<$<CONFIG:Debug>:d>$<$<CONFIG:Release>:x>)
     else ()
@@ -91,7 +91,7 @@ macro (add_module MOD TYPE)
       PRIVATE API_COMPILE)
     if (MSVC)
       target_compile_options(${MOD}
-        PRIVATE /MT$<$<CONFIG:Debug>:d> /Za /Oy /W3
+        PRIVATE /MT$<$<CONFIG:Debug>:d> /Oy /W3
         PRIVATE /D_CRT_SECURE_NO_WARNINGS
         PRIVATE /O$<$<CONFIG:Debug>:d>$<$<CONFIG:Release>:x>)
     else ()
@@ -133,7 +133,7 @@ macro (add_module MOD TYPE)
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
       if (MSVC)
         target_compile_options(${test}
-          PRIVATE /MTd /Za /Oy /W3
+          PRIVATE /MTd /Oy /W3
           PRIVATE /D_CRT_SECURE_NO_WARNINGS
           PRIVATE /Od)
       else ()

@@ -31,7 +31,7 @@ lexer_ctor(lexer_t *self)
 {
   init(self, lexer_t);
   toks_ctor(&self->toks);
-  vals_ctor(&self->vals);
+  tokvals_ctor(&self->tokvals);
   srcs_ctor(&self->srcs);
   lrules_ctor(&self->rules);
 }
@@ -40,7 +40,7 @@ FORCEINLINE void
 lexer_dtor(lexer_t *self)
 {
   toks_dtor(&self->toks, nil);
-  vals_dtor(&self->vals, val_dtor);
+  tokvals_dtor(&self->tokvals, tokval_dtor);
   srcs_dtor(&self->srcs, src_dtor);
   lrules_dtor(&self->rules, nil);
 }
@@ -51,9 +51,10 @@ lexer_init_file(lexer_t *self, char_t __const *filename)
   src_t src;
 
   lexer_ctor(self);
+
   src_init_file(&src, filename);
-  src.loc.src = self->srcs.head;
   srcs_unshift(&self->srcs, src);
+  src.loc.src = self->srcs.buf + self->srcs.head;
 }
 
 FORCEINLINE void
@@ -63,8 +64,8 @@ lexer_init_str(lexer_t *self, char_t __const *buf)
 
   lexer_ctor(self);
   src_init_str(&src, buf);
-  src.loc.src = self->srcs.head;
   srcs_unshift(&self->srcs, src);
+  src.loc.src = self->srcs.buf + self->srcs.head;
 }
 
 FORCEINLINE void
@@ -74,8 +75,8 @@ lexer_init_nstr(lexer_t *self, char_t __const *buf, usize_t n)
 
   lexer_ctor(self);
   src_init_nstr(&src, buf, n);
-  src.loc.src = self->srcs.head;
   srcs_unshift(&self->srcs, src);
+  src.loc.src = self->srcs.buf + self->srcs.head;
 }
 
 FORCEINLINE usize_t
@@ -85,7 +86,7 @@ lexer_scan(lexer_t *self, usize_t n)
 
   for (c = 0; c < n;) {
     tok_t tok;
-    val_t val;
+    tokval_t *val;
     src_t *src;
     char_t peek;
     lrule_t *rule;
@@ -105,14 +106,15 @@ lexer_scan(lexer_t *self, usize_t n)
       peek = src_next(src);
     }
     tok.loc = src->loc;
+    tokvals_grow(&self->tokvals, 1);
+    val = self->tokvals.buf + self->tokvals.len;
+    init(val, tokval_t);
+    tok.val = val;
     foreach (i, rule, invec(self->rules)) {
-      if ((*rule)(&tok, peek, &val, src)) {
-        if (tok.kind == TOK_VALUE) {
-          tok.id = self->vals.len;
-          vals_push(&self->vals, val);
-        }
+      if ((*rule)(&tok, peek, src)) {
         tok.loc.len = (u8_t) (src->loc.cursor - tok.loc.cursor);
         if (lexer_notify(self, LEXER_ON_TOK_PUSH, &tok)) {
+          if (!tok.is_id) ++self->tokvals.len;
           toks_push(&self->toks, tok);
           ++c;
           break;
@@ -123,19 +125,36 @@ lexer_scan(lexer_t *self, usize_t n)
   return c;
 }
 
+__api__ char_t __const *
+lexer_tok_tostr(lexer_t *self, tok_t *tok)
+{
+  if (tok->is_id)
+    return self->tok_str(tok->id);
+  else {
+    switch (tok->val->kind) {
+      case TOKVAL_STR: return "String";
+      case TOKVAL_IDENT: return "Identifier";
+      case TOKVAL_I8: case TOKVAL_I16: case TOKVAL_I32: case TOKVAL_I64:
+      case TOKVAL_U8: case TOKVAL_U16: case TOKVAL_U32: case TOKVAL_U64:
+      case TOKVAL_F32: case TOKVAL_F64:
+        return "Number";
+      default:
+        return "Unknown";
+    }
+  }
+}
+
 FORCEINLINE void
 lexer_tok_dump(lexer_t *self, tok_t *tok, ostream_t *stream)
 {
-  switch (tok->kind) {
-    case TOK_SYNTAX:
+  if (tok->is_id) {
+    char_t __const *str;
+
+    if ((str = self->tok_str(tok->id)) != nil)
+      ostream_puts(stream, str);
+    else
       ostream_putc(stream, (char_t) tok->id);
-      break;
-    case TOK_PONCT:
-    case TOK_KEYWORD:
-      ostream_puts(stream, self->tok_str(tok));
-      break;
-    case TOK_VALUE:
-      val_dump(self->vals.buf + tok->id, stream);
-      break;
+  } else {
+    tokval_dump(tok->val, stream);
   }
 }

@@ -23,36 +23,35 @@
  * SOFTWARE.
  */
 
-/*!@file lex/val.h
+/*!@file lex/tokval.h
  * @author uael
  */
-#ifndef __LEX_VAL_H
-# define __LEX_VAL_H
+#ifndef __LEX_TOKVAL_H
+# define __LEX_TOKVAL_H
 
 #include <ds/dstr.h>
 #include <fs/ostream.h>
 
-enum val_kind {
-  VAL_NULL,
-  VAL_STR,
-  VAL_IDENT,
-  VAL_I8,
-  VAL_I16,
-  VAL_I32,
-  VAL_I64,
-  VAL_U8,
-  VAL_U16,
-  VAL_U32,
-  VAL_U64,
-  VAL_F32,
-  VAL_F64
+enum tokval_kind {
+  TOKVAL_STR,
+  TOKVAL_IDENT,
+  TOKVAL_I8,
+  TOKVAL_I16,
+  TOKVAL_I32,
+  TOKVAL_I64,
+  TOKVAL_U8,
+  TOKVAL_U16,
+  TOKVAL_U32,
+  TOKVAL_U64,
+  TOKVAL_F32,
+  TOKVAL_F64
 };
 
-typedef enum val_kind val_kind_t;
-typedef struct val val_t;
+typedef enum tokval_kind tokval_kind_t;
+typedef struct tokval tokval_t;
 
-struct val {
-  val_kind_t kind : 4;
+struct tokval {
+  tokval_kind_t kind: 4;
   union {
     dstr_t str;
     dstr8_t ident;
@@ -69,54 +68,54 @@ struct val {
   } val;
 };
 
-VEC32_DEFINE(vals, val_t, addrcmp)
+VEC32_DEFINE(tokvals, tokval_t, addrcmp)
 
 __api__ void
-val_init_str(val_t *self, char_t *str);
+tokval_init_str(tokval_t *self, char_t *str);
 
 __api__ void
-val_init_ident(val_t *self, char_t *ident);
+tokval_init_ident(tokval_t *self, char_t *ident);
 
 __api__ void
-val_init_i8(val_t *self, i8_t i);
+tokval_init_i8(tokval_t *self, i8_t i);
 
 __api__ void
-val_init_i16(val_t *self, i16_t i);
+tokval_init_i16(tokval_t *self, i16_t i);
 
 __api__ void
-val_init_i32(val_t *self, i32_t i);
+tokval_init_i32(tokval_t *self, i32_t i);
 
 __api__ void
-val_init_i64(val_t *self, i64_t i);
+tokval_init_i64(tokval_t *self, i64_t i);
 
 __api__ void
-val_init_u8(val_t *self, u8_t i);
+tokval_init_u8(tokval_t *self, u8_t i);
 
 __api__ void
-val_init_u16(val_t *self, u16_t i);
+tokval_init_u16(tokval_t *self, u16_t i);
 
 __api__ void
-val_init_u32(val_t *self, u32_t i);
+tokval_init_u32(tokval_t *self, u32_t i);
 
 __api__ void
-val_init_u64(val_t *self, u64_t i);
+tokval_init_u64(tokval_t *self, u64_t i);
 
 __api__ void
-val_init_f32(val_t *self, f32_t f);
+tokval_init_f32(tokval_t *self, f32_t f);
 
 __api__ void
-val_init_f64(val_t *self, f64_t f);
+tokval_init_f64(tokval_t *self, f64_t f);
 
 __api__ void
-val_parse_i64(val_t *self, char_t __const *str);
+tokval_parse_i64(tokval_t *self, char_t __const *str);
 
 __api__ void
-val_parse_f64(val_t *self, char_t __const *str);
+tokval_parse_f64(tokval_t *self, char_t __const *str);
 
 __api__ void
-val_dtor(val_t *self);
+tokval_dtor(tokval_t *self);
 
 __api__ void
-val_dump(val_t *self, ostream_t *stream);
+tokval_dump(tokval_t *self, ostream_t *stream);
 
-#endif /* !__LEX_VAL_H */
+#endif /* !__LEX_TOKVAL_H */

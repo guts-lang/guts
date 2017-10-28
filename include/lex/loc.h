@@ -31,12 +31,16 @@
 
 #include <nt/tys.h>
 
+typedef struct src src_t;
 typedef struct loc loc_t;
 
+struct src;
+
 struct loc {
-  u8_t src, len;
-  u32_t line, col;
-  u64_t cursor;
+  src_t *src;
+  u16_t line, col;
+  u32_t cursor;
+  u16_t len;
 };
 
 #endif /* !__LEX_LOC_H */

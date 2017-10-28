@@ -26,12 +26,14 @@
 #include "fe/c/lex.h"
 
 static FORCEINLINE bool_t
-c_lex_ident(tok_t *self, char_t peek, val_t *val, src_t *src)
+c_lex_ident(tok_t *self, char_t peek, src_t *src)
 {
-  char_t str[256];
-  u8_t len;
-
   if (peek == '_' || isalpha(peek)) {
+    char_t str[256];
+    u8_t len;
+    u32_t id;
+
+    id = self->id;
     len = 0;
     do {
       str[len++] = peek;
@@ -203,11 +205,10 @@ c_lex_ident(tok_t *self, char_t peek, val_t *val, src_t *src)
         break;
       default: break;
     }
-    if (self->id == 0) {
-      val_init_ident(val, str);
-      self->kind = TOK_VALUE;
+    if (id != self->id) {
+      self->is_id = true;
     } else {
-      self->kind = TOK_KEYWORD;
+      tokval_init_ident(self->val, str);
     }
     return true;
   }
@@ -215,7 +216,7 @@ c_lex_ident(tok_t *self, char_t peek, val_t *val, src_t *src)
 }
 
 static FORCEINLINE bool_t
-c_lex_number(tok_t *self, char_t peek, val_t *val, src_t *src)
+c_lex_number(tok_t *self, char_t peek, src_t *src)
 {
   char_t str[256];
   u8_t len;
@@ -235,11 +236,10 @@ c_lex_number(tok_t *self, char_t peek, val_t *val, src_t *src)
         break;
       }
     }
-    self->kind = TOK_VALUE;
     if (floating) {
-      val_parse_f64(val, str);
+      tokval_parse_f64(self->val, str);
     } else {
-      val_parse_i64(val, str);
+      tokval_parse_i64(self->val, str);
     }
     return true;
   }
@@ -247,14 +247,15 @@ c_lex_number(tok_t *self, char_t peek, val_t *val, src_t *src)
 }
 
 static FORCEINLINE bool_t
-c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
+c_lex_syntax(tok_t *self, char_t peek, src_t *src)
 {
-  (void) val;
+  u32_t id;
+
+  id = self->id;
   switch (peek) {
     case '!':
       if (src_peek(src, 1) == '=') {
         self->id = C_TOK_NEQ;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
@@ -263,7 +264,6 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
     case '#':
       if (src_peek(src, 1) == '#') {
         self->id = C_TOK_PASTE;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
@@ -272,7 +272,6 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
     case '%':
       if (src_peek(src, 1) == '=') {
         self->id = C_TOK_MOD_ASSIGN;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
@@ -281,13 +280,11 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
     case '&':
       if (src_peek(src, 1) == '&') {
         self->id = C_TOK_LAND;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
       if (src_peek(src, 1) == '=') {
         self->id = C_TOK_AND_ASSIGN;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
@@ -302,7 +299,6 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
     case '*':
       if (src_peek(src, 1) == '=') {
         self->id = C_TOK_MUL_ASSIGN;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
@@ -311,13 +307,11 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
     case '+':
       if (src_peek(src, 1) == '=') {
         self->id = C_TOK_ADD_ASSIGN;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
       if (src_peek(src, 1) == '+') {
         self->id = C_TOK_INC;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
@@ -329,19 +323,16 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
     case '-':
       if (src_peek(src, 1) == '=') {
         self->id = C_TOK_SUB_ASSIGN;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
       if (src_peek(src, 1) == '-') {
         self->id = C_TOK_DEC;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
       if (src_peek(src, 1) == '>') {
         self->id = C_TOK_ARROW;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
@@ -350,7 +341,6 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
     case '.':
       if (src_peek(src, 1) == '.' && src_peek(src, 2) == '.') {
         self->id = C_TOK_DOTS;
-        self->kind = TOK_PONCT;
         src_next(src);
         src_next(src);
         break;
@@ -375,7 +365,6 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
       }
       if (src_peek(src, 1) == '=') {
         self->id = C_TOK_DIV_ASSIGN;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
@@ -391,18 +380,15 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
       if (src_peek(src, 1) == '<') {
         if (src_peek(src, 2) == '=') {
           self->id = C_TOK_LS_ASSIGN;
-          self->kind = TOK_PONCT;
           src_next(src);
           break;
         }
         self->id = C_TOK_LS;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
       if (src_peek(src, 1) == '=') {
         self->id = C_TOK_LE;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
@@ -411,7 +397,6 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
     case '=':
       if (src_peek(src, 1) == '=') {
         self->id = C_TOK_EQ;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
@@ -421,18 +406,15 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
       if (src_peek(src, 1) == '>') {
         if (src_peek(src, 2) == '=') {
           self->id = C_TOK_RS_ASSIGN;
-          self->kind = TOK_PONCT;
           src_next(src);
           break;
         }
         self->id = C_TOK_RS;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
       if (src_peek(src, 1) == '=') {
         self->id = C_TOK_GE;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
@@ -453,7 +435,6 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
     case '^':
       if (src_peek(src, 1) == '=') {
         self->id = C_TOK_XOR_ASSIGN;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
@@ -465,13 +446,11 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
     case '|':
       if (src_peek(src, 1) == '|') {
         self->id = C_TOK_LOR;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
       if (src_peek(src, 1) == '=') {
         self->id = C_TOK_OR_ASSIGN;
-        self->kind = TOK_PONCT;
         src_next(src);
         break;
       }
@@ -487,7 +466,8 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
       src_next(src);
       break;
   }
-  if (self->id) {
+  if (id != self->id) {
+    self->is_id = true;
     src_next(src);
     return true;
   }
@@ -495,9 +475,9 @@ c_lex_syntax(tok_t *self, char_t peek, val_t *val, src_t *src)
 }
 
 static FORCEINLINE char_t __const *
-c_tok_str(tok_t *self)
+c_tok_str(u32_t id)
 {
-  switch (self->id) {
+  switch (id) {
     case C_TOK_AUTO: return "auto";
     case C_TOK_BREAK: return "break";
     case C_TOK_CASE: return "case";

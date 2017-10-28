@@ -25,7 +25,7 @@
 
 #include "nt/ex/ex.h"
 
-static i32_t usr_code = 2000;
+static i32_t usr_code = EX_USR_BEGIN;
 
 FORCEINLINE i32_t
 ex_register(void)

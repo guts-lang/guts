@@ -23,56 +23,25 @@
  * SOFTWARE.
  */
 
-#include <cute.h>
+/*!@file lex/ex.h
+ * @author uael
+ */
+#ifndef __LEX_EX_H
+# define __LEX_EX_H
 
-#include "fe/c/lex.h"
+#include <nt/ex.h>
 
-#define TOKS_COUNT 21
+#include "tok.h"
 
-CUTEST_DATA {
-  lexer_t lexer;
-};
+extern i32_t lex_ex_code;
 
-CUTEST_SETUP {
-  lexer_init_str(&self->lexer,
-    "int\n"
-      "main(void)\n"
-      "{\n"
-      "  int i = 1 * 2;\n"
-      "  i *= 3;\n"
-      "  return EXIT_SUCCESS;\n"
-      "}"
-  );
-  lexer_lex_c(&self->lexer);
-}
-CUTEST_TEARDOWN {
-  lexer_dtor(&self->lexer);
-  cout_flush();
-}
+struct lexer;
 
-CUTEST(fe_c, toks) {
-  u8_t i;
-  ostream_t s;
+__api__ ex_t
+lex_ex(loc_t __const *loc, errlvl_t lvl,
+  char_t __const *fmt, ...);
 
-  ostream_memopen(&s);
-  ASSERT_EQ(TOKS_COUNT, lexer_scan(&self->lexer, 50));
-  for (i = 0; i < TOKS_COUNT; ++i) {
-    tok_t tok;
+__api__ ex_t
+lex_inval_tok_ex(struct lexer *lexer, tok_t *got, u32_t expected);
 
-    ASSERT(toks_shift(&self->lexer.toks, &tok));
-    lexer_tok_dump(&self->lexer, &tok, &s);
-  }
-  ASSERT_EQ(48, s.u.mem.len);
-  ASSERT_SEQ("intmain(void){inti=1*2;i*=3;returnEXIT_SUCCESS;}", s.u.mem.buf);
-  return CUTE_SUCCESS;
-}
-
-i32_t
-main(void)
-{
-  CUTEST_DATA test;
-
-  init(&test, CUTEST_DATA);
-  CUTEST_PASS(fe_c, toks);
-  return EXIT_SUCCESS;
-}
+#endif /* !__LEX_EX_H */

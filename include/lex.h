@@ -29,10 +29,11 @@
 #ifndef __LEX_H
 # define __LEX_H
 
+#include "lex/ex.h"
 #include "lex/lexer.h"
 #include "lex/loc.h"
 #include "lex/src.h"
 #include "lex/tok.h"
-#include "lex/val.h"
+#include "lex/tokval.h"
 
 #endif /* !__LEX_H */

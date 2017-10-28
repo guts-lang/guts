@@ -83,21 +83,19 @@ enum lexer_ev {
 };
 
 typedef enum lexer_ev lexer_ev_t;
-typedef bool_t (*lrule_t)(tok_t *, char_t, val_t *, src_t *);
+typedef bool_t (*lrule_t)(tok_t *, char_t, src_t *);
 typedef struct lexer lexer_t;
 
 VEC8_DEFINE(lrules, lrule_t, addrcmp)
 
 struct lexer {
-  bool_t root;
   observers_t observers;
   errs_t errs;
   srcs_t srcs;
-  lexer_t *origin;
   toks_t toks;
-  vals_t vals;
+  tokvals_t tokvals;
   lrules_t rules;
-  char_t __const *(*tok_str)(tok_t *);
+  char_t __const *(*tok_str)(u32_t);
 };
 
 OBSERVABLE_DEFINE(lexer, lexer_t, lexer_ev_t)
@@ -112,9 +110,6 @@ __api__ void
 lexer_init_file(lexer_t *self, char_t __const *filename);
 
 __api__ void
-lexer_init_stream(lexer_t *self, istream_t *stream);
-
-__api__ void
 lexer_init_str(lexer_t *self, char_t __const *buf);
 
 __api__ void
@@ -122,6 +117,9 @@ lexer_init_nstr(lexer_t *self, char_t __const *buf, usize_t n);
 
 __api__ usize_t
 lexer_scan(lexer_t *self, usize_t n);
+
+__api__ char_t __const *
+lexer_tok_tostr(lexer_t *self, tok_t *tok);
 
 __api__ void
 lexer_tok_dump(lexer_t *self, tok_t *tok, ostream_t *stream);
