@@ -58,7 +58,7 @@ typedef OBSERVER(pp, lexer_t, lex_event_code_t,
 void
 pp_dtor(pp_t *self) {
   printf("On pp dtor !\n");
-  macros_dtor(&self->macros);
+  macros_dtor(&self->macros, nil, nil);
 }
 
 bool_t

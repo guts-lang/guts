@@ -85,8 +85,8 @@ opts_ctor(opts_t *self, opt_t *opts, optcb_t callback)
 void
 opts_dtor(opts_t *self)
 {
-  optmap_dtor(&self->conf);
-  optmap_sc_dtor(&self->shortcuts);
+  optmap_dtor(&self->conf, nil, nil);
+  optmap_sc_dtor(&self->shortcuts, nil, nil);
   errs_dtor(&self->errs);
 }
 

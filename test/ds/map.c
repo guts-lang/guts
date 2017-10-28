@@ -66,13 +66,13 @@ CUTEST_TEARDOWN
 {
   test_i8map_ctor(&self->i8map);
   test_u8map_ctor(&self->u8map);
-  test_i16map_dtor(&self->i16map);
-  test_u16map_dtor(&self->u16map);
-  test_i32map_dtor(&self->i32map);
-  test_u32map_dtor(&self->u32map);
-  test_i64map_dtor(&self->i64map);
-  test_u64map_dtor(&self->u64map);
-  test_strmap_dtor(&self->strmap);
+  test_i16map_dtor(&self->i16map, nil, nil);
+  test_u16map_dtor(&self->u16map, nil, nil);
+  test_i32map_dtor(&self->i32map, nil, nil);
+  test_u32map_dtor(&self->u32map, nil, nil);
+  test_i64map_dtor(&self->i64map, nil, nil);
+  test_u64map_dtor(&self->u64map, nil, nil);
+  test_strmap_dtor(&self->strmap, nil, nil);
 }
 
 CUTEST(map, i8)

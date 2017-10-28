@@ -56,6 +56,28 @@ enum bucket {
     TValue *vals; \
   }
 
+#define map_pforeach(IT, K, V, M) \
+  for ( \
+    (IT) = 0; \
+    (IT) < (M)->len; \
+    ++(IT) \
+  ) if ( \
+      bucket_ispopulated((M)->buckets, IT) \
+        ? (((K) = (M)->keys + (IT)), ((V) = (M)->vals + (IT)), true) \
+        : false \
+    )
+
+#define map_foreach(IT, K, V, M) \
+  for ( \
+    (IT) = 0; \
+    (IT) < (M).len; \
+    ++(IT) \
+  ) if ( \
+      bucket_ispopulated((M).buckets, IT) \
+        ? (((K) = (M).keys + (IT)), ((V) = (M).vals + (IT)), true) \
+        : false \
+    )
+
 #define MAP_HASH_UPPER 0.77
 
 #define MAP_DEFINE_ALLOC(ID, TKey, TValue, TKey_CMP_FN, TValue_CMP_FN, \
@@ -66,8 +88,19 @@ enum bucket {
     init(self, ID##_t); \
   } \
   static FORCEINLINE void \
-  ID##_dtor(ID##_t *__restrict self) { \
+  ID##_dtor(ID##_t *__restrict self, void (*kdtor)(TKey *), \
+    void (*vdtor)(TValue *)) \
+  { \
     if (self && self->buckets) { \
+      if (kdtor || vdtor) { \
+        u32_t it; \
+        TKey *key; \
+        TValue *val; \
+        map_pforeach(it, key, val, self) { \
+          if (kdtor) kdtor(key); \
+          if (vdtor) vdtor(val); \
+        } \
+      } \
       FREE_FN((void *)self->keys); \
       FREE_FN(self->buckets); \
       FREE_FN((void *)self->vals); \

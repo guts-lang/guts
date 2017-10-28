@@ -43,12 +43,16 @@ c_pp_new(void)
 FORCEINLINE void
 c_pp_dtor(c_pp_t *self)
 {
-  c_macros_dtor(&self->macros);
+  c_macros_dtor(&self->macros, nil, c_macro_dtor);
   mem_free(self);
 }
 
 FORCEINLINE bool_t
 c_pp_update(c_pp_t *self, lexer_t *lexer, lexer_ev_t code, void *arg)
 {
+  (void) self;
+  (void) lexer;
+  (void) code;
+  (void) arg;
   return true;
 }
