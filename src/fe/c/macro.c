@@ -34,8 +34,8 @@ c_macro_ctor(c_macro_t *self)
 FORCEINLINE void
 c_macro_dtor(c_macro_t *self)
 {
-  toks_dtor(&self->params);
-  toks_dtor(&self->expand);
+  toks_dtor(&self->params, nil);
+  toks_dtor(&self->expand, nil);
   init(self, c_macro_t);
 }
 

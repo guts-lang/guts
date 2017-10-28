@@ -40,8 +40,8 @@ CUTEST_SETUP
 
 CUTEST_TEARDOWN
 {
-  dstr8_dtor(&self->dstr8);
-  dstr8_nomem_dtor(&self->dstr8_nomem);
+  dstr8_dtor(&self->dstr8, nil);
+  dstr8_nomem_dtor(&self->dstr8_nomem, nil);
 }
 
 CUTEST(dstr, ensure)

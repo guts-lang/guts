@@ -40,17 +40,6 @@
     u##TSizeBits##_t cap, head, tail; \
   }
 
-#define DEQ_IMPL_dtor(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  SEQ_DECL_dtor(SCOPE, ID, T, BITS) { \
-    self->CAP = 0; \
-    self->LEN = 0; \
-    self->head = 0; \
-    if (self->BUF) { \
-      FREE(self->BUF); \
-      self->BUF = nil; \
-    } \
-  }
-
 #define DEQ_IMPL_size(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_size(SCOPE, ID, T, BITS) { \
     return self->LEN - self->head; \
@@ -352,7 +341,7 @@
 #define DEQ_IMPL_DFT(SCOPE, ID, T, BITS, REALLOC, FREE, CMP) \
   SEQ_IMPL(SCOPE, ID, T, BITS, cap, tail, buf, REALLOC, FREE, CMP, \
     SEQ_IMPL_ctor, \
-    DEQ_IMPL_dtor, \
+    SEQ_IMPL_dtor, \
     SEQ_IMPL_cap, \
     DEQ_IMPL_size, \
     DEQ_IMPL_at, \

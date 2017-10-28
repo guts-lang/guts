@@ -39,10 +39,10 @@ lexer_ctor(lexer_t *self)
 FORCEINLINE void
 lexer_dtor(lexer_t *self)
 {
-  toks_dtor(&self->toks);
-  vals_dtor(&self->vals);
-  srcs_dtor(&self->srcs);
-  lrules_dtor(&self->rules);
+  toks_dtor(&self->toks, nil);
+  vals_dtor(&self->vals, val_dtor);
+  srcs_dtor(&self->srcs, src_dtor);
+  lrules_dtor(&self->rules, nil);
 }
 
 FORCEINLINE void

@@ -157,9 +157,9 @@ FORCEINLINE void
 val_dtor(val_t *self)
 {
   switch (self->kind) {
-    case VAL_STR: dstr_dtor(&self->val.str);
+    case VAL_STR: dstr_dtor(&self->val.str, nil);
       break;
-    case VAL_IDENT: dstr8_dtor(&self->val.ident);
+    case VAL_IDENT: dstr8_dtor(&self->val.ident, nil);
       break;
     default: break;
   }

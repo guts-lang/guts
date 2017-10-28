@@ -36,8 +36,8 @@
 #define invec(V) (V).buf, (V).len
 #define vecof(T, BITS) \
   struct { \
-    u##BITS##_t cap, len; \
     T *buf; \
+    u##BITS##_t cap, len; \
   }
 
 #define VEC_DECL(SCOPE, ID, T, BITS) \

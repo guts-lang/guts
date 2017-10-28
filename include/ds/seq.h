@@ -59,16 +59,21 @@
 
 #define SEQ_DECL_dtor(SCOPE, ID, T, BITS) \
   SCOPE void \
-  ID##_dtor(ID##_t *__restrict self)
+  ID##_dtor(ID##_t *__restrict self, void (*idtor)(T *))
 
 #define SEQ_IMPL_dtor(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_dtor(SCOPE, ID, T, BITS) { \
-    self->CAP = 0; \
-    self->LEN = 0; \
     if (self->BUF) { \
+      if (idtor) { \
+        u##BITS##_t i; \
+        T *item; \
+        foreach_nx(i, item, self->BUF, self->LEN) { \
+          idtor(item); \
+        } \
+      } \
       FREE(self->BUF); \
-      self->BUF = nil; \
     } \
+    init(self, ID##_t); \
   }
 
 #define SEQ_DECL_cap(SCOPE, ID, T, BITS) \
@@ -184,7 +189,7 @@
 
 #define SEQ_IMPL_trim(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_trim(SCOPE, ID, T, BITS) { \
-    if (self->LEN == 0 && self->CAP) ID##_dtor(self); \
+    if (self->LEN == 0 && self->CAP) ID##_dtor(self, nil); \
     else if (self->CAP > self->LEN) { \
       ID##_realloc(self, self->LEN); \
     } \

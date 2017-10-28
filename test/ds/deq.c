@@ -53,9 +53,9 @@ CUTEST_SETUP
 
 CUTEST_TEARDOWN
 {
-  i8deq_dtor(&self->i8deq);
-  i8deq_nomem_dtor(&self->i8deq_nomem);
-  line_dtor(&self->line);
+  i8deq_dtor(&self->i8deq, nil);
+  i8deq_nomem_dtor(&self->i8deq_nomem, nil);
+  line_dtor(&self->line, nil);
 }
 
 CUTEST(deq, ensure)
@@ -111,12 +111,12 @@ CUTEST(deq, ensure)
   ASSERT_EQ(pow2_next64(SEQ_MIN_CAP + 1), line_cap(&self->line));
   ASSERT_EQ(0, line_size(&self->line));
   ASSERT_NEQ(nil, self->line.buf);
-  line_dtor(&self->line);
+  line_dtor(&self->line, nil);
   line_ensure(&self->line, SEQ_MIN_CAP);
   ASSERT_EQ(SEQ_MIN_CAP, line_cap(&self->line));
   ASSERT_EQ(0, line_size(&self->line));
   ASSERT_NEQ(nil, self->line.buf);
-  line_dtor(&self->line);
+  line_dtor(&self->line, nil);
   line_ensure(&self->line, pow2_nextsize(SEQ_MIN_CAP + 1));
   ASSERT_EQ(pow2_next64(SEQ_MIN_CAP + 1), line_cap(&self->line));
   ASSERT_EQ(0, line_size(&self->line));

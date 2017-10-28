@@ -77,7 +77,7 @@ CUTEST_SETUP {
 }
 
 CUTEST_TEARDOWN {
-  strvec_dtor(&self->my_app.inputs);
+  strvec_dtor(&self->my_app.inputs, nil);
   opts_dtor(&self->opts);
 }
 

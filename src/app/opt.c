@@ -87,7 +87,7 @@ opts_dtor(opts_t *self)
 {
   optmap_dtor(&self->conf, nil, nil);
   optmap_sc_dtor(&self->shortcuts, nil, nil);
-  errs_dtor(&self->errs);
+  errs_dtor(&self->errs, nil);
 }
 
 bool_t
