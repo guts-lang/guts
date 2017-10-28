@@ -133,7 +133,7 @@ ex_dump_impl(ex_t *self, FILE *stream);
 
 void
 ex_dump(ex_t *self, FILE *stream) {
-  if (self->dump && self->dump != ex_dump) {
+  if (self->dump && (void *) self->dump != (void *) ex_dump) {
     self->dump(self, stream);
   } else {
     ex_dump_impl(self, stream);
@@ -159,9 +159,6 @@ ex_dump_impl(ex_t *self, FILE *stream) {
   char_t __const *lvl, *lvl_color;
   FILE *file;
 
-  if (self->prev) {
-    ex_dump(self->prev, stream);
-  }
   switch (self->lvl) {
     case ERRLVL_NOTICE:
       lvl = "notice";
@@ -180,32 +177,35 @@ ex_dump_impl(ex_t *self, FILE *stream) {
       lvl_color = _COLOR_RED;
       break;
   }
+  if (self->file) {
+    fprintf(stream, _COLOR_BOLD "%s: " _COLOR_RESET, self->file);
+  }
   if (self->fn) {
-    fprintf(stream,
-      _COLOR_BOLD "%s:" _COLOR_RESET " In function '" _COLOR_BOLD
-    "%s" _COLOR_RESET "':\n",
-      self->file, self->fn
+    fprintf(stream, "In function '" _COLOR_BOLD "%s" _COLOR_RESET "':\n",
+      self->fn
     );
-  } else {
-    fprintf(stream,
-      _COLOR_BOLD "%s:" _COLOR_RESET " In function:\n",
-      self->file
-    );
+  } else if (self->file) fputc('\n', stream);
+  if (self->file) {
+    fprintf(stream, _COLOR_BOLD "%s:" _COLOR_RESET, self->file);
+    if (self->line > 0) {
+      fprintf(stream, _COLOR_BOLD "%d:" _COLOR_RESET, self->line);
+      if (self->col > 0)
+        fprintf(stream, _COLOR_BOLD "%d:" _COLOR_RESET, self->col);
+    }
+    fputc(' ', stream);
   }
   if (self->code > 0) {
     fprintf(stream,
-      _COLOR_BOLD "%s:%d:" _COLOR_RESET " %s" _COLOR_BOLD "%s (%d):"
-    _COLOR_RESET " %s%s\n" _COLOR_RESET,
-      self->file, self->line, lvl_color, lvl, self->code, lvl_color, self->msg
+     "%s" _COLOR_BOLD "%s (%d):" _COLOR_RESET " %s%s\n" _COLOR_RESET,
+      lvl_color, lvl, self->code, lvl_color, self->msg
     );
   } else {
     fprintf(stream,
-      _COLOR_BOLD "%s:%d:" _COLOR_RESET " %s" _COLOR_BOLD "%s:" _COLOR_RESET
-    " %s%s\n" _COLOR_RESET,
-      self->file, self->line, lvl_color, lvl, lvl_color, self->msg
+      "%s" _COLOR_BOLD "%s:" _COLOR_RESET " %s%s\n" _COLOR_RESET,
+      lvl_color, lvl, lvl_color, self->msg
     );
   }
-  if ((file = fopen(self->file, "r")) != nil) {
+  if (self->file && (file = fopen(self->file, "r")) != nil) {
     char_t buf[4096], *begin, *end;
     u64_t size;
     u16_t i;

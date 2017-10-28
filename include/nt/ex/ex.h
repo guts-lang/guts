@@ -50,11 +50,11 @@ typedef struct ex ex_t;
 struct ex {
   errlvl_t lvl;
   char_t __const *fn, *file;
-  u32_t line;
-  i32_t col, code;
+  u32_t line, col;
+  i32_t code;
   char_t msg[U8_MAX];
   ex_t *prev;
-  void (*dump)(ex_t *self, FILE *stream);
+  void (*dump)(ex_t *self, void *stream);
 };
 
 __api__ void

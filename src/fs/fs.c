@@ -49,7 +49,7 @@ FORCEINLINE bool_t
 fs_exists(char_t __const *path)
 {
 #ifdef OS_WIN
-  if (_access(path, 00) == 0) {
+  if (_access(path, 0) == 0) {
 #else
   if (access(path, F_OK) == 0) {
 #endif

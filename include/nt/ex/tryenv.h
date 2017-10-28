@@ -42,8 +42,13 @@ struct tryenv {
 
 #define TRY if (setjmp(tryenv_push()->jmp) == 0)
 #define CATCH(e) else if (((e) = tryenv_pop()) != nil)
-#define THROW(E) tryenv_throw(E, __func__, __file__, __line__)
-#define RETHROW() tryenv_rethrow(__func__, __file__, __line__)
+#if defined DEBUG
+# define THROW(E) tryenv_throw(E, __pretty_func__, __file__, __line__)
+# define RETHROW() tryenv_rethrow(__pretty_func__, __file__, __line__)
+#else
+# define THROW(E) tryenv_throw(E, __pretty_func__, nil, 0)
+# define RETHROW() tryenv_rethrow(__pretty_func__, nil, 0)
+#endif
 
 __api__ tryenv_t *
 tryenv_push(void);

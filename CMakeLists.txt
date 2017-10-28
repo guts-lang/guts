@@ -127,6 +127,8 @@ macro (add_module MOD TYPE)
       target_include_directories(${test} PUBLIC
         ${guts_TEST_DIR})
       target_link_libraries(${test} ${MOD})
+      target_compile_definitions(${test}
+        PRIVATE $<$<CONFIG:Debug>:DEBUG>$<$<CONFIG:Release>:NDEBUG>)
       add_test(${MOD}_${${MOD}_TEST_NAME} ${test}
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
       if (MSVC)

@@ -28,7 +28,7 @@
 void
 doit2()
 {
-  THROW (ex_errno(ERRLVL_NOTICE, ENOMEM, nil));
+  THROW (ex_errno(ERRLVL_FATAL, ENOMEM, nil));
 }
 
 void
@@ -56,6 +56,6 @@ main(void)
   } CATCH(e);
   assert(e);
   assert(ENOMEM == e->code);
-  assert(ERRLVL_NOTICE == e->lvl);
+  assert(ERRLVL_FATAL == e->lvl);
   return 0;
 }
