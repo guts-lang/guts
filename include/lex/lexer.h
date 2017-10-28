@@ -86,9 +86,6 @@ typedef enum lexer_ev lexer_ev_t;
 typedef bool_t (*lrule_t)(tok_t *, char_t, val_t *, src_t *);
 typedef struct lexer lexer_t;
 
-DEQ32_DEFINE(toks, tok_t, addrcmp)
-VEC32_DEFINE(vals, val_t, addrcmp)
-DEQ8_DEFINE(srcs, src_t, addrcmp)
 VEC8_DEFINE(lrules, lrule_t, addrcmp)
 
 struct lexer {
@@ -103,7 +100,7 @@ struct lexer {
   char_t __const *(*tok_str)(tok_t *);
 };
 
-OBSERVABLE_DEFINE(lex_lexer, lexer_t, lexer_ev_t)
+OBSERVABLE_DEFINE(lexer, lexer_t, lexer_ev_t)
 
 __api__ void
 lexer_ctor(lexer_t *self);

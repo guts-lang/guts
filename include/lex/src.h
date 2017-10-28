@@ -40,6 +40,8 @@ struct src {
   loc_t loc;
 };
 
+DEQ8_DEFINE(srcs, src_t, addrcmp)
+
 __api__ void
 src_init_file(src_t *self, char_t __const *filename);
 

@@ -29,8 +29,7 @@
 #ifndef __FE_C_LEX_H
 # define __FE_C_LEX_H
 
-#include <lex/lexer.h>
-
+#include "pp.h"
 #include "toks.h"
 
 __api__ void

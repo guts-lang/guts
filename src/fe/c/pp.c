@@ -23,14 +23,32 @@
  * SOFTWARE.
  */
 
-/*!@file fe/c.h
- * @author uael
- */
-#ifndef __FE_C_H
-# define __FE_C_H
+#include "fe/c/pp.h"
 
-#include "c/lex.h"
-#include "c/macro.h"
-#include "c/toks.h"
+FORCEINLINE c_pp_t *
+c_pp_new(void)
+{
+  c_pp_t *pp;
 
-#endif /* !__FE_C_H */
+  if ((pp = mem_malloc(sizeof(c_pp_t))) == nil) {
+    THROW(ex_errno(ERRLVL_FATAL, errno, nil));
+  }
+  init(pp, c_pp_t);
+  c_macros_ctor(&pp->macros);
+  pp->update = c_pp_update;
+  pp->dtor = c_pp_dtor;
+  return pp;
+}
+
+FORCEINLINE void
+c_pp_dtor(c_pp_t *self)
+{
+  c_macros_dtor(&self->macros);
+  mem_free(self);
+}
+
+FORCEINLINE bool_t
+c_pp_update(c_pp_t *self, lexer_t *lexer, lexer_ev_t code, void *arg)
+{
+  return true;
+}

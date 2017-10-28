@@ -69,6 +69,8 @@ struct val {
   } val;
 };
 
+VEC32_DEFINE(vals, val_t, addrcmp)
+
 __api__ void
 val_init_str(val_t *self, char_t *str);
 

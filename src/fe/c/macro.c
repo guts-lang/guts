@@ -23,14 +23,24 @@
  * SOFTWARE.
  */
 
-/*!@file fe/c.h
- * @author uael
- */
-#ifndef __FE_C_H
-# define __FE_C_H
+#include "fe/c/macro.h"
 
-#include "c/lex.h"
-#include "c/macro.h"
-#include "c/toks.h"
+FORCEINLINE void
+c_macro_ctor(c_macro_t *self)
+{
+  init(self, c_macro_t);
+}
 
-#endif /* !__FE_C_H */
+FORCEINLINE void
+c_macro_dtor(c_macro_t *self)
+{
+  toks_dtor(&self->params);
+  toks_dtor(&self->expand);
+  init(self, c_macro_t);
+}
+
+FORCEINLINE i32_t
+c_macro_cmp(c_macro_t a, c_macro_t b)
+{
+  return strcmp(a.name, b.name);
+}

@@ -577,4 +577,5 @@ lexer_lex_c(lexer_t *self)
   lrules_push(&self->rules, c_lex_number);
   lrules_push(&self->rules, c_lex_syntax);
   self->tok_str = c_tok_str;
+  lexer_attach(self, c_pp_new());
 }

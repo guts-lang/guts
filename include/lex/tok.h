@@ -55,4 +55,6 @@ struct tok {
   loc_t loc;
 };
 
+DEQ32_DEFINE(toks, tok_t, addrcmp)
+
 #endif /* !__LEX_TOK_H */

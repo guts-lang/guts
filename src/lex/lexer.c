@@ -112,9 +112,11 @@ lexer_scan(lexer_t *self, usize_t n)
           vals_push(&self->vals, val);
         }
         tok.loc.len = (u8_t) (src->loc.cursor - tok.loc.cursor);
-        toks_push(&self->toks, tok);
-        ++c;
-        break;
+        if (lexer_notify(self, LEXER_ON_TOK_PUSH, &tok)) {
+          toks_push(&self->toks, tok);
+          ++c;
+          break;
+        }
       }
     }
   }

@@ -23,14 +23,30 @@
  * SOFTWARE.
  */
 
-/*!@file fe/c.h
+/*!@file fe/c/pp.h
  * @author uael
  */
-#ifndef __FE_C_H
-# define __FE_C_H
+#ifndef __FE_C_PP_H
+# define __FE_C_PP_H
 
-#include "c/lex.h"
-#include "c/macro.h"
-#include "c/toks.h"
+#include <ev/obs.h>
+#include <lex/lexer.h>
 
-#endif /* !__FE_C_H */
+#include "macro.h"
+
+typedef struct c_pp c_pp_t;
+
+OBSERVER(c_pp, lexer_t, lexer_ev_t,
+  c_macros_t macros;
+);
+
+__api__ c_pp_t *
+c_pp_new(void);
+
+__api__ void
+c_pp_dtor(c_pp_t *self);
+
+__api__ bool_t
+c_pp_update(c_pp_t *self, lexer_t *lexer, lexer_ev_t code, void *arg);
+
+#endif /* !__FE_C_PP_H */
