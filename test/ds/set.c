@@ -56,13 +56,13 @@ CUTEST_TEARDOWN
 {
   i8set_ctor(&self->i8set);
   u8set_ctor(&self->u8set);
-  i16set_dtor(&self->i16set);
-  u16set_dtor(&self->u16set);
-  i32set_dtor(&self->i32set);
-  u32set_dtor(&self->u32set);
-  i64set_dtor(&self->i64set);
-  u64set_dtor(&self->u64set);
-  strset_dtor(&self->strset);
+  i16set_dtor(&self->i16set, nil);
+  u16set_dtor(&self->u16set, nil);
+  i32set_dtor(&self->i32set, nil);
+  u32set_dtor(&self->u32set, nil);
+  i64set_dtor(&self->i64set, nil);
+  u64set_dtor(&self->u64set, nil);
+  strset_dtor(&self->strset, nil);
 }
 
 CUTEST(set, i8)

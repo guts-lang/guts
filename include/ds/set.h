@@ -42,6 +42,28 @@
     TItem *items; \
   }
 
+#define set_pforeach(IT, V, M) \
+  for ( \
+    (IT) = 0; \
+    (IT) < (M)->len; \
+    ++(IT) \
+  ) if ( \
+      bucket_ispopulated((M)->buckets, IT) \
+        ? (((V) = (M)->items + (IT)), true) \
+        : false \
+    )
+
+#define set_foreach(IT, V, M) \
+  for ( \
+    (IT) = 0; \
+    (IT) < (M).len; \
+    ++(IT) \
+  ) if ( \
+      bucket_ispopulated((M).buckets, IT) \
+        ? (((V) = (M).items + (IT)), true) \
+        : false \
+    )
+
 #define SET_DEFINE_ALLOC(ID, TItem, HASH_FN, HASHEQ_FN, \
   MALLOC_FN, REALLOC_FN, FREE_FN) \
   typedef setof(TItem) ID##_t; \
@@ -50,8 +72,15 @@
     init(self, ID##_t); \
   } \
   static FORCEINLINE void \
-  ID##_dtor(ID##_t *__restrict self) { \
+  ID##_dtor(ID##_t *__restrict self, void (*idtor)(TItem *)) { \
     if (self && self->buckets) { \
+      if (idtor) { \
+        u32_t it; \
+        TItem *item; \
+        set_pforeach(it, item, self) { \
+          idtor(item); \
+        } \
+      } \
       FREE_FN((void *)self->items); \
       FREE_FN(self->buckets); \
     } \
