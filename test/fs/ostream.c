@@ -23,6 +23,7 @@
  * SOFTWARE.
  */
 
+#include <fs.h>
 #include "fs/ostream.h"
 
 i32_t
@@ -35,6 +36,7 @@ main(void)
   if (ostream_open(&s1, "some1.log")) {
     usize_t off;
 
+    loop:
     ostream_puts(&s1, "This is an apple");
     off = ostream_tell(&s1);
     ostream_seek(&s1, off - 7);
@@ -56,8 +58,15 @@ main(void)
     }
     ostream_writef(&s1, " This is a digit: '%d'.", 5);
     ostream_close(&s1);
-  } else {
-    ex_dump(s1.ex, stdout);
+    if (s1.kind == OSTREAM_FILE) {
+      ostream_memopen(&s1);
+      goto loop;
+    } else {
+      assert(0 == memcmp(
+        "This is a Sample. This is a digit: '5'.",
+        s1.u.mem.buf, s1.u.mem.len
+      ));
+    }
   }
   cout_puts("Hello world");
   cout_putc('!');

@@ -23,64 +23,61 @@
  * SOFTWARE.
  */
 
-/*!@file fs/fd.h
+/*!@file fs/ofstream.h
  * @author uael
  */
-#ifndef __FS_FD_H
-# define __FS_FD_H
+#ifndef __FS_OFSTREAM_H
+# define __FS_OFSTREAM_H
 
-#include "defs.h"
-#include "fs.h"
+#include "fd.h"
 
-#if defined OS_WIN && __has_feature__(io_h)
-# define FS_FD_MODEL_WIN_UCRT
-#elif defined OS_WIN
-# define FS_FD_MODEL_WIN_NT
-#elif __has_feature__(unistd_h)
-# define FS_FD_MODEL_UNIX
-#else
-# define FS_FD_MODEL_NONE
-#endif
+typedef struct ofstream ofstream_t;
 
-#define FS_FD_DFT (-1)
-
-enum fs_open_mod {
-  FS_OPEN_RO = 1 << 0,
-  FS_OPEN_WO = 1 << 1,
-  FS_OPEN_RW = 1 << 2,
-  FS_OPEN_CREAT = 1 << 3,
-  FS_OPEN_APPEND = 1 << 4,
-  FS_OPEN_TRUNC = 1 << 5,
-  FS_OPEN_DIRECT = 1 << 6,
-  FS_OPEN_ASIO = 1 << 7
+struct ofstream {
+  char_t __const *filename;
+  fd_t fd;
+  char_t *buf;
+  usize_t beg, cur, end, len;
+  ex_t *ex;
 };
 
-enum fs_seek_mod {
-  FS_SEEK_BEG = 0,
-  FS_SEEK_CUR,
-  FS_SEEK_END
-};
-
-typedef enum fs_open_mod fs_open_mod_t;
-typedef enum fs_seek_mod fs_seek_mod_t;
-typedef i32_t fd_t;
+__api__ bool_t
+ofstream_open(ofstream_t *self, char_t __const *filename);
 
 __api__ void
-fd_open(fd_t *__restrict self, char_t __const *filename, u32_t flags);
+ofstream_close(ofstream_t *self);
+
+__api__ usize_t
+ofstream_write(ofstream_t *self, char_t __const *str, usize_t len);
+
+__api__ usize_t
+ofstream_writef(ofstream_t *self, char_t __const *fmt, ...);
+
+__api__ usize_t
+ofstream_vwritef(ofstream_t *self, char_t __const *fmt, va_list ap);
+
+__api__ usize_t
+ofstream_puts(ofstream_t *self, char_t __const *str);
+
+__api__ usize_t
+ofstream_putc(ofstream_t *self, char_t c);
 
 __api__ void
-fd_close(fd_t __const *__restrict self);
+ofstream_flush(ofstream_t *self);
+
+__api__ bool_t
+ofstream_rewind(ofstream_t *self, usize_t n);
+
+__api__ bool_t
+ofstream_forward(ofstream_t *self, usize_t n);
+
+__api__ void
+ofstream_resume(ofstream_t *self);
+
+__api__ bool_t
+ofstream_seek(ofstream_t *self, usize_t off);
 
 __api__ usize_t
-fd_read(fd_t __const *__restrict self, char_t *buf, usize_t len);
+ofstream_tell(ofstream_t __const *self);
 
-__api__ usize_t
-fd_write(fd_t __const *__restrict self, char_t __const *buf, usize_t len);
-
-__api__ usize_t
-fd_seek(fd_t __const *__restrict self, isize_t off, fs_seek_mod_t whence);
-
-__api__ usize_t
-fd_offset(fd_t __const *__restrict self);
-
-#endif /* !__FS_FD_H */
+#endif /* !__FS_OFSTREAM_H */

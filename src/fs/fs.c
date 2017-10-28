@@ -23,8 +23,7 @@
  * SOFTWARE.
  */
 
-#include "fs/op.h"
-#include "fs/fd.h"
+#include "fs.h"
 
 FORCEINLINE void
 fs_absolute(char_t __const *path, char_t *out)

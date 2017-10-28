@@ -29,17 +29,23 @@
 #ifndef __FS_OSTREAM_H
 # define __FS_OSTREAM_H
 
-#include "fd.h"
+#include "ofstream.h"
+#include "omstream.h"
 
+enum ostream_kind {
+  OSTREAM_FILE = 0,
+  OSTREAM_MEM
+};
+
+typedef enum ostream_kind ostream_kind_t;
 typedef struct ostream ostream_t;
 
 struct ostream {
-  char_t __const *filename;
-  fd_t fd;
-  bool_t opened;
-  char_t *buf;
-  usize_t beg, cur, end, len;
-  ex_t *ex;
+  ostream_kind_t kind : 2;
+  union {
+    ofstream_t file;
+    omstream_t mem;
+  } u;
 };
 
 extern ostream_t *cout;
@@ -53,11 +59,14 @@ extern ostream_t *cout;
 __api__ bool_t
 ostream_open(ostream_t *self, char_t __const *filename);
 
+__api__ bool_t
+ostream_memopen(ostream_t *self);
+
 __api__ void
 ostream_close(ostream_t *self);
 
 __api__ usize_t
-ostream_write(ostream_t *self, char_t __const *buf, usize_t len);
+ostream_write(ostream_t *self, char_t __const *str, usize_t len);
 
 __api__ usize_t
 ostream_writef(ostream_t *self, char_t __const *fmt, ...);
@@ -66,7 +75,7 @@ __api__ usize_t
 ostream_vwritef(ostream_t *self, char_t __const *fmt, va_list ap);
 
 __api__ usize_t
-ostream_puts(ostream_t *self, char_t __const *buf);
+ostream_puts(ostream_t *self, char_t __const *str);
 
 __api__ usize_t
 ostream_putc(ostream_t *self, char_t c);

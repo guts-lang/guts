@@ -27,92 +27,51 @@
 
 static char_t __cout_buf[FS_PAGE_SIZE];
 static ostream_t __cout = {
-  nil, 1, true, __cout_buf, 0, 0, 0, 0, nil
+  OSTREAM_FILE, { { nil, 1, __cout_buf, 0, 0, 0, 0, nil } }
 };
 
 ostream_t *cout = &__cout;
 
-__inline bool_t
+FORCEINLINE bool_t
 ostream_open(ostream_t *self, char_t __const *filename)
 {
-  if (self->filename && self->fd > 0)
-    return true;
-  else {
-    ex_t *e;
-
-    init(self, ostream_t);
-    TRY {
-      fd_open(&self->fd, filename, FS_OPEN_WO | FS_OPEN_APPEND | FS_OPEN_CREAT);
-    } CATCH(e) {
-      self->ex = e;
-      return false;
-    }
-    self->beg = self->cur = self->end = fd_offset(&self->fd);
-    self->filename = filename;
-    return true;
-  }
+  self->kind = OSTREAM_FILE;
+  return ofstream_open(&self->u.file, filename);
 }
 
-__inline void
+FORCEINLINE bool_t
+ostream_memopen(ostream_t *self)
+{
+  self->kind = OSTREAM_MEM;
+  return omstream_open(&self->u.mem);
+}
+
+FORCEINLINE void
 ostream_close(ostream_t *self)
 {
-  if (self->filename && self->fd > 1) {
-    ex_t *e;
-
-    ostream_flush(self);
-    TRY {
-      fd_close(&self->fd);
-    } CATCH(e) {
-      self->ex = e;
-    }
-    if (self->buf) {
-      mem_free(self->buf);
-      self->buf = nil;
-    }
-    self->filename = nil;
+  switch (self->kind) {
+    case OSTREAM_FILE:
+      ofstream_close(&self->u.file);
+      break;
+    case OSTREAM_MEM:
+      omstream_close(&self->u.mem);
+      break;
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
   }
 }
 
-usize_t
-ostream_write(ostream_t *self, char_t __const *buf, usize_t len)
+FORCEINLINE usize_t
+ostream_write(ostream_t *self, char_t __const *str, usize_t len)
 {
-  char_t __const *beg;
-
-  beg = buf;
-  while (len) {
-    usize_t b, cur;
-
-    if (!self->len) {
-      while (len >= FS_PAGE_SIZE) {
-        usize_t n;
-
-        n = fd_write(&self->fd, buf, FS_PAGE_SIZE);
-        len -= n;
-        buf += n;
-      }
-    }
-    b = FS_PAGE_SIZE - self->len;
-    if (b > len) b = len;
-    if (!self->buf) {
-      if ((self->buf = mem_malloc(FS_PAGE_SIZE * sizeof(char_t))) == nil) {
-        THROW(ex_errno(ERRLVL_FATAL, errno, nil));
-      }
-    }
-    cur = self->cur - self->beg;
-    memcpy(self->buf + cur, buf, (usize_t) b * sizeof(char_t));
-    self->cur += b;
-    cur += b;
-    if (cur > self->len) {
-      self->len = cur;
-      self->end += b;
-    }
-    len -= b;
-    buf += b;
-    if (self->len == FS_PAGE_SIZE) {
-      ostream_flush(self);
-    }
+  switch (self->kind) {
+    case OSTREAM_FILE:
+      return ofstream_write(&self->u.file, str, len);
+    case OSTREAM_MEM:
+      return omstream_write(&self->u.mem, str, len);
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
   }
-  return buf - beg;
 }
 
 usize_t
@@ -130,117 +89,120 @@ ostream_writef(ostream_t *self, char_t __const *fmt, ...)
 FORCEINLINE usize_t
 ostream_vwritef(ostream_t *self, char_t __const *fmt, va_list ap)
 {
-  char_t buf[FS_PAGE_SIZE];
-  i32_t n;
-
-  n = vsprintf(buf, fmt, ap);
-  if (n < 0 || n > FS_PAGE_SIZE) {
-    THROW(inval("Unable to writef, format is too long"));
+  switch (self->kind) {
+    case OSTREAM_FILE:
+      return ofstream_vwritef(&self->u.file, fmt, ap);
+    case OSTREAM_MEM:
+      return omstream_vwritef(&self->u.mem, fmt, ap);
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
   }
-  return ostream_write(self, buf, (usize_t) n);
 }
 
 FORCEINLINE usize_t
-ostream_puts(ostream_t *self, char_t __const *buf)
+ostream_puts(ostream_t *self, char_t __const *str)
 {
-  return ostream_write(self, buf, strlen(buf));
+  switch (self->kind) {
+    case OSTREAM_FILE:
+      return ofstream_puts(&self->u.file, str);
+    case OSTREAM_MEM:
+      return omstream_puts(&self->u.mem, str);
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
+  }
 }
 
 FORCEINLINE usize_t
 ostream_putc(ostream_t *self, char_t c)
 {
-  return ostream_write(self, &c, 1);
+  switch (self->kind) {
+    case OSTREAM_FILE:
+      return ofstream_putc(&self->u.file, c);
+    case OSTREAM_MEM:
+      return omstream_putc(&self->u.mem, c);
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
+  }
 }
 
-__inline void
+FORCEINLINE void
 ostream_flush(ostream_t *self)
 {
-  if (self->len) {
-    ex_t *e;
-
-    TRY {
-      self->beg += fd_write(&self->fd, self->buf, self->len);
-      self->len = 0;
-    } CATCH(e) {
-      self->ex = e;
-    }
+  switch (self->kind) {
+    case OSTREAM_FILE:
+      ofstream_flush(&self->u.file);
+      break;
+    case OSTREAM_MEM:
+      omstream_flush(&self->u.mem);
+      break;
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
   }
 }
 
-__inline bool_t
+FORCEINLINE bool_t
 ostream_rewind(ostream_t *self, usize_t n)
 {
-  if (!self->opened)
-    return false;
-  else {
-    ex_t *e;
-
-    if (n > self->cur) {
-      THROW(inval("Unable to rewind by '%zu' when cursor is '%zu'",
-        n, self->cur));
-    }
-    if (n >= self->len) {
-      ostream_flush(self);
-      TRY {
-        self->cur = self->beg = fd_seek(&self->fd, n, FS_SEEK_END);
-      } CATCH(e) {
-        self->ex = e;
-        return false;
-      }
-    } else {
-      self->cur -= n;
-    }
-    return true;
+  switch (self->kind) {
+    case OSTREAM_FILE:
+      return ofstream_rewind(&self->u.file, n);
+    case OSTREAM_MEM:
+      return omstream_rewind(&self->u.mem, n);
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
   }
 }
 
-__inline bool_t
+FORCEINLINE bool_t
 ostream_forward(ostream_t *self, usize_t n)
 {
-  if (!self->opened)
-    return false;
-  else {
-    ex_t *e;
-
-    if (self->cur + n > self->end) {
-      THROW(inval("Unable to rewind by '%zu' when remaining distance is '%zu'",
-        n, self->end - self->cur));
-    }
-    if (n > self->len) {
-      ostream_flush(self);
-      TRY {
-        fd_seek(&self->fd, n, FS_SEEK_CUR);
-      } CATCH(e) {
-        self->ex = e;
-        return false;
-      }
-    } else {
-      self->cur += n;
-    }
-    return true;
+  switch (self->kind) {
+    case OSTREAM_FILE:
+      return ofstream_forward(&self->u.file, n);
+    case OSTREAM_MEM:
+      return omstream_forward(&self->u.mem, n);
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
   }
 }
 
 FORCEINLINE void
 ostream_resume(ostream_t *self)
 {
-  if (self->cur - self->beg < self->len) {
-    self->cur = self->beg + self->len;
+  switch (self->kind) {
+    case OSTREAM_FILE:
+      ofstream_resume(&self->u.file);
+      break;
+    case OSTREAM_MEM:
+      omstream_resume(&self->u.mem);
+      break;
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
   }
 }
 
 FORCEINLINE bool_t
 ostream_seek(ostream_t *self, usize_t off)
 {
-  if (!self->opened)
-    return 0;
-  if (self->cur > off)
-    return ostream_rewind(self, self->cur - off);
-  return ostream_forward(self, off - self->cur);
+  switch (self->kind) {
+    case OSTREAM_FILE:
+      return ofstream_seek(&self->u.file, off);
+    case OSTREAM_MEM:
+      return omstream_seek(&self->u.mem, off);
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
+  }
 }
 
 FORCEINLINE usize_t
 ostream_tell(ostream_t __const *self)
 {
-  return self->cur;
+  switch (self->kind) {
+    case OSTREAM_FILE:
+      return ofstream_tell(&self->u.file);
+    case OSTREAM_MEM:
+      return omstream_tell(&self->u.mem);
+    default:
+      THROW(inval_enum(STRINGIFY(istream_kind_t), self->kind));
+  }
 }

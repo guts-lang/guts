@@ -203,6 +203,7 @@ FORCEINLINE void
 ifstream_flush(ifstream_t *self)
 {
   (void) self;
+  THROW(nimpl(__pretty_func__));
 }
 
 FORCEINLINE bool_t
@@ -210,7 +211,7 @@ ifstream_rewind(ifstream_t *self, usize_t n)
 {
   (void) self;
   (void) n;
-  return false;
+  THROW(nimpl(__pretty_func__));
 }
 
 FORCEINLINE bool_t
@@ -218,7 +219,7 @@ ifstream_forward(ifstream_t *self, usize_t n)
 {
   (void) self;
   (void) n;
-  return false;
+  THROW(nimpl(__pretty_func__));
 }
 
 FORCEINLINE void
