@@ -57,15 +57,20 @@ main(void)
       ex_dump(e, stdout);
     }
     ostream_writef(&s1, " This is a digit: '%d'.", 5);
-    ostream_close(&s1);
     if (s1.kind == OSTREAM_FILE) {
+      assert(0 == memcmp(
+        "This is a Sample. This is a digit: '5'.",
+        s1.u.file.buf, s1.u.file.cur
+      ));
+      ostream_close(&s1);
       ostream_memopen(&s1);
       goto loop;
     } else {
       assert(0 == memcmp(
         "This is a Sample. This is a digit: '5'.",
-        s1.u.mem.buf, s1.u.mem.len
+        s1.u.mem.buf, s1.u.mem.cur
       ));
+      ostream_close(&s1);
     }
   }
   cout_puts("Hello world");
