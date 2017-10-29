@@ -47,16 +47,14 @@
 
 #define seq_tyof(ID) PP_JOIN(ID, _t)
 #define seq_meth(ID, M) PP_JOIN(PP_JOIN(ID, _), M)
-
-#define foreach(idx, val, in) \
-  PP_MCALL(foreach_nx, idx, val, PP_EVAL(in))
-
-#define foreach_nx(idx, val, buf, len) \
-  for ( \
-    (val) = (buf), (idx) = 0; \
-    (idx) < (len); \
-    (val) = (buf) + ++(idx) \
-  )
+#define seqit_kv(IDX, VAL, SEQ, ID) \
+  ((VAL) = seq_meth(ID, begin)(SEQ), (IDX = 0)), \
+  ((VAL) != seq_meth(ID, end)(SEQ)), \
+  (++(VAL), ++(IDX))
+#define seqit(VAL, SEQ, ID) \
+  ((VAL) = seq_meth(ID, begin)(SEQ)), \
+  ((VAL) != seq_meth(ID, end)(SEQ)), \
+  (++(VAL))
 
 #define SEQ_DECL_ctor(SCOPE, ID, T, BITS) \
   SCOPE void \
@@ -75,9 +73,8 @@
   SEQ_DECL_dtor(SCOPE, ID, T, BITS) { \
     if (self->buf) { \
       if (idtor) { \
-        UTY(BITS) i; \
         T *item; \
-        foreach_nx(i, item, self->buf, self->len) { \
+        foreach (seqit(item, self, ID)) { \
           idtor(item); \
         } \
       } \
@@ -145,7 +142,7 @@
 #define SEQ_IMPL_ensure(SCOPE, ID, T, BITS, GROW) \
   SEQ_DECL_ensure(SCOPE, ID, T, BITS) { \
     if (self->cap < n) { \
-      seq_meth(ID, realloc)(self, GROW(n, BITS)); \
+      seq_meth(ID, realloc)(self, (UTY(BITS)) GROW(n, BITS)); \
     } \
   }
 
@@ -157,7 +154,7 @@
   SEQ_DECL_grow(SCOPE, ID, T, BITS) { \
     n += self->len; \
     if (self->cap < n) { \
-      seq_meth(ID, realloc)(self, GROW(n, BITS)); \
+      seq_meth(ID, realloc)(self, (UTY(BITS)) GROW(n, BITS)); \
     } \
   }
 
@@ -493,12 +490,12 @@
     popn, pop, \
     shiftn, shift, \
     removen, remove) \
-  ctor(SCOPE FORCEINLINE, ID, T, BITS) \
-  dtor(SCOPE FORCEINLINE, ID, T, BITS, FREE) \
   size(SCOPE FORCEINLINE, ID, T, BITS) \
   begin(SCOPE FORCEINLINE, ID, T, BITS) \
   end(SCOPE FORCEINLINE, ID, T, BITS) \
   at(SCOPE FORCEINLINE, ID, T, BITS) \
+  ctor(SCOPE FORCEINLINE, ID, T, BITS) \
+  dtor(SCOPE FORCEINLINE, ID, T, BITS, FREE) \
   realloc(SCOPE FORCEINLINE, ID, T, BITS, REALLOC) \
   ensure(SCOPE FORCEINLINE, ID, T, BITS, GROW) \
   grow(SCOPE FORCEINLINE, ID, T, BITS, GROW) \

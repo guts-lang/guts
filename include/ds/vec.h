@@ -33,12 +33,21 @@
 
 #include "seq.h"
 
-#define invec(V) (V).buf, (V).len
 #define vecof(T, BITS) \
   struct { \
     T *buf; \
     UTY(BITS) cap, len; \
   }
+
+#define vecit_kv(IDX, VAL, SEQ) \
+  ((VAL) = (SEQ).buf, (IDX = 0)), \
+  ((IDX) < (SEQ).len), \
+  ((VAL) = (SEQ).buf + ++(IDX))
+
+#define vecit(VAL, SEQ) \
+  ((VAL) = (SEQ).buf), \
+  ((VAL) != (SEQ).buf + (SEQ).len), \
+  (++(VAL))
 
 #define VEC_DECL_DFT(SCOPE, ID, T, BITS) \
   typedef vecof(T, BITS) seq_tyof(ID); \

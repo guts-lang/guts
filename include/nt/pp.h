@@ -65,4 +65,12 @@
 #define PP_VA_NARGS(...) \
   PP_MCALL(PP_VA_NARGS_PEEK, __VA_ARGS__, PP_VA_NARGS_RSEQ)
 
+#define foreach(IT) \
+  PP_MCALL(FOR, PP_EVAL(IT))
+#define FOR(DECL, COND, STEP) for (DECL; COND; STEP)
+#define rangeit(IDX, BEG, END) \
+  ((IDX) = (BEG)), \
+  ((IDX) < (END)), \
+  (++(IDX))
+
 #endif /* !__NT_PP_H */
