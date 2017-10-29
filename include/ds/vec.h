@@ -38,19 +38,17 @@
     T *buf; \
     UTY(BITS) cap, len; \
   }
-
+#define vecit(VAL, SEQ) \
+  ((VAL) = (SEQ).buf), \
+  ((VAL) != (SEQ).buf + (SEQ).len), \
+  (++(VAL))
 #define vecit_kv(IDX, VAL, SEQ) \
   ((VAL) = (SEQ).buf, (IDX = 0)), \
   ((IDX) < (SEQ).len), \
   ((VAL) = (SEQ).buf + ++(IDX))
 
-#define vecit(VAL, SEQ) \
-  ((VAL) = (SEQ).buf), \
-  ((VAL) != (SEQ).buf + (SEQ).len), \
-  (++(VAL))
-
 #define VEC_DECL_DFT(SCOPE, ID, T, BITS) \
-  typedef vecof(T, BITS) seq_tyof(ID); \
+  typedef vecof(T, BITS) SEQ_TY(ID); \
   SEQ_DECL(SCOPE, ID, T, BITS)
 
 #define VEC8_DECL(SCOPE, ID, T) VEC_DECL_DFT(SCOPE, ID, T, 8)
@@ -90,7 +88,7 @@
   VEC_IMPL_X(SCOPE, ID, T, size)
 
 #define VEC_DEFINE_DFT_X(ID, T, BITS, REALLOC, FREE) \
-  typedef vecof(T, BITS) seq_tyof(ID); \
+  typedef vecof(T, BITS) SEQ_TY(ID); \
   VEC_IMPL_DFT_X(static, ID, T, BITS, REALLOC, FREE)
 #define VEC8_DEFINE_DFT(ID, T, REALLOC, FREE) \
   VEC_DEFINE_DFT_X(ID, T, 8, REALLOC, FREE)
