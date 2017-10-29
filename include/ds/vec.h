@@ -43,7 +43,7 @@
   ((VAL) != (SEQ).buf + (SEQ).len), \
   (++(VAL))
 #define vecit_kv(IDX, VAL, SEQ) \
-  ((VAL) = (SEQ).buf, (IDX = 0)), \
+  ((VAL) = (SEQ).buf, (IDX) = 0), \
   ((IDX) < (SEQ).len), \
   ((VAL) = (SEQ).buf + ++(IDX))
 

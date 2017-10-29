@@ -33,387 +33,143 @@
 
 #include "seq.h"
 
-#define indeq(D) ((D).buf + (D).head), ((D).tail - (D).head)
-#define deqof(T, TSizeBits) \
+#define deqof(T, BITS) \
   struct { \
     T *buf; \
-    u##TSizeBits##_t cap, head, tail; \
+    UTY(BITS) cap, len, cur; \
   }
+#define deqit(VAL, SEQ) \
+  ((VAL) = (SEQ).buf), \
+  ((VAL) != (SEQ).buf + (SEQ).len), \
+  (++(VAL))
+#define deqit_kv(IDX, VAL, SEQ) \
+  ((VAL) = (SEQ).buf, (IDX) = 0), \
+  ((IDX) < (SEQ).len), \
+  ((VAL) = (SEQ).buf + ++(IDX))
 
-#define DEQ_IMPL_size(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+#define DEQ_DECL_DFT(SCOPE, ID, T, BITS) \
+  typedef deqof(T, BITS) SEQ_TY(ID); \
+  SEQ_DECL(SCOPE, ID, T, BITS)
+
+#define DEQ8_DECL(SCOPE, ID, T) DEQ_DECL_DFT(SCOPE, ID, T, 8)
+#define DEQ16_DECL(SCOPE, ID, T) DEQ_DECL_DFT(SCOPE, ID, T, 16)
+#define DEQ32_DECL(SCOPE, ID, T) DEQ_DECL_DFT(SCOPE, ID, T, 32)
+#define DEQ64_DECL(SCOPE, ID, T) DEQ_DECL_DFT(SCOPE, ID, T, 64)
+#define DEQ_DECL(SCOPE, ID, T) DEQ_DECL_DFT(SCOPE, ID, T, size)
+
+#define DEQ_IMPL_size(SCOPE, ID, T, BITS) \
   SEQ_DECL_size(SCOPE, ID, T, BITS) { \
-    return self->LEN - self->head; \
+    return self->len - self->cur; \
   }
 
-#define DEQ_IMPL_at(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  SEQ_DECL_at(SCOPE, ID, T, BITS) { \
-    return self->BUF[self->head + idx]; \
+#define DEQ_IMPL_begin(SCOPE, ID, T, BITS) \
+  SEQ_DECL_begin(SCOPE, ID, T, BITS) { \
+    return self->buf + self->cur; \
   }
 
-#define DEQ_IMPL_offset(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  SEQ_DECL_offset(SCOPE, ID, T, BITS) { \
-    return self->BUF + self->head + idx; \
+#define DEQ_IMPL_end(SCOPE, ID, T, BITS) \
+  SEQ_DECL_end(SCOPE, ID, T, BITS) { \
+    return self->buf + self->len - self->cur; \
   }
 
-#define DEQ_IMPL_insert(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  SEQ_DECL_insert(SCOPE, ID, T, BITS) { \
-    if (idx > ID##_size(self)) { \
-      return false; \
+#define DEQ_IMPL_unshiftn(SCOPE, ID, T, BITS) \
+  SEQ_DECL_unshiftn(SCOPE, ID, T, BITS) { \
+    UTY(BITS) len; \
+    T* it; \
+    SEQ_M(ID, grow)(self, n); \
+    if (self->cur >= n) { \
+      self->cur -= n; \
+      return SEQ_M(ID, begin)(self); \
+    } else if (self->cur) { \
+      n -= self->cur; \
+      self->cur = 0; \
     } \
-    ID##_grow(self, 1); \
-    if (idx == 0 && self->head) { \
-      --self->head; \
-    } else if (idx == ID##_size(self)) { \
-      ++self->LEN; \
-    } else { \
+    it = SEQ_M(ID, begin)(self); \
+    if ((len = SEQ_M(ID, size)(self)) > 0) { \
       memmove( \
-        self->BUF + self->head + idx + 1, \
-        self->BUF + self->head + idx, \
-        (usize_t) (self->LEN++ - idx) * sizeof(T) \
+        it + n, \
+        it, \
+        (usize_t) len * sizeof(T) \
       ); \
     } \
-    self->BUF[idx] = item; \
-    return true; \
+    self->len += n; \
+    return it; \
   }
 
-#define DEQ_IMPL_emplace(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
-  CMP) \
-  SEQ_DECL_emplace(SCOPE, ID, T, BITS) { \
-    if (idx > ID##_size(self)) { \
-      return false; \
-    } \
-    ID##_grow(self, n); \
-    if (idx == 0 && self->head >= n) { \
-      self->head -= n; \
-    } else if (idx == ID##_size(self)) { \
-      self->LEN += n; \
-    } else { \
-      memmove( \
-        self->BUF + self->head + idx + n, \
-        self->BUF + self->head + idx, \
-        (usize_t) (ID##_size(self) - idx) * sizeof(T) \
-      ); \
-      self->LEN += n; \
-    } \
-    memcpy(self->BUF + self->head + idx, items, (usize_t) n * sizeof(T)); \
-    return true; \
-  }
-
-#define DEQ_IMPL_unshift(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
-  CMP) \
-  SEQ_DECL_unshift(SCOPE, ID, T, BITS) { \
-    ID##_grow(self, 1); \
-    if (self->head == 0) { \
-      memmove( \
-        self->BUF + 1, \
-        self->BUF, \
-        (usize_t) self->LEN++ * sizeof(T) \
-      ); \
-    } else { \
-      --self->head; \
-    } \
-    self->BUF[self->head] = item; \
-    return true; \
-  }
-
-#define DEQ_IMPL_prepend(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
-  CMP) \
-  SEQ_DECL_prepend(SCOPE, ID, T, BITS) { \
-    if (n == 0) { \
-      return true; \
-    } \
-    ID##_grow(self, n); \
-    if (self->head == 0) { \
-      memmove( \
-        self->BUF + n, \
-        self->BUF, \
-        (usize_t) self->LEN * sizeof(T) \
-      ); \
-      self->LEN += n; \
-    } else if (self->head < n) { \
-      memmove( \
-        self->BUF + n, \
-        self->BUF + self->head, \
-        (usize_t) (self->LEN - self->head) * sizeof(T) \
-      ); \
-      self->LEN += n - self->head; \
-      self->head = 0; \
-    } else { \
-      self->head -= n; \
-    } \
-    memcpy(self->BUF, items, (usize_t) n * sizeof(T)); \
-    return true; \
-  }
-
-#define DEQ_IMPL_shift(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  SEQ_DECL_shift(SCOPE, ID, T, BITS) { \
-    if (ID##_size(self) == 0) { \
-      return false; \
-    } \
-    if (out != nil) { \
-      *out = self->BUF[self->head]; \
-    } \
-    ++self->head; \
-    return true; \
-  }
-
-#define DEQ_IMPL_nshift(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  SEQ_DECL_nshift(SCOPE, ID, T, BITS) { \
-    u##BITS##_t n2; \
-    if ((n2 = ID##_size(self)) == 0) { \
+#define DEQ_IMPL_shiftn(SCOPE, ID, T, BITS) \
+  SEQ_DECL_shiftn(SCOPE, ID, T, BITS) { \
+    UTY(BITS) len; \
+    if ((len = SEQ_M(ID, size)(self)) == 0) \
       return 0; \
-    } \
-    if (n2 > n) n2 = n; \
-    if (out != nil) { \
-      memcpy(*out, ID##_offset(self, 0), (usize_t) n2); \
-    } \
-    self->head += n2; \
-    return n2; \
-  }
-
-#define DEQ_IMPL_remove(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  SEQ_DECL_remove(SCOPE, ID, T, BITS) { \
-    if (idx >= ID##_size(self)) { \
-      return false; \
-    } \
-    if (out != nil) { \
-      *out = ID##_at(self, idx); \
-    } \
-    if (idx == 0) { \
-      ++self->head; \
-    } else if (idx + self->head + 1 == self->LEN) { \
-      --self->LEN; \
-    } else  { \
-      memmove( \
-        self->BUF + idx + self->head, \
-        self->BUF + idx + self->head + 1, \
-        (usize_t) (--self->LEN - idx) * sizeof(T) \
-      ); \
-    } \
-    return true; \
-  }
-
-#define DEQ_IMPL_removen(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
-  CMP) \
-  SEQ_DECL_removen(SCOPE, ID, T, BITS) { \
-    u##BITS##_t n2; \
-    if (idx >= (n2 = ID##_size(self))) { \
-      return false; \
-    } \
-    if (n2 > n) n2 = n; \
-    if (out != nil) { \
-      memcpy(*out, ID##_offset(self, idx), (usize_t) n2); \
-    } \
-    if (idx == 0) { \
-      self->head += n2; \
-    } else if (idx + self->head + n2 == self->LEN) { \
-      self->LEN -= n2; \
-    } else { \
-      memmove( \
-        self->BUF + self->head + idx, \
-        self->BUF + self->head + idx + n2, \
-        (usize_t) ((self->LEN -= n2) - idx) * sizeof(T) \
-      ); \
-    } \
-    return n2; \
-  }
-
-#define DEQ_IMPL_erase(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  SEQ_DECL_erase(SCOPE, ID, T, BITS) { \
-    u##BITS##_t len, i, j, n; \
-    if ((len = ID##_size(self)) == 0) { \
-      return 0; \
-    } \
-    for (i = self->head; i < self->LEN; ++i) { \
-      if (CMP(item, self->BUF[i]) == 0) { \
-        j = i; \
-        n = 1; \
-        while (i + 1 < self->LEN && CMP(item, self->BUF[i + 1]) == 0) { \
-          ++i; \
-          ++n; \
-        } \
-        memmove( \
-          self->BUF + j, \
-          self->BUF + j + n, \
-          (usize_t) ((self->LEN -= n) - j) * sizeof(T) \
-        ); \
+    else { \
+      T* it; \
+      if (n > len) n = len; \
+      it = SEQ_M(ID, begin)(self); \
+      if (out != nil) { \
+        memcpy(out, it, (usize_t) n * sizeof(T)); \
       } \
+      self->cur += n; \
+      return n; \
     } \
-    return len - ID##_size(self); \
   }
 
-#define DEQ_IMPL_erasen(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  SEQ_DECL_erasen(SCOPE, ID, T, BITS) { \
-    u##BITS##_t len, i, j, c; \
-    if (n == 0 || (len = ID##_size(self)) == 0) { \
-      return 0; \
-    } \
-    for (i = self->head; i < self->LEN && n > 0; ++i) { \
-      if (CMP(item, self->BUF[i]) == 0) { \
-        --n; \
-        j = i; \
-        c = 1; \
-        while (n > 0 && i + 1 < self->LEN && \
-          CMP(item, self->BUF[i + 1]) == 0) { \
-          --n; \
-          ++i; \
-          ++c; \
-        } \
-        memmove( \
-          self->BUF + j, \
-          self->BUF + j + c, \
-          (usize_t) ((self->LEN -= c) - j) * sizeof(T) \
-        ); \
-      } \
-    } \
-    return len - ID##_size(self); \
-  }
-
-#define DEQ_IMPL_eraseonce(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
-  CMP) \
-  SEQ_DECL_eraseonce(SCOPE, ID, T, BITS) { \
-    u##BITS##_t i; \
-    for (i = self->head; i < self->LEN; ++i) { \
-      if (CMP(item, self->BUF[i]) == 0) { \
-        memmove( \
-          self->BUF + i, \
-          self->BUF + i + 1, \
-          (usize_t) (--self->LEN - i) * sizeof(T) \
-        ); \
-        return true; \
-      } \
-    } \
-    return false; \
-  }
-
-#define DEQ_IMPL_cpy(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  SEQ_DECL_cpy(SCOPE, ID, T, BITS) { \
-    ID##_ensure(self, src->LEN); \
-    memcpy(self->BUF, src->BUF, (usize_t) (self->LEN = src->LEN)); \
-    self->head = src->head; \
-    return true; \
-  }
-
-#define DEQ_IMPL_ncpy(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  SEQ_DECL_ncpy(SCOPE, ID, T, BITS) { \
-    ID##_ensure(self, src->LEN); \
-    self->head = src->head; \
-    memcpy(self->BUF + src->head, src->BUF + src->head, (usize_t) (n)); \
-    self->LEN = self->head + n; \
-    return true; \
-  }
-
-#define DEQ_DECL(SCOPE, ID, T, BITS) \
-  SEQ_DECL(SCOPE, ID, T, BITS, \
-    SEQ_DECL_ctor, \
-    SEQ_DECL_dtor, \
-    SEQ_DECL_cap, \
-    SEQ_DECL_size, \
-    SEQ_DECL_at, \
-    SEQ_DECL_offset, \
-    SEQ_DECL_realloc, \
-    SEQ_DECL_ensure, \
-    SEQ_DECL_grow, \
-    SEQ_DECL_shrink, \
-    SEQ_DECL_trim, \
-    SEQ_DECL_insert, \
-    SEQ_DECL_emplace, \
-    SEQ_DECL_push, \
-    SEQ_DECL_append, \
-    SEQ_DECL_pop, \
-    SEQ_DECL_unshift, \
-    SEQ_DECL_prepend, \
-    SEQ_DECL_shift, \
-    SEQ_DECL_nshift, \
-    SEQ_DECL_remove, \
-    SEQ_DECL_removen, \
-    SEQ_DECL_erase, \
-    SEQ_DECL_erasen, \
-    SEQ_DECL_eraseonce, \
-    SEQ_DECL_cpy, \
-    SEQ_DECL_ncpy \
-  )
-#define DEQ8_DECL(SCOPE, ID, T) DEQ_DECL(SCOPE, ID, T, 8)
-#define DEQ16_DECL(SCOPE, ID, T) DEQ_DECL(SCOPE, ID, T, 16)
-#define DEQ32_DECL(SCOPE, ID, T) DEQ_DECL(SCOPE, ID, T, 32)
-#define DEQ64_DECL(SCOPE, ID, T) DEQ_DECL(SCOPE, ID, T, 64)
-
-#define DEQ_IMPL_DFT(SCOPE, ID, T, BITS, REALLOC, FREE, CMP) \
-  SEQ_IMPL(SCOPE, ID, T, BITS, cap, tail, buf, REALLOC, FREE, CMP, \
-    SEQ_IMPL_ctor, \
-    SEQ_IMPL_dtor, \
-    SEQ_IMPL_cap, \
+#define DEQ_IMPL_DFT_X(SCOPE, ID, T, BITS, REALLOC, FREE) \
+  SEQ_IMPL(SCOPE, ID, T, BITS, SEQ_GROW_POW2, REALLOC, FREE, \
     DEQ_IMPL_size, \
-    DEQ_IMPL_at, \
-    DEQ_IMPL_offset, \
-    SEQ_IMPL_realloc, \
-    SEQ_IMPL_ensure, \
-    SEQ_IMPL_grow, \
-    SEQ_IMPL_shrink, \
-    SEQ_IMPL_trim, \
-    DEQ_IMPL_insert, \
-    DEQ_IMPL_emplace, \
-    SEQ_IMPL_push, \
-    SEQ_IMPL_append, \
-    SEQ_IMPL_pop, \
-    DEQ_IMPL_unshift, \
-    DEQ_IMPL_prepend, \
-    DEQ_IMPL_shift, \
-    DEQ_IMPL_nshift, \
-    DEQ_IMPL_remove, \
-    DEQ_IMPL_removen, \
-    DEQ_IMPL_erase, \
-    DEQ_IMPL_erasen, \
-    DEQ_IMPL_eraseonce, \
-    DEQ_IMPL_cpy, \
-    DEQ_IMPL_ncpy \
+    DEQ_IMPL_begin, \
+    DEQ_IMPL_end, \
+    SEQ_IMPL_pushn, \
+    DEQ_IMPL_unshiftn, \
+    SEQ_IMPL_popn, \
+    DEQ_IMPL_shiftn \
   )
-#define DEQ8_IMPL_DFT(SCOPE, ID, T, REALLOC, FREE, CMP) \
-  DEQ_IMPL_DFT(SCOPE, ID, T, 8, REALLOC, FREE, CMP)
-#define DEQ16_IMPL_DFT(SCOPE, ID, T, REALLOC, FREE, CMP) \
-  DEQ_IMPL_DFT(SCOPE, ID, T, 16, REALLOC, FREE, CMP)
-#define DEQ32_IMPL_DFT(SCOPE, ID, T, REALLOC, FREE, CMP) \
-  DEQ_IMPL_DFT(SCOPE, ID, T, 32, REALLOC, FREE, CMP)
-#define DEQ64_IMPL_DFT(SCOPE, ID, T, REALLOC, FREE, CMP) \
-  DEQ_IMPL_DFT(SCOPE, ID, T, 64, REALLOC, FREE, CMP)
+#define DEQ8_IMPL_DFT(SCOPE, ID, T, REALLOC, FREE) \
+  DEQ_IMPL_DFT_X(SCOPE, ID, T, 8, REALLOC, FREE)
+#define DEQ16_IMPL_DFT(SCOPE, ID, T, REALLOC, FREE) \
+  DEQ_IMPL_DFT_X(SCOPE, ID, T, 16, REALLOC, FREE)
+#define DEQ32_IMPL_DFT(SCOPE, ID, T, REALLOC, FREE) \
+  DEQ_IMPL_DFT_X(SCOPE, ID, T, 32, REALLOC, FREE)
+#define DEQ_IMPL_DFT(SCOPE, ID, T, REALLOC, FREE) \
+  DEQ_IMPL_DFT_X(SCOPE, ID, T, size, REALLOC, FREE)
 
-#define DEQ_IMPL(SCOPE, ID, T, BITS, CMP) \
-  DEQ_IMPL_DFT(SCOPE, ID, T, BITS, mem_realloc, mem_free, CMP)
-#define DEQ8_IMPL(SCOPE, ID, T, CMP) \
-  DEQ_IMPL(SCOPE, ID, T, 8, CMP)
-#define DEQ16_IMPL(SCOPE, ID, T, CMP) \
-  DEQ_IMPL(SCOPE, ID, T, 16, CMP)
-#define DEQ32_IMPL(SCOPE, ID, T, CMP) \
-  DEQ_IMPL(SCOPE, ID, T, 32, CMP)
-#define DEQ64_IMPL(SCOPE, ID, T, CMP) \
-  DEQ_IMPL(SCOPE, ID, T, 64, CMP)
+#define DEQ_IMPL_X(SCOPE, ID, T, BITS) \
+  DEQ_IMPL_DFT_X(SCOPE, ID, T, BITS, mem_realloc, mem_free)
+#define DEQ8_IMPL(SCOPE, ID, T) \
+  DEQ_IMPL_X(SCOPE, ID, T, 8)
+#define DEQ16_IMPL(SCOPE, ID, T) \
+  DEQ_IMPL_X(SCOPE, ID, T, 16)
+#define DEQ32_IMPL(SCOPE, ID, T) \
+  DEQ_IMPL_X(SCOPE, ID, T, 32)
+#define DEQ_IMPL(SCOPE, ID, T) \
+  DEQ_IMPL_X(SCOPE, ID, T, size)
 
-#define DEQ_DEFINE_DFT(ID, T, BITS, REALLOC, FREE, CMP) \
-  typedef deqof(T, BITS) ID##_t; \
-  DEQ_IMPL_DFT(static FORCEINLINE, ID, T, BITS, REALLOC, FREE, CMP)
-#define DEQ8_DEFINE_DFT(ID, T, REALLOC, FREE, CMP) \
-  DEQ_DEFINE_DFT(ID, T, 8, REALLOC, FREE, CMP)
-#define DEQ16_DEFINE_DFT(ID, T, REALLOC, FREE, CMP) \
-  DEQ_DEFINE_DFT(ID, T, 16, REALLOC, FREE, CMP)
-#define DEQ32_DEFINE_DFT(ID, T, REALLOC, FREE, CMP) \
-  DEQ_DEFINE_DFT(ID, T, 32, REALLOC, FREE, CMP)
-#define DEQ64_DEFINE_DFT(ID, T, REALLOC, FREE, CMP) \
-  DEQ_DEFINE_DFT(ID, T, 64, REALLOC, FREE, CMP)
+#define DEQ_DEFINE_DFT_X(ID, T, BITS, REALLOC, FREE) \
+  typedef deqof(T, BITS) SEQ_TY(ID); \
+  DEQ_IMPL_DFT_X(static, ID, T, BITS, REALLOC, FREE)
+#define DEQ8_DEFINE_DFT(ID, T, REALLOC, FREE) \
+  DEQ_DEFINE_DFT_X(ID, T, 8, REALLOC, FREE)
+#define DEQ16_DEFINE_DFT(ID, T, REALLOC, FREE) \
+  DEQ_DEFINE_DFT_X(ID, T, 16, REALLOC, FREE)
+#define DEQ32_DEFINE_DFT(ID, T, REALLOC, FREE) \
+  DEQ_DEFINE_DFT_X(ID, T, 32, REALLOC, FREE)
+#define DEQ_DEFINE_DFT(ID, T, REALLOC, FREE) \
+  DEQ_DEFINE_DFT_X(ID, T, size, REALLOC, FREE)
 
-#define DEQ_DEFINE_X(ID, T, BITS, CMP) \
-  DEQ_DEFINE_DFT(ID, T, BITS, mem_realloc, mem_free, CMP)
-#define DEQ8_DEFINE(ID, T, CMP) DEQ_DEFINE_X(ID, T, 8, CMP)
-#define DEQ16_DEFINE(ID, T, CMP) DEQ_DEFINE_X(ID, T, 16, CMP)
-#define DEQ32_DEFINE(ID, T, CMP) DEQ_DEFINE_X(ID, T, 32, CMP)
-#define DEQ_DEFINE(ID, T, CMP) DEQ_DEFINE_X(ID, T, size, CMP)
+#define DEQ_DEFINE_X(ID, T, BITS) \
+  DEQ_DEFINE_DFT_X(ID, T, BITS, mem_realloc, mem_free)
+#define DEQ8_DEFINE(ID, T) DEQ_DEFINE_X(ID, T, 8)
+#define DEQ16_DEFINE(ID, T) DEQ_DEFINE_X(ID, T, 16)
+#define DEQ32_DEFINE(ID, T) DEQ_DEFINE_X(ID, T, 32)
+#define DEQ_DEFINE(ID, T) DEQ_DEFINE_X(ID, T, size)
 
-DEQ_DEFINE(i8deq, i8_t, i8cmp)
-DEQ_DEFINE(u8deq, u8_t, u8cmp)
-DEQ_DEFINE(i16deq, i16_t, i16cmp)
-DEQ_DEFINE(u16deq, u16_t, u16cmp)
-DEQ_DEFINE(i32deq, i32_t, i32cmp)
-DEQ_DEFINE(u32deq, u32_t, u32cmp)
-DEQ_DEFINE(chardeq, char_t, i8cmp)
-DEQ_DEFINE(strdeq, char_t *, strcmp)
+DEQ_DECL(__api__, i8deq, i8_t);
+DEQ_DECL(__api__, u8deq, u8_t);
+DEQ_DECL(__api__, i16deq, i16_t);
+DEQ_DECL(__api__, u16deq, u16_t);
+DEQ_DECL(__api__, i32deq, i32_t);
+DEQ_DECL(__api__, u32deq, u32_t);
+DEQ_DECL(__api__, chardeq, char_t);
+DEQ_DECL(__api__, strdeq, char_t *);
+DEQ_DECL(__api__, errs, ex_t);
 
 #endif /* !__DS_DEQ_H */
