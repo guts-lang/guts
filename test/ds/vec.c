@@ -28,7 +28,7 @@
 #include "ds/vec.h"
 
 #define NOMEM_REALLOC(x, y) ((errno = ENOMEM), nil)
-VEC_DEFINE_DFT(i8vec_nomem, i8_t, 8, NOMEM_REALLOC, mem_free)
+VEC8_DEFINE_DFT(i8vec_nomem, i8_t, NOMEM_REALLOC, mem_free)
 
 static i8_t vi81234[4] = { 1, 2, 3, 4 };
 static i8_t vi84321[4] = { 4, 3, 2, 1 };
