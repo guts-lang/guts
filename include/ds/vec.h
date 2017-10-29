@@ -37,75 +37,28 @@
 #define vecof(T, BITS) \
   struct { \
     T *buf; \
-    u##BITS##_t cap, len; \
+    UTY(BITS) cap, len; \
   }
 
-#define VEC_DECL(SCOPE, ID, T, BITS) \
-  SEQ_DECL(SCOPE, ID, T, BITS, \
-    SEQ_DECL_ctor, \
-    SEQ_DECL_dtor, \
-    SEQ_DECL_cap, \
-    SEQ_DECL_size, \
-    SEQ_DECL_at, \
-    SEQ_DECL_front, \
-    SEQ_DECL_back, \
-    SEQ_DECL_realloc, \
-    SEQ_DECL_ensure, \
-    SEQ_DECL_grow, \
-    SEQ_DECL_shrink, \
-    SEQ_DECL_trim, \
-    SEQ_DECL_insert, \
-    SEQ_DECL_emplace, \
-    SEQ_DECL_push, \
-    SEQ_DECL_append, \
-    SEQ_DECL_pop, \
-    SEQ_DECL_unshift, \
-    SEQ_DECL_prepend, \
-    SEQ_DECL_shift, \
-    SEQ_DECL_nshift, \
-    SEQ_DECL_remove, \
-    SEQ_DECL_removen, \
-    SEQ_DECL_erase, \
-    SEQ_DECL_erasen, \
-    SEQ_DECL_eraseonce, \
-    SEQ_DECL_cpy, \
-    SEQ_DECL_ncpy \
-  )
-#define VEC8_DECL(SCOPE, ID, T) VEC_DECL(SCOPE, ID, T, 8)
-#define VEC16_DECL(SCOPE, ID, T) VEC_DECL(SCOPE, ID, T, 16)
-#define VEC32_DECL(SCOPE, ID, T) VEC_DECL(SCOPE, ID, T, 32)
-#define VEC64_DECL(SCOPE, ID, T) VEC_DECL(SCOPE, ID, T, 64)
+#define VEC_DECL_DFT(SCOPE, ID, T, BITS) \
+  typedef vecof(T, BITS) seq_tyof(ID); \
+  SEQ_DECL(SCOPE, ID, T, BITS)
+
+#define VEC8_DECL(SCOPE, ID, T) VEC_DECL_DFT(SCOPE, ID, T, 8)
+#define VEC16_DECL(SCOPE, ID, T) VEC_DECL_DFT(SCOPE, ID, T, 16)
+#define VEC32_DECL(SCOPE, ID, T) VEC_DECL_DFT(SCOPE, ID, T, 32)
+#define VEC64_DECL(SCOPE, ID, T) VEC_DECL_DFT(SCOPE, ID, T, 64)
+#define VEC_DECL(SCOPE, ID, T) VEC_DECL_DFT(SCOPE, ID, T, size)
 
 #define VEC_IMPL_DFT(SCOPE, ID, T, BITS, REALLOC, FREE, CMP) \
   SEQ_IMPL(SCOPE, ID, T, BITS, cap, len, buf, REALLOC, FREE, CMP, \
-    SEQ_IMPL_ctor, \
-    SEQ_IMPL_dtor, \
-    SEQ_IMPL_cap, \
     SEQ_IMPL_size, \
-    SEQ_IMPL_at, \
-    SEQ_IMPL_front, \
-    SEQ_IMPL_back, \
-    SEQ_IMPL_realloc, \
-    SEQ_IMPL_ensure, \
-    SEQ_IMPL_grow, \
-    SEQ_IMPL_shrink, \
-    SEQ_IMPL_trim, \
-    SEQ_IMPL_insert, \
-    SEQ_IMPL_emplace, \
-    SEQ_IMPL_push, \
-    SEQ_IMPL_append, \
-    SEQ_IMPL_pop, \
-    SEQ_IMPL_unshift, \
-    SEQ_IMPL_prepend, \
-    SEQ_IMPL_shift, \
-    SEQ_IMPL_nshift, \
-    SEQ_IMPL_remove, \
-    SEQ_IMPL_removen, \
-    SEQ_IMPL_erase, \
-    SEQ_IMPL_erasen, \
-    SEQ_IMPL_eraseonce, \
-    SEQ_IMPL_cpy, \
-    SEQ_IMPL_ncpy \
+    SEQ_IMPL_begin, \
+    SEQ_IMPL_end, \
+    SEQ_IMPL_pushn, \
+    SEQ_IMPL_unshiftn, \
+    SEQ_IMPL_popn, \
+    SEQ_IMPL_shiftn \
   )
 #define VEC8_IMPL_DFT(SCOPE, ID, T, REALLOC, FREE, CMP) \
   VEC_IMPL_DFT(SCOPE, ID, T, 8, REALLOC, FREE, CMP)
@@ -116,20 +69,22 @@
 #define VEC64_IMPL_DFT(SCOPE, ID, T, REALLOC, FREE, CMP) \
   VEC_IMPL_DFT(SCOPE, ID, T, 64, REALLOC, FREE, CMP)
 
-#define VEC_IMPL(SCOPE, ID, T, BITS, CMP) \
+#define VEC_IMPL_X(SCOPE, ID, T, BITS, CMP) \
   VEC_IMPL_DFT(SCOPE, ID, T, BITS, mem_realloc, mem_free, CMP)
 #define VEC8_IMPL(SCOPE, ID, T, CMP) \
-  VEC_IMPL(SCOPE, ID, T, 8, CMP)
+  VEC_IMPL_X(SCOPE, ID, T, 8, CMP)
 #define VEC16_IMPL(SCOPE, ID, T, CMP) \
-  VEC_IMPL(SCOPE, ID, T, 16, CMP)
+  VEC_IMPL_X(SCOPE, ID, T, 16, CMP)
 #define VEC32_IMPL(SCOPE, ID, T, CMP) \
-  VEC_IMPL(SCOPE, ID, T, 32, CMP)
+  VEC_IMPL_X(SCOPE, ID, T, 32, CMP)
 #define VEC64_IMPL(SCOPE, ID, T, CMP) \
-  VEC_IMPL(SCOPE, ID, T, 64, CMP)
+  VEC_IMPL_X(SCOPE, ID, T, 64, CMP)
+#define VEC_IMPL(SCOPE, ID, T, CMP) \
+  VEC_IMPL_X(SCOPE, ID, T, size, CMP)
 
 #define VEC_DEFINE_DFT(ID, T, BITS, REALLOC, FREE, CMP) \
-  typedef vecof(T, BITS) ID##_t; \
-  VEC_IMPL_DFT(static FORCEINLINE, ID, T, BITS, REALLOC, FREE, CMP)
+  typedef vecof(T, BITS) seq_tyof(ID); \
+  VEC_IMPL_DFT(static, ID, T, BITS, REALLOC, FREE, CMP)
 #define VEC8_DEFINE_DFT(ID, T, REALLOC, FREE, CMP) \
   VEC_DEFINE_DFT(ID, T, 8, REALLOC, FREE, CMP)
 #define VEC16_DEFINE_DFT(ID, T, REALLOC, FREE, CMP) \
@@ -146,14 +101,14 @@
 #define VEC32_DEFINE(ID, T, CMP) VEC_DEFINE_X(ID, T, 32, CMP)
 #define VEC_DEFINE(ID, T, CMP) VEC_DEFINE_X(ID, T, size, CMP)
 
-VEC_DEFINE(i8vec, i8_t, i8cmp)
-VEC_DEFINE(u8vec, u8_t, u8cmp)
-VEC_DEFINE(i16vec, i16_t, i16cmp)
-VEC_DEFINE(u16vec, u16_t, u16cmp)
-VEC_DEFINE(i32vec, i32_t, i32cmp)
-VEC_DEFINE(u32vec, u32_t, u32cmp)
-VEC_DEFINE(charvec, char_t, i8cmp)
-VEC_DEFINE(strvec, char_t *, strcmp)
-VEC_DEFINE(errs, ex_t, addrcmp)
+VEC_DECL(__api__, i8vec, i8_t);
+VEC_DECL(__api__, u8vec, u8_t);
+VEC_DECL(__api__, i16vec, i16_t);
+VEC_DECL(__api__, u16vec, u16_t);
+VEC_DECL(__api__, i32vec, i32_t);
+VEC_DECL(__api__, u32vec, u32_t);
+VEC_DECL(__api__, charvec, char_t);
+VEC_DECL(__api__, strvec, char_t *);
+VEC_DECL(__api__, errs, ex_t);
 
 #endif /* !__DS_VEC_H */
