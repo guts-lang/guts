@@ -206,6 +206,48 @@ CUTEST(vec, trim)
   return CUTE_SUCCESS;
 }
 
+CUTEST(vec, pushncpy)
+{
+  ex_t *e;
+
+  ASSERT_EQ(nil, i8vec_pushncpy(&self->i8vec, vi84321, 0));
+  ASSERT_EQ(0, i8vec_size(&self->i8vec));
+  ASSERT_EQ(nil, self->i8vec.buf);
+  ASSERT_NEQ(nil, i8vec_pushncpy(&self->i8vec, vi84321, 1));
+  ASSERT_EQ(1, i8vec_size(&self->i8vec));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
+  ASSERT_NEQ(nil, i8vec_pushncpy(&self->i8vec, vi84321, 2));
+  ASSERT_EQ(3, i8vec_size(&self->i8vec));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 1));
+  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 2));
+  ASSERT_NEQ(nil, i8vec_pushncpy(&self->i8vec, vi84321, 3));
+  ASSERT_EQ(6, i8vec_size(&self->i8vec));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 1));
+  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 2));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 3));
+  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 4));
+  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 5));
+  ASSERT_NEQ(nil, i8vec_pushncpy(&self->i8vec, vi84321, 4));
+  ASSERT_EQ(10, i8vec_size(&self->i8vec));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 1));
+  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 2));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 3));
+  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 4));
+  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 5));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 6));
+  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 7));
+  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 8));
+  ASSERT_EQ(1, *i8vec_at(&self->i8vec, 9));
+  TRY {
+    i8vec_nomem_pushncpy(&self->i8vec_nomem, vi84321, 4);
+    ASSERT(false);
+  } CATCH(e) (void) e;
+  return CUTE_SUCCESS;
+}
+
 CUTEST(vec, push)
 {
   u8_t i, j;
@@ -220,6 +262,67 @@ CUTEST(vec, push)
   }
   TRY {
     i8vec_nomem_push(&self->i8vec_nomem);
+    ASSERT(false);
+  } CATCH(e) (void) e;
+  return CUTE_SUCCESS;
+}
+
+CUTEST(vec, pushcpy)
+{
+  u8_t i, j;
+  ex_t *e;
+
+  for (i = 0; i < 100; ++i) {
+    i8vec_pushcpy(&self->i8vec, i);
+    ASSERT_EQ(i + 1, i8vec_size(&self->i8vec));
+    for (j = 0; j < i8vec_size(&self->i8vec); ++j) {
+      ASSERT_EQ(j, *i8vec_at(&self->i8vec, (u8_t) j));
+    }
+  }
+  TRY {
+    i8vec_nomem_pushcpy(&self->i8vec_nomem, 0);
+    ASSERT(false);
+  } CATCH(e) (void) e;
+  return CUTE_SUCCESS;
+}
+
+CUTEST(vec, unshiftncpy)
+{
+  ex_t *e;
+
+  ASSERT_EQ(nil, i8vec_unshiftncpy(&self->i8vec, vi84321, 0));
+  ASSERT_EQ(0, i8vec_size(&self->i8vec));
+  ASSERT_EQ(nil, self->i8vec.buf);
+  ASSERT_NEQ(nil, i8vec_unshiftncpy(&self->i8vec, vi84321, 1));
+  ASSERT_EQ(1, i8vec_size(&self->i8vec));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
+  ASSERT_NEQ(nil, i8vec_unshiftncpy(&self->i8vec, vi84321, 2));
+  ASSERT_EQ(3, i8vec_size(&self->i8vec));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
+  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 1));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 2));
+  ASSERT_NEQ(nil, i8vec_unshiftncpy(&self->i8vec, vi84321, 3));
+  ASSERT_EQ(6, i8vec_size(&self->i8vec));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
+  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 1));
+  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 2));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 3));
+  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 4));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 5));
+  ASSERT_NEQ(nil, i8vec_unshiftncpy(&self->i8vec, vi84321, 4));
+  ASSERT_EQ(10, i8vec_size(&self->i8vec));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
+  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 1));
+  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 2));
+  ASSERT_EQ(1, *i8vec_at(&self->i8vec, 3));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 4));
+  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 5));
+  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 6));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 7));
+  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 8));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 9));
+  TRY {
+    i8vec_nomem_unshiftncpy(&self->i8vec_nomem, vi84321, 4);
     ASSERT(false);
   } CATCH(e) (void) e;
   return CUTE_SUCCESS;
@@ -240,6 +343,68 @@ CUTEST(vec, unshift)
   }
   TRY {
     i8vec_nomem_unshift(&self->i8vec_nomem);
+    ASSERT(false);
+  } CATCH(e) (void) e;
+  return CUTE_SUCCESS;
+}
+
+CUTEST(vec, unshiftcpy)
+{
+  u8_t i, j;
+  i8_t k;
+  ex_t *e;
+
+  for (i = 0; i < 100; ++i) {
+    i8vec_unshiftcpy(&self->i8vec, i);
+    ASSERT_EQ(i + 1, i8vec_size(&self->i8vec));
+    for (j = 0, k = i; j < i8vec_size(&self->i8vec); ++j) {
+      ASSERT_EQ(k--, *i8vec_at(&self->i8vec, (u8_t) j));
+    }
+  }
+  TRY {
+    i8vec_nomem_unshiftcpy(&self->i8vec_nomem, 0);
+    ASSERT(false);
+  } CATCH(e) (void) e;
+  return CUTE_SUCCESS;
+}
+
+CUTEST(vec, putncpy)
+{
+  ex_t *e;
+
+  ASSERT_EQ(nil, i8vec_putncpy(&self->i8vec, 0, vi84321, 0));
+  ASSERT_EQ(0, i8vec_size(&self->i8vec));
+  ASSERT_EQ(nil, self->i8vec.buf);
+  ASSERT_NEQ(nil, i8vec_putncpy(&self->i8vec, 0, vi84321, 1));
+  ASSERT_EQ(1, i8vec_size(&self->i8vec));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
+  ASSERT_NEQ(nil, i8vec_putncpy(&self->i8vec, 1, vi84321, 2));
+  ASSERT_EQ(3, i8vec_size(&self->i8vec));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 1));
+  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 2));
+  ASSERT_NEQ(nil, i8vec_putncpy(&self->i8vec, 0, vi84321, 3));
+  ASSERT_EQ(6, i8vec_size(&self->i8vec));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
+  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 1));
+  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 2));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 3));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 4));
+  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 5));
+  ASSERT_NEQ(nil, i8vec_putncpy(&self->i8vec, 3, vi84321, 4));
+  ASSERT_EQ(10, i8vec_size(&self->i8vec));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
+  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 1));
+  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 2));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 3));
+  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 4));
+  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 5));
+  ASSERT_EQ(1, *i8vec_at(&self->i8vec, 6));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 7));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 8));
+  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 9));
+  TRY {
+    i8vec_nomem_putncpy(&self->i8vec_nomem, 0, vi84321, 1);
     ASSERT(false);
   } CATCH(e) (void) e;
   return CUTE_SUCCESS;
@@ -276,6 +441,36 @@ CUTEST(vec, put)
   ASSERT_EQ(0, memcmp(i8vec_begin(&self->i8vec), vi81234, 4));
   TRY {
     i8vec_nomem_put(&self->i8vec_nomem, 0);
+    ASSERT(false);
+  } CATCH(e) (void) e;
+  return CUTE_SUCCESS;
+}
+
+CUTEST(vec, putcpy)
+{
+  ex_t *e;
+
+  ASSERT_NEQ(nil, i8vec_putcpy(&self->i8vec, 0, 2));
+  ASSERT_EQ(1, i8vec_size(&self->i8vec));
+  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 0));
+  ASSERT_NEQ(nil, i8vec_putcpy(&self->i8vec, 1, 4));
+  ASSERT_EQ(2, i8vec_size(&self->i8vec));
+  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 0));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 1));
+  ASSERT_NEQ(nil, i8vec_putcpy(&self->i8vec, 0, 1));
+  ASSERT_EQ(3, i8vec_size(&self->i8vec));
+  ASSERT_EQ(1, *i8vec_at(&self->i8vec, 0));
+  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 1));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 2));
+  ASSERT_NEQ(nil, i8vec_putcpy(&self->i8vec, 2, 3));
+  ASSERT_EQ(4, i8vec_size(&self->i8vec));
+  ASSERT_EQ(1, *i8vec_at(&self->i8vec, 0));
+  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 1));
+  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 2));
+  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 3));
+  ASSERT_EQ(nil, i8vec_putcpy(&self->i8vec, 5, 5));
+  TRY {
+    i8vec_nomem_putcpy(&self->i8vec_nomem, 0, 1);
     ASSERT(false);
   } CATCH(e) (void) e;
   return CUTE_SUCCESS;
@@ -372,202 +567,6 @@ CUTEST(vec, rem)
   return CUTE_SUCCESS;
 }
 
-CUTEST(vec, pushncpy)
-{
-  ex_t *e;
-
-  ASSERT_EQ(nil, i8vec_pushncpy(&self->i8vec, vi84321, 0));
-  ASSERT_EQ(0, i8vec_size(&self->i8vec));
-  ASSERT_EQ(nil, self->i8vec.buf);
-  ASSERT_NEQ(nil, i8vec_pushncpy(&self->i8vec, vi84321, 1));
-  ASSERT_EQ(1, i8vec_size(&self->i8vec));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
-  ASSERT_NEQ(nil, i8vec_pushncpy(&self->i8vec, vi84321, 2));
-  ASSERT_EQ(3, i8vec_size(&self->i8vec));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 1));
-  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 2));
-  ASSERT_NEQ(nil, i8vec_pushncpy(&self->i8vec, vi84321, 3));
-  ASSERT_EQ(6, i8vec_size(&self->i8vec));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 1));
-  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 2));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 3));
-  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 4));
-  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 5));
-  ASSERT_NEQ(nil, i8vec_pushncpy(&self->i8vec, vi84321, 4));
-  ASSERT_EQ(10, i8vec_size(&self->i8vec));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 1));
-  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 2));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 3));
-  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 4));
-  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 5));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 6));
-  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 7));
-  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 8));
-  ASSERT_EQ(1, *i8vec_at(&self->i8vec, 9));
-  TRY {
-    i8vec_nomem_pushncpy(&self->i8vec_nomem, vi84321, 4);
-    ASSERT(false);
-  } CATCH(e) (void) e;
-  return CUTE_SUCCESS;
-}
-
-CUTEST(vec, unshiftncpy)
-{
-  ex_t *e;
-
-  ASSERT_EQ(nil, i8vec_unshiftncpy(&self->i8vec, vi84321, 0));
-  ASSERT_EQ(0, i8vec_size(&self->i8vec));
-  ASSERT_EQ(nil, self->i8vec.buf);
-  ASSERT_NEQ(nil, i8vec_unshiftncpy(&self->i8vec, vi84321, 1));
-  ASSERT_EQ(1, i8vec_size(&self->i8vec));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
-  ASSERT_NEQ(nil, i8vec_unshiftncpy(&self->i8vec, vi84321, 2));
-  ASSERT_EQ(3, i8vec_size(&self->i8vec));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
-  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 1));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 2));
-  ASSERT_NEQ(nil, i8vec_unshiftncpy(&self->i8vec, vi84321, 3));
-  ASSERT_EQ(6, i8vec_size(&self->i8vec));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
-  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 1));
-  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 2));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 3));
-  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 4));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 5));
-  ASSERT_NEQ(nil, i8vec_unshiftncpy(&self->i8vec, vi84321, 4));
-  ASSERT_EQ(10, i8vec_size(&self->i8vec));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
-  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 1));
-  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 2));
-  ASSERT_EQ(1, *i8vec_at(&self->i8vec, 3));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 4));
-  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 5));
-  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 6));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 7));
-  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 8));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 9));
-  TRY {
-    i8vec_nomem_unshiftncpy(&self->i8vec_nomem, vi84321, 4);
-    ASSERT(false);
-  } CATCH(e) (void) e;
-  return CUTE_SUCCESS;
-}
-
-CUTEST(vec, putncpy)
-{
-  ex_t *e;
-
-  ASSERT_EQ(nil, i8vec_putncpy(&self->i8vec, 0, vi84321, 0));
-  ASSERT_EQ(0, i8vec_size(&self->i8vec));
-  ASSERT_EQ(nil, self->i8vec.buf);
-  ASSERT_NEQ(nil, i8vec_putncpy(&self->i8vec, 0, vi84321, 1));
-  ASSERT_EQ(1, i8vec_size(&self->i8vec));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
-  ASSERT_NEQ(nil, i8vec_putncpy(&self->i8vec, 1, vi84321, 2));
-  ASSERT_EQ(3, i8vec_size(&self->i8vec));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 1));
-  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 2));
-  ASSERT_NEQ(nil, i8vec_putncpy(&self->i8vec, 0, vi84321, 3));
-  ASSERT_EQ(6, i8vec_size(&self->i8vec));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
-  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 1));
-  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 2));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 3));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 4));
-  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 5));
-  ASSERT_NEQ(nil, i8vec_putncpy(&self->i8vec, 3, vi84321, 4));
-  ASSERT_EQ(10, i8vec_size(&self->i8vec));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 0));
-  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 1));
-  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 2));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 3));
-  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 4));
-  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 5));
-  ASSERT_EQ(1, *i8vec_at(&self->i8vec, 6));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 7));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 8));
-  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 9));
-  TRY {
-    i8vec_nomem_putncpy(&self->i8vec_nomem, 0, vi84321, 1);
-    ASSERT(false);
-  } CATCH(e) (void) e;
-  return CUTE_SUCCESS;
-}
-
-CUTEST(vec, pushcpy)
-{
-  u8_t i, j;
-  ex_t *e;
-
-  for (i = 0; i < 100; ++i) {
-    i8vec_pushcpy(&self->i8vec, i);
-    ASSERT_EQ(i + 1, i8vec_size(&self->i8vec));
-    for (j = 0; j < i8vec_size(&self->i8vec); ++j) {
-      ASSERT_EQ(j, *i8vec_at(&self->i8vec, (u8_t) j));
-    }
-  }
-  TRY {
-    i8vec_nomem_pushcpy(&self->i8vec_nomem, 0);
-    ASSERT(false);
-  } CATCH(e) (void) e;
-  return CUTE_SUCCESS;
-}
-
-CUTEST(vec, unshiftcpy)
-{
-  u8_t i, j;
-  i8_t k;
-  ex_t *e;
-
-  for (i = 0; i < 100; ++i) {
-    i8vec_unshiftcpy(&self->i8vec, i);
-    ASSERT_EQ(i + 1, i8vec_size(&self->i8vec));
-    for (j = 0, k = i; j < i8vec_size(&self->i8vec); ++j) {
-      ASSERT_EQ(k--, *i8vec_at(&self->i8vec, (u8_t) j));
-    }
-  }
-  TRY {
-    i8vec_nomem_unshiftcpy(&self->i8vec_nomem, 0);
-    ASSERT(false);
-  } CATCH(e) (void) e;
-  return CUTE_SUCCESS;
-}
-
-CUTEST(vec, putcpy)
-{
-  ex_t *e;
-
-  ASSERT_NEQ(nil, i8vec_putcpy(&self->i8vec, 0, 2));
-  ASSERT_EQ(1, i8vec_size(&self->i8vec));
-  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 0));
-  ASSERT_NEQ(nil, i8vec_putcpy(&self->i8vec, 1, 4));
-  ASSERT_EQ(2, i8vec_size(&self->i8vec));
-  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 0));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 1));
-  ASSERT_NEQ(nil, i8vec_putcpy(&self->i8vec, 0, 1));
-  ASSERT_EQ(3, i8vec_size(&self->i8vec));
-  ASSERT_EQ(1, *i8vec_at(&self->i8vec, 0));
-  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 1));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 2));
-  ASSERT_NEQ(nil, i8vec_putcpy(&self->i8vec, 2, 3));
-  ASSERT_EQ(4, i8vec_size(&self->i8vec));
-  ASSERT_EQ(1, *i8vec_at(&self->i8vec, 0));
-  ASSERT_EQ(2, *i8vec_at(&self->i8vec, 1));
-  ASSERT_EQ(3, *i8vec_at(&self->i8vec, 2));
-  ASSERT_EQ(4, *i8vec_at(&self->i8vec, 3));
-  ASSERT_EQ(nil, i8vec_putcpy(&self->i8vec, 5, 5));
-  TRY {
-    i8vec_nomem_putcpy(&self->i8vec_nomem, 0, 1);
-    ASSERT(false);
-  } CATCH(e) (void) e;
-  return CUTE_SUCCESS;
-}
-
-
 i32_t
 main(void)
 {
@@ -577,17 +576,17 @@ main(void)
   CUTEST_PASS(vec, grow);
   CUTEST_PASS(vec, shrink);
   CUTEST_PASS(vec, trim);
+  CUTEST_PASS(vec, pushncpy);
   CUTEST_PASS(vec, push);
+  CUTEST_PASS(vec, pushcpy);
+  CUTEST_PASS(vec, unshiftncpy);
   CUTEST_PASS(vec, unshift);
+  CUTEST_PASS(vec, unshiftcpy);
+  CUTEST_PASS(vec, putncpy);
   CUTEST_PASS(vec, put);
+  CUTEST_PASS(vec, putcpy);
   CUTEST_PASS(vec, pop);
   CUTEST_PASS(vec, shift);
   CUTEST_PASS(vec, rem);
-  CUTEST_PASS(vec, pushncpy);
-  CUTEST_PASS(vec, unshiftncpy);
-  CUTEST_PASS(vec, putncpy);
-  CUTEST_PASS(vec, pushcpy);
-  CUTEST_PASS(vec, unshiftcpy);
-  CUTEST_PASS(vec, putcpy);
   return EXIT_SUCCESS;
 }

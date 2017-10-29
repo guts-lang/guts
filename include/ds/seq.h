@@ -196,6 +196,39 @@
     return it; \
   }
 
+#define SEQ_DECL_pushncpy(SCOPE, ID, T, BITS) \
+  SCOPE T* \
+  seq_meth(ID, pushncpy)(seq_tyof(ID) *__restrict self, T *items, UTY(BITS) n)
+
+#define SEQ_IMPL_pushncpy(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  SEQ_DECL_pushncpy(SCOPE, ID, T, BITS) { \
+    T *it; \
+    it = seq_meth(ID, pushn)(self, n); \
+    memcpy(it, items, (usize_t) n * sizeof(T)); \
+    return it; \
+  }
+
+#define SEQ_DECL_push(SCOPE, ID, T, BITS) \
+  SCOPE T* \
+  seq_meth(ID, push)(seq_tyof(ID) *__restrict self)
+
+#define SEQ_IMPL_push(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  SEQ_DECL_push(SCOPE, ID, T, BITS) { \
+    return seq_meth(ID, pushn)(self, 1); \
+  }
+
+#define SEQ_DECL_pushcpy(SCOPE, ID, T, BITS) \
+  SCOPE T* \
+  seq_meth(ID, pushcpy)(seq_tyof(ID) *__restrict self, T item)
+
+#define SEQ_IMPL_pushcpy(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  SEQ_DECL_pushcpy(SCOPE, ID, T, BITS) { \
+    T *it; \
+    it = seq_meth(ID, push)(self); \
+    *it = item; \
+    return it; \
+  }
+
 #define SEQ_DECL_unshiftn(SCOPE, ID, T, BITS) \
   SCOPE T* \
   seq_meth(ID, unshiftn)(seq_tyof(ID) *__restrict self, UTY(BITS) n)
@@ -212,6 +245,42 @@
       (usize_t) seq_meth(ID, size)(self) * sizeof(T) \
     ); \
     self->LEN += n; \
+    return it; \
+  }
+
+#define SEQ_DECL_unshiftncpy(SCOPE, ID, T, BITS) \
+  SCOPE T* \
+  seq_meth(ID, unshiftncpy)(seq_tyof(ID) *__restrict self, T *items, UTY(BITS) n)
+
+#define SEQ_IMPL_unshiftncpy(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
+  CMP) \
+  SEQ_DECL_unshiftncpy(SCOPE, ID, T, BITS) { \
+    T *it; \
+    it = seq_meth(ID, unshiftn)(self, n); \
+    memcpy(it, items, (usize_t) n * sizeof(T)); \
+    return it; \
+  }
+
+#define SEQ_DECL_unshift(SCOPE, ID, T, BITS) \
+  SCOPE T* \
+  seq_meth(ID, unshift)(seq_tyof(ID) *__restrict self)
+
+#define SEQ_IMPL_unshift(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
+  CMP) \
+  SEQ_DECL_unshift(SCOPE, ID, T, BITS) { \
+    return seq_meth(ID, unshiftn)(self, 1); \
+  }
+
+#define SEQ_DECL_unshiftcpy(SCOPE, ID, T, BITS) \
+  SCOPE T* \
+  seq_meth(ID, unshiftcpy)(seq_tyof(ID) *__restrict self, T item)
+
+#define SEQ_IMPL_unshiftcpy(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
+  CMP) \
+  SEQ_DECL_unshiftcpy(SCOPE, ID, T, BITS) { \
+    T *it; \
+    it = seq_meth(ID, unshift)(self); \
+    *it = item; \
     return it; \
   }
 
@@ -242,6 +311,43 @@
     } \
   }
 
+#define SEQ_DECL_putncpy(SCOPE, ID, T, BITS) \
+  SCOPE T* \
+  seq_meth(ID, putncpy)(seq_tyof(ID) *__restrict self, UTY(BITS) idx, T *items, \
+    UTY(BITS) n)
+
+#define SEQ_IMPL_putncpy(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
+  CMP) \
+  SEQ_DECL_putncpy(SCOPE, ID, T, BITS) { \
+    T *it; \
+    if ((it = seq_meth(ID, putn)(self, idx, n)) == nil) return nil; \
+    memcpy(it, items, (usize_t) n * sizeof(T)); \
+    return it; \
+  }
+
+#define SEQ_DECL_put(SCOPE, ID, T, BITS) \
+  SCOPE T* \
+  seq_meth(ID, put)(seq_tyof(ID) *__restrict self, UTY(BITS) idx)
+
+#define SEQ_IMPL_put(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  SEQ_DECL_put(SCOPE, ID, T, BITS) { \
+    return seq_meth(ID, putn)(self, idx, 1); \
+  }
+
+#define SEQ_DECL_putcpy(SCOPE, ID, T, BITS) \
+  SCOPE T* \
+  seq_meth(ID, putcpy)(seq_tyof(ID) *__restrict self, UTY(BITS) idx, T item)
+
+#define SEQ_IMPL_putcpy(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
+  CMP) \
+  SEQ_DECL_putcpy(SCOPE, ID, T, BITS) { \
+    T *it; \
+    if ((it = seq_meth(ID, put)(self, idx)) == nil) \
+      return nil; \
+    *it = item; \
+    return it; \
+  }
+
 #define SEQ_DECL_popn(SCOPE, ID, T, BITS) \
   SCOPE UTY(BITS) \
   seq_meth(ID, popn)(seq_tyof(ID) *__restrict self, UTY(BITS) n, T* out)
@@ -259,6 +365,15 @@
       } \
       return n; \
     } \
+  }
+
+#define SEQ_DECL_pop(SCOPE, ID, T, BITS) \
+  SCOPE bool_t \
+  seq_meth(ID, pop)(seq_tyof(ID) *__restrict self, T *__restrict out)
+
+#define SEQ_IMPL_pop(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  SEQ_DECL_pop(SCOPE, ID, T, BITS) { \
+    return seq_meth(ID, popn)(self, 1, out) == 1; \
   }
 
 #define SEQ_DECL_shiftn(SCOPE, ID, T, BITS) \
@@ -286,6 +401,15 @@
       ); \
       return n; \
     } \
+  }
+
+#define SEQ_DECL_shift(SCOPE, ID, T, BITS) \
+  SCOPE bool_t \
+  seq_meth(ID, shift)(seq_tyof(ID) *__restrict self, T *__restrict out)
+
+#define SEQ_IMPL_shift(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  SEQ_DECL_shift(SCOPE, ID, T, BITS) { \
+    return seq_meth(ID, shiftn)(self, 1, out) == 1; \
   }
 
 #define SEQ_DECL_removen(SCOPE, ID, T, BITS) \
@@ -320,52 +444,6 @@
     } \
   }
 
-#define SEQ_DECL_push(SCOPE, ID, T, BITS) \
-  SCOPE T* \
-  seq_meth(ID, push)(seq_tyof(ID) *__restrict self)
-
-#define SEQ_IMPL_push(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  SEQ_DECL_push(SCOPE, ID, T, BITS) { \
-    return seq_meth(ID, pushn)(self, 1); \
-  }
-
-#define SEQ_DECL_unshift(SCOPE, ID, T, BITS) \
-  SCOPE T* \
-  seq_meth(ID, unshift)(seq_tyof(ID) *__restrict self)
-
-#define SEQ_IMPL_unshift(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
-  CMP) \
-  SEQ_DECL_unshift(SCOPE, ID, T, BITS) { \
-    return seq_meth(ID, unshiftn)(self, 1); \
-  }
-
-#define SEQ_DECL_put(SCOPE, ID, T, BITS) \
-  SCOPE T* \
-  seq_meth(ID, put)(seq_tyof(ID) *__restrict self, UTY(BITS) idx)
-
-#define SEQ_IMPL_put(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  SEQ_DECL_put(SCOPE, ID, T, BITS) { \
-    return seq_meth(ID, putn)(self, idx, 1); \
-  }
-
-#define SEQ_DECL_pop(SCOPE, ID, T, BITS) \
-  SCOPE bool_t \
-  seq_meth(ID, pop)(seq_tyof(ID) *__restrict self, T *__restrict out)
-
-#define SEQ_IMPL_pop(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  SEQ_DECL_pop(SCOPE, ID, T, BITS) { \
-    return seq_meth(ID, popn)(self, 1, out) == 1; \
-  }
-
-#define SEQ_DECL_shift(SCOPE, ID, T, BITS) \
-  SCOPE bool_t \
-  seq_meth(ID, shift)(seq_tyof(ID) *__restrict self, T *__restrict out)
-
-#define SEQ_IMPL_shift(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  SEQ_DECL_shift(SCOPE, ID, T, BITS) { \
-    return seq_meth(ID, shiftn)(self, 1, out) == 1; \
-  }
-
 #define SEQ_DECL_remove(SCOPE, ID, T, BITS) \
   SCOPE bool_t \
   seq_meth(ID, remove)(seq_tyof(ID) *__restrict self, UTY(BITS) idx, T* out)
@@ -373,84 +451,6 @@
 #define SEQ_IMPL_remove(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   SEQ_DECL_remove(SCOPE, ID, T, BITS) { \
     return seq_meth(ID, removen)(self, idx, 1, out) == 1; \
-  }
-
-#define SEQ_DECL_pushncpy(SCOPE, ID, T, BITS) \
-  SCOPE T* \
-  seq_meth(ID, pushncpy)(seq_tyof(ID) *__restrict self, T *items, UTY(BITS) n)
-
-#define SEQ_IMPL_pushncpy(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  SEQ_DECL_pushncpy(SCOPE, ID, T, BITS) { \
-    T *it; \
-    it = seq_meth(ID, pushn)(self, n); \
-    memcpy(it, items, (usize_t) n * sizeof(T)); \
-    return it; \
-  }
-
-#define SEQ_DECL_unshiftncpy(SCOPE, ID, T, BITS) \
-  SCOPE T* \
-  seq_meth(ID, unshiftncpy)(seq_tyof(ID) *__restrict self, T *items, UTY(BITS) n)
-
-#define SEQ_IMPL_unshiftncpy(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
-  CMP) \
-  SEQ_DECL_unshiftncpy(SCOPE, ID, T, BITS) { \
-    T *it; \
-    it = seq_meth(ID, unshiftn)(self, n); \
-    memcpy(it, items, (usize_t) n * sizeof(T)); \
-    return it; \
-  }
-
-#define SEQ_DECL_putncpy(SCOPE, ID, T, BITS) \
-  SCOPE T* \
-  seq_meth(ID, putncpy)(seq_tyof(ID) *__restrict self, UTY(BITS) idx, T *items, \
-    UTY(BITS) n)
-
-#define SEQ_IMPL_putncpy(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
-  CMP) \
-  SEQ_DECL_putncpy(SCOPE, ID, T, BITS) { \
-    T *it; \
-    if ((it = seq_meth(ID, putn)(self, idx, n)) == nil) return nil; \
-    memcpy(it, items, (usize_t) n * sizeof(T)); \
-    return it; \
-  }
-
-#define SEQ_DECL_pushcpy(SCOPE, ID, T, BITS) \
-  SCOPE T* \
-  seq_meth(ID, pushcpy)(seq_tyof(ID) *__restrict self, T item)
-
-#define SEQ_IMPL_pushcpy(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  SEQ_DECL_pushcpy(SCOPE, ID, T, BITS) { \
-    T *it; \
-    it = seq_meth(ID, push)(self); \
-    *it = item; \
-    return it; \
-  }
-
-#define SEQ_DECL_unshiftcpy(SCOPE, ID, T, BITS) \
-  SCOPE T* \
-  seq_meth(ID, unshiftcpy)(seq_tyof(ID) *__restrict self, T item)
-
-#define SEQ_IMPL_unshiftcpy(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
-  CMP) \
-  SEQ_DECL_unshiftcpy(SCOPE, ID, T, BITS) { \
-    T *it; \
-    it = seq_meth(ID, unshift)(self); \
-    *it = item; \
-    return it; \
-  }
-
-#define SEQ_DECL_putcpy(SCOPE, ID, T, BITS) \
-  SCOPE T* \
-  seq_meth(ID, putcpy)(seq_tyof(ID) *__restrict self, UTY(BITS) idx, T item)
-
-#define SEQ_IMPL_putcpy(SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, \
-  CMP) \
-  SEQ_DECL_putcpy(SCOPE, ID, T, BITS) { \
-    T *it; \
-    if ((it = seq_meth(ID, put)(self, idx)) == nil) \
-      return nil; \
-    *it = item; \
-    return it; \
   }
 
 #define SEQ_DECL(SCOPE, ID, T, BITS) \
@@ -466,23 +466,23 @@
   SEQ_DECL_shrink(SCOPE, ID, T, BITS); \
   SEQ_DECL_trim(SCOPE, ID, T, BITS); \
   SEQ_DECL_pushn(SCOPE, ID, T, BITS); \
-  SEQ_DECL_unshiftn(SCOPE, ID, T, BITS); \
-  SEQ_DECL_putn(SCOPE, ID, T, BITS); \
-  SEQ_DECL_popn(SCOPE, ID, T, BITS); \
-  SEQ_DECL_shiftn(SCOPE, ID, T, BITS); \
-  SEQ_DECL_removen(SCOPE, ID, T, BITS); \
-  SEQ_DECL_push(SCOPE, ID, T, BITS); \
-  SEQ_DECL_unshift(SCOPE, ID, T, BITS); \
-  SEQ_DECL_put(SCOPE, ID, T, BITS); \
-  SEQ_DECL_pop(SCOPE, ID, T, BITS); \
-  SEQ_DECL_shift(SCOPE, ID, T, BITS); \
-  SEQ_DECL_remove(SCOPE, ID, T, BITS); \
   SEQ_DECL_pushncpy(SCOPE, ID, T, BITS); \
-  SEQ_DECL_unshiftncpy(SCOPE, ID, T, BITS); \
-  SEQ_DECL_putncpy(SCOPE, ID, T, BITS); \
+  SEQ_DECL_push(SCOPE, ID, T, BITS); \
   SEQ_DECL_pushcpy(SCOPE, ID, T, BITS); \
+  SEQ_DECL_unshiftn(SCOPE, ID, T, BITS); \
+  SEQ_DECL_unshiftncpy(SCOPE, ID, T, BITS); \
+  SEQ_DECL_unshift(SCOPE, ID, T, BITS); \
   SEQ_DECL_unshiftcpy(SCOPE, ID, T, BITS); \
-  SEQ_DECL_putcpy(SCOPE, ID, T, BITS)
+  SEQ_DECL_putn(SCOPE, ID, T, BITS); \
+  SEQ_DECL_putncpy(SCOPE, ID, T, BITS); \
+  SEQ_DECL_put(SCOPE, ID, T, BITS); \
+  SEQ_DECL_putcpy(SCOPE, ID, T, BITS); \
+  SEQ_DECL_popn(SCOPE, ID, T, BITS); \
+  SEQ_DECL_pop(SCOPE, ID, T, BITS); \
+  SEQ_DECL_shiftn(SCOPE, ID, T, BITS); \
+  SEQ_DECL_shift(SCOPE, ID, T, BITS); \
+  SEQ_DECL_removen(SCOPE, ID, T, BITS); \
+  SEQ_DECL_remove(SCOPE, ID, T, BITS)
 
 #define SEQ_IMPL_NX( \
     SCOPE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP, \
@@ -490,12 +490,12 @@
     size, \
     begin, end, at, \
     realloc, ensure, grow, shrink, trim, \
-    pushn, unshiftn, putn, \
-    popn, shiftn, removen, \
-    push, unshift, put, \
-    pop, shift, remove, \
-    pushncpy, unshiftncpy, putncpy, \
-    pushcpy, unshiftcpy, putcpy) \
+    pushn, pushncpy, push, pushcpy, \
+    unshiftn, unshiftncpy, unshift, unshiftcpy, \
+    putn, putncpy, put, putcpy, \
+    popn, pop, \
+    shiftn, shift, \
+    removen, remove) \
   ctor(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   dtor(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   size(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
@@ -508,23 +508,23 @@
   shrink(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   trim(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   pushn(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  unshiftn(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  putn(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  popn(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  shiftn(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  removen(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  push(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  unshift(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  put(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  pop(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  shift(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  remove(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   pushncpy(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  unshiftncpy(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  putncpy(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  push(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   pushcpy(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  unshiftn(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  unshiftncpy(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  unshift(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
   unshiftcpy(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
-  putcpy(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP)
+  putn(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  putncpy(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  put(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  putcpy(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  popn(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  pop(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  shiftn(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  shift(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  removen(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP) \
+  remove(SCOPE FORCEINLINE, ID, T, BITS, CAP, LEN, BUF, REALLOC, FREE, CMP)
 
 
 #define SEQ_IMPL( \
@@ -547,22 +547,22 @@
     SEQ_IMPL_shrink, \
     SEQ_IMPL_trim, \
     pushn, \
-    unshiftn, \
-    SEQ_IMPL_putn, \
-    popn, \
-    shiftn, \
-    SEQ_IMPL_removen, \
-    SEQ_IMPL_push, \
-    SEQ_IMPL_unshift, \
-    SEQ_IMPL_put, \
-    SEQ_IMPL_pop, \
-    SEQ_IMPL_shift, \
-    SEQ_IMPL_remove, \
     SEQ_IMPL_pushncpy, \
-    SEQ_IMPL_unshiftncpy, \
-    SEQ_IMPL_putncpy, \
+    SEQ_IMPL_push, \
     SEQ_IMPL_pushcpy, \
+    unshiftn, \
+    SEQ_IMPL_unshiftncpy, \
+    SEQ_IMPL_unshift, \
     SEQ_IMPL_unshiftcpy, \
-    SEQ_IMPL_putcpy)
+    SEQ_IMPL_putn, \
+    SEQ_IMPL_putncpy, \
+    SEQ_IMPL_put, \
+    SEQ_IMPL_putcpy, \
+    popn, \
+    SEQ_IMPL_pop, \
+    shiftn, \
+    SEQ_IMPL_shift, \
+    SEQ_IMPL_removen, \
+    SEQ_IMPL_remove)
 
 #endif /* !__DS_SEQ_H */
