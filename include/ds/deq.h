@@ -39,12 +39,12 @@
     UTY(BITS) cap, len, cur; \
   }
 #define deqit(VAL, SEQ) \
-  ((VAL) = (SEQ).buf), \
+  ((VAL) = (SEQ).buf + (SEQ).cur), \
   ((VAL) != (SEQ).buf + (SEQ).len), \
   (++(VAL))
 #define deqit_kv(IDX, VAL, SEQ) \
-  ((VAL) = (SEQ).buf, (IDX) = 0), \
-  ((IDX) < (SEQ).len), \
+  ((VAL) = (SEQ).buf + (SEQ).cur, (IDX) = 0), \
+  ((IDX) < (SEQ).len - (SEQ).cur), \
   ((VAL) = (SEQ).buf + ++(IDX))
 
 #define DEQ_DECL_DFT(SCOPE, ID, T, BITS) \
