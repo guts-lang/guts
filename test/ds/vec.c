@@ -28,7 +28,7 @@
 #include "ds/vec.h"
 
 #define NOMEM_REALLOC(x, y) ((errno = ENOMEM), nil)
-VEC_DEFINE_DFT(i8vec_nomem, i8_t, 8, NOMEM_REALLOC, mem_free, i8cmp)
+VEC_DEFINE_DFT(i8vec_nomem, i8_t, 8, NOMEM_REALLOC, mem_free)
 
 static i8_t vi81234[4] = { 1, 2, 3, 4 };
 static i8_t vi84321[4] = { 4, 3, 2, 1 };
@@ -37,13 +37,7 @@ typedef struct {
   f64_t x, y;
 } point_t;
 
-i8_t
-point_cmp(__const point_t a, __const point_t b)
-{
-  return f64cmp(a.x, b.x) + f64cmp(a.y, b.y);
-}
-
-VEC_DEFINE(line, point_t, point_cmp)
+VEC_DEFINE(line, point_t)
 
 CUTEST_DATA {
   i8vec_t i8vec;

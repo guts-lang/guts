@@ -25,12 +25,12 @@
 
 #include "ds/vec.h"
 
-VEC_IMPL(, i8vec, i8_t, i8cmp)
-VEC_IMPL(, u8vec, u8_t, u8cmp)
-VEC_IMPL(, i16vec, i16_t, i16cmp)
-VEC_IMPL(, u16vec, u16_t, u16cmp)
-VEC_IMPL(, i32vec, i32_t, i32cmp)
-VEC_IMPL(, u32vec, u32_t, u32cmp)
-VEC_IMPL(, charvec, char_t, i8cmp)
-VEC_IMPL(, strvec, char_t *, strcmp)
-VEC_IMPL(, errs, ex_t, addrcmp)
+VEC_IMPL(, i8vec, i8_t)
+VEC_IMPL(, u8vec, u8_t)
+VEC_IMPL(, i16vec, i16_t)
+VEC_IMPL(, u16vec, u16_t)
+VEC_IMPL(, i32vec, i32_t)
+VEC_IMPL(, u32vec, u32_t)
+VEC_IMPL(, charvec, char_t)
+VEC_IMPL(, strvec, char_t *)
+VEC_IMPL(, errs, ex_t)
