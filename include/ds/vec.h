@@ -47,7 +47,8 @@
     SEQ_DECL_cap, \
     SEQ_DECL_size, \
     SEQ_DECL_at, \
-    SEQ_DECL_offset, \
+    SEQ_DECL_front, \
+    SEQ_DECL_back, \
     SEQ_DECL_realloc, \
     SEQ_DECL_ensure, \
     SEQ_DECL_grow, \
@@ -82,7 +83,8 @@
     SEQ_IMPL_cap, \
     SEQ_IMPL_size, \
     SEQ_IMPL_at, \
-    SEQ_IMPL_offset, \
+    SEQ_IMPL_front, \
+    SEQ_IMPL_back, \
     SEQ_IMPL_realloc, \
     SEQ_IMPL_ensure, \
     SEQ_IMPL_grow, \
