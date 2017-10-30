@@ -169,6 +169,5 @@ DEQ_DECL(__api__, i32deq, i32_t);
 DEQ_DECL(__api__, u32deq, u32_t);
 DEQ_DECL(__api__, chardeq, char_t);
 DEQ_DECL(__api__, strdeq, char_t *);
-DEQ_DECL(__api__, errs, ex_t);
 
 #endif /* !__DS_DEQ_H */
