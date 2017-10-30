@@ -54,7 +54,6 @@
 #define DEQ8_DECL(SCOPE, ID, T) DEQ_DECL_DFT(SCOPE, ID, T, 8)
 #define DEQ16_DECL(SCOPE, ID, T) DEQ_DECL_DFT(SCOPE, ID, T, 16)
 #define DEQ32_DECL(SCOPE, ID, T) DEQ_DECL_DFT(SCOPE, ID, T, 32)
-#define DEQ64_DECL(SCOPE, ID, T) DEQ_DECL_DFT(SCOPE, ID, T, 64)
 #define DEQ_DECL(SCOPE, ID, T) DEQ_DECL_DFT(SCOPE, ID, T, size)
 
 #define DEQ_IMPL_size(SCOPE, ID, T, BITS) \
@@ -89,7 +88,7 @@
       memmove( \
         it + n, \
         it, \
-        (usize_t) len * sizeof(T) \
+        (usize_t) len + 1 * sizeof(T) \
       ); \
     } \
     self->len += n; \

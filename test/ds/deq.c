@@ -114,12 +114,12 @@ CUTEST(deq, ensure)
   ASSERT_NEQ(nil, self->line.buf);
   line_dtor(&self->line, nil);
   line_ensure(&self->line, SEQ_MIN_CAP);
-  ASSERT_EQ(SEQ_MIN_CAP, self->line.cap);
+  ASSERT_EQ(SEQ_MIN_CAP * 2, self->line.cap);
   ASSERT_EQ(0, line_size(&self->line));
   ASSERT_NEQ(nil, self->line.buf);
   line_dtor(&self->line, nil);
   line_ensure(&self->line, pow2_nextsize(SEQ_MIN_CAP + 1));
-  ASSERT_EQ(pow2_next64(SEQ_MIN_CAP + 1), self->line.cap);
+  ASSERT_EQ(pow2_next64(SEQ_MIN_CAP + 1) * 2, self->line.cap);
   ASSERT_EQ(0, line_size(&self->line));
   ASSERT_NEQ(nil, self->line.buf);
   return CUTE_SUCCESS;
@@ -140,7 +140,7 @@ CUTEST(deq, grow)
   ASSERT_EQ(0, i8deq_size(&self->i8deq));
   ASSERT_NEQ(nil, self->i8deq.buf);
   i8deq_grow(&self->i8deq, SEQ_MIN_CAP);
-  ASSERT_EQ(SEQ_MIN_CAP, self->i8deq.cap);
+  ASSERT_EQ(SEQ_MIN_CAP * 2, self->i8deq.cap);
   ASSERT_EQ(0, i8deq_size(&self->i8deq));
   ASSERT_NEQ(nil, self->i8deq.buf);
   i8deq_grow(&self->i8deq, SEQ_MIN_CAP + 1);

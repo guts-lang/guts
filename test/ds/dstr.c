@@ -28,9 +28,20 @@
 #include "ds/dstr.h"
 
 #define NOMEM_REALLOC(x, y) ((errno = ENOMEM), nil)
-DSTR_DEFINE_DFT(dstr8_nomem, 8, NOMEM_REALLOC, mem_free)
+DSTR8_DEFINE_DFT(dstr8_nomem, NOMEM_REALLOC, mem_free)
 
-CUTEST_DATA { dstr8_t dstr8;dstr8_nomem_t dstr8_nomem; };
+static char_t arr1234[4] = { 1, 2, 3, 4 };
+static char_t arr4321[4] = { 4, 3, 2, 1 };
+static char_t vchar0[1] = { 0 };
+static char_t vchar40[2] = { 4, 0 };
+static char_t vchar430[3] = { 4, 3, 0 };
+static char_t vchar4320[4] = { 4, 3, 2, 0 };
+static char_t vchar43210[5] = { 4, 3, 2, 1, 0 };
+
+CUTEST_DATA {
+  dstr8_t dstr8;
+  dstr8_nomem_t dstr8_nomem;
+};
 
 CUTEST_SETUP
 {
@@ -49,39 +60,31 @@ CUTEST(dstr, ensure)
   ex_t *e;
 
   dstr8_ensure(&self->dstr8, 0);
-  ASSERT_EQ(0, dstr8_cap(&self->dstr8));
+  ASSERT_EQ(0, self->dstr8.cap);
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_EQ(nil, self->dstr8.buf);
   dstr8_ensure(&self->dstr8, 1);
-  ASSERT_EQ(1, dstr8_cap(&self->dstr8));
+  ASSERT_EQ(SEQ_MIN_CAP, self->dstr8.cap);
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_NEQ(nil, self->dstr8.buf);
   dstr8_ensure(&self->dstr8, 1);
-  ASSERT_EQ(1, dstr8_cap(&self->dstr8));
+  ASSERT_EQ(SEQ_MIN_CAP, self->dstr8.cap);
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_NEQ(nil, self->dstr8.buf);
   dstr8_ensure(&self->dstr8, 2);
-  ASSERT_EQ(2, dstr8_cap(&self->dstr8));
+  ASSERT_EQ(SEQ_MIN_CAP, self->dstr8.cap);
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_NEQ(nil, self->dstr8.buf);
   dstr8_ensure(&self->dstr8, SEQ_MIN_CAP + 1);
-  ASSERT_EQ(SEQ_MIN_CAP + 1, dstr8_cap(&self->dstr8));
-  ASSERT_EQ(0, dstr8_size(&self->dstr8));
-  ASSERT_NEQ(nil, self->dstr8.buf);
-  dstr8_ensure(&self->dstr8, U8_MAX);
-  ASSERT_EQ(U8_MAX, dstr8_cap(&self->dstr8));
-  ASSERT_EQ(0, dstr8_size(&self->dstr8));
-  ASSERT_NEQ(nil, self->dstr8.buf);
-  dstr8_ensure(&self->dstr8, U8_MAX);
-  ASSERT_EQ(U8_MAX, dstr8_cap(&self->dstr8));
+  ASSERT_EQ(pow2_next8(SEQ_MIN_CAP + 1), self->dstr8.cap);
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_NEQ(nil, self->dstr8.buf);
 
   TRY {
     dstr8_nomem_ensure(&self->dstr8_nomem, 1);
     ASSERT(false);
-  } CATCH(e);
-  ASSERT_EQ(0, dstr8_nomem_cap(&self->dstr8_nomem));
+  } CATCH(e) (void) e;
+  ASSERT_EQ(0, self->dstr8_nomem.cap);
   ASSERT_EQ(0, dstr8_nomem_size(&self->dstr8_nomem));
   ASSERT_EQ(nil, self->dstr8_nomem.buf);
   return CUTE_SUCCESS;
@@ -90,23 +93,23 @@ CUTEST(dstr, ensure)
 CUTEST(dstr, grow)
 {
   dstr8_grow(&self->dstr8, 0);
-  ASSERT_EQ(0, dstr8_cap(&self->dstr8));
+  ASSERT_EQ(0, self->dstr8.cap);
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_EQ(nil, self->dstr8.buf);
   dstr8_grow(&self->dstr8, 1);
-  ASSERT_EQ(1, dstr8_cap(&self->dstr8));
+  ASSERT_EQ(SEQ_MIN_CAP, self->dstr8.cap);
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_NEQ(nil, self->dstr8.buf);
   dstr8_grow(&self->dstr8, 2);
-  ASSERT_EQ(2, dstr8_cap(&self->dstr8));
+  ASSERT_EQ(SEQ_MIN_CAP, self->dstr8.cap);
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_NEQ(nil, self->dstr8.buf);
   dstr8_grow(&self->dstr8, SEQ_MIN_CAP);
-  ASSERT_EQ(SEQ_MIN_CAP, dstr8_cap(&self->dstr8));
+  ASSERT_EQ(SEQ_MIN_CAP * 2, self->dstr8.cap);
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_NEQ(nil, self->dstr8.buf);
   dstr8_grow(&self->dstr8, SEQ_MIN_CAP + 1);
-  ASSERT_EQ(SEQ_MIN_CAP + 1, dstr8_cap(&self->dstr8));
+  ASSERT_EQ(SEQ_MIN_CAP * 2, self->dstr8.cap);
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_NEQ(nil, self->dstr8.buf);
   return CUTE_SUCCESS;
@@ -114,24 +117,24 @@ CUTEST(dstr, grow)
 
 CUTEST(dstr, shrink)
 {
-  dstr8_ensure(&self->dstr8, SEQ_MIN_CAP);
-  ASSERT_EQ(SEQ_MIN_CAP, dstr8_cap(&self->dstr8));
+  dstr8_ensure(&self->dstr8, 2);
+  ASSERT_EQ(SEQ_MIN_CAP, self->dstr8.cap);
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_NEQ(nil, self->dstr8.buf);
   dstr8_shrink(&self->dstr8, 2);
-  ASSERT_EQ(SEQ_MIN_CAP, dstr8_cap(&self->dstr8));
+  ASSERT_EQ(SEQ_MIN_CAP, self->dstr8.cap);
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_NEQ(nil, self->dstr8.buf);
   dstr8_shrink(&self->dstr8, SEQ_MIN_CAP / 2);
-  ASSERT_EQ(SEQ_MIN_CAP / 2, dstr8_cap(&self->dstr8));
+  ASSERT_EQ(SEQ_MIN_CAP / 2, self->dstr8.cap);
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_NEQ(nil, self->dstr8.buf);
   dstr8_shrink(&self->dstr8, SEQ_MIN_CAP / 4);
-  ASSERT_EQ(SEQ_MIN_CAP / 4, dstr8_cap(&self->dstr8));
+  ASSERT_EQ(SEQ_MIN_CAP / 4, self->dstr8.cap);
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_NEQ(nil, self->dstr8.buf);
   dstr8_shrink(&self->dstr8, SEQ_MIN_CAP / 8);
-  ASSERT_EQ(SEQ_MIN_CAP / 8, dstr8_cap(&self->dstr8));
+  ASSERT_EQ(SEQ_MIN_CAP / 8, self->dstr8.cap);
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_NEQ(nil, self->dstr8.buf);
   return CUTE_SUCCESS;
@@ -139,75 +142,68 @@ CUTEST(dstr, shrink)
 
 CUTEST(dstr, trim)
 {
+  dstr8_ensure(&self->dstr8, 1);
+  ASSERT_EQ(SEQ_MIN_CAP, self->dstr8.cap);
+  ASSERT_EQ(0, dstr8_size(&self->dstr8));
+  ASSERT_NEQ(nil, self->dstr8.buf);
+  self->dstr8.len = SEQ_MIN_CAP;
+  dstr8_trim(&self->dstr8);
+  ASSERT_EQ(SEQ_MIN_CAP, self->dstr8.cap);
+  ASSERT_EQ(SEQ_MIN_CAP, dstr8_size(&self->dstr8));
+  ASSERT_NEQ(nil, self->dstr8.buf);
+  while (self->dstr8.len) {
+    --self->dstr8.len;
+    dstr8_trim(&self->dstr8);
+    ASSERT_EQ(self->dstr8.len, self->dstr8.cap);
+    if (self->dstr8.len) {
+      ASSERT_NEQ(nil, self->dstr8.buf);
+    }
+  }
+  ASSERT_EQ(0, self->dstr8.cap);
+  ASSERT_EQ(0, dstr8_size(&self->dstr8));
+  ASSERT_EQ(nil, self->dstr8.buf);
   return CUTE_SUCCESS;
 }
 
-CUTEST(dstr, insert)
+CUTEST(dstr, pushncpy)
 {
   ex_t *e;
 
-  ASSERT_EQ(true, dstr8_insert(&self->dstr8, 0, 2));
+  ASSERT_EQ(nil, dstr8_pushncpy(&self->dstr8, arr4321, 0));
+  ASSERT_EQ(0, dstr8_size(&self->dstr8));
+  ASSERT_EQ(nil, self->dstr8.buf);
+  ASSERT_NEQ(nil, dstr8_pushncpy(&self->dstr8, arr4321, 1));
   ASSERT_EQ(1, dstr8_size(&self->dstr8));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(true, dstr8_insert(&self->dstr8, 1, 4));
-  ASSERT_EQ(2, dstr8_size(&self->dstr8));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(true, dstr8_insert(&self->dstr8, 0, 1));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_NEQ(nil, dstr8_pushncpy(&self->dstr8, arr4321, 2));
   ASSERT_EQ(3, dstr8_size(&self->dstr8));
-  ASSERT_EQ(1, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ(true, dstr8_insert(&self->dstr8, 2, 3));
-  ASSERT_EQ(4, dstr8_size(&self->dstr8));
-  ASSERT_EQ(1, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 3));
-  ASSERT_EQ(false, dstr8_insert(&self->dstr8, 5, 5));
-  TRY {
-    dstr8_nomem_insert(&self->dstr8_nomem, 0, 1);
-    ASSERT(false);
-  } CATCH(e);
-  return CUTE_SUCCESS;
-}
-
-CUTEST(dstr, emplace)
-{
-  ex_t *e;
-
-  ASSERT_EQ(true, dstr8_emplace(&self->dstr8, 0, "a"));
-  ASSERT_EQ(1, dstr8_size(&self->dstr8));
-  ASSERT_EQ('a', dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(true, dstr8_emplace(&self->dstr8, 1, "ab"));
-  ASSERT_EQ(3, dstr8_size(&self->dstr8));
-  ASSERT_EQ('a', dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ('a', dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ('b', dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ(true, dstr8_emplace(&self->dstr8, 0, "abc"));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 2));
+  ASSERT_NEQ(nil, dstr8_pushncpy(&self->dstr8, arr4321, 3));
   ASSERT_EQ(6, dstr8_size(&self->dstr8));
-  ASSERT_EQ('a', dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ('b', dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ('c', dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ('a', dstr8_at(&self->dstr8, 3));
-  ASSERT_EQ('a', dstr8_at(&self->dstr8, 4));
-  ASSERT_EQ('b', dstr8_at(&self->dstr8, 5));
-  ASSERT_EQ(true, dstr8_emplace(&self->dstr8, 3, "abcd"));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 3));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 4));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 5));
+  ASSERT_NEQ(nil, dstr8_pushncpy(&self->dstr8, arr4321, 4));
   ASSERT_EQ(10, dstr8_size(&self->dstr8));
-  ASSERT_EQ('a', dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ('b', dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ('c', dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ('a', dstr8_at(&self->dstr8, 3));
-  ASSERT_EQ('b', dstr8_at(&self->dstr8, 4));
-  ASSERT_EQ('c', dstr8_at(&self->dstr8, 5));
-  ASSERT_EQ('d', dstr8_at(&self->dstr8, 6));
-  ASSERT_EQ('a', dstr8_at(&self->dstr8, 7));
-  ASSERT_EQ('a', dstr8_at(&self->dstr8, 8));
-  ASSERT_EQ('b', dstr8_at(&self->dstr8, 9));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 3));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 4));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 5));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 6));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 7));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 8));
+  ASSERT_EQ(1, *dstr8_at(&self->dstr8, 9));
   TRY {
-    dstr8_nomem_emplace(&self->dstr8_nomem, 0, "a");
+    dstr8_nomem_pushncpy(&self->dstr8_nomem, arr4321, 4);
     ASSERT(false);
-  } CATCH(e);
+  } CATCH(e) (void) e;
   return CUTE_SUCCESS;
 }
 
@@ -216,96 +212,78 @@ CUTEST(dstr, push)
   u8_t i, j;
   ex_t *e;
 
-  for (i = 0; i < 10; ++i) {
-    ASSERT_EQ(true, dstr8_push(&self->dstr8, i));
+  for (i = 0; i < 100; ++i) {
+    *dstr8_push(&self->dstr8) = i;
     ASSERT_EQ(i + 1, dstr8_size(&self->dstr8));
     for (j = 0; j < dstr8_size(&self->dstr8); ++j) {
-      ASSERT_EQ(j, dstr8_at(&self->dstr8, (u8_t) j));
+      ASSERT_EQ(j, *dstr8_at(&self->dstr8, (u8_t) j));
     }
   }
   TRY {
-    dstr8_nomem_push(&self->dstr8_nomem, 0);
+    dstr8_nomem_push(&self->dstr8_nomem);
     ASSERT(false);
-  } CATCH(e);
+  } CATCH(e) (void) e;
   return CUTE_SUCCESS;
 }
 
-static char_t vchar0[1] = { 0 };
-static char_t vchar40[2] = { 4, 0 };
-static char_t vchar430[3] = { 4, 3, 0 };
-static char_t vchar4320[4] = { 4, 3, 2, 0 };
-static char_t vchar43210[5] = { 4, 3, 2, 1, 0 };
+CUTEST(dstr, pushcpy)
+{
+  u8_t i, j;
+  ex_t *e;
 
-CUTEST(dstr, append)
+  for (i = 0; i < 100; ++i) {
+    dstr8_pushcpy(&self->dstr8, i);
+    ASSERT_EQ(i + 1, dstr8_size(&self->dstr8));
+    for (j = 0; j < dstr8_size(&self->dstr8); ++j) {
+      ASSERT_EQ(j, *dstr8_at(&self->dstr8, (u8_t) j));
+    }
+  }
+  TRY {
+    dstr8_nomem_pushcpy(&self->dstr8_nomem, 0);
+    ASSERT(false);
+  } CATCH(e) (void) e;
+  return CUTE_SUCCESS;
+}
+
+CUTEST(dstr, unshiftncpy)
 {
   ex_t *e;
 
-  ASSERT_EQ(true, dstr8_append(&self->dstr8, vchar0));
+  ASSERT_EQ(nil, dstr8_unshiftncpy(&self->dstr8, arr4321, 0));
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_EQ(nil, self->dstr8.buf);
-  ASSERT_EQ(true, dstr8_append(&self->dstr8, vchar40));
+  ASSERT_NEQ(nil, dstr8_unshiftncpy(&self->dstr8, arr4321, 1));
   ASSERT_EQ(1, dstr8_size(&self->dstr8));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(true, dstr8_append(&self->dstr8, vchar430));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_NEQ(nil, dstr8_unshiftncpy(&self->dstr8, arr4321, 2));
   ASSERT_EQ(3, dstr8_size(&self->dstr8));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ(true, dstr8_append(&self->dstr8, vchar4320));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 2));
+  ASSERT_NEQ(nil, dstr8_unshiftncpy(&self->dstr8, arr4321, 3));
   ASSERT_EQ(6, dstr8_size(&self->dstr8));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 3));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 4));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 5));
-  ASSERT_EQ(true, dstr8_append(&self->dstr8, vchar43210));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 3));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 4));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 5));
+  ASSERT_NEQ(nil, dstr8_unshiftncpy(&self->dstr8, arr4321, 4));
   ASSERT_EQ(10, dstr8_size(&self->dstr8));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 3));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 4));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 5));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 6));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 7));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 8));
-  ASSERT_EQ(1, dstr8_at(&self->dstr8, 9));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ(1, *dstr8_at(&self->dstr8, 3));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 4));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 5));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 6));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 7));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 8));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 9));
   TRY {
-    dstr8_nomem_append(&self->dstr8_nomem, vchar40);
+    dstr8_nomem_unshiftncpy(&self->dstr8_nomem, arr4321, 4);
     ASSERT(false);
-  } CATCH(e);
-  return CUTE_SUCCESS;
-}
-
-CUTEST(dstr, pop)
-{
-  char_t i;
-
-  ASSERT_EQ(true, dstr8_append(&self->dstr8, vchar43210));
-  ASSERT_EQ(4, dstr8_size(&self->dstr8));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ(1, dstr8_at(&self->dstr8, 3));
-  ASSERT_EQ(true, dstr8_pop(&self->dstr8, nil));
-  ASSERT_EQ(3, dstr8_size(&self->dstr8));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ(true, dstr8_pop(&self->dstr8, &i));
-  ASSERT_EQ(2, i);
-  ASSERT_EQ(2, dstr8_size(&self->dstr8));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(true, dstr8_pop(&self->dstr8, &i));
-  ASSERT_EQ(3, i);
-  ASSERT_EQ(1, dstr8_size(&self->dstr8));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(true, dstr8_pop(&self->dstr8, &i));
-  ASSERT_EQ(4, i);
-  ASSERT_EQ(0, dstr8_size(&self->dstr8));
-  ASSERT_EQ(false, dstr8_pop(&self->dstr8, &i));
+  } CATCH(e) (void) e;
   return CUTE_SUCCESS;
 }
 
@@ -315,59 +293,176 @@ CUTEST(dstr, unshift)
   i8_t k;
   ex_t *e;
 
-  for (i = 0; i < 10; ++i) {
-    ASSERT_EQ(true, dstr8_unshift(&self->dstr8, i));
+  for (i = 0; i < 100; ++i) {
+    *dstr8_unshift(&self->dstr8) = i;
     ASSERT_EQ(i + 1, dstr8_size(&self->dstr8));
     for (j = 0, k = i; j < dstr8_size(&self->dstr8); ++j) {
-      ASSERT_EQ(k--, dstr8_at(&self->dstr8, (u8_t) j));
+      ASSERT_EQ(k--, *dstr8_at(&self->dstr8, (u8_t) j));
     }
   }
   TRY {
-    dstr8_nomem_unshift(&self->dstr8_nomem, 0);
+    dstr8_nomem_unshift(&self->dstr8_nomem);
     ASSERT(false);
-  } CATCH(e);
+  } CATCH(e) (void) e;
   return CUTE_SUCCESS;
 }
 
-CUTEST(dstr, prepend)
+CUTEST(dstr, unshiftcpy)
+{
+  u8_t i, j;
+  i8_t k;
+  ex_t *e;
+
+  for (i = 0; i < 100; ++i) {
+    dstr8_unshiftcpy(&self->dstr8, i);
+    ASSERT_EQ(i + 1, dstr8_size(&self->dstr8));
+    for (j = 0, k = i; j < dstr8_size(&self->dstr8); ++j) {
+      ASSERT_EQ(k--, *dstr8_at(&self->dstr8, (u8_t) j));
+    }
+  }
+  TRY {
+    dstr8_nomem_unshiftcpy(&self->dstr8_nomem, 0);
+    ASSERT(false);
+  } CATCH(e) (void) e;
+  return CUTE_SUCCESS;
+}
+
+CUTEST(dstr, putncpy)
 {
   ex_t *e;
 
-  ASSERT_EQ(true, dstr8_prepend(&self->dstr8, vchar0));
+  ASSERT_EQ(nil, dstr8_putncpy(&self->dstr8, 0, arr4321, 0));
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_EQ(nil, self->dstr8.buf);
-  ASSERT_EQ(true, dstr8_prepend(&self->dstr8, vchar40));
+  ASSERT_NEQ(nil, dstr8_putncpy(&self->dstr8, 0, arr4321, 1));
   ASSERT_EQ(1, dstr8_size(&self->dstr8));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(true, dstr8_prepend(&self->dstr8, vchar430));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_NEQ(nil, dstr8_putncpy(&self->dstr8, 1, arr4321, 2));
   ASSERT_EQ(3, dstr8_size(&self->dstr8));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ(true, dstr8_prepend(&self->dstr8, vchar4320));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 2));
+  ASSERT_NEQ(nil, dstr8_putncpy(&self->dstr8, 0, arr4321, 3));
   ASSERT_EQ(6, dstr8_size(&self->dstr8));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 3));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 4));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 5));
-  ASSERT_EQ(true, dstr8_prepend(&self->dstr8, vchar43210));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 3));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 4));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 5));
+  ASSERT_NEQ(nil, dstr8_putncpy(&self->dstr8, 3, arr4321, 4));
   ASSERT_EQ(10, dstr8_size(&self->dstr8));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ(1, dstr8_at(&self->dstr8, 3));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 4));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 5));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 6));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 7));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 8));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 9));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 3));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 4));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 5));
+  ASSERT_EQ(1, *dstr8_at(&self->dstr8, 6));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 7));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 8));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 9));
   TRY {
-    dstr8_nomem_prepend(&self->dstr8_nomem, vchar43210);
+    dstr8_nomem_putncpy(&self->dstr8_nomem, 0, arr4321, 1);
     ASSERT(false);
-  } CATCH(e);
+  } CATCH(e) (void) e;
+  return CUTE_SUCCESS;
+}
+
+CUTEST(dstr, put)
+{
+  ex_t *e;
+  char_t *ptr;
+
+  ASSERT_NEQ(nil, ptr = dstr8_put(&self->dstr8, 0));
+  ASSERT_EQ(1, dstr8_size(&self->dstr8));
+  ASSERT_EQ(ptr, dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(*ptr = 2, *dstr8_at(&self->dstr8, 0));
+  ASSERT_NEQ(nil, ptr = dstr8_put(&self->dstr8, 1));
+  ASSERT_EQ(2, dstr8_size(&self->dstr8));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(ptr, dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(*ptr = 4, *dstr8_at(&self->dstr8, 1));
+  ASSERT_NEQ(nil, ptr = dstr8_put(&self->dstr8, 0));
+  ASSERT_EQ(3, dstr8_size(&self->dstr8));
+  ASSERT_EQ(ptr, dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(*ptr = 1, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 2));
+  ASSERT_NEQ(nil, ptr = dstr8_put(&self->dstr8, 2));
+  ASSERT_EQ(4, dstr8_size(&self->dstr8));
+  ASSERT_EQ(1, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(ptr, dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ(*ptr = 3, *dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 3));
+  ASSERT_EQ(nil, dstr8_put(&self->dstr8, 5));
+  ASSERT_EQ(0, memcmp(dstr8_begin(&self->dstr8), arr1234, 4));
+  TRY {
+    dstr8_nomem_put(&self->dstr8_nomem, 0);
+    ASSERT(false);
+  } CATCH(e) (void) e;
+  return CUTE_SUCCESS;
+}
+
+CUTEST(dstr, putcpy)
+{
+  ex_t *e;
+
+  ASSERT_NEQ(nil, dstr8_putcpy(&self->dstr8, 0, 2));
+  ASSERT_EQ(1, dstr8_size(&self->dstr8));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 0));
+  ASSERT_NEQ(nil, dstr8_putcpy(&self->dstr8, 1, 4));
+  ASSERT_EQ(2, dstr8_size(&self->dstr8));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 1));
+  ASSERT_NEQ(nil, dstr8_putcpy(&self->dstr8, 0, 1));
+  ASSERT_EQ(3, dstr8_size(&self->dstr8));
+  ASSERT_EQ(1, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 2));
+  ASSERT_NEQ(nil, dstr8_putcpy(&self->dstr8, 2, 3));
+  ASSERT_EQ(4, dstr8_size(&self->dstr8));
+  ASSERT_EQ(1, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 3));
+  ASSERT_EQ(nil, dstr8_putcpy(&self->dstr8, 5, 5));
+  TRY {
+    dstr8_nomem_putcpy(&self->dstr8_nomem, 0, 1);
+    ASSERT(false);
+  } CATCH(e) (void) e;
+  return CUTE_SUCCESS;
+}
+
+CUTEST(dstr, pop)
+{
+  char_t i;
+
+  ASSERT_NEQ(nil, dstr8_pushncpy(&self->dstr8, arr4321, 4));
+  ASSERT_EQ(4, dstr8_size(&self->dstr8));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ(1, *dstr8_at(&self->dstr8, 3));
+  ASSERT_EQ(true, dstr8_pop(&self->dstr8, nil));
+  ASSERT_EQ(3, dstr8_size(&self->dstr8));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ(true, dstr8_pop(&self->dstr8, &i));
+  ASSERT_EQ(2, i);
+  ASSERT_EQ(2, dstr8_size(&self->dstr8));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(true, dstr8_pop(&self->dstr8, &i));
+  ASSERT_EQ(3, i);
+  ASSERT_EQ(1, dstr8_size(&self->dstr8));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(true, dstr8_pop(&self->dstr8, &i));
+  ASSERT_EQ(4, i);
+  ASSERT_EQ(0, dstr8_size(&self->dstr8));
+  ASSERT_EQ(false, dstr8_pop(&self->dstr8, &i));
   return CUTE_SUCCESS;
 }
 
@@ -375,26 +470,26 @@ CUTEST(dstr, shift)
 {
   char_t i;
 
-  ASSERT_EQ(true, dstr8_append(&self->dstr8, vchar43210));
+  ASSERT_NEQ(nil, dstr8_pushncpy(&self->dstr8, arr4321, 4));
   ASSERT_EQ(4, dstr8_size(&self->dstr8));
-  ASSERT_EQ(4, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ(1, dstr8_at(&self->dstr8, 3));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ(1, *dstr8_at(&self->dstr8, 3));
   ASSERT_EQ(true, dstr8_shift(&self->dstr8, nil));
   ASSERT_EQ(3, dstr8_size(&self->dstr8));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(1, dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(1, *dstr8_at(&self->dstr8, 2));
   ASSERT_EQ(true, dstr8_shift(&self->dstr8, &i));
   ASSERT_EQ(3, i);
   ASSERT_EQ(2, dstr8_size(&self->dstr8));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(1, dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(1, *dstr8_at(&self->dstr8, 1));
   ASSERT_EQ(true, dstr8_shift(&self->dstr8, &i));
   ASSERT_EQ(2, i);
   ASSERT_EQ(1, dstr8_size(&self->dstr8));
-  ASSERT_EQ(1, dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(1, *dstr8_at(&self->dstr8, 0));
   ASSERT_EQ(true, dstr8_shift(&self->dstr8, &i));
   ASSERT_EQ(1, i);
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
@@ -402,174 +497,155 @@ CUTEST(dstr, shift)
   return CUTE_SUCCESS;
 }
 
-CUTEST(dstr, remove)
+CUTEST(dstr, rem)
 {
   char_t i;
-  char_t vchar[5] = { 5, 1, 2, 3, 0 };
+  char_t vi8[4] = { 0, 1, 2, 3 };
 
   ASSERT_EQ(false, dstr8_remove(&self->dstr8, 0, nil));
-  ASSERT_EQ(true, dstr8_append(&self->dstr8, vchar));
+  ASSERT_NEQ(nil, dstr8_pushncpy(&self->dstr8, vi8, 4));
   ASSERT_EQ(false, dstr8_remove(&self->dstr8, 4, nil));
   ASSERT_EQ(true, dstr8_remove(&self->dstr8, 2, nil));
   ASSERT_EQ(3, dstr8_size(&self->dstr8));
-  ASSERT_EQ(5, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(1, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ(0, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(1, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 2));
   ASSERT_EQ(true, dstr8_remove(&self->dstr8, 1, &i));
   ASSERT_EQ(1, i);
   ASSERT_EQ(2, dstr8_size(&self->dstr8));
-  ASSERT_EQ(5, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(0, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 1));
   ASSERT_EQ(true, dstr8_remove(&self->dstr8, 1, &i));
   ASSERT_EQ(3, i);
   ASSERT_EQ(1, dstr8_size(&self->dstr8));
-  ASSERT_EQ(5, dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(0, *dstr8_at(&self->dstr8, 0));
   ASSERT_EQ(true, dstr8_remove(&self->dstr8, 0, &i));
-  ASSERT_EQ(5, i);
+  ASSERT_EQ(0, i);
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
   ASSERT_EQ(false, dstr8_remove(&self->dstr8, 0, &i));
   return CUTE_SUCCESS;
 }
 
-CUTEST(dstr, removen)
+CUTEST(dstr, append)
 {
-  char_t buf[2], *ptr;
-  char_t vchar[7] = { 7, 1, 2, 3, 5, 6, 0 };
+  ex_t *e;
 
-  ptr = buf;
-  ASSERT_EQ(0, dstr8_removen(&self->dstr8, 0, 0, nil));
-  ASSERT_EQ(true, dstr8_append(&self->dstr8, vchar));
-  ASSERT_EQ(0, dstr8_removen(&self->dstr8, 6, 0, nil));
-  ASSERT_EQ(2, dstr8_removen(&self->dstr8, 2, 2, nil));
-  ASSERT_EQ(4, dstr8_size(&self->dstr8));
-  ASSERT_EQ(7, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(1, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(5, dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ(6, dstr8_at(&self->dstr8, 3));
-  ASSERT_EQ(2, dstr8_removen(&self->dstr8, 1, 2, &ptr));
-  ASSERT_EQ(2, dstr8_size(&self->dstr8));
-  ASSERT_EQ(7, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(1, buf[0]);
-  ASSERT_EQ(5, buf[1]);
-  ASSERT_EQ(6, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(1, dstr8_removen(&self->dstr8, 0, 1, &ptr));
+  ASSERT_EQ(nil, dstr8_append(&self->dstr8, vchar0));
+  ASSERT_EQ(0, dstr8_size(&self->dstr8));
+  ASSERT_EQ(nil, self->dstr8.buf);
+  ASSERT_NEQ(nil, dstr8_append(&self->dstr8, vchar40));
   ASSERT_EQ(1, dstr8_size(&self->dstr8));
-  ASSERT_EQ(7, buf[0]);
-  ASSERT_EQ(6, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(1, dstr8_removen(&self->dstr8, 0, 1, &ptr));
-  ASSERT_EQ(0, dstr8_size(&self->dstr8));
-  ASSERT_EQ(6, buf[0]);
-  ASSERT_EQ(0, dstr8_removen(&self->dstr8, 0, 1, &ptr));
-  return CUTE_SUCCESS;
-}
-
-CUTEST(dstr, erase)
-{
-  char_t vchar[8] = { 1, 2, 1, 2, 3, 3, 2, 0 };
-
-  ASSERT_EQ(0, dstr8_erase(&self->dstr8, 0));
-  ASSERT_EQ(true, dstr8_append(&self->dstr8, vchar));
-  ASSERT_EQ(2, dstr8_erase(&self->dstr8, 1));
-  ASSERT_EQ(5, dstr8_size(&self->dstr8));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 3));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 4));
-  ASSERT_EQ(3, dstr8_erase(&self->dstr8, 2));
-  ASSERT_EQ(2, dstr8_size(&self->dstr8));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(2, dstr8_erase(&self->dstr8, 3));
-  ASSERT_EQ(0, dstr8_size(&self->dstr8));
-  ASSERT_EQ(0, dstr8_erase(&self->dstr8, 3));
-  return CUTE_SUCCESS;
-}
-
-CUTEST(dstr, erasen)
-{
-  char_t vchar[8] = { 1, 2, 1, 2, 3, 3, 2, 0 };
-
-  ASSERT_EQ(0, dstr8_erasen(&self->dstr8, 0, 1));
-  ASSERT_EQ(true, dstr8_append(&self->dstr8, vchar));
-  ASSERT_EQ(0, dstr8_erasen(&self->dstr8, 1, 0));
-  ASSERT_EQ(2, dstr8_erasen(&self->dstr8, 1, 3));
-  ASSERT_EQ(5, dstr8_size(&self->dstr8));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 3));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 4));
-  ASSERT_EQ(2, dstr8_erasen(&self->dstr8, 2, 2));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_NEQ(nil, dstr8_append(&self->dstr8, vchar430));
   ASSERT_EQ(3, dstr8_size(&self->dstr8));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ(1, dstr8_erasen(&self->dstr8, 2, 2));
-  ASSERT_EQ(2, dstr8_size(&self->dstr8));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(2, dstr8_erasen(&self->dstr8, 3, 2));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 2));
+  ASSERT_NEQ(nil, dstr8_append(&self->dstr8, vchar4320));
+  ASSERT_EQ(6, dstr8_size(&self->dstr8));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 3));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 4));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 5));
+  ASSERT_NEQ(nil, dstr8_append(&self->dstr8, vchar43210));
+  ASSERT_EQ(10, dstr8_size(&self->dstr8));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 3));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 4));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 5));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 6));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 7));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 8));
+  ASSERT_EQ(1, *dstr8_at(&self->dstr8, 9));
+  TRY {
+    dstr8_nomem_append(&self->dstr8_nomem, vchar40);
+    ASSERT(false);
+  } CATCH(e) (void) e;
+  return CUTE_SUCCESS;
+}
+
+CUTEST(dstr, prepend)
+{
+  ex_t *e;
+
+  ASSERT_EQ(nil, dstr8_prepend(&self->dstr8, vchar0));
   ASSERT_EQ(0, dstr8_size(&self->dstr8));
-  ASSERT_EQ(0, dstr8_erasen(&self->dstr8, 3, 1));
+  ASSERT_EQ(nil, self->dstr8.buf);
+  ASSERT_NEQ(nil, dstr8_prepend(&self->dstr8, vchar40));
+  ASSERT_EQ(1, dstr8_size(&self->dstr8));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_NEQ(nil, dstr8_prepend(&self->dstr8, vchar430));
+  ASSERT_EQ(3, dstr8_size(&self->dstr8));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 2));
+  ASSERT_NEQ(nil, dstr8_prepend(&self->dstr8, vchar4320));
+  ASSERT_EQ(6, dstr8_size(&self->dstr8));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 3));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 4));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 5));
+  ASSERT_NEQ(nil, dstr8_prepend(&self->dstr8, vchar43210));
+  ASSERT_EQ(10, dstr8_size(&self->dstr8));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ(1, *dstr8_at(&self->dstr8, 3));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 4));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 5));
+  ASSERT_EQ(2, *dstr8_at(&self->dstr8, 6));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 7));
+  ASSERT_EQ(3, *dstr8_at(&self->dstr8, 8));
+  ASSERT_EQ(4, *dstr8_at(&self->dstr8, 9));
+  TRY {
+    dstr8_nomem_prepend(&self->dstr8_nomem, vchar43210);
+    ASSERT(false);
+  } CATCH(e) (void) e;
   return CUTE_SUCCESS;
 }
 
-CUTEST(dstr, eraseonce)
+CUTEST(dstr, emplace)
 {
-  char_t vchar[8] = { 1, 2, 1, 2, 3, 3, 2, 0 };
+  ex_t *e;
 
-  ASSERT_EQ(false, dstr8_eraseonce(&self->dstr8, 0));
-  ASSERT_EQ(true, dstr8_append(&self->dstr8, vchar));
-  ASSERT_EQ(true, dstr8_eraseonce(&self->dstr8, 1));
-  ASSERT_EQ(true, dstr8_eraseonce(&self->dstr8, 1));
-  ASSERT_EQ(false, dstr8_eraseonce(&self->dstr8, 1));
-  ASSERT_EQ(5, dstr8_size(&self->dstr8));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 2));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 3));
-  ASSERT_EQ(2, dstr8_at(&self->dstr8, 4));
-  ASSERT_EQ(true, dstr8_eraseonce(&self->dstr8, 2));
-  ASSERT_EQ(true, dstr8_eraseonce(&self->dstr8, 2));
-  ASSERT_EQ(true, dstr8_eraseonce(&self->dstr8, 2));
-  ASSERT_EQ(false, dstr8_eraseonce(&self->dstr8, 2));
-  ASSERT_EQ(2, dstr8_size(&self->dstr8));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 0));
-  ASSERT_EQ(3, dstr8_at(&self->dstr8, 1));
-  ASSERT_EQ(true, dstr8_eraseonce(&self->dstr8, 3));
-  ASSERT_EQ(true, dstr8_eraseonce(&self->dstr8, 3));
-  ASSERT_EQ(false, dstr8_eraseonce(&self->dstr8, 3));
-  ASSERT_EQ(0, dstr8_size(&self->dstr8));
-  ASSERT_EQ(false, dstr8_eraseonce(&self->dstr8, 3));
-  return CUTE_SUCCESS;
-}
-
-CUTEST(dstr, cpy)
-{
-  dstr8_t src;
-  char_t vchar[8] = { 1, 2, 1, 2, 3, 3, 2, 0 };
-
-  dstr8_ctor(&src);
-  ASSERT_EQ(true, dstr8_append(&src, vchar));
-  ASSERT_EQ(true, dstr8_cpy(&self->dstr8, &src));
-  ASSERT_EQ(7, self->dstr8.len);
-  ASSERT_EQ(src.len, self->dstr8.len);
-  ASSERT_NEQ(src.buf, self->dstr8.buf);
-  return CUTE_SUCCESS;
-}
-
-CUTEST(dstr, ncpy)
-{
-  dstr8_t src;
-  char_t vchar[8] = { 7, 1, 2, 3, 4, 5, 6, 0 };
-
-  dstr8_ctor(&src);
-  ASSERT_EQ(true, dstr8_append(&src, vchar));
-  ASSERT_EQ(true, dstr8_ncpy(&self->dstr8, &src, 5));
-  ASSERT_EQ(5, self->dstr8.len);
-  ASSERT_NEQ(src.len, self->dstr8.len);
-  ASSERT_NEQ(src.buf, self->dstr8.buf);
+  ASSERT_NEQ(nil, dstr8_emplace(&self->dstr8, 0, "a"));
+  ASSERT_EQ(1, dstr8_size(&self->dstr8));
+  ASSERT_EQ('a', *dstr8_at(&self->dstr8, 0));
+  ASSERT_NEQ(nil, dstr8_emplace(&self->dstr8, 1, "ab"));
+  ASSERT_EQ(3, dstr8_size(&self->dstr8));
+  ASSERT_EQ('a', *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ('a', *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ('b', *dstr8_at(&self->dstr8, 2));
+  ASSERT_NEQ(nil, dstr8_emplace(&self->dstr8, 0, "abc"));
+  ASSERT_EQ(6, dstr8_size(&self->dstr8));
+  ASSERT_EQ('a', *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ('b', *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ('c', *dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ('a', *dstr8_at(&self->dstr8, 3));
+  ASSERT_EQ('a', *dstr8_at(&self->dstr8, 4));
+  ASSERT_EQ('b', *dstr8_at(&self->dstr8, 5));
+  ASSERT_NEQ(nil, dstr8_emplace(&self->dstr8, 3, "abcd"));
+  ASSERT_EQ(10, dstr8_size(&self->dstr8));
+  ASSERT_EQ('a', *dstr8_at(&self->dstr8, 0));
+  ASSERT_EQ('b', *dstr8_at(&self->dstr8, 1));
+  ASSERT_EQ('c', *dstr8_at(&self->dstr8, 2));
+  ASSERT_EQ('a', *dstr8_at(&self->dstr8, 3));
+  ASSERT_EQ('b', *dstr8_at(&self->dstr8, 4));
+  ASSERT_EQ('c', *dstr8_at(&self->dstr8, 5));
+  ASSERT_EQ('d', *dstr8_at(&self->dstr8, 6));
+  ASSERT_EQ('a', *dstr8_at(&self->dstr8, 7));
+  ASSERT_EQ('a', *dstr8_at(&self->dstr8, 8));
+  ASSERT_EQ('b', *dstr8_at(&self->dstr8, 9));
+  TRY {
+    dstr8_nomem_emplace(&self->dstr8_nomem, 0, "a");
+    ASSERT(false);
+  } CATCH(e) (void) e;
   return CUTE_SUCCESS;
 }
 
@@ -578,15 +654,15 @@ CUTEST(dstr, general)
   dstr8_t str = { 0 };
 
   dstr8_append(&str, "Hello world !");
-  ASSERT_EQ(0, strcmp(str.buf, "Hello world !"));
-  ASSERT_EQ(0, strcmp("Hello world !", str.buf));
+  ASSERT_SEQ(str.buf, "Hello world !");
+  ASSERT_SEQ("Hello world !", str.buf);
   dstr8_emplace(&str, 6, "god damn ");
-  ASSERT_EQ(0, strcmp(str.buf, "Hello god damn world !"));
-  ASSERT_EQ(0, strcmp("Hello god damn world !", str.buf));
+  ASSERT_SEQ(str.buf, "Hello god damn world !");
+  ASSERT_SEQ("Hello god damn world !", str.buf);
   dstr8_prepend(&str, "< ");
   dstr8_append(&str, " >");
-  ASSERT_EQ(0, strcmp(str.buf, "< Hello god damn world ! >"));
-  ASSERT_EQ(0, strcmp("< Hello god damn world ! >", str.buf));
+  ASSERT_SEQ(str.buf, "< Hello god damn world ! >");
+  ASSERT_SEQ("< Hello god damn world ! >", str.buf);
   return CUTE_SUCCESS;
 }
 
@@ -599,20 +675,21 @@ main(void)
   CUTEST_PASS(dstr, grow);
   CUTEST_PASS(dstr, shrink);
   CUTEST_PASS(dstr, trim);
-  CUTEST_PASS(dstr, insert);
-  CUTEST_PASS(dstr, emplace);
+  CUTEST_PASS(dstr, pushncpy);
   CUTEST_PASS(dstr, push);
-  CUTEST_PASS(dstr, append);
-  CUTEST_PASS(dstr, pop);
+  CUTEST_PASS(dstr, pushcpy);
+  CUTEST_PASS(dstr, unshiftncpy);
   CUTEST_PASS(dstr, unshift);
-  CUTEST_PASS(dstr, prepend);
+  CUTEST_PASS(dstr, unshiftcpy);
+  CUTEST_PASS(dstr, putncpy);
+  CUTEST_PASS(dstr, put);
+  CUTEST_PASS(dstr, putcpy);
+  CUTEST_PASS(dstr, pop);
   CUTEST_PASS(dstr, shift);
-  CUTEST_PASS(dstr, remove);
-  CUTEST_PASS(dstr, removen);
-  CUTEST_PASS(dstr, erase);
-  CUTEST_PASS(dstr, erasen);
-  CUTEST_PASS(dstr, eraseonce);
-  CUTEST_PASS(dstr, cpy);
-  CUTEST_PASS(dstr, ncpy);
+  CUTEST_PASS(dstr, rem);
+  CUTEST_PASS(dstr, append);
+  CUTEST_PASS(dstr, prepend);
+  CUTEST_PASS(dstr, emplace);
+  CUTEST_PASS(dstr, general);
   return EXIT_SUCCESS;
 }
