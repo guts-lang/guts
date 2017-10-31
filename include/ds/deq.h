@@ -66,11 +66,6 @@
     return self->buf + self->cur; \
   }
 
-#define DEQ_IMPL_end(SCOPE, ID, T, BITS) \
-  SEQ_DECL_end(SCOPE, ID, T, BITS) { \
-    return self->buf + self->len - self->cur; \
-  }
-
 #define DEQ_IMPL_unshiftn(SCOPE, ID, T, BITS) \
   SEQ_DECL_unshiftn(SCOPE, ID, T, BITS) { \
     UTY(BITS) len; \
@@ -116,7 +111,7 @@
   SEQ_IMPL(SCOPE, ID, T, BITS, SEQ_GROW_POW2, REALLOC, FREE, \
     DEQ_IMPL_size, \
     DEQ_IMPL_begin, \
-    DEQ_IMPL_end, \
+    SEQ_IMPL_end, \
     SEQ_IMPL_pushn, \
     DEQ_IMPL_unshiftn, \
     SEQ_IMPL_popn, \

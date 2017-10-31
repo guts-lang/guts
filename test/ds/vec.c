@@ -30,7 +30,6 @@
 #define NOMEM_REALLOC(x, y) ((errno = ENOMEM), nil)
 VEC8_DEFINE_DFT(i8vec_nomem, i8_t, NOMEM_REALLOC, mem_free)
 
-static i8_t arr1234[4] = { 1, 2, 3, 4 };
 static i8_t arr4321[4] = { 4, 3, 2, 1 };
 
 typedef struct {
@@ -545,7 +544,7 @@ CUTEST(vec, shift)
     ASSERT_NEQ(nil, i8vec_pushncpy(&self->i8vec, arr4321, 4));
     state = self->i8vec;
   }
-  memcpy(buf, state.buf, 4 * sizeof(i8_t));
+  memcpy(buf, i8vec_begin(&state), 4 * sizeof(i8_t));
   ASSERT_EQ(true, i8vec_shift(&self->i8vec, nil));
   ASSERT_EQ(i8vec_size(&state) - 1, i8vec_size(&self->i8vec));
   ASSERT_EQ(true, i8vec_shift(&self->i8vec, &i));
@@ -573,7 +572,7 @@ CUTEST(vec, rem)
     ASSERT_NEQ(nil, i8vec_pushncpy(&self->i8vec, vi8, 4));
     state = self->i8vec;
   }
-  memcpy(buf, state.buf, 4 * sizeof(i8_t));
+  memcpy(buf, i8vec_begin(&state), 4 * sizeof(i8_t));
   ASSERT_EQ(false, i8vec_remove(&self->i8vec, i8vec_size(&state), nil));
   ASSERT_EQ(true, i8vec_remove(&self->i8vec, 2, nil));
   ASSERT_EQ(i8vec_size(&state) - 1, i8vec_size(&self->i8vec));
