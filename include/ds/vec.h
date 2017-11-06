@@ -58,13 +58,13 @@
 
 #define VEC_IMPL_DFT_X(SCOPE, ID, T, BITS, REALLOC, FREE) \
   SEQ_IMPL(SCOPE, ID, T, BITS, SEQ_GROW_POW2, REALLOC, FREE, \
-    SEQ_IMPL_size, \
-    SEQ_IMPL_begin, \
-    SEQ_IMPL_end, \
-    SEQ_IMPL_pushn, \
-    SEQ_IMPL_unshiftn, \
-    SEQ_IMPL_popn, \
-    SEQ_IMPL_shiftn \
+    SEQ_BODY_size, \
+    SEQ_BODY_begin, \
+    SEQ_BODY_end, \
+    SEQ_BODY_pushn, \
+    SEQ_BODY_unshiftn, \
+    SEQ_BODY_popn, \
+    SEQ_BODY_shiftn \
   )
 #define VEC8_IMPL_DFT(SCOPE, ID, T, REALLOC, FREE) \
   VEC_IMPL_DFT_X(SCOPE, ID, T, 8, REALLOC, FREE)

@@ -56,18 +56,15 @@
 #define DEQ32_DECL(SCOPE, ID, T) DEQ_DECL_DFT(SCOPE, ID, T, 32)
 #define DEQ_DECL(SCOPE, ID, T) DEQ_DECL_DFT(SCOPE, ID, T, size)
 
-#define DEQ_IMPL_size(SCOPE, ID, T, BITS) \
-  SEQ_DECL_size(SCOPE, ID, T, BITS) { \
+#define DEQ_BODY_size(ID, T, BITS, ...) { \
     return self->len - self->cur; \
   }
 
-#define DEQ_IMPL_begin(SCOPE, ID, T, BITS) \
-  SEQ_DECL_begin(SCOPE, ID, T, BITS) { \
+#define DEQ_BODY_begin(ID, T, BITS, ...) { \
     return self->buf + self->cur; \
   }
 
-#define DEQ_IMPL_unshiftn(SCOPE, ID, T, BITS) \
-  SEQ_DECL_unshiftn(SCOPE, ID, T, BITS) { \
+#define DEQ_BODY_unshiftn(ID, T, BITS, ...) { \
     UTY(BITS) len; \
     T* it; \
     SEQ_M(ID, grow)(self, n); \
@@ -90,8 +87,7 @@
     return it; \
   }
 
-#define DEQ_IMPL_shiftn(SCOPE, ID, T, BITS) \
-  SEQ_DECL_shiftn(SCOPE, ID, T, BITS) { \
+#define DEQ_BODY_shiftn(ID, T, BITS, ...) { \
     UTY(BITS) len; \
     if ((len = SEQ_M(ID, size)(self)) == 0) \
       return 0; \
@@ -109,13 +105,13 @@
 
 #define DEQ_IMPL_DFT_X(SCOPE, ID, T, BITS, REALLOC, FREE) \
   SEQ_IMPL(SCOPE, ID, T, BITS, SEQ_GROW_POW2, REALLOC, FREE, \
-    DEQ_IMPL_size, \
-    DEQ_IMPL_begin, \
-    SEQ_IMPL_end, \
-    SEQ_IMPL_pushn, \
-    DEQ_IMPL_unshiftn, \
-    SEQ_IMPL_popn, \
-    DEQ_IMPL_shiftn \
+    DEQ_BODY_size, \
+    DEQ_BODY_begin, \
+    SEQ_BODY_end, \
+    SEQ_BODY_pushn, \
+    DEQ_BODY_unshiftn, \
+    SEQ_BODY_popn, \
+    DEQ_BODY_shiftn \
   )
 #define DEQ8_IMPL_DFT(SCOPE, ID, T, REALLOC, FREE) \
   DEQ_IMPL_DFT_X(SCOPE, ID, T, 8, REALLOC, FREE)

@@ -49,57 +49,52 @@
   ((IDX) < (SEQ).len), \
   ((VAL) = (SEQ).buf + ++(IDX))
 
-#define DSTR_DECL_len(SCOPE, ID, BITS) \
+#define DSTR_DECL_len(SCOPE, ID, T, BITS) \
   SCOPE UTY(BITS) \
   SEQ_M(ID, len)(SEQ_SELF_TY(ID) self)
 
-#define DSTR_DECL_append(SCOPE, ID, BITS) \
-  SCOPE DSTR_ITY * \
-  SEQ_M(ID, append)(SEQ_SELF_TY(ID) self, DSTR_ITY __const *buf)
+#define DSTR_DECL_append(SCOPE, ID, T, BITS) \
+  SCOPE T * \
+  SEQ_M(ID, append)(SEQ_SELF_TY(ID) self, T __const *buf)
 
-#define DSTR_DECL_prepend(SCOPE, ID, BITS) \
-  SCOPE DSTR_ITY * \
-  SEQ_M(ID, prepend)(SEQ_SELF_TY(ID) self, DSTR_ITY __const *buf)
+#define DSTR_DECL_prepend(SCOPE, ID, T, BITS) \
+  SCOPE T * \
+  SEQ_M(ID, prepend)(SEQ_SELF_TY(ID) self, T __const *buf)
 
-#define DSTR_DECL_emplace(SCOPE, ID, BITS) \
-  SCOPE DSTR_ITY * \
-  SEQ_M(ID, emplace)(SEQ_SELF_TY(ID) self, UTY(BITS) idx, DSTR_ITY __const *buf)
+#define DSTR_DECL_emplace(SCOPE, ID, T, BITS) \
+  SCOPE T * \
+  SEQ_M(ID, emplace)(SEQ_SELF_TY(ID) self, UTY(BITS) idx, T __const *buf)
 
 #define DSTR_DECL_DFT(SCOPE, ID, BITS) \
   typedef dstrof(BITS) SEQ_TY(ID); \
   SEQ_DECL(SCOPE, ID, DSTR_ITY, BITS); \
-  DSTR_DECL_len(SCOPE, ID, BITS); \
-  DSTR_DECL_append(SCOPE, ID, BITS); \
-  DSTR_DECL_prepend(SCOPE, ID, BITS); \
-  DSTR_DECL_emplace(SCOPE, ID, BITS)
+  DSTR_DECL_len(SCOPE, ID, DSTR_ITY, BITS); \
+  DSTR_DECL_append(SCOPE, ID, DSTR_ITY, BITS); \
+  DSTR_DECL_prepend(SCOPE, ID, DSTR_ITY, BITS); \
+  DSTR_DECL_emplace(SCOPE, ID, DSTR_ITY, BITS)
 
 #define DSTR8_DECL(SCOPE, ID) DSTR_DECL_DFT(SCOPE, ID, 8)
 #define DSTR16_DECL(SCOPE, ID) DSTR_DECL_DFT(SCOPE, ID, 16)
 #define DSTR32_DECL(SCOPE, ID) DSTR_DECL_DFT(SCOPE, ID, 32)
 #define DSTR_DECL(SCOPE, ID) DSTR_DECL_DFT(SCOPE, ID, size)
 
-#define DSTR_IMPL_len(SCOPE, ID, BITS) \
-  DSTR_DECL_len(SCOPE, ID, BITS) { \
+#define DSTR_BODY_len(ID, BITS) { \
     return self->len; \
   }
 
-#define DSTR_IMPL_append(SCOPE, ID, BITS) \
-  DSTR_DECL_append(SCOPE, ID, BITS) { \
+#define DSTR_BODY_append(ID, BITS) { \
     return SEQ_M(ID, pushncpy)(self, buf, strlen(buf)); \
   }
 
-#define DSTR_IMPL_prepend(SCOPE, ID, BITS) \
-  DSTR_DECL_prepend(SCOPE, ID, BITS) { \
+#define DSTR_BODY_prepend(ID, BITS) { \
     return SEQ_M(ID, unshiftncpy)(self, buf, strlen(buf)); \
   }
 
-#define DSTR_IMPL_emplace(SCOPE, ID, BITS) \
-  DSTR_DECL_emplace(SCOPE, ID, BITS) { \
+#define DSTR_BODY_emplace(ID, BITS) { \
     return SEQ_M(ID, putncpy)(self, idx, buf, strlen(buf)); \
   }
 
-#define DSTR_IMPL_pushn(SCOPE, ID, T, BITS) \
-  SEQ_DECL_pushn(SCOPE, ID, T, BITS) { \
+#define DSTR_BODY_pushn(ID, T, BITS) { \
     T* it; \
     SEQ_M(ID, grow)(self, n); \
     it = SEQ_M(ID, end)(self); \
@@ -108,8 +103,7 @@
     return it; \
   }
 
-#define DSTR_IMPL_unshiftn(SCOPE, ID, T, BITS) \
-  SEQ_DECL_unshiftn(SCOPE, ID, T, BITS) { \
+#define DSTR_BODY_unshiftn(ID, T, BITS) { \
     UTY(BITS) len; \
     T* it; \
     SEQ_M(ID, grow)(self, n); \
@@ -127,8 +121,7 @@
     return it; \
   }
 
-#define DSTR_IMPL_popn(SCOPE, ID, T, BITS) \
-  SEQ_DECL_popn(SCOPE, ID, T, BITS) { \
+#define DSTR_BODY_popn(ID, T, BITS) { \
     UTY(BITS) len; \
     if ((len = SEQ_M(ID, size)(self)) == 0) \
       return 0; \
@@ -147,13 +140,13 @@
 
 #define DSTR_IMPL_DFT_X(SCOPE, ID, BITS, REALLOC, FREE) \
   SEQ_IMPL(SCOPE, ID, DSTR_ITY, BITS, SEQ_GROW_POW2, REALLOC, FREE, \
-    SEQ_IMPL_size, \
-    SEQ_IMPL_begin, \
-    SEQ_IMPL_end, \
-    DSTR_IMPL_pushn, \
-    DSTR_IMPL_unshiftn, \
-    DSTR_IMPL_popn, \
-    SEQ_IMPL_shiftn \
+    SEQ_BODY_size, \
+    SEQ_BODY_begin, \
+    SEQ_BODY_end, \
+    DSTR_BODY_pushn, \
+    DSTR_BODY_unshiftn, \
+    DSTR_BODY_popn, \
+    SEQ_BODY_shiftn \
   ) \
   DSTR_IMPL_len(SCOPE FORCEINLINE, ID, BITS) \
   DSTR_IMPL_append(SCOPE FORCEINLINE, ID, BITS) \
