@@ -24,27 +24,60 @@
 # SOFTWARE.
 #
 
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+.SILENT:
+.DEFAULT_GOAL := guts
+.PHONY: clean conf debug dev fclean install re reconf san
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
-set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "San")
+BUILD_TYPE ?= Release
+BUILD_DIR ?= build/$(BUILD_TYPE)
+BUILD_PROJ_DIR = $(BUILD_DIR)/CMakeFiles
 
-project(guts C)
+CMAKE ?= cmake
+CMAKE_FLAGS += -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
+CMAKE_G_FLAGS ?= -j8
 
-set(gutc_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/lib)
-set(gutc_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
-set(gutc_TEST_DIR ${CMAKE_CURRENT_LIST_DIR}/test)
+ifeq (1,$(VERBOSE))
+  CMAKE_FLAGS += -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+  CMAKE_G_FLAGS += VERBOSE=1
+endif
 
-add_subdirectory(${gutc_LIB_DIR})
-add_subdirectory(${gutc_SRC_DIR})
+ifeq (1,$(TCL_THREADING))
+  CMAKE_FLAGS += -DTCL_THREADING:BOOL=ON
+else
+  ifeq (0,$(TCL_THREADING))
+    CMAKE_FLAGS += -DTCL_THREADING:BOOL=OFF
+  endif
+endif
 
-option(GUTC_CHECK "Enable gutc testing" ON)
+ifeq (1,$(TCL_LOGGING))
+  CMAKE_FLAGS += -DTCL_LOGGING:BOOL=ON
+else
+   ifeq (0,$(TCL_LOGGING))
+      CMAKE_FLAGS += -DTCL_LOGGING:BOOL=OFF
+    endif
+endif
 
-if (GUTC_CHECK AND EXISTS ${gutc_TEST_DIR})
-  enable_testing()
+$(BUILD_DIR) conf:
+	mkdir -p $(BUILD_DIR); cd $(BUILD_DIR) && $(CMAKE) $(CMAKE_FLAGS) $(CURDIR)
 
-  if (NOT TARGET check)
-    add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --timeout 2)
-  endif ()
-  add_subdirectory(${gutc_TEST_DIR})
-endif ()
+reconf: mrproper conf
+
+debug dev:
+	$(MAKE) BUILD_TYPE=Debug
+
+san:
+	$(MAKE) BUILD_TYPE=San
+
+clean:
+	[ -d $(BUILD_PROJ_DIR) ] && find $(BUILD_PROJ_DIR) -name "*.o" -delete
+
+fclean:
+	[ -d $(BUILD_DIR) ] && find $(BUILD_DIR) -name "*.o" -delete
+
+mrproper:
+	$(RM) -rf $(BUILD_DIR)
+
+re: fclean all
+
+%: $(BUILD_DIR)
+	$(CMAKE) --build $(BUILD_DIR) --target $@ -- $(CMAKE_G_FLAGS)

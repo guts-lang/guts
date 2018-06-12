@@ -29,22 +29,38 @@ cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "San")
 
-project(guts C)
+project(ir C)
 
-set(gutc_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/lib)
-set(gutc_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
-set(gutc_TEST_DIR ${CMAKE_CURRENT_LIST_DIR}/test)
+set(ir_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
+set(ir_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
+set(ir_TEST_DIR ${CMAKE_CURRENT_LIST_DIR}/test)
+set(ir_CONF_IN ${ir_INC_DIR}/ir/conf.h.in)
+set(ir_CONF_OUT ${CMAKE_BINARY_DIR}/include/ir/conf.h)
 
-add_subdirectory(${gutc_LIB_DIR})
-add_subdirectory(${gutc_SRC_DIR})
+configure_file(${ir_CONF_IN} ${ir_CONF_OUT} @ONLY)
 
-option(GUTC_CHECK "Enable gutc testing" ON)
+set(ir_HDRS ${ir_CONF_OUT})
+file(GLOB_RECURSE ir_HDRS ${ir_HDRS} ${ir_INC_DIR}/*.h)
+file(GLOB_RECURSE ir_SRCS ${ir_SRCS} ${ir_SRC_DIR}/*.c)
 
-if (GUTC_CHECK AND EXISTS ${gutc_TEST_DIR})
+add_library(ir ${ir_HDRS} ${ir_SRCS})
+add_dependencies(ir compat)
+
+set_property(TARGET ir PROPERTY C_STANDARD 99)
+
+target_include_directories(ir
+  PUBLIC ${ir_INC_DIR} ${CMAKE_BINARY_DIR}/include
+  PRIVATE ${ir_SRC_DIR})
+target_link_libraries(ir PUBLIC compat)
+target_compile_definitions(ir PRIVATE COMPILE)
+
+option(IR_CHECK "Enable ir testing" ON)
+
+if (IR_CHECK AND EXISTS ${ir_TEST_DIR})
   enable_testing()
 
   if (NOT TARGET check)
     add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --timeout 2)
   endif ()
-  add_subdirectory(${gutc_TEST_DIR})
+  add_subdirectory(${ir_TEST_DIR})
 endif ()

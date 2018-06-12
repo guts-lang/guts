@@ -1,5 +1,0 @@
-int
-main(void)
-{
-  int i = 1 * 2;  i *= 3;  return EXIT_SUCCESS;
-}

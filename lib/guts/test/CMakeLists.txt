@@ -24,27 +24,23 @@
 # SOFTWARE.
 #
 
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+add_custom_target(check_guts
+  COMMAND ${CMAKE_CTEST_COMMAND} -R '^test_guts_.*' --timeout 2)
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
-set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "San")
-
-project(guts C)
-
-set(gutc_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/lib)
-set(gutc_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
-set(gutc_TEST_DIR ${CMAKE_CURRENT_LIST_DIR}/test)
-
-add_subdirectory(${gutc_LIB_DIR})
-add_subdirectory(${gutc_SRC_DIR})
-
-option(GUTC_CHECK "Enable gutc testing" ON)
-
-if (GUTC_CHECK AND EXISTS ${gutc_TEST_DIR})
-  enable_testing()
-
-  if (NOT TARGET check)
-    add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --timeout 2)
+macro (guts_register_test suite test)
+  if (NOT TARGET check_guts_${suite})
+    add_custom_target(check_guts_${suite}
+      COMMAND ${CMAKE_CTEST_COMMAND} -R '^test_guts_${suite}_.*' --timeout 2)
   endif ()
-  add_subdirectory(${gutc_TEST_DIR})
-endif ()
+
+  set(name ${suite}_${test})
+
+  add_executable(test_guts_${name} ${name}.c test.h)
+  target_link_libraries(test_guts_${name} guts)
+
+  add_test(test_guts_${name} test_guts_${name})
+  add_dependencies(check test_guts_${name})
+  add_dependencies(check_guts test_guts_${name})
+  add_dependencies(check_guts_${suite} test_guts_${name})
+  add_dependencies(test_guts_${name} guts)
+endmacro ()
