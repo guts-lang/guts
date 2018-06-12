@@ -24,31 +24,38 @@
  * SOFTWARE.
  */
 
-/*!@file ir/filemap.h
- * @author uael
- *
- * @addtogroup ir.filemap @{
- */
-#ifndef __IR_FILEMAP_H
-# define __IR_FILEMAP_H
+#include "ir/filemap.h"
 
-#include "ir/span.h"
-#include "ir/vector.h"
+#include "test.h"
 
-typedef struct {
-	bool virtual;
-	char __const *filename;
-	char __const *src;
-	size_t srclen;
-	ir_loc_t loc;
-	vecof(u32_t) lines;
-} ir_filemap_t;
+int main(void)
+{
+	static char __const *SRC = "Hello world !\nHello world !\nHello world !\n";
+	ir_filemap_t filemap;
+	char c;
+	u32_t off;
+	u32_t raw;
+	u32_t col;
 
-__api int filemap_virtual(ir_filemap_t *self, char __const *src);
-__api int filemap_real(ir_filemap_t *self, char __const *filename);
-__api void filemap_dtor(ir_filemap_t *self);
-__api char filemap_peek(ir_filemap_t *self, u8_t n);
-__api char filemap_next(ir_filemap_t *self);
+	ASSERT_EQ(0, filemap_virtual(&filemap, SRC));
 
-#endif /* !__IR_FILEMAP_H */
-/*!@} */
+	off = 0;
+	raw = 1;
+	col = 0;
+	while ((c = filemap_next(&filemap))) {
+		ASSERT_EQ(SRC[off++], c);
+
+		if (c != '\n') ++col;
+		else {
+			++raw;
+			col = 0;
+		}
+
+		ASSERT_EQ(raw, filemap.loc.raw);
+		ASSERT_EQ(col, filemap.loc.col);
+		ASSERT_EQ(off, filemap.loc.off);
+	}
+
+	filemap_dtor(&filemap);
+	return 0;
+}

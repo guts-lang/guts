@@ -24,31 +24,24 @@
  * SOFTWARE.
  */
 
-/*!@file ir/filemap.h
- * @author uael
- *
- * @addtogroup ir.filemap @{
- */
-#ifndef __IR_FILEMAP_H
-# define __IR_FILEMAP_H
+#include "ir/loc.h"
 
-#include "ir/span.h"
-#include "ir/vector.h"
+FORCEINLINE
+void loc_init(ir_loc_t *self)
+{
+	self->raw = 1;
+	self->col = 0;
+	self->off = 0;
+}
 
-typedef struct {
-	bool virtual;
-	char __const *filename;
-	char __const *src;
-	size_t srclen;
-	ir_loc_t loc;
-	vecof(u32_t) lines;
-} ir_filemap_t;
-
-__api int filemap_virtual(ir_filemap_t *self, char __const *src);
-__api int filemap_real(ir_filemap_t *self, char __const *filename);
-__api void filemap_dtor(ir_filemap_t *self);
-__api char filemap_peek(ir_filemap_t *self, u8_t n);
-__api char filemap_next(ir_filemap_t *self);
-
-#endif /* !__IR_FILEMAP_H */
-/*!@} */
+FORCEINLINE
+void loc_shift(ir_loc_t *self, char ch, vecof(u32_t) *lines)
+{
+	if (ch != '\n') ++self->col;
+	else {
+		++self->raw;
+		self->col = 0;
+		vecpush(*lines, self->off);
+	}
+	++self->off;
+}

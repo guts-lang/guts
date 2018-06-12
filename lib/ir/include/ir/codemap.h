@@ -34,11 +34,9 @@
 
 #include "ir/filemap.h"
 
-typedef struct codemap codemap_t;
-
-struct codemap {
-	vecof(filemap_t) files;
-};
+typedef struct {
+	vecof(ir_filemap_t) files;
+} ir_codemap_t;
 
 #endif /* !__IR_CODEMAP_H */
 /*!@} */

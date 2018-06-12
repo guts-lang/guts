@@ -73,7 +73,7 @@ static usize_t __roundup(usize_t n)
 #define __veccap(v) (((usize_t *)(v))[-2])
 
 #define vecdtor(v) \
-	((v) ? free((usize_t *)(v) - 2) : (void)0)
+	((v) ? (free((usize_t *)(v) - 2), (void)((v) = NULL)) : (void)0)
 
 #define veclen(v) \
 	((v) ? __veclen(v) : (usize_t)0)

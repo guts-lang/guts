@@ -24,31 +24,52 @@
  * SOFTWARE.
  */
 
-/*!@file ir/filemap.h
+/*!@file ir/diagnostic.h
  * @author uael
  *
- * @addtogroup ir.filemap @{
+ * @addtogroup ir.diagnostic @{
  */
-#ifndef __IR_FILEMAP_H
-# define __IR_FILEMAP_H
+#ifndef __IR_DIAGNOSTIC_H
+# define __IR_DIAGNOSTIC_H
 
-#include "ir/span.h"
-#include "ir/vector.h"
+#include "ir/filemap.h"
+
+typedef enum {
+	DIAG_LABEL_PRIMARY,
+	DIAG_LABEL_SECONDARY
+} ir_label_style_t;
 
 typedef struct {
-	bool virtual;
-	char __const *filename;
-	char __const *src;
-	size_t srclen;
-	ir_loc_t loc;
-	vecof(u32_t) lines;
-} ir_filemap_t;
+	ir_label_style_t style;
+	ir_span_t span;
+	char __const *message;
+} ir_label_t;
 
-__api int filemap_virtual(ir_filemap_t *self, char __const *src);
-__api int filemap_real(ir_filemap_t *self, char __const *filename);
-__api void filemap_dtor(ir_filemap_t *self);
-__api char filemap_peek(ir_filemap_t *self, u8_t n);
-__api char filemap_next(ir_filemap_t *self);
+__api ir_label_t label_primary(ir_span_t span, char __const *message);
+__api ir_label_t label_secondary(ir_span_t span, char __const *message);
 
-#endif /* !__IR_FILEMAP_H */
+typedef enum {
+	SEVERITY_BUG,
+	SEVERITY_ERROR,
+	SEVERITY_WARN,
+	SEVERITY_NOTE,
+	SEVERITY_HELP
+} ir_severity_t;
+
+typedef struct {
+	ir_severity_t severity;
+	char __const *message;
+	vecof(ir_label_t) labels;
+} ir_diag_t;
+
+__api void diag_bug(ir_diag_t *self, char __const *message);
+__api void diag_error(ir_diag_t *self, char __const *message);
+__api void diag_warn(ir_diag_t *self, char __const *message);
+__api void diag_note(ir_diag_t *self, char __const *message);
+__api void diag_help(ir_diag_t *self, char __const *message);
+__api void diag_dtor(ir_diag_t *self);
+__api void diag_with_label(ir_diag_t *self, ir_label_t label);
+__api void diag_with_labels(ir_diag_t *self, ir_label_t *labels, usize_t n);
+
+#endif /* !__IR_DIAGNOSTIC_H */
 /*!@} */

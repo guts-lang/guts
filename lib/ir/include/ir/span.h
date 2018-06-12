@@ -34,12 +34,12 @@
 
 #include "ir/loc.h"
 
-typedef struct span span_t;
-
-struct span {
-	loc_t start;
+typedef struct {
+	ir_loc_t start;
 	u16_t length;
-};
+} ir_span_t;
+
+__api void span(ir_span_t *self, ir_loc_t start, u16_t length);
 
 #endif /* !__IR_SPAN_H */
 /*!@} */

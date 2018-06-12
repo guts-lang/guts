@@ -47,3 +47,5 @@ endmacro ()
 
 ir_register_test(vector grow)
 ir_register_test(vector push)
+
+ir_register_test(filemap virtual)

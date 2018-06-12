@@ -26,3 +26,9 @@
 
 #include "ir/span.h"
 
+FORCEINLINE
+void span(ir_span_t *self, ir_loc_t start, u16_t length)
+{
+	self->start = start;
+	self->length = length;
+}

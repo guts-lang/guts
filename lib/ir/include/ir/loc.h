@@ -32,17 +32,17 @@
 #ifndef __IR_LOC_H
 # define __IR_LOC_H
 
-#include <compat.h>
+#include "ir/vector.h"
 
-#include "ir/conf.h"
-
-typedef struct loc loc_t;
-
-struct loc {
+typedef struct {
+	u32_t file;
 	u32_t raw;
 	u32_t col;
-	u64_t off;
-};
+	u32_t off;
+} ir_loc_t;
+
+__api void loc_init(ir_loc_t *self);
+__api void loc_shift(ir_loc_t *self, char ch, vecof(u32_t) *lines);
 
 #endif /* !__IR_LOC_H */
 /*!@} */
