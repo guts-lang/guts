@@ -24,5 +24,5 @@
  * SOFTWARE.
  */
 
-#include "ir/vector.h"
+#include "ir/filemap.h"
 

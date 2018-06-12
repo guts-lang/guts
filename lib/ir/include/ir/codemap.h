@@ -24,5 +24,21 @@
  * SOFTWARE.
  */
 
-#include "ir/vector.h"
+/*!@file ir/codemap.h
+ * @author uael
+ *
+ * @addtogroup ir.codemap @{
+ */
+#ifndef __IR_CODEMAP_H
+# define __IR_CODEMAP_H
 
+#include "ir/filemap.h"
+
+typedef struct codemap codemap_t;
+
+struct codemap {
+	vecof(filemap_t) files;
+};
+
+#endif /* !__IR_CODEMAP_H */
+/*!@} */

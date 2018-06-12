@@ -24,5 +24,25 @@
  * SOFTWARE.
  */
 
-#include "ir/vector.h"
+/*!@file ir/loc.h
+ * @author uael
+ *
+ * @addtogroup ir.loc @{
+ */
+#ifndef __IR_LOC_H
+# define __IR_LOC_H
 
+#include <compat.h>
+
+#include "ir/conf.h"
+
+typedef struct loc loc_t;
+
+struct loc {
+	u32_t raw;
+	u32_t col;
+	u64_t off;
+};
+
+#endif /* !__IR_LOC_H */
+/*!@} */

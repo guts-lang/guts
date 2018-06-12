@@ -24,5 +24,25 @@
  * SOFTWARE.
  */
 
+/*!@file ir/filemap.h
+ * @author uael
+ *
+ * @addtogroup ir.filemap @{
+ */
+#ifndef __IR_FILEMAP_H
+# define __IR_FILEMAP_H
+
+#include "ir/span.h"
 #include "ir/vector.h"
 
+typedef struct filemap filemap_t;
+
+struct filemap {
+	bool virtual;
+	char __const *filename;
+	char __const *src;
+	vecof(u32_t) lines;
+};
+
+#endif /* !__IR_FILEMAP_H */
+/*!@} */

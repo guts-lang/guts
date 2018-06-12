@@ -43,6 +43,7 @@
 #include "compat/os.h"
 #include "compat/platform.h"
 #include "compat/preprocessor.h"
+#include "compat/string.h"
 #include "compat/types.h"
 #include "compat/verno.h"
 

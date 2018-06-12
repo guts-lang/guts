@@ -24,5 +24,22 @@
  * SOFTWARE.
  */
 
-#include "ir/vector.h"
+/*!@file ir/span.h
+ * @author uael
+ *
+ * @addtogroup ir.span @{
+ */
+#ifndef __IR_SPAN_H
+# define __IR_SPAN_H
 
+#include "ir/loc.h"
+
+typedef struct span span_t;
+
+struct span {
+	loc_t start;
+	u16_t length;
+};
+
+#endif /* !__IR_SPAN_H */
+/*!@} */

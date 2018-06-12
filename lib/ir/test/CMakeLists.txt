@@ -44,3 +44,6 @@ macro (ir_register_test suite test)
   add_dependencies(check_ir_${suite} test_ir_${name})
   add_dependencies(test_ir_${name} ir)
 endmacro ()
+
+ir_register_test(vector grow)
+ir_register_test(vector push)

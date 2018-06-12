@@ -26,3 +26,18 @@
 
 #include "ir/vector.h"
 
+#include "test.h"
+
+int main(void)
+{
+	int* ints = NULL;
+
+	vecpush(ints, 1);
+	vecpush(ints, 2);
+	vecpush(ints, 3);
+	vecpush(ints, 4);
+	vecpush(ints, 5);
+	vecpush(ints, 6);
+	vecdtor(ints);
+	return 0;
+}
