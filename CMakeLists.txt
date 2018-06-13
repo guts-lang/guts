@@ -35,16 +35,15 @@ set(gutc_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/lib)
 set(gutc_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
 set(gutc_TEST_DIR ${CMAKE_CURRENT_LIST_DIR}/test)
 
-add_subdirectory(${gutc_LIB_DIR})
-add_subdirectory(${gutc_SRC_DIR})
-
 option(GUTC_CHECK "Enable gutc testing" ON)
 
 if (GUTC_CHECK AND EXISTS ${gutc_TEST_DIR})
-  enable_testing()
-
   if (NOT TARGET check)
+    enable_testing()
     add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --timeout 2)
   endif ()
   add_subdirectory(${gutc_TEST_DIR})
 endif ()
+
+add_subdirectory(${gutc_LIB_DIR})
+add_subdirectory(${gutc_SRC_DIR})

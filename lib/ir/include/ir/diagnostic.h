@@ -49,11 +49,11 @@ __api ir_label_t label_primary(ir_span_t span, char __const *message);
 __api ir_label_t label_secondary(ir_span_t span, char __const *message);
 
 typedef enum {
-	SEVERITY_BUG,
-	SEVERITY_ERROR,
-	SEVERITY_WARN,
-	SEVERITY_NOTE,
-	SEVERITY_HELP
+	IR_SEVERITY_BUG,
+	IR_SEVERITY_ERROR,
+	IR_SEVERITY_WARN,
+	IR_SEVERITY_NOTE,
+	IR_SEVERITY_HELP
 } ir_severity_t;
 
 typedef struct {

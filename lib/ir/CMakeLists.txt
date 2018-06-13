@@ -54,12 +54,21 @@ target_include_directories(ir
 target_link_libraries(ir PUBLIC compat)
 target_compile_definitions(ir PRIVATE COMPILE)
 
+if (MSVC)
+  foreach (flag_var
+    CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
+    CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
+    if (${flag_var} MATCHES "/MD")
+      string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+    endif ()
+  endforeach ()
+endif ()
+
 option(IR_CHECK "Enable ir testing" ON)
 
 if (IR_CHECK AND EXISTS ${ir_TEST_DIR})
-  enable_testing()
-
   if (NOT TARGET check)
+    enable_testing()
     add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --timeout 2)
   endif ()
   add_subdirectory(${ir_TEST_DIR})

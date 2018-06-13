@@ -103,9 +103,8 @@ endif ()
 option(COMPAT_CHECK "Enable compat testing" ON)
 
 if (COMPAT_CHECK AND EXISTS ${compat_TEST_DIR})
-  enable_testing()
-
   if (NOT TARGET check)
+    enable_testing()
     add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --timeout 2)
   endif ()
   add_subdirectory(${compat_TEST_DIR})

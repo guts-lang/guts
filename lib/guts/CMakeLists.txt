@@ -54,12 +54,21 @@ target_include_directories(guts
 target_link_libraries(guts PUBLIC ir)
 target_compile_definitions(guts PRIVATE COMPILE)
 
+if (MSVC)
+  foreach (flag_var
+    CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
+    CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
+    if (${flag_var} MATCHES "/MD")
+      string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+    endif ()
+  endforeach ()
+endif ()
+
 option(GUTS_CHECK "Enable guts testing" ON)
 
 if (GUTS_CHECK AND EXISTS ${guts_TEST_DIR})
-  enable_testing()
-
   if (NOT TARGET check)
+    enable_testing()
     add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --timeout 2)
   endif ()
   add_subdirectory(${guts_TEST_DIR})

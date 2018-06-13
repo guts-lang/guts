@@ -42,22 +42,22 @@
 #endif
 
 #ifndef HAS_BZERO
-void
+__api void
 bzero(void *ptr, usize_t n);
 #endif
 
 #ifndef HAS_STRLCPY
-usize_t
+__api usize_t
 strlcpy(char *__restrict dst, const char *__restrict src, usize_t dstsize);
 #endif
 
 #ifndef HAS_STRNCPY
-char *
+__api char *
 strncpy(char *dst, __const char *src, usize_t n);
 #endif
 
 #ifndef HAS_STRNLEN
-usize_t
+__api usize_t
 strnlen(const char *s, usize_t n);
 #endif
 
