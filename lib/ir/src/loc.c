@@ -27,7 +27,7 @@
 #include "ir/loc.h"
 
 FORCEINLINE
-void loc_init(ir_loc_t *self)
+void ir_loc_init(ir_loc_t *self)
 {
 	self->raw = 1;
 	self->col = 0;
@@ -35,7 +35,7 @@ void loc_init(ir_loc_t *self)
 }
 
 FORCEINLINE
-void loc_shift(ir_loc_t *self, char ch, vecof(u32_t) *lines)
+void ir_loc_shift(ir_loc_t *self, char ch, vecof(u32_t)*lines)
 {
 	if (ch != '\n') ++self->col;
 	else {

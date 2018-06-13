@@ -39,7 +39,7 @@ typedef struct {
 	u16_t length;
 } ir_span_t;
 
-__api void span(ir_span_t *self, ir_loc_t start, u16_t length);
+__api ir_span_t ir_span(ir_loc_t start, u16_t length);
 
 #endif /* !__IR_SPAN_H */
 /*!@} */

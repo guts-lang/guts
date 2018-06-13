@@ -44,11 +44,12 @@ typedef struct {
 	vecof(u32_t) lines;
 } ir_filemap_t;
 
-__api int filemap_virtual(ir_filemap_t *self, char __const *src);
-__api int filemap_real(ir_filemap_t *self, char __const *filename);
-__api void filemap_dtor(ir_filemap_t *self);
-__api char filemap_peek(ir_filemap_t *self, u8_t n);
-__api char filemap_next(ir_filemap_t *self);
+__api int ir_filemap_virtual(ir_filemap_t *self, char __const *src);
+__api int ir_filemap_real(ir_filemap_t *self, char __const *filename);
+__api void ir_filemap_dtor(ir_filemap_t *self);
+__api char ir_filemap_peek(ir_filemap_t *self, u8_t n);
+__api char ir_filemap_next(ir_filemap_t *self);
+__api char *ir_filemap_readline(ir_filemap_t *self, u32_t line);
 
 #endif /* !__IR_FILEMAP_H */
 /*!@} */

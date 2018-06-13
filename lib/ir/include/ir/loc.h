@@ -41,8 +41,8 @@ typedef struct {
 	u32_t off;
 } ir_loc_t;
 
-__api void loc_init(ir_loc_t *self);
-__api void loc_shift(ir_loc_t *self, char ch, vecof(u32_t) *lines);
+__api void ir_loc_init(ir_loc_t *self);
+__api void ir_loc_shift(ir_loc_t *self, char ch, vecof(u32_t)*lines);
 
 #endif /* !__IR_LOC_H */
 /*!@} */

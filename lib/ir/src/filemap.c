@@ -25,10 +25,11 @@
  */
 
 #include <stdio.h>
+#include <ir/filemap.h>
 
 #include "ir/filemap.h"
 
-int filemap_virtual(ir_filemap_t *self, char __const *src)
+int ir_filemap_virtual(ir_filemap_t *self, char __const *src)
 {
 	if (!src) {
 		errno = EINVAL;
@@ -39,12 +40,12 @@ int filemap_virtual(ir_filemap_t *self, char __const *src)
 	self->lines = NULL;
 	self->src = src;
 	self->srclen = strlen(src);
-	loc_init(&self->loc);
+	ir_loc_init(&self->loc);
 	vecpush(self->lines, 0);
 	return 0;
 }
 
-int filemap_real(ir_filemap_t *self, char __const *filename)
+int ir_filemap_real(ir_filemap_t *self, char __const *filename)
 {
 	FILE *fp;
 	char *src;
@@ -68,32 +69,47 @@ int filemap_real(ir_filemap_t *self, char __const *filename)
 	self->lines = NULL;
 	self->src = src;
 	self->srclen = (size_t)sz;
-	loc_init(&self->loc);
+	ir_loc_init(&self->loc);
 	vecpush(self->lines, 0);
 	return 0;
 }
 
-void filemap_dtor(ir_filemap_t *self)
+FORCEINLINE
+void ir_filemap_dtor(ir_filemap_t *self)
 {
 	if (!self->virtual)
 		free((void *)self->src);
 	vecdtor(self->lines);
 }
 
-char filemap_peek(ir_filemap_t *self, u8_t n)
+FORCEINLINE
+char ir_filemap_peek(ir_filemap_t *self, u8_t n)
 {
 	if (self->loc.off + n >= self->srclen)
 		return '\0';
 	return self->src[self->loc.off + n];
 }
 
-char filemap_next(ir_filemap_t *self)
+FORCEINLINE
+char ir_filemap_next(ir_filemap_t *self)
 {
 	char c;
 
 	if (self->loc.off >= self->srclen)
 		return '\0';
 	c = self->src[self->loc.off];
-	loc_shift(&self->loc, c, &self->lines);
+	ir_loc_shift(&self->loc, c, &self->lines);
 	return c;
+}
+
+char *ir_filemap_readline(ir_filemap_t *self, u32_t line)
+{
+	u32_t off;
+
+	if (line < 1 || line > veclen(self->lines)) {
+		errno = EINVAL;
+		return NULL;
+	}
+	off = *vecat(self->lines, line - 1);
+	return (char *)(self->src + off);
 }

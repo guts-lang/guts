@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+#include <ir/filemap.h>
 #include "ir/filemap.h"
 
 #include "test.h"
@@ -32,17 +33,15 @@ int main(void)
 {
 	static char __const *SRC = "Hello world !\nHello world !\nHello world !\n";
 	ir_filemap_t filemap;
-	char c;
-	u32_t off;
-	u32_t raw;
-	u32_t col;
+	char c, *line, *eol;
+	u32_t off, raw, col;
 
-	ASSERT_EQ(0, filemap_virtual(&filemap, SRC));
+	ASSERT_EQ(0, ir_filemap_virtual(&filemap, SRC));
 
 	off = 0;
 	raw = 1;
 	col = 0;
-	while ((c = filemap_next(&filemap))) {
+	while ((c = ir_filemap_next(&filemap))) {
 		ASSERT_EQ(SRC[off++], c);
 
 		if (c != '\n') ++col;
@@ -56,6 +55,11 @@ int main(void)
 		ASSERT_EQ(off, filemap.loc.off);
 	}
 
-	filemap_dtor(&filemap);
+	ASSERT_EQ(4, veclen(filemap.lines));
+
+	line = ir_filemap_readline(&filemap, 1);
+	ASSERT(line);
+
+	ir_filemap_dtor(&filemap);
 	return 0;
 }
