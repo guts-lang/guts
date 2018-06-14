@@ -7,7 +7,7 @@ install:
   - cmake ..
   - cmake --build . --target all
 
-script: ctest --verbose
+script: cmake --build . --target check
 
 matrix:
   include:
@@ -29,7 +29,7 @@ matrix:
         - cmake -DCOVERAGE=ON -DCMAKE_BUILD_TYPE=Debug ..
         - cmake --build . --target all
       script:
-        - ctest --verbose
+        - cmake --build . --target all
       after_success:
         - cd .. && bash <(curl -s https://codecov.io/bash) -xgcov-5
 

@@ -27,12 +27,9 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
-set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "San")
-if (NOT DEFINED CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "Release")
-endif ()
 
 project(guts C)
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "San")
 
 set(guts_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
 set(guts_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
