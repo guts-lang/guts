@@ -32,7 +32,17 @@
 #ifndef __IR_DIAGNOSTIC_H
 # define __IR_DIAGNOSTIC_H
 
-#include "ir/filemap.h"
+#include "ir/source.h"
+
+# define CLR_RESET "\033[0m"
+# define CLR_GREEN "\032[31m"
+# define CLR_RED "\033[31m"
+# define CLR_YELLOW "\033[33m"
+# define CLR_CYAN "\033[36m"
+# define CLR_BOLD "\033[1m"
+# define CLR_BRED CLR_BOLD"\033[31m"
+# define CLR_BYELLOW CLR_BOLD"\033[33m"
+# define CLR_BCYAN CLR_BOLD"\033[36m"
 
 typedef enum {
 	IR_LABEL_PRIMARY,
@@ -56,6 +66,8 @@ typedef enum {
 	IR_SEVERITY_HELP
 } ir_severity_t;
 
+__api char *ir_severity_toa(ir_severity_t severity);
+
 typedef struct {
 	ir_severity_t severity;
 	char __const *message;
@@ -68,8 +80,8 @@ __api void ir_diag_warn(ir_diag_t *self, char __const *message);
 __api void ir_diag_note(ir_diag_t *self, char __const *message);
 __api void ir_diag_help(ir_diag_t *self, char __const *message);
 __api void ir_diag_dtor(ir_diag_t *self);
-__api void ir_diag_with_label(ir_diag_t *self, ir_label_t label);
-__api void ir_diag_with_labels(ir_diag_t *self, ir_label_t *labels, usize_t n);
+__api void ir_diag_labelpush(ir_diag_t *self, ir_label_t label);
+__api void ir_diag_labelnpush(ir_diag_t *self, ir_label_t *labels, usize_t n);
 
 #endif /* !__IR_DIAGNOSTIC_H */
 /*!@} */

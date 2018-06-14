@@ -24,32 +24,37 @@
  * SOFTWARE.
  */
 
-/*!@file ir/filemap.h
+/*!@file ir/frontend.h
  * @author uael
  *
- * @addtogroup ir.filemap @{
+ * @addtogroup ir.frontend @{
  */
-#ifndef __IR_FILEMAP_H
-# define __IR_FILEMAP_H
+#ifndef __IR_FRONTEND_H
+# define __IR_FRONTEND_H
 
-#include "ir/span.h"
-#include "ir/vector.h"
+#include <stdio.h>
 
-typedef struct {
-	bool virtual;
-	char __const *filename;
-	char __const *src;
-	size_t srclen;
-	ir_loc_t loc;
-	vecof(u32_t) lines;
-} ir_filemap_t;
+#include "ir/source.h"
+#include "ir/diagnostic.h"
 
-__api int ir_filemap_virtual(ir_filemap_t *self, char __const *src);
-__api int ir_filemap_real(ir_filemap_t *self, char __const *filename);
-__api void ir_filemap_dtor(ir_filemap_t *self);
-__api char ir_filemap_peek(ir_filemap_t *self, u8_t n);
-__api char ir_filemap_next(ir_filemap_t *self);
-__api char *ir_filemap_readline(ir_filemap_t *self, u32_t line);
+struct ir_fe;
 
-#endif /* !__IR_FILEMAP_H */
+typedef int (ir_emitter_t)(FILE *stream, struct ir_fe *fe, ir_diag_t *diag);
+
+typedef struct ir_fe {
+	vecof(ir_src_t) sources;
+	vecof(ir_diag_t) diagnostics;
+	ir_emitter_t *emitter;
+} ir_fe_t;
+
+__api ir_emitter_t *IR_DFT_EMITTER;
+
+__api void ir_fe_init(ir_fe_t *self, ir_emitter_t *emitter);
+__api int ir_fe_srcpush(ir_fe_t *self, char __const *str, bool virtual);
+__api ir_src_t *ir_fe_srcfind(ir_fe_t *self, ir_loc_t *loc);
+__api void ir_fe_diagpush(ir_fe_t *self, ir_diag_t diag);
+__api bool ir_fe_hasdiag(ir_fe_t *self);
+__api int ir_fe_emit(ir_fe_t *self, FILE *stream);
+
+#endif /* !__IR_FRONTEND_H */
 /*!@} */

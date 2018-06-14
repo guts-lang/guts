@@ -24,24 +24,28 @@
  * SOFTWARE.
  */
 
-#include "ir/loc.h"
+/*!@file termc/term.h
+ * @author uael
+ *
+ * @addtogroup termc @{
+ */
+#ifndef __TERMC_TERM_H
+# define __TERMC_TERM_H
 
-FORCEINLINE
-void ir_loc_init(ir_loc_t *self)
-{
-	self->raw = 1;
-	self->col = 1;
-	self->off = 0;
-}
+#include "termc/color.h"
 
-FORCEINLINE
-void ir_loc_shift(ir_loc_t *self, char ch, vecof(u32_t)*lines)
-{
-	if (ch != '\n') ++self->col;
-	else {
-		++self->raw;
-		self->col = 1;
-		vecpush(*lines, self->off);
-	}
-	++self->off;
-}
+#if defined(CC_MSVC)
+# include <io.h>
+#elif defined(HAS_UNISTD_H)
+# include <unistd.h>
+#else
+# error "Unable to impl termcolor"
+#endif
+
+#include <stdio.h>
+
+__api FILE *termc_set(FILE *stream, color_spec_t spec);
+__api FILE *termc_reset(FILE *stream);
+
+#endif /* !__TERMC_TERM_H */
+/*!@} */

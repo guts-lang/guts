@@ -94,7 +94,7 @@ static usize_t __roundup(usize_t n)
 	(veclen(v) ? (v) + __veclen(v) - 1: (v))
 
 #define vecat(v, i) \
-	((i) > veclen(v) ? NULL : (v) + (i))
+	((v) ? (v) + (i) : NULL)
 
 #define vecgrow(v, n) do { \
 	usize_t __n = (n) + 1; \

@@ -25,11 +25,13 @@
  */
 
 #include <stdio.h>
-#include <ir/filemap.h>
+#include <ir/source.h>
+#include <ir/loc.h>
 
-#include "ir/filemap.h"
+#include "ir/source.h"
 
-int ir_filemap_virtual(ir_filemap_t *self, char __const *src)
+static FORCEINLINE
+int __src_virtual(ir_src_t *self, char __const *src)
 {
 	if (!src) {
 		errno = EINVAL;
@@ -45,7 +47,8 @@ int ir_filemap_virtual(ir_filemap_t *self, char __const *src)
 	return 0;
 }
 
-int ir_filemap_real(ir_filemap_t *self, char __const *filename)
+static FORCEINLINE
+int __src_real(ir_src_t *self, char __const *filename)
 {
 	FILE *fp;
 	char *src;
@@ -74,8 +77,15 @@ int ir_filemap_real(ir_filemap_t *self, char __const *filename)
 	return 0;
 }
 
+int ir_src_init(ir_src_t *self, char __const *str, bool virtual)
+{
+	if (virtual)
+		return __src_virtual(self, str);
+	return __src_real(self, str);
+}
+
 FORCEINLINE
-void ir_filemap_dtor(ir_filemap_t *self)
+void ir_src_dtor(ir_src_t *self)
 {
 	if (!self->virtual)
 		free((void *)self->src);
@@ -83,7 +93,7 @@ void ir_filemap_dtor(ir_filemap_t *self)
 }
 
 FORCEINLINE
-char ir_filemap_peek(ir_filemap_t *self, u8_t n)
+char ir_src_peek(ir_src_t *self, u8_t n)
 {
 	if (self->loc.off + n >= self->srclen)
 		return '\0';
@@ -91,7 +101,7 @@ char ir_filemap_peek(ir_filemap_t *self, u8_t n)
 }
 
 FORCEINLINE
-char ir_filemap_next(ir_filemap_t *self)
+char ir_src_next(ir_src_t *self)
 {
 	char c;
 
@@ -102,7 +112,18 @@ char ir_filemap_next(ir_filemap_t *self)
 	return c;
 }
 
-char *ir_filemap_readline(ir_filemap_t *self, u32_t line)
+FORCEINLINE
+u32_t ir_src_getoff(ir_src_t *self, u32_t line)
+{
+	if (line < 1 || line > veclen(self->lines)) {
+		errno = EINVAL;
+		return 0;
+	}
+	return *vecat(self->lines, line - 1);
+}
+
+FORCEINLINE
+char *ir_src_getl(ir_src_t *self, u32_t line)
 {
 	u32_t off;
 
@@ -111,5 +132,18 @@ char *ir_filemap_readline(ir_filemap_t *self, u32_t line)
 		return NULL;
 	}
 	off = *vecat(self->lines, line - 1);
-	return (char *)(self->src + off);
+	return (char *)(self->src + off + 1);
+}
+
+ir_loc_t ir_src_loc(ir_src_t *self, u32_t line, u32_t col)
+{
+	u32_t off;
+
+	off = ir_src_getoff(self, line);
+	return (ir_loc_t){
+		.off = off + col - 1,
+		.src = self->loc.src,
+		.raw = line,
+		.col = col,
+	};
 }

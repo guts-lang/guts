@@ -24,24 +24,22 @@
  * SOFTWARE.
  */
 
-#include "ir/loc.h"
+#include "termc/color.h"
 
 FORCEINLINE
-void ir_loc_init(ir_loc_t *self)
+color_t color(enum color color)
 {
-	self->raw = 1;
-	self->col = 1;
-	self->off = 0;
+	return (color_t){ color };
 }
 
 FORCEINLINE
-void ir_loc_shift(ir_loc_t *self, char ch, vecof(u32_t)*lines)
+color_t color_ansi256(u8_t ansi)
 {
-	if (ch != '\n') ++self->col;
-	else {
-		++self->raw;
-		self->col = 1;
-		vecpush(*lines, self->off);
-	}
-	++self->off;
+	return (color_t){ .ansi256 = { TERMC_ANSI256, ansi } };
+}
+
+FORCEINLINE
+color_t color_rgb(u8_t r, u8_t g, u8_t b)
+{
+	return (color_t){ .rgb = { TERMC_RGB, r, g, b } };
 }

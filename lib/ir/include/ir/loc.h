@@ -35,10 +35,10 @@
 #include "ir/vector.h"
 
 typedef struct {
-	u32_t file;
 	u32_t raw;
 	u32_t col;
 	u32_t off;
+	u32_t src;
 } ir_loc_t;
 
 __api void ir_loc_init(ir_loc_t *self);

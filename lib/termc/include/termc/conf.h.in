@@ -24,24 +24,14 @@
  * SOFTWARE.
  */
 
-#include "ir/loc.h"
+/*!@file termc/conf.h
+ * @author uael
+ */
+#ifndef __TERMC_CONF_H
+# define __TERMC_CONF_H
 
-FORCEINLINE
-void ir_loc_init(ir_loc_t *self)
-{
-	self->raw = 1;
-	self->col = 1;
-	self->off = 0;
-}
+#cmakedefine HAS_UNISTD_H
 
-FORCEINLINE
-void ir_loc_shift(ir_loc_t *self, char ch, vecof(u32_t)*lines)
-{
-	if (ch != '\n') ++self->col;
-	else {
-		++self->raw;
-		self->col = 1;
-		vecpush(*lines, self->off);
-	}
-	++self->off;
-}
+#include <compat.h>
+
+#endif /* __TERMC_CONF_H */

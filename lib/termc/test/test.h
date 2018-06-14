@@ -24,24 +24,27 @@
  * SOFTWARE.
  */
 
-#include "ir/loc.h"
+#ifndef __COMPAT_TEST_H
+# define __COMPAT_TEST_H
 
-FORCEINLINE
-void ir_loc_init(ir_loc_t *self)
-{
-	self->raw = 1;
-	self->col = 1;
-	self->off = 0;
-}
+#include "compat/conf.h"
+#include "compat/string.h"
 
-FORCEINLINE
-void ir_loc_shift(ir_loc_t *self, char ch, vecof(u32_t)*lines)
-{
-	if (ch != '\n') ++self->col;
-	else {
-		++self->raw;
-		self->col = 1;
-		vecpush(*lines, self->off);
-	}
-	++self->off;
-}
+#include <assert.h>
+#include <stdio.h>
+
+#ifndef ASSERT_F
+# define ASSERT_F(...) "%s:%d: `%s'\n", __FILE__, __LINE__, #__VA_ARGS__
+#endif
+
+#define ASSERT(cond) do if(!(cond))exit(printf(ASSERT_F(cond))>0);while(0)
+#define ASSERT_EQ(a, b) ASSERT((a) == (b))
+#define ASSERT_GE(a, b) ASSERT((a) >= (b))
+#define ASSERT_LE(a, b) ASSERT((a) <= (b))
+#define ASSERT_NEQ(a, b) ASSERT((a) != (b))
+#define ASSERT_TRUE(a) ASSERT_EQ(a, true)
+#define ASSERT_FALSE(a) ASSERT_EQ(a, false)
+#define ASSERT_NULL(a) ASSERT_EQ(a, NULL)
+#define ASSERT_STREQ(a, b) ASSERT_EQ(0, strcmp(a, b))
+
+#endif /* !__COMPAT_TEST_H */

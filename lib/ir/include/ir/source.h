@@ -24,24 +24,33 @@
  * SOFTWARE.
  */
 
-#include "ir/loc.h"
+/*!@file ir/source.h
+ * @author uael
+ *
+ * @addtogroup ir.source @{
+ */
+#ifndef __IR_SOURCE_H
+# define __IR_SOURCE_H
 
-FORCEINLINE
-void ir_loc_init(ir_loc_t *self)
-{
-	self->raw = 1;
-	self->col = 1;
-	self->off = 0;
-}
+#include "ir/span.h"
+#include "ir/vector.h"
 
-FORCEINLINE
-void ir_loc_shift(ir_loc_t *self, char ch, vecof(u32_t)*lines)
-{
-	if (ch != '\n') ++self->col;
-	else {
-		++self->raw;
-		self->col = 1;
-		vecpush(*lines, self->off);
-	}
-	++self->off;
-}
+typedef struct {
+	bool virtual;
+	char __const *filename;
+	char __const *src;
+	size_t srclen;
+	ir_loc_t loc;
+	vecof(u32_t) lines;
+} ir_src_t;
+
+__api int ir_src_init(ir_src_t *self, char __const *str, bool virtual);
+__api void ir_src_dtor(ir_src_t *self);
+__api char ir_src_peek(ir_src_t *self, u8_t n);
+__api char ir_src_next(ir_src_t *self);
+__api u32_t ir_src_getoff(ir_src_t *self, u32_t line);
+__api char *ir_src_getl(ir_src_t *self, u32_t line);
+__api ir_loc_t ir_src_loc(ir_src_t *self, u32_t line, u32_t col);
+
+#endif /* !__IR_SOURCE_H */
+/*!@} */

@@ -24,30 +24,25 @@
 # SOFTWARE.
 #
 
-add_custom_target(check_ir
-  COMMAND ${CMAKE_CTEST_COMMAND} -R '^test_ir_.*' --timeout 2)
+add_custom_target(check_termc
+  COMMAND ${CMAKE_CTEST_COMMAND} -R '^test_termc_.*' --timeout 2)
 
-macro (ir_register_test suite test)
-  if (NOT TARGET check_ir_${suite})
-    add_custom_target(check_ir_${suite}
-      COMMAND ${CMAKE_CTEST_COMMAND} -R '^test_ir_${suite}_.*' --timeout 2)
+macro (termc_register_test suite test)
+  if (NOT TARGET check_termc_${suite})
+    add_custom_target(check_termc_${suite}
+      COMMAND ${CMAKE_CTEST_COMMAND} -R '^test_termc_${suite}_.*' --timeout 2)
   endif ()
 
   set(name ${suite}_${test})
 
-  add_executable(test_ir_${name} ${name}.c test.h)
-  target_link_libraries(test_ir_${name} ir)
+  add_executable(test_termc_${name} ${name}.c test.h)
+  target_link_libraries(test_termc_${name} termc)
 
-  add_test(test_ir_${name} test_ir_${name})
-  add_dependencies(check test_ir_${name})
-  add_dependencies(check_ir test_ir_${name})
-  add_dependencies(check_ir_${suite} test_ir_${name})
-  add_dependencies(test_ir_${name} ir)
+  add_test(test_termc_${name} test_termc_${name})
+  add_dependencies(check test_termc_${name})
+  add_dependencies(check_termc test_termc_${name})
+  add_dependencies(check_termc_${suite} test_termc_${name})
+  add_dependencies(test_termc_${name} termc)
 endmacro ()
 
-ir_register_test(vector grow)
-ir_register_test(vector push)
-
-ir_register_test(source virtual)
-
-ir_register_test(frontend emit)
+termc_register_test(term set)

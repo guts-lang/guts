@@ -24,19 +24,43 @@
  * SOFTWARE.
  */
 
-/*!@file ir/codemap.h
- * @author uael
- *
- * @addtogroup ir.codemap @{
- */
-#ifndef __IR_CODEMAP_H
-# define __IR_CODEMAP_H
+#include "ir/frontend.h"
 
-#include "ir/filemap.h"
+#include "test.h"
 
-typedef struct {
-	vecof(ir_filemap_t) files;
-} ir_codemap_t;
+int main(void)
+{
+	static char __const *SRC = "\n"
+		"(define test 123)\n"
+		"(+ test \"\")\n"
+	 	"()\n"
+		"\n";
+	ir_src_t *src;
+	ir_fe_t fe;
+	ir_diag_t err, warn;
+	ir_loc_t loc;
 
-#endif /* !__IR_CODEMAP_H */
-/*!@} */
+	ir_fe_init(&fe, NULL);
+	ir_fe_srcpush(&fe, SRC, true);
+
+	src = vecat(fe.sources, 0);
+	while (ir_src_next(src));
+
+	loc = ir_src_loc(src, 3, 9);
+	ir_diag_error(&err, "Unexpected type in `+` application");
+	ir_diag_labelpush(&err,
+		ir_label_primary(ir_span(loc, 2), "Expected integer but got string")
+	);
+	ir_diag_labelpush(&err,
+		ir_label_secondary(ir_span(loc, 2), "Expected integer but got string")
+	);
+	ir_fe_diagpush(&fe, err);
+
+	loc = ir_src_loc(src, 3, 0);
+	ir_diag_warn(&warn, "`+` function has no effect unless its result is used");
+	ir_diag_labelpush(&warn, ir_label_primary(ir_span(loc, 11), NULL));
+	ir_fe_diagpush(&fe, warn);
+
+	ir_fe_emit(&fe, stdout);
+	return 0;
+}

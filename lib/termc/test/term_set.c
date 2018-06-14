@@ -24,24 +24,31 @@
  * SOFTWARE.
  */
 
-#include "ir/loc.h"
+#include "termc/term.h"
 
-FORCEINLINE
-void ir_loc_init(ir_loc_t *self)
-{
-	self->raw = 1;
-	self->col = 1;
-	self->off = 0;
-}
+#include "test.h"
 
-FORCEINLINE
-void ir_loc_shift(ir_loc_t *self, char ch, vecof(u32_t)*lines)
+int main(void)
 {
-	if (ch != '\n') ++self->col;
-	else {
-		++self->raw;
-		self->col = 1;
-		vecpush(*lines, self->off);
+	enum color c;
+
+	for (c = TERMC_BLACK; c <= TERMC_WHITE; ++c) {
+		termc_set(stdout, (color_spec_t){
+			.fg = color(c),
+			.flags = TERMC_BOLD | TERMC_INTENSE
+		});
+		fprintf(stdout, "Hello world !");
+		termc_reset(stdout);
+		fprintf(stdout, "\n");
 	}
-	++self->off;
+	for (c = TERMC_BLACK; c <= TERMC_WHITE; ++c) {
+		termc_set(stdout, (color_spec_t){
+			.bg = color(c),
+			.flags = TERMC_BOLD | TERMC_INTENSE
+		});
+		fprintf(stdout, "Hello world !");
+		termc_reset(stdout);
+		fprintf(stdout, "\n");
+	}
+	return 0;
 }

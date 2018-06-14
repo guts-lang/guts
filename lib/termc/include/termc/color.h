@@ -24,5 +24,60 @@
  * SOFTWARE.
  */
 
-#include "ir/codemap.h"
+/*!@file termc/color.h
+ * @author uael
+ *
+ * @addtogroup termc @{
+ */
+#ifndef __TERMC_COLOR_H
+# define __TERMC_COLOR_H
 
+#include "termc/conf.h"
+
+#define TERMC_BOLD (1 << 0)
+#define TERMC_INTENSE (1 << 1)
+#define TERMC_UNDERLINE (1 << 2)
+
+enum color {
+	TERMC_NONE,
+	TERMC_BLACK,
+	TERMC_BLUE,
+	TERMC_GREEN,
+	TERMC_RED,
+	TERMC_CYAN,
+	TERMC_MAGENTA,
+	TERMC_YELLOW,
+	TERMC_WHITE,
+};
+
+enum {
+	TERMC_ANSI256 = TERMC_WHITE + 1,
+	TERMC_RGB,
+};
+
+typedef union {
+	u8_t kind;
+
+	struct {
+		u8_t __kind;
+		u8_t c;
+	} ansi256;
+
+	struct {
+		u8_t __kind;
+		u8_t r, g, b;
+	} rgb;
+} color_t;
+
+typedef struct {
+	color_t fg;
+	color_t bg;
+	u8_t flags;
+} color_spec_t;
+
+__api color_t color(enum color color);
+__api color_t color_ansi256(u8_t ansi);
+__api color_t color_rgb(u8_t r, u8_t g, u8_t b);
+
+#endif /* !__TERMC_COLOR_H */
+/*!@} */
