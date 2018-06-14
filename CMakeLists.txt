@@ -36,6 +36,11 @@ set(gutc_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
 set(gutc_TEST_DIR ${CMAKE_CURRENT_LIST_DIR}/test)
 
 option(GUTC_CHECK "Enable gutc testing" ON)
+option(COVERAGE "Enable coverage" OFF)
+
+if (COVERAGE AND NOT MSVC)
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} --coverage")
+endif ()
 
 if (GUTC_CHECK AND EXISTS ${gutc_TEST_DIR})
   if (NOT TARGET check)
