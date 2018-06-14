@@ -33,7 +33,7 @@ int main(void)
 {
 	static char __const *SRC = "Hello world !\nHello world !\nHello world !\n";
 	ir_filemap_t filemap;
-	char c, *line, *eol;
+	char c, *line;
 	u32_t off, raw, col;
 
 	ASSERT_EQ(0, ir_filemap_virtual(&filemap, SRC));
