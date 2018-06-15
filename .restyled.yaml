@@ -1,4 +1,17 @@
 - astyle:
-  arguments:
-    - -A3
-    - -T4
+    arguments:
+      - -A3
+      - -T4
+      - -xU
+      - -w
+      - -Y
+      - -m0
+      - -f
+      - -p
+      - -xg
+      - -H
+      - -xe
+      - -k3
+      - -W3
+      - -xj
+      - -xC80
