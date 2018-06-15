@@ -1,7 +1,7 @@
-restylers:
-  - astyle:
-    arguments:
-      - --style=kr
-      - -T=4
-    include:
-      - "**/*.[hc]"
+
+- astyle:
+  arguments:
+    - --style=kr
+    - -T=4
+  include:
+    - "**/*.[hc]"
