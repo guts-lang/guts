@@ -30,7 +30,7 @@
 
 int main(void)
 {
-	termc_set(stdout, (color_spec_t){
+	termc_set(stdout, (color_spec_t) {
 		.fg = color_ansi256(52),
 		.bg = color_ansi256(34),
 		.flags = TERMC_BOLD | TERMC_INTENSE

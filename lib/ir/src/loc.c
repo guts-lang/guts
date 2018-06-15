@@ -43,5 +43,6 @@ void ir_loc_shift(ir_loc_t *self, char ch, vecof(u32_t)*lines)
 		self->col = 1;
 		vecpush(*lines, self->off);
 	}
+
 	++self->off;
 }

@@ -29,7 +29,7 @@
 FORCEINLINE
 ir_label_t ir_label_primary(ir_span_t span, char __const *message)
 {
-	return (ir_label_t){
+	return (ir_label_t) {
 		.span = span,
 		.message = message,
 		.style = IR_LABEL_PRIMARY
@@ -39,7 +39,7 @@ ir_label_t ir_label_primary(ir_span_t span, char __const *message)
 FORCEINLINE
 ir_label_t ir_label_secondary(ir_span_t span, char __const *message)
 {
-	return (ir_label_t){
+	return (ir_label_t) {
 		.span = span,
 		.message = message,
 		.style = IR_LABEL_SECONDARY

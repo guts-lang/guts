@@ -29,7 +29,7 @@
 FORCEINLINE
 ir_span_t ir_span(ir_loc_t start, u16_t length)
 {
-	return (ir_span_t){
+	return (ir_span_t) {
 		start, length
 	};
 }

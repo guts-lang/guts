@@ -52,17 +52,24 @@ static usize_t __roundup(usize_t n)
 
 	if (n == SIZE_MAX || ISPOW2(n))
 		return n;
+
 	i = n;
+
 	if (!(j = i & 0xFFFF0000))
 		j = i;
+
 	if (!(i = j & 0xFF00FF00))
 		i = j;
+
 	if (!(j = i & 0xF0F0F0F0))
 		j = i;
+
 	if (!(i = j & 0xCCCCCCCC))
 		i = j;
+
 	if (!(j = i & 0xAAAAAAAA))
 		j = i;
+
 	i = j << 1;
 	return (i < n) ? (usize_t)SIZE_MAX : i;
 }

@@ -46,6 +46,7 @@ int ir_fe_srcpush(ir_fe_t *self, char __const *str, bool virtual)
 
 	if ((st = ir_src_init(&src, str, virtual)))
 		return st;
+
 	src.loc.src = (u32_t)veclen(self->sources);
 	vecpush(self->sources, src);
 	return 0;
@@ -58,6 +59,7 @@ ir_src_t *ir_fe_srcfind(ir_fe_t *self, ir_loc_t *loc)
 		errno = EINVAL;
 		return NULL;
 	}
+
 	return vecat(self->sources, loc->src);
 }
 
@@ -82,9 +84,11 @@ int ir_fe_emit(ir_fe_t *self, FILE *stream)
 	for (i = 0; i < veclen(self->diagnostics); ++i) {
 		if ((st = self->emitter(stream, self, vecat(self->diagnostics, i))))
 			return st;
+
 		if (i < veclen(self->diagnostics))
 			fputc('\n', stream);
 	}
+
 	return 0;
 }
 
@@ -96,41 +100,46 @@ static int __emit(FILE *s, ir_fe_t *fe, ir_diag_t *diag)
 	usize_t i, j;
 	ir_label_t *label;
 	ir_src_t *src;
-
 	fprintf(s, "%s: %s\n", ir_severity_toa(diag->severity), diag->message);
 
 	for (i = 0; i < veclen(diag->labels); ++i) {
 		label = vecat(diag->labels, i);
-		if (!(src = ir_fe_srcfind(fe, &label->span.start))) {
+
+		if (!(src = ir_fe_srcfind(fe, &label->span.start)))
 			fprintf(s, "- "CLR_BOLD"%s"CLR_RESET"\n", label->message);
-		} else {
+		else {
 			u32_t line, column, off;
 			int mark;
 			char *linea, *eol;
-
 			line = label->span.start.raw;
 			column = label->span.start.col;
+
 			if ((linea = ir_src_getl(src, line))) {
 				eol = strchr(linea, '\n');
+
 				if (!eol) eol = strchr(linea, '\r');
+
 				if (!eol) eol = strchr(linea, '\0');
 
 				fprintf(s, "- %s:%u:%u\n", src->filename, line, column);
 				fprintf(s, "%3u | %.*s\n", line, (int)(eol - linea), linea);
-
 				mark = label->style == IR_LABEL_PRIMARY ? '^' : '-';
-
 				fprintf(s, "    | ");
+
 				for (off = ir_src_getoff(src, line);
 					off < label->span.start.off; ++off)
 					fputc(' ', s);
+
 				for (j = 0; j < label->span.length; ++j)
 					fputc(mark, s);
+
 				if (label->message)
 					fprintf(s, " %s", label->message);
+
 				fputc('\n', s);
 			}
 		}
 	}
+
 	return 0;
 }

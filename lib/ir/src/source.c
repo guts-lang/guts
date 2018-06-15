@@ -37,6 +37,7 @@ int __src_virtual(ir_src_t *self, char __const *src)
 		errno = EINVAL;
 		return -1;
 	}
+
 	self->virtual = true;
 	self->filename = "<test>";
 	self->lines = NULL;
@@ -58,15 +59,19 @@ int __src_real(ir_src_t *self, char __const *filename)
 		errno = EINVAL;
 		return -1;
 	}
+
 	if (!(fp = fopen(filename, "r")) || fseek(fp, 0, SEEK_END) ||
 		(sz = ftell(fp)) < 0)
 		return -1;
+
 	rewind(fp);
 	src = (char *)malloc((size_t)(sz + 1));
 	fread(src, 1, (usize_t)sz, fp);
 	fclose(fp);
+
 	if (ferror(fp))
 		return -1;
+
 	self->virtual = true;
 	self->filename = filename;
 	self->lines = NULL;
@@ -81,6 +86,7 @@ int ir_src_init(ir_src_t *self, char __const *str, bool virtual)
 {
 	if (virtual)
 		return __src_virtual(self, str);
+
 	return __src_real(self, str);
 }
 
@@ -89,6 +95,7 @@ void ir_src_dtor(ir_src_t *self)
 {
 	if (!self->virtual)
 		free((void *)self->src);
+
 	vecdtor(self->lines);
 }
 
@@ -97,6 +104,7 @@ char ir_src_peek(ir_src_t *self, u8_t n)
 {
 	if (self->loc.off + n >= self->srclen)
 		return '\0';
+
 	return self->src[self->loc.off + n];
 }
 
@@ -107,6 +115,7 @@ char ir_src_next(ir_src_t *self)
 
 	if (self->loc.off >= self->srclen)
 		return '\0';
+
 	c = self->src[self->loc.off];
 	ir_loc_shift(&self->loc, c, &self->lines);
 	return c;
@@ -119,6 +128,7 @@ u32_t ir_src_getoff(ir_src_t *self, u32_t line)
 		errno = EINVAL;
 		return 0;
 	}
+
 	return *vecat(self->lines, line - 1);
 }
 
@@ -131,6 +141,7 @@ char *ir_src_getl(ir_src_t *self, u32_t line)
 		errno = EINVAL;
 		return NULL;
 	}
+
 	off = *vecat(self->lines, line - 1);
 	return (char *)(self->src + off + 1);
 }
@@ -138,9 +149,8 @@ char *ir_src_getl(ir_src_t *self, u32_t line)
 ir_loc_t ir_src_loc(ir_src_t *self, u32_t line, u32_t col)
 {
 	u32_t off;
-
 	off = ir_src_getoff(self, line);
-	return (ir_loc_t){
+	return (ir_loc_t) {
 		.off = off + col - 1,
 		.src = self->loc.src,
 		.raw = line,

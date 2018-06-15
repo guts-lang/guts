@@ -29,17 +29,23 @@
 FORCEINLINE
 color_t color(enum color color)
 {
-	return (color_t){ color };
+	return (color_t) {
+		color
+	};
 }
 
 FORCEINLINE
 color_t color_ansi256(u8_t ansi)
 {
-	return (color_t){ .ansi256 = { TERMC_ANSI256, ansi } };
+	return (color_t) {
+		.ansi256 = { TERMC_ANSI256, ansi }
+	};
 }
 
 FORCEINLINE
 color_t color_rgb(u8_t r, u8_t g, u8_t b)
 {
-	return (color_t){ .rgb = { TERMC_RGB, r, g, b } };
+	return (color_t) {
+		.rgb = { TERMC_RGB, r, g, b }
+	};
 }

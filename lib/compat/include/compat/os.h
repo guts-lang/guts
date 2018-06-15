@@ -351,19 +351,19 @@
   || defined(_POSIX_SOURCE)
 # define OS_UNIX 0
 #elif defined(OS_AIX) \
- || defined(OS_OSF) \
- || defined(OS_NETBSD) \
- || defined(OS_QNX) \
- || defined(OS_CYGWIN) \
- || (defined(OS_AMIGA) && defined(CC_GCC))
+  || defined(OS_OSF) \
+  || defined(OS_NETBSD) \
+  || defined(OS_QNX) \
+  || defined(OS_CYGWIN) \
+  || (defined(OS_AMIGA) && defined(CC_GCC))
 # ifndef OS_UNIX
 #   define OS_UNIX 0
 # endif
 #endif
 
 #if defined(__USLC__)
-|| defined(__UNIXWARE__)
-  || (defined(__svr4__) && defined(i386))
+  || defined(__UNIXWARE__)
+  || (defined(__svr4__) &&defined(i386))
 # define OS_UNIXWARE 0
 #endif
 

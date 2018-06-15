@@ -37,10 +37,10 @@ int main(void)
 	u32_t off, raw, col;
 
 	ASSERT_EQ(0, ir_src_init(&source, SRC, true));
-
 	off = 0;
 	raw = 1;
 	col = 0;
+
 	while ((c = ir_src_next(&source))) {
 		ASSERT_EQ(SRC[off++], c);
 
@@ -56,10 +56,8 @@ int main(void)
 	}
 
 	ASSERT_EQ(4, veclen(source.lines));
-
 	line = ir_src_getl(&source, 1);
 	ASSERT(line);
-
 	ir_src_dtor(&source);
 	return 0;
 }

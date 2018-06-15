@@ -48,9 +48,11 @@ strlcpy(char *__restrict dst, __const char *__restrict src, usize_t siz)
 				break;
 		}
 	}
+
 	if (n == 0) {
 		if (siz != 0)
 			*d = '\0';
+
 		while (*s++);
 	}
 
@@ -63,8 +65,10 @@ FORCEINLINE char *
 strncpy(char *s1, __const char *s2, usize_t n)
 {
 	usize_t size = strnlen(s2, n);
+
 	if (size != n)
 		memset(s1 + size, '\0', n - size);
+
 	return memcpy(s1, s2, size);
 }
 
@@ -77,8 +81,10 @@ strnlen(__const char *s, usize_t n)
 	__const char *p;
 
 	p = s;
+
 	while (*p && n--)
 		p++;
+
 	return (usize_t) (p - s);
 }
 #endif /* !HAS_STRNLEN */

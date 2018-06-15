@@ -545,7 +545,7 @@
 
 #if !defined(__has_declspec_attribute__)
 # define __has_declspec_attribute__(x) \
-  (__has_declspec_attribute(x) || __HAS_DECLSPEC_ATTRIBUTE_##x)
+	(__has_declspec_attribute(x) || __HAS_DECLSPEC_ATTRIBUTE_##x)
 # if defined(CC_MSVC) && VERNO_GE(CC_MSVC, 13, 0)
 #   define __HAS_DECLSPEC_ATTRIBUTE_align 1
 # else
@@ -849,7 +849,7 @@
 
 #if !defined(__has_extension__)
 # define __has_extension__(x) (__has_feature__(x) || __has_extension(x) || \
-  __HAS_BUILTIN_##x)
+	__HAS_BUILTIN_##x)
 #endif
 
 #endif /* !__COMPAT_FEATURE_H */

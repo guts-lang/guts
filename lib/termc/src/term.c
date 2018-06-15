@@ -70,11 +70,9 @@ static void __wransi(FILE *stream, color_t c, bool bg)
 	seq = bg ? "\x1B[48;5;" : "\x1B[38;5;";
 	len = sizeof("\x1B[48;5;") - 1;
 	memcpy(fmt, seq, len);
-
 	ANSI_ESCAPE_CUSTOM(fmt, len, c.ansi256.c);
 	fmt[len++] = 'm';
 	fmt[len] = '\0';
-
 	fputs((__const char *)fmt, stream);
 }
 
@@ -88,7 +86,6 @@ static void __wrrgb(FILE *stream, color_t c, bool bg)
 	seq = bg ? "\x1B[48;2;" : "\x1B[38;2;";
 	len = sizeof("\x1B[48;5;") - 1;
 	memcpy(fmt, seq, len);
-
 	ANSI_ESCAPE_CUSTOM(fmt, len, c.rgb.r);
 	fmt[len++] = ';';
 	ANSI_ESCAPE_CUSTOM(fmt, len, c.rgb.g);
@@ -96,18 +93,18 @@ static void __wrrgb(FILE *stream, color_t c, bool bg)
 	ANSI_ESCAPE_CUSTOM(fmt, len, c.rgb.b);
 	fmt[len++] = 'm';
 	fmt[len] = '\0';
-
 	fputs((__const char *)fmt, stream);
 }
 
 FORCEINLINE
 static void __wrcolor(FILE *stream, color_t c, bool intense, bool bg)
 {
-	(void)stream;
 	if (c.kind == TERMC_ANSI256)
 		return __wransi(stream, c, bg);
+
 	if (c.kind == TERMC_RGB)
 		return __wrrgb(stream, c, bg);
+
 	fputs(__ansi[c.kind][intense][bg], stream);
 }
 
@@ -115,14 +112,19 @@ FORCEINLINE
 FILE *termc_set(FILE *stream, color_spec_t spec)
 {
 	termc_reset(stream);
+
 	if (spec.flags & TERMC_BOLD)
 		fprintf(stream, "\x1B[1m");
+
 	if (spec.flags & TERMC_UNDERLINE)
 		fprintf(stream, "\x1B[4m");
+
 	if (spec.fg.kind)
 		__wrcolor(stream, spec.fg, (bool)(spec.flags & TERMC_INTENSE), 0);
+
 	if (spec.bg.kind)
 		__wrcolor(stream, spec.bg, (bool)(spec.flags & TERMC_INTENSE), 1);
+
 	return stream;
 }
 
