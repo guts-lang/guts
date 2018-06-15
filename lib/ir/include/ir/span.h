@@ -35,8 +35,8 @@
 #include "ir/loc.h"
 
 typedef struct {
-	ir_loc_t start;
-	u16_t length;
+    ir_loc_t start;
+    u16_t length;
 } ir_span_t;
 
 __api ir_span_t ir_span(ir_loc_t start, u16_t length);

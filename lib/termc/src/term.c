@@ -35,65 +35,65 @@
 #define ANSI_ESCAPE(I, N) { ANSI_INTENSE(I) }, { ANSI_NORMAL(N) }
 
 static char __const *__ansi[][2][2] = {
-	[TERMC_BLACK] = { ANSI_ESCAPE(8, 0) },
-	[TERMC_BLUE] = { ANSI_ESCAPE(12, 4) },
-	[TERMC_GREEN] = { ANSI_ESCAPE(10, 2) },
-	[TERMC_RED] = { ANSI_ESCAPE(9, 1) },
-	[TERMC_CYAN] = { ANSI_ESCAPE(14, 6) },
-	[TERMC_MAGENTA] = { ANSI_ESCAPE(13, 5) },
-	[TERMC_YELLOW] = { ANSI_ESCAPE(11, 3) },
-	[TERMC_WHITE] = { ANSI_ESCAPE(15, 7) },
+    [TERMC_BLACK] = { ANSI_ESCAPE(8, 0) },
+    [TERMC_BLUE] = { ANSI_ESCAPE(12, 4) },
+    [TERMC_GREEN] = { ANSI_ESCAPE(10, 2) },
+    [TERMC_RED] = { ANSI_ESCAPE(9, 1) },
+    [TERMC_CYAN] = { ANSI_ESCAPE(14, 6) },
+    [TERMC_MAGENTA] = { ANSI_ESCAPE(13, 5) },
+    [TERMC_YELLOW] = { ANSI_ESCAPE(11, 3) },
+    [TERMC_WHITE] = { ANSI_ESCAPE(15, 7) },
 };
 
 FORCEINLINE
 static void __wransi(FILE *stream, color_t c, bool bg)
 {
-	(void)c;
-	if (bg)
-		fprintf(stream, "TODO");
-	else
-		fprintf(stream, "TODO2");
+    (void)c;
+    if (bg)
+        fprintf(stream, "TODO");
+    else
+        fprintf(stream, "TODO2");
 }
 
 FORCEINLINE
 static void __wrrgb(FILE *stream, color_t c, bool bg)
 {
-	(void)c;
-	if (bg)
-		fprintf(stream, "TODO");
-	else
-		fprintf(stream, "TODO2");
+    (void)c;
+    if (bg)
+        fprintf(stream, "TODO");
+    else
+        fprintf(stream, "TODO2");
 }
 
 FORCEINLINE
 static void __wrcolor(FILE *stream, color_t c, bool intense, bool bg)
 {
-	(void)stream;
-	if (c.kind == TERMC_ANSI256)
-		return __wransi(stream, c, bg);
-	if (c.kind == TERMC_RGB)
-		return __wrrgb(stream, c, bg);
-	fprintf(stream, __ansi[c.kind][intense][bg]);
+    (void)stream;
+    if (c.kind == TERMC_ANSI256)
+        return __wransi(stream, c, bg);
+    if (c.kind == TERMC_RGB)
+        return __wrrgb(stream, c, bg);
+    fprintf(stream, __ansi[c.kind][intense][bg]);
 }
 
 FORCEINLINE
 FILE *termc_set(FILE *stream, color_spec_t spec)
 {
-	termc_reset(stream);
-	if (spec.flags & TERMC_BOLD)
-		fprintf(stream, "\x1B[1m");
-	if (spec.flags & TERMC_UNDERLINE)
-		fprintf(stream, "\x1B[4m");
-	if (spec.fg.kind)
-		__wrcolor(stream, spec.fg, (bool)(spec.flags & TERMC_INTENSE), 0);
-	if (spec.bg.kind)
-		__wrcolor(stream, spec.bg, (bool)(spec.flags & TERMC_INTENSE), 1);
-	return stream;
+    termc_reset(stream);
+    if (spec.flags & TERMC_BOLD)
+        fprintf(stream, "\x1B[1m");
+    if (spec.flags & TERMC_UNDERLINE)
+        fprintf(stream, "\x1B[4m");
+    if (spec.fg.kind)
+        __wrcolor(stream, spec.fg, (bool)(spec.flags & TERMC_INTENSE), 0);
+    if (spec.bg.kind)
+        __wrcolor(stream, spec.bg, (bool)(spec.flags & TERMC_INTENSE), 1);
+    return stream;
 }
 
 FORCEINLINE
 FILE *termc_reset(FILE *stream)
 {
-	fprintf(stream, "\x1B[0m");
-	return stream;
+    fprintf(stream, "\x1B[0m");
+    return stream;
 }

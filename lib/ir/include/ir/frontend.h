@@ -42,9 +42,9 @@ struct ir_fe;
 typedef int (ir_emitter_t)(FILE *stream, struct ir_fe *fe, ir_diag_t *diag);
 
 typedef struct ir_fe {
-	vecof(ir_src_t) sources;
-	vecof(ir_diag_t) diagnostics;
-	ir_emitter_t *emitter;
+    vecof(ir_src_t) sources;
+    vecof(ir_diag_t) diagnostics;
+    ir_emitter_t *emitter;
 } ir_fe_t;
 
 __api ir_emitter_t *IR_DFT_EMITTER;

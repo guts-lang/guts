@@ -363,7 +363,7 @@
 
 #if defined(__USLC__)
 || defined(__UNIXWARE__)
-  || (defined(__svr4__) && defined(i386))
+|| (defined(__svr4__) && defined(i386))
 # define OS_UNIXWARE 0
 #endif
 

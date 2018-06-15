@@ -30,25 +30,25 @@
 
 int main(void)
 {
-	enum color c;
+    enum color c;
 
-	for (c = TERMC_BLACK; c <= TERMC_WHITE; ++c) {
-		termc_set(stdout, (color_spec_t){
-			.fg = color(c),
-			.flags = TERMC_BOLD | TERMC_INTENSE
-		});
-		fprintf(stdout, "Hello world !");
-		termc_reset(stdout);
-		fprintf(stdout, "\n");
-	}
-	for (c = TERMC_BLACK; c <= TERMC_WHITE; ++c) {
-		termc_set(stdout, (color_spec_t){
-			.bg = color(c),
-			.flags = TERMC_BOLD | TERMC_INTENSE
-		});
-		fprintf(stdout, "Hello world !");
-		termc_reset(stdout);
-		fprintf(stdout, "\n");
-	}
-	return 0;
+    for (c = TERMC_BLACK; c <= TERMC_WHITE; ++c) {
+        termc_set(stdout, (color_spec_t) {
+            .fg = color(c),
+            .flags = TERMC_BOLD | TERMC_INTENSE
+        });
+        fprintf(stdout, "Hello world !");
+        termc_reset(stdout);
+        fprintf(stdout, "\n");
+    }
+    for (c = TERMC_BLACK; c <= TERMC_WHITE; ++c) {
+        termc_set(stdout, (color_spec_t) {
+            .bg = color(c),
+            .flags = TERMC_BOLD | TERMC_INTENSE
+        });
+        fprintf(stdout, "Hello world !");
+        termc_reset(stdout);
+        fprintf(stdout, "\n");
+    }
+    return 0;
 }
