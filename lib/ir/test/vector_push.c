@@ -30,7 +30,7 @@
 
 int main(void)
 {
-	int* ints = NULL;
+	int *ints = NULL;
 
 	vecpush(ints, 1);
 	vecpush(ints, 2);
