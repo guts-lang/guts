@@ -30,15 +30,15 @@
 
 int main(void)
 {
-	vecof(int) ints = NULL;
+    vecof(int) ints = NULL;
 
-	vecgrow(ints, 2);
-	ASSERT_EQ(0, veclen(ints));
-	ASSERT_EQ(CAP_MIN, veccap(ints));
-	vecgrow(ints, CAP_MIN);
-	ASSERT_EQ(0, veclen(ints));
-	ASSERT_EQ(CAP_MIN * 2, veccap(ints));
+    vecgrow(ints, 2);
+    ASSERT_EQ(0, veclen(ints));
+    ASSERT_EQ(CAP_MIN, veccap(ints));
+    vecgrow(ints, CAP_MIN);
+    ASSERT_EQ(0, veclen(ints));
+    ASSERT_EQ(CAP_MIN * 2, veccap(ints));
 
-	vecdtor(ints);
-	return 0;
+    vecdtor(ints);
+    return 0;
 }
