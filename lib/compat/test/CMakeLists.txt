@@ -24,31 +24,25 @@
 # SOFTWARE.
 #
 
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+add_custom_target(check_compat
+  COMMAND ${CMAKE_CTEST_COMMAND} -R '^test_compat_.*' --timeout 2)
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
-
-project(guts C)
-set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "San")
-
-set(gutc_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/lib)
-set(gutc_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
-set(gutc_TEST_DIR ${CMAKE_CURRENT_LIST_DIR}/test)
-
-option(GUTC_CHECK "Enable gutc testing" ON)
-option(COVERAGE "Enable coverage" OFF)
-
-if (COVERAGE AND NOT MSVC)
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} --coverage")
-endif ()
-
-if (GUTC_CHECK AND EXISTS ${gutc_TEST_DIR})
-  if (NOT TARGET check)
-    enable_testing()
-    add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --timeout 2)
+macro (compat_register_test suite test)
+  if (NOT TARGET check_compat_${suite})
+    add_custom_target(check_compat_${suite}
+      COMMAND ${CMAKE_CTEST_COMMAND} -R '^test_compat_${suite}_.*' --timeout 2)
   endif ()
-  add_subdirectory(${gutc_TEST_DIR})
-endif ()
 
-add_subdirectory(${gutc_LIB_DIR})
-add_subdirectory(${gutc_SRC_DIR})
+  set(name ${suite}_${test})
+
+  add_executable(test_compat_${name} ${name}.c test.h)
+  target_link_libraries(test_compat_${name} compat)
+
+  add_test(test_compat_${name} test_compat_${name})
+  add_dependencies(check test_compat_${name})
+  add_dependencies(check_compat test_compat_${name})
+  add_dependencies(check_compat_${suite} test_compat_${name})
+  add_dependencies(test_compat_${name} compat)
+endmacro ()
+
+compat_register_test(string bzero)
