@@ -45,33 +45,33 @@
 # define CLR_BCYAN CLR_BOLD"\033[36m"
 
 typedef enum {
-	IR_LABEL_PRIMARY,
-	IR_LABEL_SECONDARY
+    IR_LABEL_PRIMARY,
+    IR_LABEL_SECONDARY
 } ir_label_style_t;
 
 typedef struct {
-	ir_label_style_t style;
-	ir_span_t span;
-	char __const *message;
+    ir_label_style_t style;
+    ir_span_t span;
+    char __const *message;
 } ir_label_t;
 
 __api ir_label_t ir_label_primary(ir_span_t span, char __const *message);
 __api ir_label_t ir_label_secondary(ir_span_t span, char __const *message);
 
 typedef enum {
-	IR_SEVERITY_BUG,
-	IR_SEVERITY_ERROR,
-	IR_SEVERITY_WARN,
-	IR_SEVERITY_NOTE,
-	IR_SEVERITY_HELP
+    IR_SEVERITY_BUG,
+    IR_SEVERITY_ERROR,
+    IR_SEVERITY_WARN,
+    IR_SEVERITY_NOTE,
+    IR_SEVERITY_HELP
 } ir_severity_t;
 
 __api char *ir_severity_toa(ir_severity_t severity);
 
 typedef struct {
-	ir_severity_t severity;
-	char __const *message;
-	vecof(ir_label_t) labels;
+    ir_severity_t severity;
+    char __const *message;
+    vecof(ir_label_t) labels;
 } ir_diag_t;
 
 __api void ir_diag_bug(ir_diag_t *self, char __const *message);

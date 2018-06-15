@@ -36,12 +36,12 @@
 #include "ir/vector.h"
 
 typedef struct {
-	bool virtual;
-	char __const *filename;
-	char __const *src;
-	size_t srclen;
-	ir_loc_t loc;
-	vecof(u32_t) lines;
+    bool virtual;
+    char __const *filename;
+    char __const *src;
+    size_t srclen;
+    ir_loc_t loc;
+    vecof(u32_t) lines;
 } ir_src_t;
 
 __api int ir_src_init(ir_src_t *self, char __const *str, bool virtual);

@@ -30,7 +30,7 @@
 FORCEINLINE void
 bzero(void *ptr, usize_t n)
 {
-	memset(ptr, 0, n);
+    memset(ptr, 0, n);
 }
 #endif /* !HAS_BZERO */
 
@@ -38,23 +38,23 @@ bzero(void *ptr, usize_t n)
 usize_t
 strlcpy(char *__restrict dst, __const char *__restrict src, usize_t siz)
 {
-	char *d = dst;
-	__const char *s = src;
-	usize_t n = siz;
+    char *d = dst;
+    __const char *s = src;
+    usize_t n = siz;
 
-	if (n) {
-		while (--n != 0) {
-			if ((*d++ = *s++) == '\0')
-				break;
-		}
-	}
-	if (n == 0) {
-		if (siz != 0)
-			*d = '\0';
-		while (*s++);
-	}
+    if (n) {
+        while (--n != 0) {
+            if ((*d++ = *s++) == '\0')
+                break;
+        }
+    }
+    if (n == 0) {
+        if (siz != 0)
+            *d = '\0';
+        while (*s++);
+    }
 
-	return s - src - 1;
+    return s - src - 1;
 }
 #endif /* !HAS_STRLCPY */
 
@@ -62,10 +62,10 @@ strlcpy(char *__restrict dst, __const char *__restrict src, usize_t siz)
 FORCEINLINE char *
 strncpy(char *s1, __const char *s2, usize_t n)
 {
-	usize_t size = strnlen(s2, n);
-	if (size != n)
-		memset(s1 + size, '\0', n - size);
-	return memcpy(s1, s2, size);
+    usize_t size = strnlen(s2, n);
+    if (size != n)
+        memset(s1 + size, '\0', n - size);
+    return memcpy(s1, s2, size);
 }
 
 #endif /* !HAS_STRNCPY */
@@ -74,12 +74,12 @@ strncpy(char *s1, __const char *s2, usize_t n)
 FORCEINLINE usize_t
 strnlen(__const char *s, usize_t n)
 {
-	__const char *p;
+    __const char *p;
 
-	p = s;
-	while (*p && n--)
-		p++;
-	return (usize_t) (p - s);
+    p = s;
+    while (*p && n--)
+        p++;
+    return (usize_t) (p - s);
 }
 #endif /* !HAS_STRNLEN */
 
