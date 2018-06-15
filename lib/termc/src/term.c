@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+#include <termc.h>
 #include "termc/term.h"
 
 #define ANSI_INTENSE_FG(N) "\x1B[38;5;" STRINGIFY(N) "m"
@@ -33,6 +34,20 @@
 #define ANSI_NORMAL_BG(N) "\x1B[4" STRINGIFY(N) "m"
 #define ANSI_NORMAL(N) ANSI_NORMAL_FG(N), ANSI_NORMAL_BG(N)
 #define ANSI_ESCAPE(I, N) { ANSI_INTENSE(I) }, { ANSI_NORMAL(N) }
+#define ANSI_ESCAPE_CUSTOM(fmt, len, i) do { \
+	bool printed = false; \
+	u8_t c1 = (u8_t)(((i) / 100) % 10); \
+	u8_t c2 = (u8_t)(((i) / 10) % 10); \
+	u8_t c3 = (u8_t)((i) % 10); \
+	if (c1) { \
+		printed = true; \
+		fmt[len++] = (u8_t)(c1 + '0'); \
+	} \
+	if (c2 || printed) { \
+		fmt[len++] = (u8_t)(c2 + '0'); \
+	} \
+	fmt[len++] = (u8_t)(c3 + '0'); \
+} while (false)
 
 static char __const *__ansi[][2][2] = {
 	[TERMC_BLACK] = { ANSI_ESCAPE(8, 0) },
@@ -48,21 +63,41 @@ static char __const *__ansi[][2][2] = {
 FORCEINLINE
 static void __wransi(FILE *stream, color_t c, bool bg)
 {
-	(void)c;
-	if (bg)
-		fprintf(stream, "TODO");
-	else
-		fprintf(stream, "TODO2");
+	u8_t fmt[19];
+	char __const *seq;
+	usize_t len;
+
+	seq = bg ? "\x1B[48;5;" : "\x1B[38;5;";
+	len = sizeof("\x1B[48;5;") - 1;
+	memcpy(fmt, seq, len);
+
+	ANSI_ESCAPE_CUSTOM(fmt, len, c.ansi256.c);
+	fmt[len++] = 'm';
+	fmt[len] = '\0';
+
+	fputs((__const char *)fmt, stream);
 }
 
 FORCEINLINE
 static void __wrrgb(FILE *stream, color_t c, bool bg)
 {
-	(void)c;
-	if (bg)
-		fprintf(stream, "TODO");
-	else
-		fprintf(stream, "TODO2");
+	u8_t fmt[19];
+	char __const *seq;
+	usize_t len;
+
+	seq = bg ? "\x1B[48;2;" : "\x1B[38;2;";
+	len = sizeof("\x1B[48;5;") - 1;
+	memcpy(fmt, seq, len);
+
+	ANSI_ESCAPE_CUSTOM(fmt, len, c.rgb.r);
+	fmt[len++] = ';';
+	ANSI_ESCAPE_CUSTOM(fmt, len, c.rgb.g);
+	fmt[len++] = ';';
+	ANSI_ESCAPE_CUSTOM(fmt, len, c.rgb.b);
+	fmt[len++] = 'm';
+	fmt[len] = '\0';
+
+	fputs((__const char *)fmt, stream);
 }
 
 FORCEINLINE
@@ -73,7 +108,7 @@ static void __wrcolor(FILE *stream, color_t c, bool intense, bool bg)
 		return __wransi(stream, c, bg);
 	if (c.kind == TERMC_RGB)
 		return __wrrgb(stream, c, bg);
-	fprintf(stream, __ansi[c.kind][intense][bg]);
+	fputs(__ansi[c.kind][intense][bg], stream);
 }
 
 FORCEINLINE
