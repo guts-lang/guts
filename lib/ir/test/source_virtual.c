@@ -31,35 +31,35 @@
 
 int main(void)
 {
-	static char __const *SRC = "Hello world !\nHello world !\nHello world !\n";
-	ir_src_t source;
-	char c, *line;
-	u32_t off, raw, col;
+    static char __const *SRC = "Hello world !\nHello world !\nHello world !\n";
+    ir_src_t source;
+    char c, *line;
+    u32_t off, raw, col;
 
-	ASSERT_EQ(0, ir_src_init(&source, SRC, true));
+    ASSERT_EQ(0, ir_src_init(&source, SRC, true));
 
-	off = 0;
-	raw = 1;
-	col = 0;
-	while ((c = ir_src_next(&source))) {
-		ASSERT_EQ(SRC[off++], c);
+    off = 0;
+    raw = 1;
+    col = 0;
+    while ((c = ir_src_next(&source))) {
+        ASSERT_EQ(SRC[off++], c);
 
-		if (c != '\n') ++col;
-		else {
-			++raw;
-			col = 0;
-		}
+        if (c != '\n') ++col;
+        else {
+            ++raw;
+            col = 0;
+        }
 
-		ASSERT_EQ(raw, source.loc.raw);
-		ASSERT_EQ(col, source.loc.col);
-		ASSERT_EQ(off, source.loc.off);
-	}
+        ASSERT_EQ(raw, source.loc.raw);
+        ASSERT_EQ(col, source.loc.col);
+        ASSERT_EQ(off, source.loc.off);
+    }
 
-	ASSERT_EQ(4, veclen(source.lines));
+    ASSERT_EQ(4, veclen(source.lines));
 
-	line = ir_src_getl(&source, 1);
-	ASSERT(line);
+    line = ir_src_getl(&source, 1);
+    ASSERT(line);
 
-	ir_src_dtor(&source);
-	return 0;
+    ir_src_dtor(&source);
+    return 0;
 }

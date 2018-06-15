@@ -29,19 +29,19 @@
 FORCEINLINE
 void ir_loc_init(ir_loc_t *self)
 {
-	self->raw = 1;
-	self->col = 1;
-	self->off = 0;
+    self->raw = 1;
+    self->col = 1;
+    self->off = 0;
 }
 
 FORCEINLINE
 void ir_loc_shift(ir_loc_t *self, char ch, vecof(u32_t)*lines)
 {
-	if (ch != '\n') ++self->col;
-	else {
-		++self->raw;
-		self->col = 1;
-		vecpush(*lines, self->off);
-	}
-	++self->off;
+    if (ch != '\n') ++self->col;
+    else {
+        ++self->raw;
+        self->col = 1;
+        vecpush(*lines, self->off);
+    }
+    ++self->off;
 }
