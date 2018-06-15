@@ -1,7 +1,0 @@
-
-- astyle:
-  arguments:
-    - --style=kr
-    - -T4
-  include:
-    - "**/*.[hc]"
