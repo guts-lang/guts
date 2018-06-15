@@ -1,0 +1,5 @@
+restylers:
+  - astyle:
+    arguments:
+      - --style=kr -T=4
+

@@ -28,27 +28,48 @@ cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-project(guts C)
+project(ir C)
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "San")
 
-set(gutc_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/lib)
-set(gutc_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
-set(gutc_TEST_DIR ${CMAKE_CURRENT_LIST_DIR}/test)
+set(ir_INC_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
+set(ir_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
+set(ir_TEST_DIR ${CMAKE_CURRENT_LIST_DIR}/test)
+set(ir_CONF_IN ${ir_INC_DIR}/ir/conf.h.in)
+set(ir_CONF_OUT ${CMAKE_BINARY_DIR}/include/ir/conf.h)
 
-option(GUTC_CHECK "Enable gutc testing" ON)
-option(COVERAGE "Enable coverage" OFF)
+configure_file(${ir_CONF_IN} ${ir_CONF_OUT} @ONLY)
 
-if (COVERAGE AND NOT MSVC)
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} --coverage")
+set(ir_HDRS ${ir_CONF_OUT})
+file(GLOB_RECURSE ir_HDRS ${ir_HDRS} ${ir_INC_DIR}/*.h)
+file(GLOB_RECURSE ir_SRCS ${ir_SRCS} ${ir_SRC_DIR}/*.c)
+
+add_library(ir ${ir_HDRS} ${ir_SRCS})
+add_dependencies(ir compat)
+
+set_property(TARGET ir PROPERTY C_STANDARD 99)
+
+target_include_directories(ir
+  PUBLIC ${ir_INC_DIR} ${CMAKE_BINARY_DIR}/include
+  PRIVATE ${ir_SRC_DIR})
+target_link_libraries(ir PUBLIC compat)
+target_compile_definitions(ir PRIVATE COMPILE)
+
+if (MSVC)
+  foreach (flag_var
+    CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
+    CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
+    if (${flag_var} MATCHES "/MD")
+      string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+    endif ()
+  endforeach ()
 endif ()
 
-if (GUTC_CHECK AND EXISTS ${gutc_TEST_DIR})
+option(IR_CHECK "Enable ir testing" ON)
+
+if (IR_CHECK AND EXISTS ${ir_TEST_DIR})
   if (NOT TARGET check)
     enable_testing()
     add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --timeout 2)
   endif ()
-  add_subdirectory(${gutc_TEST_DIR})
+  add_subdirectory(${ir_TEST_DIR})
 endif ()
-
-add_subdirectory(${gutc_LIB_DIR})
-add_subdirectory(${gutc_SRC_DIR})
