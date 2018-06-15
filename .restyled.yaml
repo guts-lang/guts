@@ -2,6 +2,6 @@
 - astyle:
   arguments:
     - --style=kr
-    - -T=4
+    - -T4
   include:
     - "**/*.[hc]"
