@@ -47,11 +47,11 @@ ir_label_t ir_label_secondary(ir_span_t span, char __const *message)
 }
 
 static char *__severity[] = {
-	[IR_SEVERITY_BUG] = CLR_BOLD CLR_RED"bug"CLR_RESET,
-	[IR_SEVERITY_ERROR] = CLR_BOLD CLR_RED"error"CLR_RESET,
-	[IR_SEVERITY_WARN] = CLR_BOLD CLR_YELLOW"warning"CLR_RESET,
-	[IR_SEVERITY_NOTE] = CLR_BOLD CLR_CYAN"note"CLR_RESET,
-	[IR_SEVERITY_HELP] = CLR_BOLD CLR_GREEN"help"CLR_RESET,
+	[IR_SEVERITY_BUG] = "bug",
+	[IR_SEVERITY_ERROR] = "error",
+	[IR_SEVERITY_WARN] = "warning",
+	[IR_SEVERITY_NOTE] = "note",
+	[IR_SEVERITY_HELP] = "help",
 };
 
 FORCEINLINE

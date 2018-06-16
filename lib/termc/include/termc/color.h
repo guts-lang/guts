@@ -39,7 +39,7 @@
 #define TERMC_UNDERLINE (1 << 2)
 
 enum color {
-	TERMC_NONE,
+	TERMC_NONE = 0,
 	TERMC_BLACK,
 	TERMC_BLUE,
 	TERMC_GREEN,

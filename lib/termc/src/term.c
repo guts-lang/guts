@@ -24,7 +24,6 @@
  * SOFTWARE.
  */
 
-#include <termc.h>
 #include "termc/term.h"
 
 #define ANSI_INTENSE_FG(N) "\x1B[38;5;" STRINGIFY(N) "m"
@@ -124,6 +123,34 @@ FILE *termc_set(FILE *stream, color_spec_t spec)
 
 	if (spec.bg.kind)
 		__wrcolor(stream, spec.bg, (bool)(spec.flags & TERMC_INTENSE), 1);
+
+	return stream;
+}
+
+FORCEINLINE
+FILE *termc_setfg(FILE *stream, color_t color)
+{
+	if (color.kind)
+		__wrcolor(stream, color, 0, 0);
+	return stream;
+}
+
+FORCEINLINE
+FILE *termc_setbg(FILE *stream, color_t color)
+{
+	if (color.kind)
+		__wrcolor(stream, color, 0, 1);
+	return stream;
+}
+
+FORCEINLINE
+FILE *termc_setfl(FILE *stream, u8_t flags)
+{
+	if (flags & TERMC_BOLD)
+		fprintf(stream, "\x1B[1m");
+
+	if (flags & TERMC_UNDERLINE)
+		fprintf(stream, "\x1B[4m");
 
 	return stream;
 }

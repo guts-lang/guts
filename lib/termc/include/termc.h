@@ -34,6 +34,7 @@
 
 #include "termc/color.h"
 #include "termc/conf.h"
+#include "termc/term.h"
 
 #endif /* !__TERMC_H */
 /*!@} */

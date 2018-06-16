@@ -133,7 +133,7 @@ u32_t ir_src_getoff(ir_src_t *self, u32_t line)
 }
 
 FORCEINLINE
-char *ir_src_getl(ir_src_t *self, u32_t line)
+char *ir_src_getln(ir_src_t *self, u32_t line)
 {
 	u32_t off;
 
@@ -149,6 +149,9 @@ char *ir_src_getl(ir_src_t *self, u32_t line)
 ir_loc_t ir_src_loc(ir_src_t *self, u32_t line, u32_t col)
 {
 	u32_t off;
+
+	if (!line) line = 1;
+	if (!col) col = 1;
 	off = ir_src_getoff(self, line);
 	return (ir_loc_t) {
 		.off = off + col - 1,

@@ -31,8 +31,7 @@
 int main(void)
 {
 	termc_set(stdout, (color_spec_t) {
-		.fg = color_ansi256(52),
-		.bg = color_ansi256(34),
+		.fg = color(TERMC_RED),
 		.flags = TERMC_BOLD | TERMC_INTENSE
 	});
 	fprintf(stdout, "Hello world !");

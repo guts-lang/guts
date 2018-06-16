@@ -45,6 +45,9 @@
 #include <stdio.h>
 
 __api FILE *termc_set(FILE *stream, color_spec_t spec);
+__api FILE *termc_setfg(FILE *stream, color_t color);
+__api FILE *termc_setbg(FILE *stream, color_t color);
+__api FILE *termc_setfl(FILE *stream, u8_t flags);
 __api FILE *termc_reset(FILE *stream);
 
 #endif /* !__TERMC_TERM_H */

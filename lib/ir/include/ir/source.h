@@ -49,7 +49,7 @@ __api void ir_src_dtor(ir_src_t *self);
 __api char ir_src_peek(ir_src_t *self, u8_t n);
 __api char ir_src_next(ir_src_t *self);
 __api u32_t ir_src_getoff(ir_src_t *self, u32_t line);
-__api char *ir_src_getl(ir_src_t *self, u32_t line);
+__api char *ir_src_getln(ir_src_t *self, u32_t line);
 __api ir_loc_t ir_src_loc(ir_src_t *self, u32_t line, u32_t col);
 
 #endif /* !__IR_SOURCE_H */

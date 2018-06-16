@@ -56,7 +56,7 @@ int main(void)
 	}
 
 	ASSERT_EQ(4, veclen(source.lines));
-	line = ir_src_getl(&source, 1);
+	line = ir_src_getln(&source, 1);
 	ASSERT(line);
 	ir_src_dtor(&source);
 	return 0;

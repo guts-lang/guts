@@ -24,10 +24,8 @@
  * SOFTWARE.
  */
 
-#include <ir/diagnostic.h>
-#include <ir/span.h>
-#include <ir/source.h>
-#include <ir/loc.h>
+#include <termc.h>
+
 #include "ir/frontend.h"
 
 FORCEINLINE
@@ -100,34 +98,73 @@ static int __emit(FILE *s, ir_fe_t *fe, ir_diag_t *diag)
 	usize_t i, j;
 	ir_label_t *label;
 	ir_src_t *src;
-	fprintf(s, "%s: %s\n", ir_severity_toa(diag->severity), diag->message);
+	color_t sev_clr;
+
+	switch (diag->severity) {
+		case IR_SEVERITY_WARN:
+			sev_clr = color(TERMC_YELLOW);
+			break;
+		case IR_SEVERITY_NOTE:
+			sev_clr = color(TERMC_CYAN);
+			break;
+		case IR_SEVERITY_HELP:
+			sev_clr = color(TERMC_GREEN);
+			break;
+		case IR_SEVERITY_BUG:
+		case IR_SEVERITY_ERROR:
+		default:
+			sev_clr = color(TERMC_RED);
+	}
+
+	termc_setfg(s, sev_clr);
+	termc_setfl(s, TERMC_BOLD);
+	fprintf(s, "%s: ", ir_severity_toa(diag->severity));
+	termc_reset(s);
+	termc_setfl(s, TERMC_BOLD);
+	fprintf(s, "%s\n", diag->message);
+	termc_reset(s);
 
 	for (i = 0; i < veclen(diag->labels); ++i) {
 		label = vecat(diag->labels, i);
 
 		if (!(src = ir_fe_srcfind(fe, &label->span.start)))
-			fprintf(s, "- "CLR_BOLD"%s"CLR_RESET"\n", label->message);
+			fprintf(s, "- %s\n", label->message);
 		else {
-			u32_t line, column, off;
+			u32_t line, column, off, line_off;
 			int mark;
-			char *linea, *eol;
+			char *linea, *eol, *markb, *marke;
 			line = label->span.start.raw;
 			column = label->span.start.col;
+			color_t mark_color;
 
-			if ((linea = ir_src_getl(src, line))) {
+			if ((linea = ir_src_getln(src, line))) {
 				eol = strchr(linea, '\n');
-
 				if (!eol) eol = strchr(linea, '\r');
-
 				if (!eol) eol = strchr(linea, '\0');
 
-				fprintf(s, "- %s:%u:%u\n", src->filename, line, column);
-				fprintf(s, "%3u | %.*s\n", line, (int)(eol - linea), linea);
-				mark = label->style == IR_LABEL_PRIMARY ? '^' : '-';
-				fprintf(s, "    | ");
+				line_off = ir_src_getoff(src, line);
+				markb = linea + (label->span.start.off - line_off);
+				marke = markb + label->span.length;
 
-				for (off = ir_src_getoff(src, line);
-					off < label->span.start.off; ++off)
+				if (label->style == IR_LABEL_PRIMARY) {
+					mark = '^';
+					mark_color = sev_clr;
+				} else {
+					mark = '-';
+					mark_color = color(TERMC_CYAN);
+				}
+
+				fprintf(s, "- %s:%u:%u\n", src->filename, line, column);
+				fprintf(s, "%3u | %.*s", line, (int)(markb - linea), linea);
+				termc_setfg(s, mark_color);
+				fprintf(s, "%.*s", (int)(marke - markb), markb);
+				termc_reset(s);
+				fprintf(s, "%.*s\n", (int)(eol - marke), marke);
+
+				fprintf(s, "    | ");
+				termc_setfg(s, mark_color);
+
+				for (off = line_off; off < label->span.start.off; ++off)
 					fputc(' ', s);
 
 				for (j = 0; j < label->span.length; ++j)
@@ -135,6 +172,7 @@ static int __emit(FILE *s, ir_fe_t *fe, ir_diag_t *diag)
 
 				if (label->message)
 					fprintf(s, " %s", label->message);
+				termc_reset(s);
 
 				fputc('\n', s);
 			}

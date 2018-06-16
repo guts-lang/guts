@@ -53,7 +53,7 @@ int main(void)
 	ir_diag_labelpush(&err,
 		ir_label_secondary(ir_span(loc, 2), "Expected integer but got string"));
 	ir_fe_diagpush(&fe, err);
-	loc = ir_src_loc(src, 3, 0);
+	loc = ir_src_loc(src, 3, 1);
 	ir_diag_warn(&warn, "`+` function has no effect unless its result is used");
 	ir_diag_labelpush(&warn, ir_label_primary(ir_span(loc, 11), NULL));
 	ir_fe_diagpush(&fe, warn);
