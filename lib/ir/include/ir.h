@@ -33,6 +33,11 @@
 # define __IR_H
 
 #include "ir/conf.h"
+#include "ir/diagnostic.h"
+#include "ir/frontend.h"
+#include "ir/loc.h"
+#include "ir/source.h"
+#include "ir/span.h"
 #include "ir/vector.h"
 
 #endif /* !__IR_H */

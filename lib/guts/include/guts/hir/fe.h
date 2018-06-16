@@ -24,34 +24,54 @@
  * SOFTWARE.
  */
 
-/*!@file ir/source.h
+/*!@file guts/hir/fe.h
  * @author uael
  *
- * @addtogroup ir.source @{
+ * @addtogroup guts.hir @{
  */
-#ifndef __IR_SOURCE_H
-# define __IR_SOURCE_H
+#ifndef __GUTS_HIR_FE_H
+# define __GUTS_HIR_FE_H
 
-#include "ir/span.h"
-#include "ir/vector.h"
+#include <ir.h>
+
+#include "guts/conf.h"
+
+enum {
+	HIR_TOK_EOF = 0,
+	HIR_TOK_IDENT
+};
 
 typedef struct {
-	bool virtual;
-	char __const *filename;
-	char __const *src;
-	size_t srclen;
-	ir_loc_t loc;
-	vecof(u32_t) lines;
-} ir_src_t;
+	char __const *begin;
+	usize_t len;
+} hir_ident_t;
 
-__api int ir_src_init(ir_src_t *self, char __const *str, bool virtual);
-__api void ir_src_dtor(ir_src_t *self);
-__api char ir_src_peek(ir_src_t *self, u8_t n);
-__api char ir_src_next(ir_src_t *self);
-__api u32_t ir_src_getoff(ir_src_t *self, u32_t line);
-__api char *ir_src_getln(ir_src_t *self, u32_t line);
-__api ir_loc_t ir_src_locate(ir_src_t *self, u32_t line, u32_t col);
-__api ir_loc_t ir_src_loc(ir_src_t *self);
+typedef struct {
+	bool sign;
+	i64_t value;
+	u8_t bytes;
+} hir_decimal_t;
 
-#endif /* !__IR_SOURCE_H */
+typedef struct {
+	f64_t value;
+	u8_t bytes;
+} hir_float_t;
+
+typedef struct {
+	u8_t kind;
+
+	union {
+		char lit_char;
+		hir_decimal_t lit_decimal;
+		hir_float_t lit_float;
+		hir_ident_t ident;
+		u8_t syntax;
+	};
+} hir_tok_t;
+
+typedef struct {
+	ir_src_t *src;
+} hir_lexer_t;
+
+#endif /* !__GUTS_HIR_FE_H */
 /*!@} */

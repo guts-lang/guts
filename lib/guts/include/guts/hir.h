@@ -32,11 +32,7 @@
 #ifndef __GUTS_HIR_H
 # define __GUTS_HIR_H
 
-#include <ir.h>
-
-#include "guts/conf.h"
-
-__api int dummy(void);
+#include "guts/hir/fe.h"
 
 #endif /* !__GUTS_HIR_H */
 /*!@} */

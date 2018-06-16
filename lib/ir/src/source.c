@@ -146,7 +146,7 @@ char *ir_src_getln(ir_src_t *self, u32_t line)
 	return (char *)(self->src + off + 1);
 }
 
-ir_loc_t ir_src_loc(ir_src_t *self, u32_t line, u32_t col)
+ir_loc_t ir_src_locate(ir_src_t *self, u32_t line, u32_t col)
 {
 	u32_t off;
 
@@ -159,4 +159,9 @@ ir_loc_t ir_src_loc(ir_src_t *self, u32_t line, u32_t col)
 		.raw = line,
 		.col = col,
 	};
+}
+
+ir_loc_t ir_src_loc(ir_src_t *self)
+{
+	return self->loc;
 }
