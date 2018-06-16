@@ -110,6 +110,9 @@ static void __wrcolor(FILE *stream, color_t c, bool intense, bool bg)
 FORCEINLINE
 FILE *termc_set(FILE *stream, color_spec_t spec)
 {
+	if (!isatty(fileno(stream)))
+		return stream;
+
 	termc_reset(stream);
 
 	if (spec.flags & TERMC_BOLD)
@@ -130,22 +133,33 @@ FILE *termc_set(FILE *stream, color_spec_t spec)
 FORCEINLINE
 FILE *termc_setfg(FILE *stream, color_t color)
 {
+	if (!isatty(fileno(stream)))
+		return stream;
+
 	if (color.kind)
 		__wrcolor(stream, color, 0, 0);
+
 	return stream;
 }
 
 FORCEINLINE
 FILE *termc_setbg(FILE *stream, color_t color)
 {
+	if (!isatty(fileno(stream)))
+		return stream;
+
 	if (color.kind)
 		__wrcolor(stream, color, 0, 1);
+
 	return stream;
 }
 
 FORCEINLINE
 FILE *termc_setfl(FILE *stream, u8_t flags)
 {
+	if (!isatty(fileno(stream)))
+		return stream;
+
 	if (flags & TERMC_BOLD)
 		fprintf(stream, "\x1B[1m");
 
@@ -158,6 +172,9 @@ FILE *termc_setfl(FILE *stream, u8_t flags)
 FORCEINLINE
 FILE *termc_reset(FILE *stream)
 {
+	if (!isatty(fileno(stream)))
+		return stream;
+
 	fprintf(stream, "\x1B[0m");
 	return stream;
 }
