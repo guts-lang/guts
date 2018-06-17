@@ -156,7 +156,7 @@ static bool __isatty(FILE *stream)
 #if defined(CC_MSVC)
 	return (bool)_isatty(_fileno(stream));
 #else
-	return (bool)isatty(fileno(stream))
+	return (bool)isatty(fileno(stream));
 #endif
 }
 
@@ -253,7 +253,7 @@ FILE *termc_reset(FILE *stream)
 		return stream;
 
 #ifndef OS_WIN
-	fputs("\x1B[0m"; stream);
+	fputs("\x1B[0m", stream);
 #else
 	__winattr(stream, -1, -1);
 #endif
