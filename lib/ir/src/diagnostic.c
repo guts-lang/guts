@@ -109,7 +109,6 @@ void ir_diag_error(ir_diag_t *self, char __const *format, ...)
 	}
 }
 
-FORCEINLINE
 void ir_diag_warn(ir_diag_t *self, char __const *format, ...)
 {
 	va_list ap;
@@ -124,7 +123,6 @@ void ir_diag_warn(ir_diag_t *self, char __const *format, ...)
 	}
 }
 
-FORCEINLINE
 void ir_diag_note(ir_diag_t *self, char __const *format, ...)
 {
 	va_list ap;
@@ -139,7 +137,6 @@ void ir_diag_note(ir_diag_t *self, char __const *format, ...)
 	}
 }
 
-FORCEINLINE
 void ir_diag_help(ir_diag_t *self, char __const *format, ...)
 {
 	va_list ap;
