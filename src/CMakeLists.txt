@@ -24,31 +24,22 @@
 # SOFTWARE.
 #
 
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+file(GLOB_RECURSE gutc_SRCS ${gutc_SRCS} ${CMAKE_CURRENT_LIST_DIR}/*.c)
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+add_executable(gutc ${gutc_SRCS})
+add_dependencies(gutc guts)
 
-project(guts C)
-set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "San")
+set_property(TARGET gutc PROPERTY C_STANDARD 99)
 
-set(gutc_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/lib)
-set(gutc_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
-set(gutc_TEST_DIR ${CMAKE_CURRENT_LIST_DIR}/test)
+target_link_libraries(gutc PUBLIC guts)
+target_compile_definitions(gutc PRIVATE COMPILE)
 
-option(GUTC_CHECK "Enable gutc testing" ON)
-option(COVERAGE "Enable coverage" OFF)
-
-if (COVERAGE AND NOT MSVC)
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} --coverage")
+if (MSVC)
+  foreach (flag_var
+    CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
+    CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
+    if (${flag_var} MATCHES "/MD")
+      string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+    endif ()
+  endforeach ()
 endif ()
-
-if (GUTC_CHECK AND EXISTS ${gutc_TEST_DIR})
-  if (NOT TARGET check)
-    enable_testing()
-    add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --timeout 2)
-  endif ()
-  add_subdirectory(${gutc_TEST_DIR})
-endif ()
-
-add_subdirectory(${gutc_LIB_DIR})
-add_subdirectory(${gutc_SRC_DIR})

@@ -1,0 +1,15 @@
+- astyle:
+    arguments:
+      - -A3
+      - -T4
+      - -xU
+      - -Y
+      - -m0
+      - -f
+      - -p
+      - -xg
+      - -H
+      - -k3
+      - -W3
+      - -xj
+      - -xC80
