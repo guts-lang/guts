@@ -44,6 +44,8 @@ void ir_fe_dtor(ir_fe_t *self)
 	for (i = 0; i < veclen(self->sources); ++i)
 		ir_src_dtor(vecat(self->sources, i));
 	vecdtor(self->sources);
+	for (i = 0; i < veclen(self->diagnostics); ++i)
+		ir_diag_dtor(vecat(self->diagnostics, i));
 	vecdtor(self->diagnostics);
 }
 
