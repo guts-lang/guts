@@ -50,6 +50,7 @@ typedef struct ir_fe {
 __api ir_emitter_t *IR_DFT_EMITTER;
 
 __api void ir_fe_init(ir_fe_t *self, ir_emitter_t *emitter);
+__api void ir_fe_dtor(ir_fe_t *self);
 __api int ir_fe_srcpush(ir_fe_t *self, char __const *str, bool virtual);
 __api ir_src_t *ir_fe_srcfind(ir_fe_t *self, ir_loc_t *loc);
 __api void ir_fe_diagpush(ir_fe_t *self, ir_diag_t diag);

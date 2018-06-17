@@ -37,6 +37,17 @@ void ir_fe_init(ir_fe_t *self, ir_emitter_t *emitter)
 }
 
 FORCEINLINE
+void ir_fe_dtor(ir_fe_t *self)
+{
+	usize_t i;
+
+	for (i = 0; i < veclen(self->sources); ++i)
+		ir_src_dtor(vecat(self->sources, i));
+	vecdtor(self->sources);
+	vecdtor(self->diagnostics);
+}
+
+FORCEINLINE
 int ir_fe_srcpush(ir_fe_t *self, char __const *str, bool virtual)
 {
 	int st;
@@ -170,7 +181,7 @@ static int __emit(FILE *s, ir_fe_t *fe, ir_diag_t *diag)
 				for (j = 0; j < label->span.length; ++j)
 					fputc(mark, s);
 
-				if (label->message)
+				if (*label->message)
 					fprintf(s, " %s", label->message);
 				termc_reset(s);
 

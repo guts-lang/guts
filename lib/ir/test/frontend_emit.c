@@ -47,16 +47,20 @@ int main(void)
 	while (ir_src_next(src));
 
 	loc = ir_src_locate(src, 3, 9);
-	ir_diag_error(&err, "Unexpected type in `+` application");
+	ir_diag_error(&err, "Unexpected type in `+' application");
 	ir_diag_labelpush(&err,
-		ir_label_primary(ir_span(loc, 2), "Expected integer but got string"));
+		ir_label_primary(ir_span(loc, 2), "Expected `%s' but got `%s'",
+			"integer", "string"));
 	ir_diag_labelpush(&err,
-		ir_label_secondary(ir_span(loc, 2), "Expected integer but got string"));
+		ir_label_secondary(ir_span(loc, 2), "Expected `%s' but got `%s'",
+			"integer", "string"));
 	ir_fe_diagpush(&fe, err);
 	loc = ir_src_locate(src, 3, 1);
 	ir_diag_warn(&warn, "`+` function has no effect unless its result is used");
 	ir_diag_labelpush(&warn, ir_label_primary(ir_span(loc, 11), NULL));
 	ir_fe_diagpush(&fe, warn);
 	ir_fe_emit(&fe, stdout);
+	ir_fe_dtor(&fe);
+
 	return 0;
 }

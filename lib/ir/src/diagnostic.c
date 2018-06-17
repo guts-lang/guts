@@ -24,26 +24,47 @@
  * SOFTWARE.
  */
 
+#include <stdio.h>
+#include <ir/diagnostic.h>
+
 #include "ir/diagnostic.h"
 
-FORCEINLINE
-ir_label_t ir_label_primary(ir_span_t span, char __const *message)
+ir_label_t ir_label_primary(ir_span_t span, char __const *format, ...)
 {
-	return (ir_label_t) {
+	ir_label_t ret;
+	va_list ap;
+
+	ret = (ir_label_t) {
 		.span = span,
-		.message = message,
-		.style = IR_LABEL_PRIMARY
+		.style = IR_LABEL_PRIMARY,
+		.message = { '\0' }
 	};
+	if (format) {
+		va_start(ap, format);
+		vsnprintf(ret.message, LABEL_MAX, format, ap);
+		va_end(ap);
+	}
+
+	return ret;
 }
 
-FORCEINLINE
-ir_label_t ir_label_secondary(ir_span_t span, char __const *message)
+ir_label_t ir_label_secondary(ir_span_t span, char __const *format, ...)
 {
-	return (ir_label_t) {
+	ir_label_t ret;
+	va_list ap;
+
+	ret = (ir_label_t) {
 		.span = span,
-		.message = message,
-		.style = IR_LABEL_SECONDARY
+		.style = IR_LABEL_SECONDARY,
+		.message = { '\0' }
 	};
+	if (format) {
+		va_start(ap, format);
+		vsnprintf(ret.message, LABEL_MAX, format, ap);
+		va_end(ap);
+	}
+
+	return ret;
 }
 
 static char *__severity[] = {
@@ -60,44 +81,77 @@ char *ir_severity_toa(ir_severity_t severity)
 	return __severity[severity];
 }
 
-FORCEINLINE
-void ir_diag_bug(ir_diag_t *self, char __const *message)
+void ir_diag_bug(ir_diag_t *self, char __const *format, ...)
 {
+	va_list ap;
+
 	self->severity = IR_SEVERITY_BUG;
-	self->message = message;
 	self->labels = NULL;
+
+	if (format) {
+		va_start(ap, format);
+		vsnprintf(self->message, LABEL_MAX, format, ap);
+		va_end(ap);
+	}
 }
 
-FORCEINLINE
-void ir_diag_error(ir_diag_t *self, char __const *message)
+void ir_diag_error(ir_diag_t *self, char __const *format, ...)
 {
+	va_list ap;
+
 	self->severity = IR_SEVERITY_ERROR;
-	self->message = message;
 	self->labels = NULL;
+
+	if (format) {
+		va_start(ap, format);
+		vsnprintf(self->message, LABEL_MAX, format, ap);
+		va_end(ap);
+	}
 }
 
 FORCEINLINE
-void ir_diag_warn(ir_diag_t *self, char __const *message)
+void ir_diag_warn(ir_diag_t *self, char __const *format, ...)
 {
+	va_list ap;
+
 	self->severity = IR_SEVERITY_WARN;
-	self->message = message;
 	self->labels = NULL;
+
+	if (format) {
+		va_start(ap, format);
+		vsnprintf(self->message, LABEL_MAX, format, ap);
+		va_end(ap);
+	}
 }
 
 FORCEINLINE
-void ir_diag_note(ir_diag_t *self, char __const *message)
+void ir_diag_note(ir_diag_t *self, char __const *format, ...)
 {
+	va_list ap;
+
 	self->severity = IR_SEVERITY_NOTE;
-	self->message = message;
 	self->labels = NULL;
+
+	if (format) {
+		va_start(ap, format);
+		vsnprintf(self->message, LABEL_MAX, format, ap);
+		va_end(ap);
+	}
 }
 
 FORCEINLINE
-void ir_diag_help(ir_diag_t *self, char __const *message)
+void ir_diag_help(ir_diag_t *self, char __const *format, ...)
 {
+	va_list ap;
+
 	self->severity = IR_SEVERITY_HELP;
-	self->message = message;
 	self->labels = NULL;
+
+	if (format) {
+		va_start(ap, format);
+		vsnprintf(self->message, LABEL_MAX, format, ap);
+		va_end(ap);
+	}
 }
 
 FORCEINLINE

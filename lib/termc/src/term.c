@@ -24,16 +24,18 @@
  * SOFTWARE.
  */
 
+#include <termc.h>
 #include "termc/term.h"
 
-#define ANSI_INTENSE_FG(N) "\x1B[38;5;" STRINGIFY(N) "m"
-#define ANSI_INTENSE_BG(N) "\x1B[48;5;" STRINGIFY(N) "m"
-#define ANSI_INTENSE(N) ANSI_INTENSE_FG(N), ANSI_INTENSE_BG(N)
-#define ANSI_NORMAL_FG(N) "\x1B[3" STRINGIFY(N) "m"
-#define ANSI_NORMAL_BG(N) "\x1B[4" STRINGIFY(N) "m"
-#define ANSI_NORMAL(N) ANSI_NORMAL_FG(N), ANSI_NORMAL_BG(N)
-#define ANSI_ESCAPE(I, N) { ANSI_INTENSE(I) }, { ANSI_NORMAL(N) }
-#define ANSI_ESCAPE_CUSTOM(fmt, len, i) do { \
+#ifndef OS_WIN
+# define ANSI_INTENSE_FG(N) "\x1B[38;5;" STRINGIFY(N) "m"
+# define ANSI_INTENSE_BG(N) "\x1B[48;5;" STRINGIFY(N) "m"
+# define ANSI_INTENSE(N) ANSI_INTENSE_FG(N), ANSI_INTENSE_BG(N)
+# define ANSI_NORMAL_FG(N) "\x1B[3" STRINGIFY(N) "m"
+# define ANSI_NORMAL_BG(N) "\x1B[4" STRINGIFY(N) "m"
+# define ANSI_NORMAL(N) ANSI_NORMAL_FG(N), ANSI_NORMAL_BG(N)
+# define ANSI_ESCAPE(I, N) { ANSI_INTENSE(I) }, { ANSI_NORMAL(N) }
+# define ANSI_ESCAPE_CUSTOM(fmt, len, i) do { \
 	bool printed = false; \
 	u8_t c1 = (u8_t)(((i) / 100) % 10); \
 	u8_t c2 = (u8_t)(((i) / 10) % 10); \
@@ -106,26 +108,86 @@ static void __wrcolor(FILE *stream, color_t c, bool intense, bool bg)
 
 	fputs(__ansi[c.kind][intense][bg], stream);
 }
+#else
+static void __winattr(FILE *s, int fg, int bg)
+{
+	static WORD defaultAttributes = 0;
+	HANDLE hTerminal = INVALID_HANDLE_VALUE;
+	CONSOLE_SCREEN_BUFFER_INFO info;
+
+	if (s == stdout)
+		hTerminal = GetStdHandle(STD_OUTPUT_HANDLE);
+	else if (s == stderr)
+		hTerminal = GetStdHandle(STD_ERROR_HANDLE);
+	else if (s == stdin)
+		hTerminal = GetStdHandle(STD_INPUT_HANDLE);
+
+	if (!defaultAttributes) {
+		if (!GetConsoleScreenBufferInfo(hTerminal, &info))
+			return;
+		defaultAttributes = info.wAttributes;
+	}
+
+	if (fg == -1 && bg == -1) {
+		SetConsoleTextAttribute(hTerminal, defaultAttributes);
+		return;
+	}
+
+	if (!GetConsoleScreenBufferInfo(hTerminal, &info))
+		return;
+
+	if (fg != -1) {
+		info.wAttributes &= ~(info.wAttributes & 0x0F);
+		info.wAttributes |= (WORD)fg;
+	}
+
+	if (bg != -1) {
+		info.wAttributes &= ~(info.wAttributes & 0xF0);
+		info.wAttributes |= (WORD)bg;;
+	}
+
+	SetConsoleTextAttribute(hTerminal, info.wAttributes);
+}
+#endif
+
+FORCEINLINE
+static bool __isatty(FILE *stream)
+{
+#if defined(CC_MSVC)
+	return (bool)_isatty(_fileno(stream));
+#else
+	return (bool)isatty(fileno(stream))
+#endif
+}
 
 FORCEINLINE
 FILE *termc_set(FILE *stream, color_spec_t spec)
 {
-	if (!isatty(fileno(stream)))
+	if (!__isatty(stream))
 		return stream;
 
 	termc_reset(stream);
 
+#ifndef OS_WIN
 	if (spec.flags & TERMC_BOLD)
-		fprintf(stream, "\x1B[1m");
+		fputs("\x1B[1m", stream);
 
 	if (spec.flags & TERMC_UNDERLINE)
-		fprintf(stream, "\x1B[4m");
+		fputs("\x1B[4m", stream);
 
 	if (spec.fg.kind)
 		__wrcolor(stream, spec.fg, (bool)(spec.flags & TERMC_INTENSE), 0);
 
 	if (spec.bg.kind)
 		__wrcolor(stream, spec.bg, (bool)(spec.flags & TERMC_INTENSE), 1);
+#else
+	if (spec.flags & TERMC_INTENSE) {
+		spec.fg.kind |= FOREGROUND_INTENSITY;
+		spec.bg.kind |= FOREGROUND_INTENSITY;
+	}
+
+	__winattr(stream, spec.fg.kind, spec.bg.kind);
+#endif
 
 	return stream;
 }
@@ -133,11 +195,16 @@ FILE *termc_set(FILE *stream, color_spec_t spec)
 FORCEINLINE
 FILE *termc_setfg(FILE *stream, color_t color)
 {
-	if (!isatty(fileno(stream)))
+	if (!__isatty(stream))
 		return stream;
 
+#ifndef OS_WIN
 	if (color.kind)
 		__wrcolor(stream, color, 0, 0);
+#else
+	if (color.kind < TERMC_ANSI256)
+		__winattr(stream, color.kind, -1);
+#endif
 
 	return stream;
 }
@@ -145,11 +212,16 @@ FILE *termc_setfg(FILE *stream, color_t color)
 FORCEINLINE
 FILE *termc_setbg(FILE *stream, color_t color)
 {
-	if (!isatty(fileno(stream)))
+	if (!__isatty(stream))
 		return stream;
 
+#ifndef OS_WIN
 	if (color.kind)
 		__wrcolor(stream, color, 0, 1);
+#else
+	if (color.kind < TERMC_ANSI256)
+		__winattr(stream, -1, color.kind);
+#endif
 
 	return stream;
 }
@@ -157,14 +229,19 @@ FILE *termc_setbg(FILE *stream, color_t color)
 FORCEINLINE
 FILE *termc_setfl(FILE *stream, u8_t flags)
 {
-	if (!isatty(fileno(stream)))
+	if (!__isatty(stream))
 		return stream;
 
+#ifndef OS_WIN
 	if (flags & TERMC_BOLD)
-		fprintf(stream, "\x1B[1m");
+		fputs("\x1B[1m", stream);
 
 	if (flags & TERMC_UNDERLINE)
-		fprintf(stream, "\x1B[4m");
+		fputs("\x1B[4m", stream);
+#else
+	if (flags & TERMC_INTENSE)
+		__winattr(stream, FOREGROUND_INTENSITY, -1);
+#endif
 
 	return stream;
 }
@@ -172,9 +249,14 @@ FILE *termc_setfl(FILE *stream, u8_t flags)
 FORCEINLINE
 FILE *termc_reset(FILE *stream)
 {
-	if (!isatty(fileno(stream)))
+	if (!__isatty(stream))
 		return stream;
 
-	fprintf(stream, "\x1B[0m");
+#ifndef OS_WIN
+	fputs("\x1B[0m"; stream);
+#else
+	__winattr(stream, -1, -1);
+#endif
+
 	return stream;
 }
