@@ -125,6 +125,7 @@ static void __winattr(FILE *s, int fg, int bg)
 	if (!defaultAttributes) {
 		if (!GetConsoleScreenBufferInfo(hTerminal, &info))
 			return;
+
 		defaultAttributes = info.wAttributes;
 	}
 
@@ -169,6 +170,7 @@ FILE *termc_set(FILE *stream, color_spec_t spec)
 	termc_reset(stream);
 
 #ifndef OS_WIN
+
 	if (spec.flags & TERMC_BOLD)
 		fputs("\x1B[1m", stream);
 
@@ -180,7 +182,9 @@ FILE *termc_set(FILE *stream, color_spec_t spec)
 
 	if (spec.bg.kind)
 		__wrcolor(stream, spec.bg, (bool)(spec.flags & TERMC_INTENSE), 1);
+
 #else
+
 	if (spec.flags & TERMC_INTENSE) {
 		spec.fg.kind |= FOREGROUND_INTENSITY;
 		spec.bg.kind |= FOREGROUND_INTENSITY;
@@ -199,11 +203,15 @@ FILE *termc_setfg(FILE *stream, color_t color)
 		return stream;
 
 #ifndef OS_WIN
+
 	if (color.kind)
 		__wrcolor(stream, color, 0, 0);
+
 #else
+
 	if (color.kind < TERMC_ANSI256)
 		__winattr(stream, color.kind, -1);
+
 #endif
 
 	return stream;
@@ -216,11 +224,15 @@ FILE *termc_setbg(FILE *stream, color_t color)
 		return stream;
 
 #ifndef OS_WIN
+
 	if (color.kind)
 		__wrcolor(stream, color, 0, 1);
+
 #else
+
 	if (color.kind < TERMC_ANSI256)
 		__winattr(stream, -1, color.kind);
+
 #endif
 
 	return stream;
@@ -233,14 +245,18 @@ FILE *termc_setfl(FILE *stream, u8_t flags)
 		return stream;
 
 #ifndef OS_WIN
+
 	if (flags & TERMC_BOLD)
 		fputs("\x1B[1m", stream);
 
 	if (flags & TERMC_UNDERLINE)
 		fputs("\x1B[4m", stream);
+
 #else
+
 	if (flags & TERMC_INTENSE)
 		__winattr(stream, FOREGROUND_INTENSITY, -1);
+
 #endif
 
 	return stream;

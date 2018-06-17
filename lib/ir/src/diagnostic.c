@@ -39,6 +39,7 @@ ir_label_t ir_label_primary(ir_span_t span, char __const *format, ...)
 		.style = IR_LABEL_PRIMARY,
 		.message = { '\0' }
 	};
+
 	if (format) {
 		va_start(ap, format);
 		vsnprintf(ret.message, LABEL_MAX, format, ap);
@@ -58,6 +59,7 @@ ir_label_t ir_label_secondary(ir_span_t span, char __const *format, ...)
 		.style = IR_LABEL_SECONDARY,
 		.message = { '\0' }
 	};
+
 	if (format) {
 		va_start(ap, format);
 		vsnprintf(ret.message, LABEL_MAX, format, ap);
