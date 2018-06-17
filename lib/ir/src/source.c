@@ -151,7 +151,9 @@ ir_loc_t ir_src_locate(ir_src_t *self, u32_t line, u32_t col)
 	u32_t off;
 
 	if (!line) line = 1;
+
 	if (!col) col = 1;
+
 	off = ir_src_getoff(self, line);
 	return (ir_loc_t) {
 		.off = off + col - 1,

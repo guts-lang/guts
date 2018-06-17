@@ -43,9 +43,12 @@ void ir_fe_dtor(ir_fe_t *self)
 
 	for (i = 0; i < veclen(self->sources); ++i)
 		ir_src_dtor(vecat(self->sources, i));
+
 	vecdtor(self->sources);
+
 	for (i = 0; i < veclen(self->diagnostics); ++i)
 		ir_diag_dtor(vecat(self->diagnostics, i));
+
 	vecdtor(self->diagnostics);
 }
 
@@ -114,19 +117,22 @@ static int __emit(FILE *s, ir_fe_t *fe, ir_diag_t *diag)
 	color_t sev_clr;
 
 	switch (diag->severity) {
-		case IR_SEVERITY_WARN:
-			sev_clr = color(TERMC_YELLOW);
-			break;
-		case IR_SEVERITY_NOTE:
-			sev_clr = color(TERMC_CYAN);
-			break;
-		case IR_SEVERITY_HELP:
-			sev_clr = color(TERMC_GREEN);
-			break;
-		case IR_SEVERITY_BUG:
-		case IR_SEVERITY_ERROR:
-		default:
-			sev_clr = color(TERMC_RED);
+	case IR_SEVERITY_WARN:
+		sev_clr = color(TERMC_YELLOW);
+		break;
+
+	case IR_SEVERITY_NOTE:
+		sev_clr = color(TERMC_CYAN);
+		break;
+
+	case IR_SEVERITY_HELP:
+		sev_clr = color(TERMC_GREEN);
+		break;
+
+	case IR_SEVERITY_BUG:
+	case IR_SEVERITY_ERROR:
+	default:
+		sev_clr = color(TERMC_RED);
 	}
 
 	termc_setfg(s, sev_clr);
@@ -152,7 +158,9 @@ static int __emit(FILE *s, ir_fe_t *fe, ir_diag_t *diag)
 
 			if ((linea = ir_src_getln(src, line))) {
 				eol = strchr(linea, '\n');
+
 				if (!eol) eol = strchr(linea, '\r');
+
 				if (!eol) eol = strchr(linea, '\0');
 
 				line_off = ir_src_getoff(src, line);
@@ -185,6 +193,7 @@ static int __emit(FILE *s, ir_fe_t *fe, ir_diag_t *diag)
 
 				if (*label->message)
 					fprintf(s, " %s", label->message);
+
 				termc_reset(s);
 
 				fputc('\n', s);
