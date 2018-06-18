@@ -33,6 +33,7 @@
 # define __IR_H
 
 #include "ir/conf.h"
+#include "ir/deque.h"
 #include "ir/diagnostic.h"
 #include "ir/frontend.h"
 #include "ir/loc.h"

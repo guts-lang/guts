@@ -32,6 +32,7 @@ void ir_loc_init(ir_loc_t *self)
 	self->raw = 1;
 	self->col = 1;
 	self->off = 0;
+	self->src = 0;
 }
 
 FORCEINLINE
@@ -41,7 +42,7 @@ void ir_loc_shift(ir_loc_t *self, char ch, vecof(u32_t)*lines)
 	else {
 		++self->raw;
 		self->col = 1;
-		vecpush(*lines, self->off);
+		vecpush(*lines, self->off + 1);
 	}
 
 	++self->off;

@@ -44,3 +44,5 @@ macro (guts_register_test suite test)
   add_dependencies(check_guts_${suite} test_guts_${name})
   add_dependencies(test_guts_${name} guts)
 endmacro ()
+
+guts_register_test(hir_fe lex)

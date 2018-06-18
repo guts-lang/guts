@@ -24,38 +24,37 @@
  * SOFTWARE.
  */
 
-/*!@file ir/frontend.h
+/*!@file ir/deque.h
  * @author uael
  *
- * @addtogroup ir.frontend @{
+ * @addtogroup ir.ds @{
  */
-#ifndef __IR_FRONTEND_H
-# define __IR_FRONTEND_H
+#ifndef __IR_DEQUE_H
+# define __IR_DEQUE_H
 
-#include <stdio.h>
+#include "ir/seq.h"
 
-#include "ir/source.h"
-#include "ir/diagnostic.h"
+#define __DEQ_CUR (SEQGUARD + 1)
+#define __DEQ_GUARD __DEQ_CUR
+#define __DEQ_TSZ u32_t
 
-struct ir_fe;
+#define __deqcur(d) SEQPROP(d, __DEQ_CUR, __DEQ_TSZ)
 
-typedef int (ir_emitter_t)(FILE *stream, struct ir_fe *fe, ir_diag_t *diag);
+#define deqof(T) seqof(T)
 
-typedef struct ir_fe {
-	vecof(ir_src_t) sources;
-	vecof(ir_diag_t) diagnostics;
-	ir_emitter_t *emitter;
-} ir_fe_t;
+#define deqdtor(d) seqdtor(d, __DEQ_GUARD, __DEQ_TSZ)
+#define deqcur(d) SEQPROP_SAFE(d, __DEQ_CUR, __DEQ_TSZ)
+#define deqlen(d) ((d) ? __seqlen(d, __DEQ_TSZ) - __deqcur(d) : (__DEQ_TSZ)0)
+#define deqcap(d) seqcap(d, __DEQ_TSZ)
+#define deqempty(d) ((bool)(deqlen(d) == 0))
+#define deqbeg(d) (seqbeg(d) + __deqcur(d))
+#define deqend(d) seqend(d, __DEQ_TSZ)
+#define deqback(d) seqback(d, __DEQ_TSZ)
+#define deqat(d, i) seqat(d, (i) + __deqcur(d))
+#define deqgrow(d, n) seqgrow(d, n, __DEQ_GUARD, __DEQ_TSZ)
+#define deqnpush(d, items, n) seqnpush(d, items, n, __DEQ_GUARD, __DEQ_TSZ)
+#define deqpush(d, item) seqpush(d, item, __DEQ_GUARD, __DEQ_TSZ)
+#define dequsht(d) ((d) ? ((__deqcur(d) = __deqcur(d) + 1), deqat(d, -1)) : NULL)
 
-__api ir_emitter_t *IR_DFT_EMITTER;
-
-__api void ir_fe_init(ir_fe_t *self, ir_emitter_t *emitter);
-__api void ir_fe_dtor(ir_fe_t *self);
-__api ir_src_t *ir_fe_srcpush(ir_fe_t *self, char __const *str, bool virtual);
-__api ir_src_t *ir_fe_srcfind(ir_fe_t *self, ir_loc_t *loc);
-__api void ir_fe_diagpush(ir_fe_t *self, ir_diag_t diag);
-__api bool ir_fe_hasdiag(ir_fe_t *self);
-__api int ir_fe_emit(ir_fe_t *self, FILE *stream);
-
-#endif /* !__IR_FRONTEND_H */
+#endif /* !__IR_DEQUE_H */
 /*!@} */

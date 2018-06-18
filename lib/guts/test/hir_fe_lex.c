@@ -24,38 +24,33 @@
  * SOFTWARE.
  */
 
-/*!@file ir/frontend.h
- * @author uael
- *
- * @addtogroup ir.frontend @{
- */
-#ifndef __IR_FRONTEND_H
-# define __IR_FRONTEND_H
+#include "guts/hir/fe.h"
 
-#include <stdio.h>
+#include "test.h"
 
-#include "ir/source.h"
-#include "ir/diagnostic.h"
+int main(void)
+{
+	static char __const *SRC = "int main(void)\n"
+							   "{\n"
+							   "    return \\;\n"
+							   "}\n";
+	ir_src_t *src;
+	ir_fe_t fe;
+	hir_lexer_t lexer;
+	hir_tok_t *tok;
 
-struct ir_fe;
+	ir_fe_init(&fe, NULL);
+	src = ir_fe_srcpush(&fe, SRC, true);
 
-typedef int (ir_emitter_t)(FILE *stream, struct ir_fe *fe, ir_diag_t *diag);
+	hir_lexer_init(&lexer, src, &fe.diagnostics);
+	while ((tok = hir_lexer_next(&lexer))) {
+		printf("%u\n", tok->kind);
+	}
 
-typedef struct ir_fe {
-	vecof(ir_src_t) sources;
-	vecof(ir_diag_t) diagnostics;
-	ir_emitter_t *emitter;
-} ir_fe_t;
+	hir_lexer_dtor(&lexer);
 
-__api ir_emitter_t *IR_DFT_EMITTER;
-
-__api void ir_fe_init(ir_fe_t *self, ir_emitter_t *emitter);
-__api void ir_fe_dtor(ir_fe_t *self);
-__api ir_src_t *ir_fe_srcpush(ir_fe_t *self, char __const *str, bool virtual);
-__api ir_src_t *ir_fe_srcfind(ir_fe_t *self, ir_loc_t *loc);
-__api void ir_fe_diagpush(ir_fe_t *self, ir_diag_t diag);
-__api bool ir_fe_hasdiag(ir_fe_t *self);
-__api int ir_fe_emit(ir_fe_t *self, FILE *stream);
-
-#endif /* !__IR_FRONTEND_H */
-/*!@} */
+	ir_fe_emit(&fe, stdout);
+	ir_fe_dtor(&fe);
+	hir_lexer_dtor(&lexer);
+	return 0;
+}

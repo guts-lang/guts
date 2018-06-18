@@ -100,7 +100,16 @@ void ir_src_dtor(ir_src_t *self)
 }
 
 FORCEINLINE
-char ir_src_peek(ir_src_t *self, u8_t n)
+char ir_src_peek(ir_src_t *self)
+{
+	if (self->loc.off >= self->srclen)
+		return '\0';
+
+	return self->src[self->loc.off];
+}
+
+FORCEINLINE
+char ir_src_peekn(ir_src_t *self, u8_t n)
 {
 	if (self->loc.off + n >= self->srclen)
 		return '\0';
@@ -119,6 +128,12 @@ char ir_src_next(ir_src_t *self)
 	c = self->src[self->loc.off];
 	ir_loc_shift(&self->loc, c, &self->lines);
 	return c;
+}
+
+FORCEINLINE
+char *ir_src_str(ir_src_t *self)
+{
+	return (char *)(self->src + self->loc.off);
 }
 
 FORCEINLINE
@@ -143,7 +158,7 @@ char *ir_src_getln(ir_src_t *self, u32_t line)
 	}
 
 	off = *vecat(self->lines, line - 1);
-	return (char *)(self->src + off + 1);
+	return (char *)(self->src + off);
 }
 
 ir_loc_t ir_src_locate(ir_src_t *self, u32_t line, u32_t col)
@@ -161,6 +176,7 @@ ir_loc_t ir_src_locate(ir_src_t *self, u32_t line, u32_t col)
 	};
 }
 
+FORCEINLINE
 ir_loc_t ir_src_loc(ir_src_t *self)
 {
 	return self->loc;

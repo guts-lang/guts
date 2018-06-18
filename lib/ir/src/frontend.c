@@ -50,17 +50,16 @@ void ir_fe_dtor(ir_fe_t *self)
 }
 
 FORCEINLINE
-int ir_fe_srcpush(ir_fe_t *self, char __const *str, bool virtual)
+ir_src_t *ir_fe_srcpush(ir_fe_t *self, char __const *str, bool virtual)
 {
-	int st;
 	ir_src_t src;
 
-	if ((st = ir_src_init(&src, str, virtual)))
-		return st;
+	if (ir_src_init(&src, str, virtual))
+		return NULL;
 
 	src.loc.src = (u32_t)veclen(self->sources);
 	vecpush(self->sources, src);
-	return 0;
+	return vecback(self->sources);
 }
 
 FORCEINLINE

@@ -46,8 +46,10 @@ typedef struct {
 
 __api int ir_src_init(ir_src_t *self, char __const *str, bool virtual);
 __api void ir_src_dtor(ir_src_t *self);
-__api char ir_src_peek(ir_src_t *self, u8_t n);
+__api char ir_src_peek(ir_src_t *self);
+__api char ir_src_peekn(ir_src_t *self, u8_t n);
 __api char ir_src_next(ir_src_t *self);
+__api char *ir_src_str(ir_src_t *self);
 __api u32_t ir_src_getoff(ir_src_t *self, u32_t line);
 __api char *ir_src_getln(ir_src_t *self, u32_t line);
 __api ir_loc_t ir_src_locate(ir_src_t *self, u32_t line, u32_t col);

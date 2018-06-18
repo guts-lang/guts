@@ -87,7 +87,8 @@ if (MSVC)
 else ()
   target_compile_options(compat
     PUBLIC -Wall -Werror -Wextra
-    PUBLIC -ansi -fomit-frame-pointer)
+    PUBLIC -ansi -fomit-frame-pointer
+    PUBLIC -Wno-missing-field-initializers)
   if (CMAKE_BUILD_TYPE MATCHES Release)
     target_compile_options(compat PUBLIC -O3)
   else ()
