@@ -33,8 +33,8 @@ before_build:
   - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=%msvc% Win64
   - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% ..
 
-build_script:
-  - cmd: cmake --build . --target all
+build:
+  - cmd: cmake --build .
 
 test_script:
   - cmd: cmake --build . --target check

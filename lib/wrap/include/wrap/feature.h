@@ -24,15 +24,15 @@
  * SOFTWARE.
  */
 
-/*!@file compat/feature.h
+/*!@file wrap/feature.h
  * @author uael
  *
- * @addtogroup compat @{
+ * @addtogroup wrap @{
  */
-#ifndef __COMPAT_FEATURE_H
-# define __COMPAT_FEATURE_H
+#ifndef __WRAP_FEATURE_H
+# define __WRAP_FEATURE_H
 
-#include "compat/platform.h"
+#include "wrap/platform.h"
 
 #define VERSION_C89 198900L
 #define VERSION_C90 199000L
@@ -852,5 +852,5 @@
 	__HAS_BUILTIN_##x)
 #endif
 
-#endif /* !__COMPAT_FEATURE_H */
+#endif /* !__WRAP_FEATURE_H */
 /*!@} */

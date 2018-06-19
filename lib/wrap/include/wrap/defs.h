@@ -24,15 +24,15 @@
  * SOFTWARE.
  */
 
-/*!@file compat/defs.h
+/*!@file wrap/defs.h
  * @author uael
  *
- * @addtogroup compat @{
+ * @addtogroup wrap @{
  */
-#ifndef __COMPAT_DEFS_H
-# define __COMPAT_DEFS_H
+#ifndef __WRAP_DEFS_H
+# define __WRAP_DEFS_H
 
-#include "compat/feature.h"
+#include "wrap/feature.h"
 
 #ifdef __cplusplus
 # include <cstdlib>
@@ -144,7 +144,7 @@
 #   endif
 #   define __import_link
 # endif
-# if defined(COMPILE)
+# if defined(API_COMPILE)
 #   ifdef __cplusplus
 #     define __ext extern "C" __import_link
 #     define __api extern "C" __export_link
@@ -368,5 +368,5 @@
 # define UNLIKELY(x) (x)
 #endif
 
-#endif /* !__COMPAT_DEFS_H */
+#endif /* !__WRAP_DEFS_H */
 /*!@} */

@@ -24,15 +24,15 @@
  * SOFTWARE.
  */
 
-/*!@file compat/types.h
+/*!@file wrap/types.h
  * @author uael
  *
- * @addtogroup compat @{
+ * @addtogroup wrap @{
  */
-#ifndef __COMPAT_TYPES_H
-# define __COMPAT_TYPES_H
+#ifndef __WRAP_TYPES_H
+# define __WRAP_TYPES_H
 
-#include "compat/defs.h"
+#include "wrap/defs.h"
 
 #ifndef NULL
 # ifdef __cplusplus
@@ -217,5 +217,5 @@ typedef size_t usize_t;
 # define U64_MAX 0xffffffffffffffffULL
 #endif
 
-#endif /* !__COMPAT_TYPES_H */
+#endif /* !__WRAP_TYPES_H */
 /*!@} */

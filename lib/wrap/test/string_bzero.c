@@ -24,25 +24,11 @@
  * SOFTWARE.
  */
 
-/*!@file compat/conf.h
- * @author uael
- */
-#ifndef __COMPAT_CONF_H
-# define __COMPAT_CONF_H
+#include "wrap/string.h"
 
-#cmakedefine HAS_INTTYPES_H
-#cmakedefine HAS_STDBOOL_H
-#cmakedefine HAS_STDINT_H
-#cmakedefine HAS_STRING_H
-#cmakedefine HAS_STRINGS_H
-#cmakedefine HAS_SYS_TYPES_H
+#include "test.h"
 
-#cmakedefine HAS_BZERO
-#cmakedefine HAS_MEMCPY
-#cmakedefine HAS_MEMMOVE
-#cmakedefine HAS_MEMSET
-#cmakedefine HAS_STRLCPY
-#cmakedefine HAS_STRNCPY
-#cmakedefine HAS_STRNLEN
-
-#endif /* __COMPAT_CONF_H */
+int main(void)
+{
+	return 0;
+}

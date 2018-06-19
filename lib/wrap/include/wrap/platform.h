@@ -24,17 +24,17 @@
  * SOFTWARE.
  */
 
-/*!@file compat/platform.h
+/*!@file wrap/platform.h
  * @author uael
  *
- * @addtogroup compat @{
+ * @addtogroup wrap @{
  */
-#ifndef __COMPAT_PLATFORM_H
-# define __COMPAT_PLATFORM_H
+#ifndef __WRAP_PLATFORM_H
+# define __WRAP_PLATFORM_H
 
-#include "compat/arch.h"
-#include "compat/cpu.h"
-#include "compat/os.h"
+#include "wrap/arch.h"
+#include "wrap/cpu.h"
+#include "wrap/os.h"
 
 #if defined(OS_IOS)
 # include <TargetConditionals.h>
@@ -76,5 +76,5 @@
 # define PLAT_WIN_RT 0
 #endif
 
-#endif /* !__COMPAT_PLATFORM_H */
+#endif /* !__WRAP_PLATFORM_H */
 /*!@} */

@@ -25,24 +25,24 @@
 #
 
 add_custom_target(check_compat
-  COMMAND ${CMAKE_CTEST_COMMAND} -R '^test_compat_.*' --timeout 2)
+  COMMAND ${CMAKE_CTEST_COMMAND} -R '^test_wrap_.*' --timeout 2)
 
-macro (compat_register_test suite test)
-  if (NOT TARGET check_compat_${suite})
-    add_custom_target(check_compat_${suite}
-      COMMAND ${CMAKE_CTEST_COMMAND} -R '^test_compat_${suite}_.*' --timeout 2)
+macro (wrap_register_test suite test)
+  if (NOT TARGET check_wrap_${suite})
+    add_custom_target(check_wrap_${suite}
+      COMMAND ${CMAKE_CTEST_COMMAND} -R '^test_wrap_${suite}_.*' --timeout 2)
   endif ()
 
   set(name ${suite}_${test})
 
-  add_executable(test_compat_${name} ${name}.c test.h)
-  target_link_libraries(test_compat_${name} compat)
+  add_executable(test_wrap_${name} ${name}.c test.h)
+  target_link_libraries(test_wrap_${name} Wrap::libwrap)
 
-  add_test(test_compat_${name} test_compat_${name})
-  add_dependencies(check test_compat_${name})
-  add_dependencies(check_compat test_compat_${name})
-  add_dependencies(check_compat_${suite} test_compat_${name})
-  add_dependencies(test_compat_${name} compat)
+  add_test(test_wrap_${name} test_wrap_${name})
+  add_dependencies(check test_wrap_${name})
+  add_dependencies(check_compat test_wrap_${name})
+  add_dependencies(check_wrap_${suite} test_wrap_${name})
+  add_dependencies(test_wrap_${name} Wrap::libwrap)
 endmacro ()
 
-compat_register_test(string bzero)
+wrap_register_test(string bzero)

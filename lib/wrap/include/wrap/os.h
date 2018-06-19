@@ -24,15 +24,15 @@
  * SOFTWARE.
  */
 
-/*!@file compat/os.h
+/*!@file wrap/os.h
  * @author uael
  *
- * @addtogroup compat @{
+ * @addtogroup wrap @{
  */
-#ifndef __COMPAT_OS_H
-# define __COMPAT_OS_H
+#ifndef __WRAP_OS_H
+# define __WRAP_OS_H
 
-#include "compat/compiler.h"
+#include "wrap/compiler.h"
 
 #if defined(_AIX) || defined(__TOS_AIX__)
 # if defined(_AIX43)
@@ -386,5 +386,5 @@
 # define OS_WIN 0
 #endif
 
-#endif /* !__COMPAT_OS_H */
+#endif /* !__WRAP_OS_H */
 /*!@} */

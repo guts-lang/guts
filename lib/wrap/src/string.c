@@ -24,27 +24,68 @@
  * SOFTWARE.
  */
 
-#ifndef __COMPAT_TEST_H
-# define __COMPAT_TEST_H
+#include "wrap/string.h"
 
-#include "compat/conf.h"
-#include "compat/string.h"
+#ifndef HAS_BZERO
+FORCEINLINE void
+bzero(void *ptr, usize_t n)
+{
+	memset(ptr, 0, n);
+}
+#endif /* !HAS_BZERO */
 
-#include <assert.h>
-#include <stdio.h>
+#ifndef HAS_STRLCPY
+usize_t
+strlcpy(char *__restrict dst, __const char *__restrict src, usize_t siz)
+{
+	char *d = dst;
+	__const char *s = src;
+	usize_t n = siz;
 
-#ifndef ASSERT_F
-# define ASSERT_F(...) "%s:%d: `%s'\n", __FILE__, __LINE__, #__VA_ARGS__
-#endif
+	if (n) {
+		while (--n != 0) {
+			if ((*d++ = *s++) == '\0')
+				break;
+		}
+	}
 
-#define ASSERT(cond) do if(!(cond))exit(printf(ASSERT_F(cond))>0);while(0)
-#define ASSERT_EQ(a, b) ASSERT((a) == (b))
-#define ASSERT_GE(a, b) ASSERT((a) >= (b))
-#define ASSERT_LE(a, b) ASSERT((a) <= (b))
-#define ASSERT_NEQ(a, b) ASSERT((a) != (b))
-#define ASSERT_TRUE(a) ASSERT_EQ(a, true)
-#define ASSERT_FALSE(a) ASSERT_EQ(a, false)
-#define ASSERT_NULL(a) ASSERT_EQ(a, NULL)
-#define ASSERT_STREQ(a, b) ASSERT_EQ(0, strcmp(a, b))
+	if (n == 0) {
+		if (siz != 0)
+			*d = '\0';
 
-#endif /* !__COMPAT_TEST_H */
+		while (*s++);
+	}
+
+	return s - src - 1;
+}
+#endif /* !HAS_STRLCPY */
+
+#ifndef HAS_STRNCPY
+FORCEINLINE char *
+strncpy(char *s1, __const char *s2, usize_t n)
+{
+	usize_t size = strnlen(s2, n);
+
+	if (size != n)
+		memset(s1 + size, '\0', n - size);
+
+	return memcpy(s1, s2, size);
+}
+
+#endif /* !HAS_STRNCPY */
+
+#ifndef HAS_STRNLEN
+FORCEINLINE usize_t
+strnlen(__const char *s, usize_t n)
+{
+	__const char *p;
+
+	p = s;
+
+	while (*p && n--)
+		p++;
+
+	return (usize_t) (p - s);
+}
+#endif /* !HAS_STRNLEN */
+

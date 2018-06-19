@@ -24,15 +24,15 @@
  * SOFTWARE.
  */
 
-/*!@file compat/verno.h
+/*!@file wrap/verno.h
  * @author uael
  *
- * @addtogroup compat @{
+ * @addtogroup wrap @{
  */
-#ifndef __COMPAT_VERNO_H
-# define __COMPAT_VERNO_H
+#ifndef __WRAP_VERNO_H
+# define __WRAP_VERNO_H
 
-#include "compat/conf.h"
+#include "wrap/conf.h"
 
 #define VERNO_GT(verno, major, minor) ((verno) > VERNO(major, minor, 0))
 #define VERNO_GE(verno, major, minor) ((verno) >= VERNO(major, minor, 0))
@@ -163,5 +163,5 @@
 #define VERNO_10_VVRR00PP00(V)  \
 	VERNO(((V)/100000000)%100,((V)/1000000)%100,((V)/100)%100)
 
-#endif /* !__COMPAT_VERNO_H */
+#endif /* !__WRAP_VERNO_H */
 /*!@} */

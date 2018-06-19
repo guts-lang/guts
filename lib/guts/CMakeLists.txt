@@ -52,7 +52,7 @@ target_include_directories(guts
   PUBLIC ${guts_INC_DIR} ${CMAKE_BINARY_DIR}/include
   PRIVATE ${guts_SRC_DIR})
 target_link_libraries(guts PUBLIC ir)
-target_compile_definitions(guts PRIVATE COMPILE)
+target_compile_definitions(guts PRIVATE API_COMPILE)
 
 if (MSVC)
   foreach (flag_var

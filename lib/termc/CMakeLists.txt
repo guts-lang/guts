@@ -47,15 +47,14 @@ file(GLOB_RECURSE termc_HDRS ${termc_HDRS} ${termc_INC_DIR}/*.h)
 file(GLOB_RECURSE termc_SRCS ${termc_SRCS} ${termc_SRC_DIR}/*.c)
 
 add_library(termc ${termc_HDRS} ${termc_SRCS})
-add_dependencies(termc compat)
 
 set_property(TARGET termc PROPERTY C_STANDARD 99)
 
 target_include_directories(termc
   PUBLIC ${termc_INC_DIR} ${CMAKE_BINARY_DIR}/include
   PRIVATE ${termc_SRC_DIR})
-target_link_libraries(termc PUBLIC compat)
-target_compile_definitions(termc PRIVATE COMPILE)
+target_link_libraries(termc PUBLIC Wrap::libwrap)
+target_compile_definitions(termc PRIVATE API_COMPILE)
 
 if (MSVC)
   foreach (flag_var

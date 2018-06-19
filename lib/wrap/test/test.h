@@ -24,36 +24,27 @@
  * SOFTWARE.
  */
 
-/*!@file compat/cpu.h
- * @author uael
- *
- * @addtogroup compat @{
- */
-#ifndef __COMPAT_CPU_H
-# define __COMPAT_CPU_H
+#ifndef __WRAP_TEST_H
+# define __WRAP_TEST_H
 
-#include "compat/conf.h"
+#include "wrap/conf.h"
+#include "wrap/string.h"
 
-#if defined(__LP64__) || defined(__64BIT__) || defined(_LP64) \
-  || defined(__x86_64) || defined(__x86_64__) || defined(__amd64) \
-  || defined(__amd64__) || defined(__arm64) || defined(__arm64__) \
-  || defined(__sparc64__) || defined(__PPC64__) || defined(__ppc64__) \
-  || defined(__powerpc64__) || defined(_M_X64) || defined(_M_AMD64) \
-  || defined(_M_IA64) || (defined(__WORDSIZE) && __WORDSIZE == 64)
-# define CPU_SIZE (64)
-# define CPU_BYTE (8)
-# define CPU_ALIGN (7)
-# define CPU_32 (0)
-# define CPU_64 (1)
-# define CPU_SHIFT (6)
-#else
-# define CPU_SIZE (32)
-# define CPU_BYTE (4)
-# define CPU_ALIGN (3)
-# define CPU_32 (1)
-# define CPU_64 (0)
-# define CPU_SHIFT (5)
+#include <assert.h>
+#include <stdio.h>
+
+#ifndef ASSERT_F
+# define ASSERT_F(...) "%s:%d: `%s'\n", __FILE__, __LINE__, #__VA_ARGS__
 #endif
 
-#endif /* !__COMPAT_CPU_H */
-/*!@} */
+#define ASSERT(cond) do if(!(cond))exit(printf(ASSERT_F(cond))>0);while(0)
+#define ASSERT_EQ(a, b) ASSERT((a) == (b))
+#define ASSERT_GE(a, b) ASSERT((a) >= (b))
+#define ASSERT_LE(a, b) ASSERT((a) <= (b))
+#define ASSERT_NEQ(a, b) ASSERT((a) != (b))
+#define ASSERT_TRUE(a) ASSERT_EQ(a, true)
+#define ASSERT_FALSE(a) ASSERT_EQ(a, false)
+#define ASSERT_NULL(a) ASSERT_EQ(a, NULL)
+#define ASSERT_STREQ(a, b) ASSERT_EQ(0, strcmp(a, b))
+
+#endif /* !__WRAP_TEST_H */

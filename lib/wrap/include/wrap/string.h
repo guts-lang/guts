@@ -24,28 +24,42 @@
  * SOFTWARE.
  */
 
-/*!@file compat.h
+/*!@file wrap/string.h
  * @author uael
  *
- * @addtogroup compat @{
+ * @addtogroup wrap @{
  */
-#ifndef __COMPAT_H
-# define __COMPAT_H
+#ifndef __WRAP_STRING_H
+# define __WRAP_STRING_H
 
-#include <assert.h>
+#include "wrap/types.h"
 
-#include "compat/arch.h"
-#include "compat/compiler.h"
-#include "compat/conf.h"
-#include "compat/cpu.h"
-#include "compat/defs.h"
-#include "compat/feature.h"
-#include "compat/os.h"
-#include "compat/platform.h"
-#include "compat/preprocessor.h"
-#include "compat/string.h"
-#include "compat/types.h"
-#include "compat/verno.h"
+#ifdef HAS_STRING_H
+# include <string.h>
+#endif
+#ifdef HAS_STRINGS_H
+# include <strings.h>
+#endif
 
-#endif /* !__COMPAT_H */
+#ifndef HAS_BZERO
+__api void
+bzero(void *ptr, usize_t n);
+#endif
+
+#ifndef HAS_STRLCPY
+__api usize_t
+strlcpy(char *__restrict dst, const char *__restrict src, usize_t dstsize);
+#endif
+
+#ifndef HAS_STRNCPY
+__api char *
+strncpy(char *dst, __const char *src, usize_t n);
+#endif
+
+#ifndef HAS_STRNLEN
+__api usize_t
+strnlen(const char *s, usize_t n);
+#endif
+
+#endif /* !__WRAP_STRING_H */
 /*!@} */

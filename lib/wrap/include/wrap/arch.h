@@ -24,15 +24,15 @@
  * SOFTWARE.
  */
 
-/*!@file compat/arch.h
+/*!@file wrap/arch.h
  * @author uael
  *
- * @addtogroup compat @{
+ * @addtogroup wrap @{
  */
-#ifndef __COMPAT_ARCH_H
-# define __COMPAT_ARCH_H
+#ifndef __WRAP_ARCH_H
+# define __WRAP_ARCH_H
 
-#include "compat/verno.h"
+#include "wrap/verno.h"
 
 #if defined(__alpha__) \
   || defined(__alpha) \
@@ -284,5 +284,5 @@
 # define ARCH_Z 0
 #endif
 
-#endif /* !__COMPAT_ARCH_H */
+#endif /* !__WRAP_ARCH_H */
 /*!@} */

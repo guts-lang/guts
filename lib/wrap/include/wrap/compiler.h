@@ -24,16 +24,16 @@
  * SOFTWARE.
  */
 
-/*!@file compat/compiler.h
+/*!@file wrap/compiler.h
  * @author uael
  *
- * @addtogroup compat @{
+ * @addtogroup wrap @{
  */
-#ifndef __COMPAT_COMPILER_H
-# define __COMPAT_COMPILER_H
+#ifndef __WRAP_COMPILER_H
+# define __WRAP_COMPILER_H
 
-#include "compat/preprocessor.h"
-#include "compat/verno.h"
+#include "wrap/preprocessor.h"
+#include "wrap/verno.h"
 
 /*
  * Borland C/C++
@@ -471,5 +471,5 @@
 # define CC_WATCOM VERNO_10_VVRR(__WATCOMC__)
 #endif
 
-#endif /* !__COMPAT_COMPILER_H */
+#endif /* !__WRAP_COMPILER_H */
 /*!@} */

@@ -24,7 +24,7 @@
 # SOFTWARE.
 #
 
-add_subdirectory(compat)
+add_subdirectory(wrap)
 add_subdirectory(guts)
 add_subdirectory(ir)
 add_subdirectory(termc)

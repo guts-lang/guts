@@ -24,68 +24,28 @@
  * SOFTWARE.
  */
 
-#include "compat/string.h"
+/*!@file wrap.h
+ * @author uael
+ *
+ * @addtogroup wrap @{
+ */
+#ifndef __WRAP_H
+# define __WRAP_H
 
-#ifndef HAS_BZERO
-FORCEINLINE void
-bzero(void *ptr, usize_t n)
-{
-	memset(ptr, 0, n);
-}
-#endif /* !HAS_BZERO */
+#include <assert.h>
 
-#ifndef HAS_STRLCPY
-usize_t
-strlcpy(char *__restrict dst, __const char *__restrict src, usize_t siz)
-{
-	char *d = dst;
-	__const char *s = src;
-	usize_t n = siz;
+#include "wrap/arch.h"
+#include "wrap/compiler.h"
+#include "wrap/conf.h"
+#include "wrap/cpu.h"
+#include "wrap/defs.h"
+#include "wrap/feature.h"
+#include "wrap/os.h"
+#include "wrap/platform.h"
+#include "wrap/preprocessor.h"
+#include "wrap/string.h"
+#include "wrap/types.h"
+#include "wrap/verno.h"
 
-	if (n) {
-		while (--n != 0) {
-			if ((*d++ = *s++) == '\0')
-				break;
-		}
-	}
-
-	if (n == 0) {
-		if (siz != 0)
-			*d = '\0';
-
-		while (*s++);
-	}
-
-	return s - src - 1;
-}
-#endif /* !HAS_STRLCPY */
-
-#ifndef HAS_STRNCPY
-FORCEINLINE char *
-strncpy(char *s1, __const char *s2, usize_t n)
-{
-	usize_t size = strnlen(s2, n);
-
-	if (size != n)
-		memset(s1 + size, '\0', n - size);
-
-	return memcpy(s1, s2, size);
-}
-
-#endif /* !HAS_STRNCPY */
-
-#ifndef HAS_STRNLEN
-FORCEINLINE usize_t
-strnlen(__const char *s, usize_t n)
-{
-	__const char *p;
-
-	p = s;
-
-	while (*p && n--)
-		p++;
-
-	return (usize_t) (p - s);
-}
-#endif /* !HAS_STRNLEN */
-
+#endif /* !__WRAP_H */
+/*!@} */

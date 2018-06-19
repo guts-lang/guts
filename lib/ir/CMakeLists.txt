@@ -44,15 +44,15 @@ file(GLOB_RECURSE ir_HDRS ${ir_HDRS} ${ir_INC_DIR}/*.h)
 file(GLOB_RECURSE ir_SRCS ${ir_SRCS} ${ir_SRC_DIR}/*.c)
 
 add_library(ir ${ir_HDRS} ${ir_SRCS})
-add_dependencies(ir compat termc)
+add_dependencies(ir termc)
 
 set_property(TARGET ir PROPERTY C_STANDARD 99)
 
 target_include_directories(ir
   PUBLIC ${ir_INC_DIR} ${CMAKE_BINARY_DIR}/include
   PRIVATE ${ir_SRC_DIR})
-target_link_libraries(ir PUBLIC compat termc)
-target_compile_definitions(ir PRIVATE COMPILE)
+target_link_libraries(ir PUBLIC termc)
+target_compile_definitions(ir PRIVATE API_COMPILE)
 
 if (MSVC)
   foreach (flag_var
