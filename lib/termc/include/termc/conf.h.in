@@ -32,6 +32,6 @@
 
 #cmakedefine HAS_UNISTD_H
 
-#include <compat.h>
+#include <wrap.h>
 
 #endif /* __TERMC_CONF_H */

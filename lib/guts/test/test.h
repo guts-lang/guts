@@ -27,8 +27,8 @@
 #ifndef __COMPAT_TEST_H
 # define __COMPAT_TEST_H
 
-#include "compat/conf.h"
-#include "compat/string.h"
+#include "wrap/conf.h"
+#include "wrap/string.h"
 
 #include <assert.h>
 #include <stdio.h>

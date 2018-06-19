@@ -32,7 +32,7 @@
 #ifndef __IR_SEQ_H
 # define __IR_SEQ_H
 
-#include <compat.h>
+#include <wrap.h>
 
 #include "ir/conf.h"
 
