@@ -24,33 +24,26 @@
  * SOFTWARE.
  */
 
-#include "guts/hir/fe.h"
+#include "il/loc.h"
 
-#include "test.h"
-
-int main(void)
+FORCEINLINE
+void il_loc_init(loc_t *self)
 {
-	static char __const *SRC = "int main(void)\n"
-							   "{\n"
-							   "    return \\;\n"
-							   "}\n";
-	source_t *src;
-	codemap_t fe;
-	hir_lexer_t lexer;
-	hir_tok_t *tok;
+	self->raw = 1;
+	self->col = 1;
+	self->off = 0;
+	self->src = 0;
+}
 
-	codemap_init(&fe, NULL);
-	src = codemap_src_push(&fe, SRC, true);
-
-	hir_lexer_init(&lexer, src, &fe.diagnostics);
-	while ((tok = hir_lexer_next(&lexer))) {
-		printf("%u\n", tok->kind);
+FORCEINLINE
+void il_loc_shift(loc_t *self, char ch, vecof(u32_t)*lines)
+{
+	if (ch != '\n') ++self->col;
+	else {
+		++self->raw;
+		self->col = 1;
+		vecpush(*lines, self->off + 1);
 	}
 
-	hir_lexer_dtor(&lexer);
-
-	codemap_emit(&fe, stdout);
-	codemap_dtor(&fe);
-	hir_lexer_dtor(&lexer);
-	return 0;
+	++self->off;
 }

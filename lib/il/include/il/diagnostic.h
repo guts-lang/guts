@@ -24,33 +24,52 @@
  * SOFTWARE.
  */
 
-#include "guts/hir/fe.h"
+/*!@file il/diagnostic.h
+ * @author uael
+ *
+ * @addtogroup il.diagnostic @{
+ */
+#ifndef __IL_DIAGNOSTIC_H
+# define __IL_DIAGNOSTIC_H
 
-#include "test.h"
+#include "il/source.h"
 
-int main(void)
-{
-	static char __const *SRC = "int main(void)\n"
-							   "{\n"
-							   "    return \\;\n"
-							   "}\n";
-	source_t *src;
-	codemap_t fe;
-	hir_lexer_t lexer;
-	hir_tok_t *tok;
+#define LABEL_MAX 256
 
-	codemap_init(&fe, NULL);
-	src = codemap_src_push(&fe, SRC, true);
+typedef struct {
+	bool primary;
+	span_t span;
+	char message[LABEL_MAX];
+} diag_label_t;
 
-	hir_lexer_init(&lexer, src, &fe.diagnostics);
-	while ((tok = hir_lexer_next(&lexer))) {
-		printf("%u\n", tok->kind);
-	}
+typedef enum {
+	IL_SEVERITY_BUG,
+	IL_SEVERITY_ERROR,
+	IL_SEVERITY_WARN,
+	IL_SEVERITY_NOTE,
+	IL_SEVERITY_HELP
+} severity_t;
 
-	hir_lexer_dtor(&lexer);
+__api char *severity_toa(severity_t severity);
 
-	codemap_emit(&fe, stdout);
-	codemap_dtor(&fe);
-	hir_lexer_dtor(&lexer);
-	return 0;
-}
+typedef struct {
+	severity_t severity;
+	char message[LABEL_MAX];
+	vecof(diag_label_t) labels;
+} diag_t;
+
+__api void diag_bug(diag_t *self, char __const *fmt, ...);
+__api void diag_error(diag_t *self, char __const *fmt, ...);
+__api void diag_warn(diag_t *self, char __const *fmt, ...);
+__api void diag_note(diag_t *self, char __const *fmt, ...);
+__api void diag_help(diag_t *self, char __const *fmt, ...);
+__api void diag_dtor(diag_t *self);
+__api void diag_labelize(diag_t *self, bool primary, span_t span,
+	char __const *fmt, ...);
+__api diag_t diag(severity_t severity, char __const *message,
+				  u8_t nlables, diag_label_t *labels);
+__api diag_label_t diag_label(bool primary, span_t span,
+							  char __const *fmt, ...);
+
+#endif /* !__IL_DIAGNOSTIC_H */
+/*!@} */

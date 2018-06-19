@@ -24,14 +24,13 @@
  * SOFTWARE.
  */
 
-#include <guts.h>
 #include <ctype.h>
-#include <error.h>
+
 #include "guts/hir/fe.h"
 
-void hir_tok_init(hir_tok_t *token, ir_loc_t start, u16_t length)
+void hir_tok_init(hir_tok_t *token, loc_t start, u16_t length)
 {
-	token->span = (ir_span_t) {
+	token->span = (span_t) {
 		.start = start,
 		.length = length
 	};
@@ -44,8 +43,8 @@ void hir_tok_dtor(hir_tok_t *token)
 	bzero(token, sizeof(hir_tok_t));
 }
 
-void hir_lexer_init(hir_lexer_t *self, ir_src_t *src,
-					vecof(ir_diag_t) *diags)
+void hir_lexer_init(hir_lexer_t *self, source_t *src,
+					vecof(diag_t) *diags)
 {
 	self->eof = false;
 	self->src = src;
@@ -107,7 +106,7 @@ hir_tok_t *hir_lexer_next(hir_lexer_t *self)
 	tok.syntax = (k); \
 	__VA_ARGS__ \
 	for (__i = 0; __i < len; ++__i) \
-		ir_src_next(self->src); \
+		source_next(self->src); \
 	goto match; \
 } while (false)
 
@@ -115,11 +114,11 @@ static bool __lookahead(hir_lexer_t *self)
 {
 	char c;
 	hir_tok_t tok;
-	ir_loc_t start;
+	loc_t start;
 
-	while (isspace(c = ir_src_peek(self->src)))
-		ir_src_next(self->src);
-	start = ir_src_loc(self->src);
+	while (isspace(c = source_peek(self->src)))
+		source_next(self->src);
+	start = source_loc(self->src);
 	switch (c) {
 		case '\0': MATCH_SKIP(HIR_TOK_EOF, 1, { self->eof = true; });
 		case '"': goto lit_string;
@@ -140,59 +139,59 @@ static bool __lookahead(hir_lexer_t *self)
 
 		/* Operator */
 		case '~': MATCH_SKIP(HIR_TOK_TID, 1);
-		case '!': switch (ir_src_peekn(self->src, 1)) {
+		case '!': switch (source_peekn(self->src, 1)) {
 			case '=': MATCH_SKIP(HIR_TOK_NOT, 2);
 			default: MATCH_SKIP(HIR_TOK_NEQ, 1);
 		}
-		case '+': switch (ir_src_peekn(self->src, 1)) {
+		case '+': switch (source_peekn(self->src, 1)) {
 			case '=': MATCH_SKIP(HIR_TOK_ADD_ASSIGN, 2);
 			case '+': MATCH_SKIP(HIR_TOK_INC, 2);
 			default: MATCH_SKIP(HIR_TOK_ADD, 1);
 		}
-		case '-': switch (ir_src_peekn(self->src, 1)) {
+		case '-': switch (source_peekn(self->src, 1)) {
 			case '=': MATCH_SKIP(HIR_TOK_SUB_ASSIGN, 2);
 			case '-': MATCH_SKIP(HIR_TOK_DEC, 2);
 			default: MATCH_SKIP(HIR_TOK_SUB, 1);
 		}
-		case '=': switch (ir_src_peekn(self->src, 1)) {
+		case '=': switch (source_peekn(self->src, 1)) {
 			case '=': MATCH_SKIP(HIR_TOK_EQ, 2);
 			default: MATCH_SKIP(HIR_TOK_ASSIGN, 1);
 		}
-		case '>': switch (ir_src_peekn(self->src, 1)) {
-			case '>': switch (ir_src_peekn(self->src, 2)) {
+		case '>': switch (source_peekn(self->src, 1)) {
+			case '>': switch (source_peekn(self->src, 2)) {
 				case '=': MATCH_SKIP(HIR_TOK_RSH_ASSIGN, 3);
 				default: MATCH_SKIP(HIR_TOK_RSH, 2);
 			}
 			case '=': MATCH_SKIP(HIR_TOK_GEQ, 2);
 			default: MATCH_SKIP(HIR_TOK_GT, 1);
 		}
-		case '<': switch (ir_src_peekn(self->src, 1)) {
-			case '<': switch (ir_src_peekn(self->src, 2)) {
+		case '<': switch (source_peekn(self->src, 1)) {
+			case '<': switch (source_peekn(self->src, 2)) {
 				case '=': MATCH_SKIP(HIR_TOK_LSH_ASSIGN, 3);
 				default: MATCH_SKIP(HIR_TOK_LSH, 2);
 			}
 			case '=': MATCH_SKIP(HIR_TOK_LEQ, 2);
 			default: MATCH_SKIP(HIR_TOK_LT, 1);
 		}
-		case '&': switch (ir_src_peekn(self->src, 1)) {
+		case '&': switch (source_peekn(self->src, 1)) {
 			case '=': MATCH_SKIP(HIR_TOK_AND_ASSIGN, 2);
 			case '&': MATCH_SKIP(HIR_TOK_LAND, 2);
 			default: MATCH_SKIP(HIR_TOK_AND, 1);
 		}
-		case '|': switch (ir_src_peekn(self->src, 1)) {
+		case '|': switch (source_peekn(self->src, 1)) {
 			case '=': MATCH_SKIP(HIR_TOK_OR_ASSIGN, 2);
 			case '|': MATCH_SKIP(HIR_TOK_LOR, 2);
 			default: MATCH_SKIP(HIR_TOK_OR, 1);
 		}
-		case '*': switch (ir_src_peekn(self->src, 1)) {
+		case '*': switch (source_peekn(self->src, 1)) {
 			case '=': MATCH_SKIP(HIR_TOK_MUL_ASSIGN, 2);
 			default: MATCH_SKIP(HIR_TOK_MUL, 1);
 		}
-		case '/': switch (ir_src_peekn(self->src, 1)) {
+		case '/': switch (source_peekn(self->src, 1)) {
 			case '=': MATCH_SKIP(HIR_TOK_DIV_ASSIGN, 2);
 			default: MATCH_SKIP(HIR_TOK_DIV, 1);
 		}
-		case '%': switch (ir_src_peekn(self->src, 1)) {
+		case '%': switch (source_peekn(self->src, 1)) {
 			case '=': MATCH_SKIP(HIR_TOK_MOD_ASSIGN, 2);
 			default: MATCH_SKIP(HIR_TOK_MOD, 1);
 		}
@@ -200,18 +199,17 @@ static bool __lookahead(hir_lexer_t *self)
 		default: {
 			if (isalpha(c) || c == '_')
 				goto ident;
-			if (isdigit(c) || (c == '.' && isdigit(ir_src_peekn(self->src, 1))))
+			if (isdigit(c) || (c == '.' && isdigit(source_peekn(self->src, 1))))
 				goto number;
 			goto unexpected;
 		}
 
 		unexpected: {
 			if (self->diags) {
-				ir_diag_t error;
+				diag_t error;
 
-				ir_diag_error(&error, "unexpected character `%c'", c);
-				ir_diag_labelpush(&error,
-					ir_label_primary(ir_span(start, 1), NULL));
+				diag_error(&error, "unexpected character `%c'", c);
+				diag_labelize(&error, true, span(start, 1), NULL);
 				vecpush(*self->diags, error);
 			}
 			return false;
@@ -223,13 +221,13 @@ static bool __lookahead(hir_lexer_t *self)
 		}
 
 		ident: {
-			tok.ident.begin = ir_src_str(self->src);
+			tok.ident.begin = source_str(self->src);
 			tok.ident.len = 1;
 
-			ir_src_next(self->src);
-			while (isalnum(c = ir_src_peek(self->src)) || c == '_') {
+			source_next(self->src);
+			while (isalnum(c = source_peek(self->src)) || c == '_') {
 				++tok.ident.len;
-				ir_src_next(self->src);
+				source_next(self->src);
 			}
 
 			switch (tok.ident.len) {
@@ -284,30 +282,30 @@ static bool __lookahead(hir_lexer_t *self)
 			char c2;
 
 			tok.lit_integer.base = HIR_INTEGER_UNRESOLVED;
-			tok.lit_integer.number.begin = ir_src_str(self->src);
+			tok.lit_integer.number.begin = source_str(self->src);
 			tok.lit_integer.number.len = 0;
 			tok.lit_integer.unsign = false;
 			tok.lit_integer.size = HIR_INTEGER_INT;
 
-			if (ir_src_peek(self->src) == '.') {
+			if (source_peek(self->src) == '.') {
 				++tok.lit_integer.number.len;
-				ir_src_next(self->src);
+				source_next(self->src);
 			}
 
 			while (true) {
-				if (isdigit(c = ir_src_peek(self->src)) || c == '.'
+				if (isdigit(c = source_peek(self->src)) || c == '.'
 					|| c == '_') {
 					++tok.lit_integer.number.len;
-					ir_src_next(self->src);
+					source_next(self->src);
 				} else if (isalpha(c)) {
 					if (tolower(c) == 'e' &&
-						((c2 = ir_src_peekn(self->src, 1)) == '+'
+						((c2 = source_peekn(self->src, 1)) == '+'
 						|| c2 == '-')) {
 						++tok.lit_integer.number.len;
-						ir_src_next(self->src);
+						source_next(self->src);
 					}
 					++tok.lit_integer.number.len;
-					ir_src_next(self->src);
+					source_next(self->src);
 				} else {
 					break;
 				}
@@ -319,8 +317,8 @@ static bool __lookahead(hir_lexer_t *self)
 			tok.lit_string = NULL;
 
 			//TODO(uael): escape + check
-			ir_src_next(self->src);
-			while ((c = ir_src_next(self->src)) != '"' && c)
+			source_next(self->src);
+			while ((c = source_next(self->src)) != '"' && c)
 				vecpush(tok.lit_string, c);
 			if (c != '"')
 				goto unexpected;
@@ -328,13 +326,13 @@ static bool __lookahead(hir_lexer_t *self)
 		}
 
 		lit_char: {
-			ir_src_next(self->src);
+			source_next(self->src);
 
 			//TODO(uael): escape + check
-			if (!isascii(c = ir_src_next(self->src)))
+			if (!isascii(c = source_next(self->src)))
 				goto unexpected;
 			tok.lit_char = c;
-			if (ir_src_next(self->src) != '\'')
+			if (source_next(self->src) != '\'')
 				goto unexpected;
 			MATCH(HIR_TOK_LIT_CHAR, 3);
 		}

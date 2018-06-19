@@ -24,21 +24,27 @@
 # SOFTWARE.
 #
 
-file(GLOB_RECURSE gutc_SRCS ${gutc_SRCS} ${CMAKE_CURRENT_LIST_DIR}/*.c)
+add_custom_target(check_il
+  COMMAND ${CMAKE_CTEST_COMMAND} -R '^test_il_.*' --timeout 2)
 
-add_executable(gutc ${gutc_SRCS})
+macro (il_register_test suite test)
+  if (NOT TARGET check_il_${suite})
+    add_custom_target(check_il_${suite}
+      COMMAND ${CMAKE_CTEST_COMMAND} -R '^test_il_${suite}_.*' --timeout 2)
+  endif ()
 
-set_property(TARGET gutc PROPERTY C_STANDARD 99)
+  set(name ${suite}_${test})
 
-target_link_libraries(gutc PUBLIC Guts::libguts)
-target_compile_definitions(gutc PRIVATE COMPILE)
+  add_executable(test_il_${name} ${name}.c test.h)
+  target_link_libraries(test_il_${name} IL::libil)
 
-if (MSVC)
-  foreach (flag_var
-    CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
-    CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
-    if (${flag_var} MATCHES "/MD")
-      string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-    endif ()
-  endforeach ()
-endif ()
+  add_test(test_il_${name} test_il_${name})
+  add_dependencies(check test_il_${name})
+  add_dependencies(check_il test_il_${name})
+  add_dependencies(check_il_${suite} test_il_${name})
+  add_dependencies(test_il_${name} IL::libil)
+endmacro ()
+
+il_register_test(source virtual)
+
+il_register_test(codemap emit)

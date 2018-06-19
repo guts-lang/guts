@@ -24,33 +24,34 @@
  * SOFTWARE.
  */
 
-#include "guts/hir/fe.h"
+/*!@file ds/vector.h
+ * @author uael
+ *
+ * @addtogroup ds @{
+ */
+#ifndef __DS_VECTOR_H
+# define __DS_VECTOR_H
 
-#include "test.h"
+#include "ds/sequence.h"
 
-int main(void)
-{
-	static char __const *SRC = "int main(void)\n"
-							   "{\n"
-							   "    return \\;\n"
-							   "}\n";
-	source_t *src;
-	codemap_t fe;
-	hir_lexer_t lexer;
-	hir_tok_t *tok;
+#define __VEC_GUARD SEQGUARD
+#define __VEC_TSZ u32_t
 
-	codemap_init(&fe, NULL);
-	src = codemap_src_push(&fe, SRC, true);
+#define vecof(T) seqof(T)
 
-	hir_lexer_init(&lexer, src, &fe.diagnostics);
-	while ((tok = hir_lexer_next(&lexer))) {
-		printf("%u\n", tok->kind);
-	}
+#define vecdtor(v) seqdtor(v, __VEC_GUARD, __VEC_TSZ)
+#define veclen(v) seqlen(v, __VEC_TSZ)
+#define veccap(v) seqcap(v, __VEC_TSZ)
+#define vecempty(v) seqempty(v, __VEC_TSZ)
+#define vecbeg(v) seqbeg(v)
+#define vecend(v) seqend(v, __VEC_TSZ)
+#define vecback(v) seqback(v, __VEC_TSZ)
+#define vecat(v, i) seqat(v, i)
+#define vecgrow(v, n) seqgrow(v, n, __VEC_GUARD, __VEC_TSZ)
+#define vecnpush(v, items, n) seqnpush(v, items, n, __VEC_GUARD, __VEC_TSZ)
+#define vecpush(v, item) seqpush(v, item, __VEC_GUARD, __VEC_TSZ)
+#define vecnshift(v, items, n) seqnshift(v, items, n, __VEC_GUARD, __VEC_TSZ)
+#define vecshift(v, item) seqshift(v, item, __VEC_GUARD, __VEC_TSZ)
 
-	hir_lexer_dtor(&lexer);
-
-	codemap_emit(&fe, stdout);
-	codemap_dtor(&fe);
-	hir_lexer_dtor(&lexer);
-	return 0;
-}
+#endif /* !__DS_VECTOR_H */
+/*!@} */

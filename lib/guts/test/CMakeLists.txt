@@ -36,13 +36,13 @@ macro (guts_register_test suite test)
   set(name ${suite}_${test})
 
   add_executable(test_guts_${name} ${name}.c test.h)
-  target_link_libraries(test_guts_${name} guts)
+  target_link_libraries(test_guts_${name} Guts::libguts)
 
   add_test(test_guts_${name} test_guts_${name})
   add_dependencies(check test_guts_${name})
   add_dependencies(check_guts test_guts_${name})
   add_dependencies(check_guts_${suite} test_guts_${name})
-  add_dependencies(test_guts_${name} guts)
+  add_dependencies(test_guts_${name} Guts::libguts)
 endmacro ()
 
 guts_register_test(hir_fe lex)

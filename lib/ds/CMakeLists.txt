@@ -24,15 +24,20 @@
 # SOFTWARE.
 #
 
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+project(DS VERSION 0.0.1 LANGUAGES C)
+
+list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake)
+
+include(GNUInstallDirs)
 include(CheckIncludeFile)
 include(CheckFunctionExists)
+include(CMakePackageConfigHelpers)
 
 ## ************************************************************************** ##
 # Options
 ##
-option(GUTS_CHECK    "Enable libguts testing" ON)
-option(GUTS_COVERAGE "Enable libguts coverage" OFF)
-option(GUTS_ASAN     "Enable libguts address sanitizer" OFF)
+option(${PROJECT_NAME}_CHECK "Enable libwrap testing" ON)
 
 ## ************************************************************************** ##
 # Dependencies
@@ -40,78 +45,78 @@ option(GUTS_ASAN     "Enable libguts address sanitizer" OFF)
 if (NOT TARGET Wrap::libwrap)
   find_package(Wrap 0.0.1 REQUIRED COMPONENT libwrap)
 endif()
-if (NOT TARGET Termcolor::libtermcolor)
-  find_package(Termcolor 0.0.1 REQUIRED COMPONENT libtermcolor)
-endif()
-if (NOT TARGET DS::libds)
-  find_package(DS 0.0.1 REQUIRED COMPONENT libds)
-endif()
-if (NOT TARGET IL::libil)
-  find_package(IL 0.0.1 REQUIRED COMPONENT libil)
-endif()
 
 ## ************************************************************************** ##
 # Project directories definition
 ##
-set(__INC_DIR  ${CMAKE_CURRENT_LIST_DIR}/include)
-set(__SRC_DIR  ${CMAKE_CURRENT_LIST_DIR}/src)
-set(__TEST_DIR ${CMAKE_CURRENT_LIST_DIR}/test)
+set(__INC_DIR     ${CMAKE_CURRENT_LIST_DIR}/include)
+set(__TEST_DIR    ${CMAKE_CURRENT_LIST_DIR}/test)
+set(__INC_INSDIR  ${CMAKE_INSTALL_INCLUDEDIR})
+set(__LIB_INSDIR  ${CMAKE_INSTALL_LIBDIR})
+set(__CONF_INSDIR ${__LIB_INSDIR}/cmake/${PROJECT_NAME})
 
 ## ************************************************************************** ##
 # Targets
 ##
-set(__TARGET_NAME guts)
+set(__TARGET_NAME ds)
 set(__TARGET lib${__TARGET_NAME})
 list(APPEND TARS ${__TARGET})
+
+check_function_exists(bzero   HAS_BZERO)
+check_function_exists(memcpy  HAS_MEMCPY)
+check_function_exists(memmove HAS_MEMMOVE)
 
 set(CONF_H ${CMAKE_BINARY_DIR}/include/${__TARGET_NAME}/conf.h)
 configure_file(${__INC_DIR}/${__TARGET_NAME}/conf.h.in ${CONF_H} @ONLY)
 
 file(GLOB_RECURSE __HDRS ${CONF_H} ${__INC_DIR}/*.h)
 
-add_library(${__TARGET} ${__HDRS}
-  ${__SRC_DIR}/hir/fe.c
-  ${__SRC_DIR}/hir.c)
-add_library(Guts::${__TARGET} ALIAS ${__TARGET})
-set_target_properties(${__TARGET} PROPERTIES
-  C_STANDARD 90 OUTPUT_NAME "${__TARGET_NAME}")
+add_library(${__TARGET} INTERFACE)
+add_library(${PROJECT_NAME}::${__TARGET} ALIAS ${__TARGET})
 
-target_link_libraries(${__TARGET}
-  PUBLIC
-    Wrap::libwrap
-    Termcolor::libtermcolor
-    DS::libds
-    IL::libil)
-target_compile_definitions(${__TARGET} PRIVATE API_COMPILE)
+target_link_libraries(${__TARGET} INTERFACE Wrap::libwrap)
 target_include_directories(${__TARGET}
-  PRIVATE ${__SRC_DIR}
-  PUBLIC
+  INTERFACE
+    $<INSTALL_INTERFACE:${__INC_INSDIR}>
     $<BUILD_INTERFACE:${__INC_DIR}>
     $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>)
-if (MSVC)
-  target_compile_definitions(${__TARGET} PRIVATE _CRT_SECURE_NO_WARNINGS)
-  target_compile_options(${__TARGET} PRIVATE /Oy /W3)
-else ()
-  target_compile_options(${__TARGET}
-    PRIVATE
-      -Wall -Werror -Wextra
-      -ansi -fomit-frame-pointer
-      -Wno-missing-field-initializers
-      $<$<BOOL:${GUTS_COVERAGE}>:--coverage>
-      $<$<BOOL:${GUTS_ASAN}>:-fsanitize=address>)
-  target_link_libraries(${__TARGET}
-    PRIVATE
-      $<$<BOOL:${GUTS_ASAN}>:-fsanitize=address>
-      $<$<BOOL:${GUTS_ASAN}>:-fno-omit-frame-pointer>)
-endif ()
+
+
+install(FILES ${CONF_H} DESTINATION ${__INC_INSDIR}/${__TARGET_NAME})
+install(DIRECTORY ${__INC_DIR}/${__TARGET_NAME} DESTINATION ${__INC_INSDIR})
 
 ## ************************************************************************** ##
 # Testing
 ##
-if (GUTS_CHECK AND EXISTS ${__TEST_DIR})
+if (${PROJECT_NAME}_CHECK AND EXISTS ${__TEST_DIR})
   if (NOT TARGET check)
     enable_testing()
     add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --timeout 2)
   endif ()
   add_subdirectory(${__TEST_DIR})
 endif ()
+
+## ************************************************************************** ##
+# Installation
+##
+install(TARGETS ${TARS} EXPORT ${PROJECT_NAME}Targets
+  LIBRARY DESTINATION ${__LIB_INSDIR}
+  ARCHIVE DESTINATION ${__LIB_INSDIR})
+install(EXPORT ${PROJECT_NAME}Targets FILE ${PROJECT_NAME}Targets.cmake
+  NAMESPACE ${PROJECT_NAME}::
+  DESTINATION ${__CONF_INSDIR})
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+  VERSION ${PROJECT_VERSION} COMPATIBILITY AnyNewerVersion)
+configure_package_config_file(
+  ${CMAKE_CURRENT_LIST_DIR}/cmake/Config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+  INSTALL_DESTINATION ${__CONF_INSDIR})
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+  DESTINATION ${__CONF_INSDIR})
+export(EXPORT ${PROJECT_NAME}Targets
+  FILE ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake
+  NAMESPACE ${PROJECT_NAME}::)
+export(PACKAGE ${PROJECT_NAME})

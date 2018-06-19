@@ -24,33 +24,25 @@
  * SOFTWARE.
  */
 
-#include "guts/hir/fe.h"
+/*!@file il/loc.h
+ * @author uael
+ *
+ * @addtogroup il.loc @{
+ */
+#ifndef __IL_LOC_H
+# define __IL_LOC_H
 
-#include "test.h"
+#include <ds/vector.h>
 
-int main(void)
-{
-	static char __const *SRC = "int main(void)\n"
-							   "{\n"
-							   "    return \\;\n"
-							   "}\n";
-	source_t *src;
-	codemap_t fe;
-	hir_lexer_t lexer;
-	hir_tok_t *tok;
+typedef struct {
+	u32_t raw;
+	u32_t col;
+	u32_t off;
+	u32_t src;
+} loc_t;
 
-	codemap_init(&fe, NULL);
-	src = codemap_src_push(&fe, SRC, true);
+__api void il_loc_init(loc_t *self);
+__api void il_loc_shift(loc_t *self, char ch, vecof(u32_t)*lines);
 
-	hir_lexer_init(&lexer, src, &fe.diagnostics);
-	while ((tok = hir_lexer_next(&lexer))) {
-		printf("%u\n", tok->kind);
-	}
-
-	hir_lexer_dtor(&lexer);
-
-	codemap_emit(&fe, stdout);
-	codemap_dtor(&fe);
-	hir_lexer_dtor(&lexer);
-	return 0;
-}
+#endif /* !__IL_LOC_H */
+/*!@} */

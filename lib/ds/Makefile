@@ -24,21 +24,55 @@
 # SOFTWARE.
 #
 
-file(GLOB_RECURSE gutc_SRCS ${gutc_SRCS} ${CMAKE_CURRENT_LIST_DIR}/*.c)
+.SILENT:
+.DEFAULT_GOAL := conf
+.PHONY: clean conf debug dev fclean install re reconf san
 
-add_executable(gutc ${gutc_SRCS})
+BUILD_TYPE ?= Release
+BUILD_DIR ?= build/$(BUILD_TYPE)
+BUILD_PROJ_DIR = $(BUILD_DIR)/CMakeFiles
 
-set_property(TARGET gutc PROPERTY C_STANDARD 99)
+CMAKE ?= cmake
+CMAKE_FLAGS += -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
+CMAKE_G_FLAGS ?= -j8
 
-target_link_libraries(gutc PUBLIC Guts::libguts)
-target_compile_definitions(gutc PRIVATE COMPILE)
+ifeq (1,$(VERBOSE))
+  CMAKE_FLAGS += -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+  CMAKE_G_FLAGS += VERBOSE=1
+endif
 
-if (MSVC)
-  foreach (flag_var
-    CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
-    CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
-    if (${flag_var} MATCHES "/MD")
-      string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-    endif ()
-  endforeach ()
-endif ()
+ifeq (1,$(DS_TESTING))
+  CMAKE_FLAGS += -DDS_TESTING:BOOL=ON
+else
+  ifeq (0,$(DS_TESTING))
+    CMAKE_FLAGS += -DDS_TESTING:BOOL=OFF
+  endif
+endif
+
+$(BUILD_DIR) conf:
+	mkdir -p $(BUILD_DIR); cd $(BUILD_DIR) && $(CMAKE) $(CMAKE_FLAGS) $(CURDIR)
+
+reconf: mrproper conf
+
+debug dev:
+	$(MAKE) BUILD_TYPE=Debug
+
+san:
+	$(MAKE) BUILD_TYPE=San
+
+clean:
+	[ -d $(BUILD_PROJ_DIR) ] && find $(BUILD_PROJ_DIR) -name "*.o" -delete
+
+fclean:
+	[ -d $(BUILD_DIR) ] && find $(BUILD_DIR) -name "*.o" -delete
+
+mrproper:
+	$(RM) -rf $(BUILD_DIR)
+
+re: fclean all
+
+install:
+	$(CMAKE) --build $(BUILD_DIR) --target install
+
+%: $(BUILD_DIR)
+	$(CMAKE) --build $(BUILD_DIR) --target $@ -- $(CMAKE_G_FLAGS)

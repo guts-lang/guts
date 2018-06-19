@@ -25,6 +25,7 @@
 #
 
 add_subdirectory(wrap)
+add_subdirectory(ds)
+add_subdirectory(termcolor)
+add_subdirectory(il)
 add_subdirectory(guts)
-add_subdirectory(ir)
-add_subdirectory(termc)

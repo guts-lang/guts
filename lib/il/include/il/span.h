@@ -24,33 +24,22 @@
  * SOFTWARE.
  */
 
-#include "guts/hir/fe.h"
+/*!@file il/span.h
+ * @author uael
+ *
+ * @addtogroup il.span @{
+ */
+#ifndef __IL_SPAN_H
+# define __IL_SPAN_H
 
-#include "test.h"
+#include "il/loc.h"
 
-int main(void)
-{
-	static char __const *SRC = "int main(void)\n"
-							   "{\n"
-							   "    return \\;\n"
-							   "}\n";
-	source_t *src;
-	codemap_t fe;
-	hir_lexer_t lexer;
-	hir_tok_t *tok;
+typedef struct {
+	loc_t start;
+	u16_t length;
+} span_t;
 
-	codemap_init(&fe, NULL);
-	src = codemap_src_push(&fe, SRC, true);
+__api span_t span(loc_t start, u16_t length);
 
-	hir_lexer_init(&lexer, src, &fe.diagnostics);
-	while ((tok = hir_lexer_next(&lexer))) {
-		printf("%u\n", tok->kind);
-	}
-
-	hir_lexer_dtor(&lexer);
-
-	codemap_emit(&fe, stdout);
-	codemap_dtor(&fe);
-	hir_lexer_dtor(&lexer);
-	return 0;
-}
+#endif /* !__IL_SPAN_H */
+/*!@} */

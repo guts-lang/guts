@@ -24,33 +24,39 @@
  * SOFTWARE.
  */
 
-#include "guts/hir/fe.h"
+#include "il/source.h"
 
 #include "test.h"
 
 int main(void)
 {
-	static char __const *SRC = "int main(void)\n"
-							   "{\n"
-							   "    return \\;\n"
-							   "}\n";
-	source_t *src;
-	codemap_t fe;
-	hir_lexer_t lexer;
-	hir_tok_t *tok;
+	static char __const *SRC = "Hello world !\nHello world !\nHello world !\n";
+	source_t source;
+	char c, *line;
+	u32_t off, raw, col;
 
-	codemap_init(&fe, NULL);
-	src = codemap_src_push(&fe, SRC, true);
+	ASSERT_EQ(0, source_init(&source, SRC, true));
+	off = 0;
+	raw = 1;
+	col = 1;
 
-	hir_lexer_init(&lexer, src, &fe.diagnostics);
-	while ((tok = hir_lexer_next(&lexer))) {
-		printf("%u\n", tok->kind);
+	while ((c = source_next(&source))) {
+		ASSERT_EQ(SRC[off++], c);
+
+		if (c != '\n') ++col;
+		else {
+			++raw;
+			col = 1;
+		}
+
+		ASSERT_EQ(raw, source.loc.raw);
+		ASSERT_EQ(col, source.loc.col);
+		ASSERT_EQ(off, source.loc.off);
 	}
 
-	hir_lexer_dtor(&lexer);
-
-	codemap_emit(&fe, stdout);
-	codemap_dtor(&fe);
-	hir_lexer_dtor(&lexer);
+	ASSERT_EQ(4, veclen(source.lines));
+	line = source_getln(&source, 1);
+	ASSERT(line);
+	source_dtor(&source);
 	return 0;
 }

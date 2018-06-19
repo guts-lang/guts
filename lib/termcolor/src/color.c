@@ -24,33 +24,28 @@
  * SOFTWARE.
  */
 
-#include "guts/hir/fe.h"
+#include "termcolor/color.h"
 
-#include "test.h"
-
-int main(void)
+FORCEINLINE
+color_t color(enum color color)
 {
-	static char __const *SRC = "int main(void)\n"
-							   "{\n"
-							   "    return \\;\n"
-							   "}\n";
-	source_t *src;
-	codemap_t fe;
-	hir_lexer_t lexer;
-	hir_tok_t *tok;
+	return (color_t) {
+		color
+	};
+}
 
-	codemap_init(&fe, NULL);
-	src = codemap_src_push(&fe, SRC, true);
+FORCEINLINE
+color_t color_ansi256(u8_t ansi)
+{
+	return (color_t) {
+		.ansi256 = { TERMCOLOR_ANSI256, ansi }
+	};
+}
 
-	hir_lexer_init(&lexer, src, &fe.diagnostics);
-	while ((tok = hir_lexer_next(&lexer))) {
-		printf("%u\n", tok->kind);
-	}
-
-	hir_lexer_dtor(&lexer);
-
-	codemap_emit(&fe, stdout);
-	codemap_dtor(&fe);
-	hir_lexer_dtor(&lexer);
-	return 0;
+FORCEINLINE
+color_t color_rgb(u8_t r, u8_t g, u8_t b)
+{
+	return (color_t) {
+		.rgb = { TERMCOLOR_RGB, r, g, b }
+	};
 }

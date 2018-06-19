@@ -24,33 +24,37 @@
  * SOFTWARE.
  */
 
-#include "guts/hir/fe.h"
+/*!@file ds/deque.h
+ * @author uael
+ *
+ * @addtogroup ds @{
+ */
+#ifndef __DS_DEQUE_H
+# define __DS_DEQUE_H
 
-#include "test.h"
+#include "ds/sequence.h"
 
-int main(void)
-{
-	static char __const *SRC = "int main(void)\n"
-							   "{\n"
-							   "    return \\;\n"
-							   "}\n";
-	source_t *src;
-	codemap_t fe;
-	hir_lexer_t lexer;
-	hir_tok_t *tok;
+#define __DEQ_CUR (SEQGUARD + 1)
+#define __DEQ_GUARD __DEQ_CUR
+#define __DEQ_TSZ u32_t
 
-	codemap_init(&fe, NULL);
-	src = codemap_src_push(&fe, SRC, true);
+#define __deqcur(d) SEQPROP(d, __DEQ_CUR, __DEQ_TSZ)
 
-	hir_lexer_init(&lexer, src, &fe.diagnostics);
-	while ((tok = hir_lexer_next(&lexer))) {
-		printf("%u\n", tok->kind);
-	}
+#define deqof(T) seqof(T)
 
-	hir_lexer_dtor(&lexer);
+#define deqdtor(d) seqdtor(d, __DEQ_GUARD, __DEQ_TSZ)
+#define deqcur(d) SEQPROP_SAFE(d, __DEQ_CUR, __DEQ_TSZ)
+#define deqlen(d) ((d) ? __seqlen(d, __DEQ_TSZ) - __deqcur(d) : (__DEQ_TSZ)0)
+#define deqcap(d) seqcap(d, __DEQ_TSZ)
+#define deqempty(d) ((bool)(deqlen(d) == 0))
+#define deqbeg(d) (seqbeg(d) + __deqcur(d))
+#define deqend(d) seqend(d, __DEQ_TSZ)
+#define deqback(d) seqback(d, __DEQ_TSZ)
+#define deqat(d, i) seqat(d, (i) + __deqcur(d))
+#define deqgrow(d, n) seqgrow(d, n, __DEQ_GUARD, __DEQ_TSZ)
+#define deqnpush(d, items, n) seqnpush(d, items, n, __DEQ_GUARD, __DEQ_TSZ)
+#define deqpush(d, item) seqpush(d, item, __DEQ_GUARD, __DEQ_TSZ)
+#define dequsht(d) ((d) ? ((__deqcur(d) = __deqcur(d) + 1), deqat(d, -1)) : NULL)
 
-	codemap_emit(&fe, stdout);
-	codemap_dtor(&fe);
-	hir_lexer_dtor(&lexer);
-	return 0;
-}
+#endif /* !__DS_DEQUE_H */
+/*!@} */

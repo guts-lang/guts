@@ -24,33 +24,44 @@
  * SOFTWARE.
  */
 
-#include "guts/hir/fe.h"
+#include "il/codemap.h"
 
 #include "test.h"
 
 int main(void)
 {
-	static char __const *SRC = "int main(void)\n"
-							   "{\n"
-							   "    return \\;\n"
-							   "}\n";
+	static char __const *SRC = "\n"
+		"(define test 123)\n"
+		"(+ test \"\")\n"
+		"()\n"
+		"\n";
 	source_t *src;
-	codemap_t fe;
-	hir_lexer_t lexer;
-	hir_tok_t *tok;
+	codemap_t cm;
+	diag_t err;
+	loc_t loc, loc2;
 
-	codemap_init(&fe, NULL);
-	src = codemap_src_push(&fe, SRC, true);
+	codemap_init(&cm, NULL);
+	codemap_src_push(&cm, SRC, true);
+	src = vecat(cm.sources, 0);
 
-	hir_lexer_init(&lexer, src, &fe.diagnostics);
-	while ((tok = hir_lexer_next(&lexer))) {
-		printf("%u\n", tok->kind);
-	}
+	while (source_next(src));
 
-	hir_lexer_dtor(&lexer);
+	loc = source_locate(src, 3, 9);
+	diag_error(&err, "Unexpected type in `+' application");
+	diag_labelize(&err, true, span(loc, 2), "Expected `%s' but got `%s'",
+		"integer", "string");
+	diag_labelize(&err, false, span(loc, 2), "Expected `%s' but got `%s'",
+		"integer", "string");
+	codemap_diagnostic(&cm, err);
+	loc2 = source_locate(src, 3, 1);
+	codemap_diagnostic(&cm, diag(
+		IL_SEVERITY_WARN, "`+` has no effect unless its result is used",
+		1, (diag_label_t[]) {
+			diag_label(true, span(loc2, 11), NULL),
+		}
+	));
+	codemap_emit(&cm, stdout);
+	codemap_dtor(&cm);
 
-	codemap_emit(&fe, stdout);
-	codemap_dtor(&fe);
-	hir_lexer_dtor(&lexer);
 	return 0;
 }

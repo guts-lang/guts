@@ -86,7 +86,7 @@ set_target_properties(${__TARGET} PROPERTIES
 
 target_compile_definitions(${__TARGET} PRIVATE API_COMPILE)
 target_include_directories(${__TARGET}
-  PRIVATE ${__INC_DIR}
+  PRIVATE ${__SRC_DIR}
   PUBLIC
     $<INSTALL_INTERFACE:${__INC_INSDIR}>
     $<BUILD_INTERFACE:${__INC_DIR}>

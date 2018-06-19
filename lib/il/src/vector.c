@@ -24,33 +24,5 @@
  * SOFTWARE.
  */
 
-#include "guts/hir/fe.h"
+#include "il/vector.h"
 
-#include "test.h"
-
-int main(void)
-{
-	static char __const *SRC = "int main(void)\n"
-							   "{\n"
-							   "    return \\;\n"
-							   "}\n";
-	source_t *src;
-	codemap_t fe;
-	hir_lexer_t lexer;
-	hir_tok_t *tok;
-
-	codemap_init(&fe, NULL);
-	src = codemap_src_push(&fe, SRC, true);
-
-	hir_lexer_init(&lexer, src, &fe.diagnostics);
-	while ((tok = hir_lexer_next(&lexer))) {
-		printf("%u\n", tok->kind);
-	}
-
-	hir_lexer_dtor(&lexer);
-
-	codemap_emit(&fe, stdout);
-	codemap_dtor(&fe);
-	hir_lexer_dtor(&lexer);
-	return 0;
-}

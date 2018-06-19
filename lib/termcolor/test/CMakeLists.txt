@@ -24,21 +24,25 @@
 # SOFTWARE.
 #
 
-file(GLOB_RECURSE gutc_SRCS ${gutc_SRCS} ${CMAKE_CURRENT_LIST_DIR}/*.c)
+add_custom_target(check_termc
+  COMMAND ${CMAKE_CTEST_COMMAND} -R '^test_termcolor_.*' --timeout 2)
 
-add_executable(gutc ${gutc_SRCS})
+macro (termcolor_register_test suite test)
+  if (NOT TARGET check_termcolor_${suite})
+    add_custom_target(check_termcolor_${suite}
+      COMMAND ${CMAKE_CTEST_COMMAND} -R '^test_termcolor_${suite}_.*' --timeout 2)
+  endif ()
 
-set_property(TARGET gutc PROPERTY C_STANDARD 99)
+  set(name ${suite}_${test})
 
-target_link_libraries(gutc PUBLIC Guts::libguts)
-target_compile_definitions(gutc PRIVATE COMPILE)
+  add_executable(test_termcolor_${name} ${name}.c test.h)
+  target_link_libraries(test_termcolor_${name} Termcolor::libtermcolor)
 
-if (MSVC)
-  foreach (flag_var
-    CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
-    CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
-    if (${flag_var} MATCHES "/MD")
-      string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-    endif ()
-  endforeach ()
-endif ()
+  add_test(test_termcolor_${name} test_termcolor_${name})
+  add_dependencies(check test_termcolor_${name})
+  add_dependencies(check_termc test_termcolor_${name})
+  add_dependencies(check_termcolor_${suite} test_termcolor_${name})
+  add_dependencies(test_termcolor_${name} Termcolor::libtermcolor)
+endmacro ()
+
+termcolor_register_test(term set)

@@ -1,0 +1,13 @@
+@PACKAGE_INIT@
+
+if (NOT TARGET Wrap::libwrap)
+  find_package(Wrap 0.0.1 REQUIRED COMPONENT libwrap)
+endif()
+if (NOT TARGET Termcolor::libtermcolor)
+  find_package(Termcolor 0.0.1 REQUIRED COMPONENT libtermcolor)
+endif()
+if (NOT TARGET DS::libds)
+  find_package(DS 0.0.1 REQUIRED COMPONENT libds)
+endif()
+
+include(${CMAKE_CURRENT_LIST_DIR}/ILTargets.cmake)

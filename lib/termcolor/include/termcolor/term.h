@@ -24,33 +24,31 @@
  * SOFTWARE.
  */
 
-#include "guts/hir/fe.h"
+/*!@file termcolor/term.h
+ * @author uael
+ *
+ * @addtogroup termcolor @{
+ */
+#ifndef __TERMCOLOR_TERM_H
+# define __TERMCOLOR_TERM_H
 
-#include "test.h"
+#include "termcolor/color.h"
 
-int main(void)
-{
-	static char __const *SRC = "int main(void)\n"
-							   "{\n"
-							   "    return \\;\n"
-							   "}\n";
-	source_t *src;
-	codemap_t fe;
-	hir_lexer_t lexer;
-	hir_tok_t *tok;
+#if defined(CC_MSVC)
+# include <io.h>
+#elif defined(HAS_UNISTD_H)
+# include <unistd.h>
+#else
+# error "Unable to impl termcolor"
+#endif
 
-	codemap_init(&fe, NULL);
-	src = codemap_src_push(&fe, SRC, true);
+#include <stdio.h>
 
-	hir_lexer_init(&lexer, src, &fe.diagnostics);
-	while ((tok = hir_lexer_next(&lexer))) {
-		printf("%u\n", tok->kind);
-	}
+__api FILE *termcolor_set(FILE *stream, color_spec_t spec);
+__api FILE *termcolor_setfg(FILE *stream, color_t color);
+__api FILE *termcolor_setbg(FILE *stream, color_t color);
+__api FILE *termcolor_setfl(FILE *stream, u8_t flags);
+__api FILE *termcolor_reset(FILE *stream);
 
-	hir_lexer_dtor(&lexer);
-
-	codemap_emit(&fe, stdout);
-	codemap_dtor(&fe);
-	hir_lexer_dtor(&lexer);
-	return 0;
-}
+#endif /* !__TERMCOLOR_TERM_H */
+/*!@} */

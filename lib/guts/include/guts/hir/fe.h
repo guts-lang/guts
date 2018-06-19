@@ -32,7 +32,8 @@
 #ifndef __GUTS_HIR_FE_H
 # define __GUTS_HIR_FE_H
 
-#include <ir.h>
+#include <ds/deque.h>
+#include <il/codemap.h>
 
 #include "guts/conf.h"
 
@@ -167,7 +168,7 @@ typedef enum {
 
 typedef struct {
 	tok_kind_t kind: 8;
-	ir_span_t span;
+	span_t span;
 
 	union {
 		char lit_char;
@@ -179,18 +180,18 @@ typedef struct {
 	};
 } hir_tok_t;
 
-__api void hir_tok_init(hir_tok_t *token, ir_loc_t start, u16_t length);
+__api void hir_tok_init(hir_tok_t *token, loc_t start, u16_t length);
 __api void hir_tok_dtor(hir_tok_t *token);
 
 typedef struct {
 	bool eof;
-	ir_src_t *src;
+	source_t *src;
 	deqof(hir_tok_t) lookahead;
-	vecof(ir_diag_t) *diags;
+	vecof(diag_t) *diags;
 } hir_lexer_t;
 
-__api void hir_lexer_init(hir_lexer_t *self, ir_src_t *src,
-						  vecof(ir_diag_t) *diags);
+__api void hir_lexer_init(hir_lexer_t *self, source_t *src,
+						  vecof(diag_t) *diags);
 __api void hir_lexer_dtor(hir_lexer_t *self);
 __api hir_tok_t *hir_lexer_peek(hir_lexer_t *self);
 __api hir_tok_t *hir_lexer_peekn(hir_lexer_t *self, u8_t n);

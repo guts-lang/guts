@@ -24,33 +24,37 @@
  * SOFTWARE.
  */
 
-#include "guts/hir/fe.h"
+/*!@file il/source.h
+ * @author uael
+ *
+ * @addtogroup il.source @{
+ */
+#ifndef __IL_SOURCE_H
+# define __IL_SOURCE_H
 
-#include "test.h"
+#include <ds/vector.h>
 
-int main(void)
-{
-	static char __const *SRC = "int main(void)\n"
-							   "{\n"
-							   "    return \\;\n"
-							   "}\n";
-	source_t *src;
-	codemap_t fe;
-	hir_lexer_t lexer;
-	hir_tok_t *tok;
+#include "il/span.h"
 
-	codemap_init(&fe, NULL);
-	src = codemap_src_push(&fe, SRC, true);
+typedef struct {
+	bool virtual;
+	char __const *filename;
+	char __const *src;
+	size_t srclen;
+	loc_t loc;
+	vecof(u32_t) lines;
+} source_t;
 
-	hir_lexer_init(&lexer, src, &fe.diagnostics);
-	while ((tok = hir_lexer_next(&lexer))) {
-		printf("%u\n", tok->kind);
-	}
+__api int source_init(source_t *self, char __const *str, bool virtual);
+__api void source_dtor(source_t *self);
+__api char source_peek(source_t *self);
+__api char source_peekn(source_t *self, u8_t n);
+__api char source_next(source_t *self);
+__api char *source_str(source_t *self);
+__api u32_t source_getoff(source_t *self, u32_t line);
+__api char *source_getln(source_t *self, u32_t line);
+__api loc_t source_locate(source_t *self, u32_t line, u32_t col);
+__api loc_t source_loc(source_t *self);
 
-	hir_lexer_dtor(&lexer);
-
-	codemap_emit(&fe, stdout);
-	codemap_dtor(&fe);
-	hir_lexer_dtor(&lexer);
-	return 0;
-}
+#endif /* !__IL_SOURCE_H */
+/*!@} */
