@@ -37,10 +37,7 @@
 
 #include "guts/conf.h"
 
-typedef struct {
-	char __const *begin;
-	usize_t len;
-} hir_ident_t;
+typedef char __const *hir_ident_t;
 
 typedef enum {
 	HIR_INTEGER_UNRESOLVED = 0,
@@ -59,11 +56,7 @@ typedef struct {
 	hit_integer_base_t base;
 	hit_integer_size_t size;
 	bool unsign;
-
-	struct {
-		char __const *begin;
-		usize_t len;
-	} number;
+	char __const * number;
 } hir_integer_t;
 
 typedef enum {
@@ -81,11 +74,7 @@ typedef enum {
 typedef struct {
 	hit_float_base_t base;
 	hit_float_size_t size;
-
-	struct {
-		char __const *begin;
-		usize_t len;
-	} number;
+	char __const * number;
 } hir_float_t;
 
 typedef enum {
@@ -117,6 +106,7 @@ typedef enum {
 	HIR_TOK_NAMESPACE, /* namespace */
 	HIR_TOK_IF,        /* if */
 	HIR_TOK_ELSE,      /* else */
+	HIR_TOK_RETURN,    /* return */
 
 	/* Symbol */
 	HIR_TOK_COLON,     /* : */

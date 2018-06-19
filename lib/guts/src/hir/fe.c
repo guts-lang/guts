@@ -25,6 +25,8 @@
  */
 
 #include <ctype.h>
+#include <il/loc.h>
+#include <guts.h>
 
 #include "guts/hir/fe.h"
 
@@ -221,96 +223,95 @@ static bool __lookahead(hir_lexer_t *self)
 		}
 
 		ident: {
-			tok.ident.begin = source_str(self->src);
-			tok.ident.len = 1;
+			u16_t len;
+			
+			tok.ident = source_str(self->src);
 
 			source_next(self->src);
-			while (isalnum(c = source_peek(self->src)) || c == '_') {
-				++tok.ident.len;
+			while (isalnum(c = source_peek(self->src)) || c == '_')
 				source_next(self->src);
-			}
 
-			switch (tok.ident.len) {
+			//TODO(uael): check OF
+			len = (u16_t) (source_loc(self->src).off - start.off);
+			switch (len) {
 				case 2:
-					if (!memcmp("i8", tok.ident.begin, 2))
-						MATCH(HIR_TOK_I8, tok.ident.len);
-					else if (!memcmp("u8", tok.ident.begin, 2))
-						MATCH(HIR_TOK_U8, tok.ident.len);
-					else if (!memcmp("if", tok.ident.begin, 2))
-						MATCH(HIR_TOK_IF, tok.ident.len);
+					if (!memcmp("i8", tok.ident, 2))
+						MATCH(HIR_TOK_I8, len);
+					else if (!memcmp("u8", tok.ident, 2))
+						MATCH(HIR_TOK_U8, len);
+					else if (!memcmp("if", tok.ident, 2))
+						MATCH(HIR_TOK_IF, len);
 					else break;
 				case 3:
-					if (!memcmp("i16", tok.ident.begin, 3))
-						MATCH(HIR_TOK_I16, tok.ident.len);
-					else if (!memcmp("i32", tok.ident.begin, 3))
-						MATCH(HIR_TOK_I32, tok.ident.len);
-					else if (!memcmp("i64", tok.ident.begin, 3))
-						MATCH(HIR_TOK_I64, tok.ident.len);
-					else if (!memcmp("u16", tok.ident.begin, 3))
-						MATCH(HIR_TOK_U16, tok.ident.len);
-					else if (!memcmp("u32", tok.ident.begin, 3))
-						MATCH(HIR_TOK_U32, tok.ident.len);
-					else if (!memcmp("u64", tok.ident.begin, 3))
-						MATCH(HIR_TOK_U64, tok.ident.len);
-					else if (!memcmp("f32", tok.ident.begin, 3))
-						MATCH(HIR_TOK_F32, tok.ident.len);
-					else if (!memcmp("f34", tok.ident.begin, 3))
-						MATCH(HIR_TOK_F64, tok.ident.len);
-					else if (!memcmp("use", tok.ident.begin, 3))
-						MATCH(HIR_TOK_USE, tok.ident.len);
+					if (!memcmp("i16", tok.ident, 3))
+						MATCH(HIR_TOK_I16, len);
+					else if (!memcmp("i32", tok.ident, 3))
+						MATCH(HIR_TOK_I32, len);
+					else if (!memcmp("i64", tok.ident, 3))
+						MATCH(HIR_TOK_I64, len);
+					else if (!memcmp("u16", tok.ident, 3))
+						MATCH(HIR_TOK_U16, len);
+					else if (!memcmp("u32", tok.ident, 3))
+						MATCH(HIR_TOK_U32, len);
+					else if (!memcmp("u64", tok.ident, 3))
+						MATCH(HIR_TOK_U64, len);
+					else if (!memcmp("f32", tok.ident, 3))
+						MATCH(HIR_TOK_F32, len);
+					else if (!memcmp("f34", tok.ident, 3))
+						MATCH(HIR_TOK_F64, len);
+					else if (!memcmp("use", tok.ident, 3))
+						MATCH(HIR_TOK_USE, len);
 					else break;
 				case 4:
-					if (!memcmp("char", tok.ident.begin, 4))
-						MATCH(HIR_TOK_CHAR, tok.ident.len);
-					else if (!memcmp("else", tok.ident.begin, 4))
-						MATCH(HIR_TOK_ELSE, tok.ident.len);
+					if (!memcmp("char", tok.ident, 4))
+						MATCH(HIR_TOK_CHAR, len);
+					else if (!memcmp("else", tok.ident, 4))
+						MATCH(HIR_TOK_ELSE, len);
 					else break;
 				case 6:
-					if (!memcmp("struct", tok.ident.begin, 6))
-						MATCH(HIR_TOK_STRUCT, tok.ident.len);
+					if (!memcmp("struct", tok.ident, 6))
+						MATCH(HIR_TOK_STRUCT, len);
+					else if (!memcmp("return", tok.ident, 6))
+						MATCH(HIR_TOK_RETURN, len);
 					else break;
 				case 9:
-					if (!memcmp("namespace", tok.ident.begin, 9))
-						MATCH(HIR_TOK_NAMESPACE, tok.ident.len);
+					if (!memcmp("namespace", tok.ident, 9))
+						MATCH(HIR_TOK_NAMESPACE, len);
 					else break;
 				default: break;
 			}
-			MATCH(HIR_TOK_IDENT, tok.ident.len);
+			MATCH(HIR_TOK_IDENT, len);
 		}
 
 		number: {
+			u16_t len;
 			char c2;
 
 			tok.lit_integer.base = HIR_INTEGER_UNRESOLVED;
-			tok.lit_integer.number.begin = source_str(self->src);
-			tok.lit_integer.number.len = 0;
+			tok.lit_integer.number = source_str(self->src);
 			tok.lit_integer.unsign = false;
 			tok.lit_integer.size = HIR_INTEGER_INT;
 
-			if (source_peek(self->src) == '.') {
-				++tok.lit_integer.number.len;
+			if (source_peek(self->src) == '.')
 				source_next(self->src);
-			}
 
 			while (true) {
 				if (isdigit(c = source_peek(self->src)) || c == '.'
-					|| c == '_') {
-					++tok.lit_integer.number.len;
-					source_next(self->src);
-				} else if (isalpha(c)) {
+					|| c == '_') source_next(self->src);
+				else if (isalpha(c)) {
 					if (tolower(c) == 'e' &&
 						((c2 = source_peekn(self->src, 1)) == '+'
 						|| c2 == '-')) {
-						++tok.lit_integer.number.len;
 						source_next(self->src);
 					}
-					++tok.lit_integer.number.len;
 					source_next(self->src);
 				} else {
 					break;
 				}
 			}
-			MATCH(HIR_TOK_LIT_INTEGER, tok.lit_integer.number.len);
+			//TODO(uael): check OF
+			len = (u16_t) (source_loc(self->src).off - start.off);
+			MATCH(HIR_TOK_LIT_INTEGER, len);
 		}
 
 		lit_string: {
