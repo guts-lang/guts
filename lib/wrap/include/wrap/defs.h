@@ -123,7 +123,7 @@
 #endif
 
 #if !defined(__api)
-# if defined(_MT) && defined(_DLL)
+# if defined(_MD) && defined(_DLL)
 #   if __has_declspec_attribute__(dllexport)
 #     define __export_link __declspec(dllexport)
 #   elif defined(__export)
@@ -261,14 +261,6 @@
 # endif
 #endif
 
-#if !defined(NORETURN)
-# if defined(U_DEBUG)
-#   define NORETURN
-# else
-#   define NORETURN __noreturn
-# endif
-#endif
-
 #if !defined(PURE)
 # if __has_attribute__(pure)
 #   define PURE __attribute__((__pure__))
@@ -313,7 +305,7 @@
 # if __has_attribute__(noinline)
 #   define NOINLINE __attribute__((noinline))
 # elif __has_declspec_attribute__(noinline)
-#   define NOINLINE __declspec(deprecated)
+#   define NOINLINE __declspec(noinline)
 # else
 #   define NOINLINE
 # endif
@@ -335,21 +327,6 @@
 # else
 #   define OPTNONE
 # endif
-#endif
-
-#if defined(__clang__)
-#if __has_attribute(optnone)
-#define NOT_OPTIMIZED __attribute__((optnone))
-#endif
-#elif defined(__GNUC__)
-#define GCC_VERSION                                                            \
-	(__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-#if GCC_VERSION >= 40400
-#define NOT_OPTIMIZED __attribute__((optimize("O0")))
-#endif
-#endif
-#ifndef NOT_OPTIMIZED
-#define NOT_OPTIMIZED
 #endif
 
 #if !defined(RESTRICT)
