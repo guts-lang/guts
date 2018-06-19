@@ -26,15 +26,14 @@ matrix:
     - msvc: Visual Studio 10 2010
       platform: x64
 
-before_build:
+build: off
+
+before_test:
   - cmd: md build
   - cmd: cd build
   - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=%msvc%
   - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=%msvc% Win64
   - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%configuration% ..
-
-build:
-  - cmd: cmake --build .
 
 test_script:
   - cmd: cmake --build . --target check
