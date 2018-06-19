@@ -24,4 +24,7 @@
 # SOFTWARE.
 #
 
-add_subdirectory(guts)
+add_subdirectory(wrap)
+add_subdirectory(ds)
+add_subdirectory(termcolor)
+add_subdirectory(il)
