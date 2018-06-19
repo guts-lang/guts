@@ -200,7 +200,7 @@ static bool __lookahead(hir_lexer_t *self)
 		default: {
 			if (isalpha(c) || c == '_')
 				goto ident;
-			if (isdigit(c))
+			if (isdigit(c) || (c == '.' && isdigit(ir_src_peekn(self->src, 1))))
 				goto number;
 			goto unexpected;
 		}
