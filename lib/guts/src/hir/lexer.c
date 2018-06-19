@@ -25,25 +25,8 @@
  */
 
 #include <ctype.h>
-#include <il/loc.h>
-#include <guts.h>
 
-#include "guts/hir/fe.h"
-
-void hir_tok_init(hir_tok_t *token, loc_t start, u16_t length)
-{
-	token->span = (span_t) {
-		.start = start,
-		.length = length
-	};
-}
-
-void hir_tok_dtor(hir_tok_t *token)
-{
-	if (token->kind == HIR_TOK_LIT_STRING)
-		vecdtor(token->lit_string);
-	bzero(token, sizeof(hir_tok_t));
-}
+#include "guts/hir/lexer.h"
 
 void hir_lexer_init(hir_lexer_t *self, source_t *src,
 					vecof(diag_t) *diags)

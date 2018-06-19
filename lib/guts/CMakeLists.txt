@@ -70,7 +70,9 @@ configure_file(${__INC_DIR}/${__TARGET_NAME}/conf.h.in ${CONF_H} @ONLY)
 file(GLOB_RECURSE __HDRS ${CONF_H} ${__INC_DIR}/*.h)
 
 add_library(${__TARGET} ${__HDRS}
-  ${__SRC_DIR}/hir/fe.c
+  ${__SRC_DIR}/hir/lexer.c
+  ${__SRC_DIR}/hir/literal.c
+  ${__SRC_DIR}/hir/token.c
   ${__SRC_DIR}/hir.c)
 add_library(Guts::${__TARGET} ALIAS ${__TARGET})
 set_target_properties(${__TARGET} PROPERTIES

@@ -24,15 +24,13 @@
  * SOFTWARE.
  */
 
-/*!@file guts/hir.h
- * @author uael
- *
- * @addtogroup guts.hir @{
- */
-#ifndef __GUTS_HIR_H
-# define __GUTS_HIR_H
+#include "guts/hir/literal.h"
 
-#include "guts/hir/lexer.h"
+bool hit_number_resolve(struct hir_tok *tok, vecof(diag_t) *diags)
+{
+	(void)tok;
+	(void)diags;
 
-#endif /* !__GUTS_HIR_H */
-/*!@} */
+	//TODO(uael)
+	return false;
+}

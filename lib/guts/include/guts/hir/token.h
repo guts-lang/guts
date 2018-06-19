@@ -24,58 +24,15 @@
  * SOFTWARE.
  */
 
-/*!@file guts/hir/fe.h
+/*!@file guts/hir/token.h
  * @author uael
  *
  * @addtogroup guts.hir @{
  */
-#ifndef __GUTS_HIR_FE_H
-# define __GUTS_HIR_FE_H
+#ifndef __GUTS_HIR_TOKEN_H
+# define __GUTS_HIR_TOKEN_H
 
-#include <ds/deque.h>
-#include <il/codemap.h>
-
-#include "guts/conf.h"
-
-typedef char __const *hir_ident_t;
-
-typedef enum {
-	HIR_INTEGER_UNRESOLVED = 0,
-	HIR_INTEGER_DECIMAL,
-	HIR_INTEGER_OCTAL,
-	HIR_INTEGER_HEXADECIMAL,
-} hit_integer_base_t;
-
-typedef enum {
-	HIR_INTEGER_INT,
-	HIR_INTEGER_LONG,
-	HIR_INTEGER_LLONG,
-} hit_integer_size_t;
-
-typedef struct {
-	hit_integer_base_t base;
-	hit_integer_size_t size;
-	bool unsign;
-	char __const * number;
-} hir_integer_t;
-
-typedef enum {
-	HIR_FLOAT_UNRESOLVED = 0,
-	HIR_FLOAT_DECIMAL,
-	HIR_FLOAT_HEXADECIMAL,
-} hit_float_base_t;
-
-typedef enum {
-	HIR_FLOAT_FLOAT,
-	HIR_FLOAT_DOUBLE,
-	HIR_FLOAT_LDOUBLE
-} hit_float_size_t;
-
-typedef struct {
-	hit_float_base_t base;
-	hit_float_size_t size;
-	char __const * number;
-} hir_float_t;
+#include "guts/hir/literal.h"
 
 typedef enum {
 	HIR_TOK_EOF = 0,
@@ -156,7 +113,7 @@ typedef enum {
 
 } tok_kind_t;
 
-typedef struct {
+typedef struct hir_tok {
 	tok_kind_t kind: 8;
 	span_t span;
 
@@ -164,7 +121,7 @@ typedef struct {
 		char lit_char;
 		hir_integer_t lit_integer;
 		hir_float_t lit_float;
-		vecof(char) lit_string;
+		hir_string_t lit_string;
 		hir_ident_t ident;
 		tok_kind_t syntax;
 	};
@@ -172,20 +129,6 @@ typedef struct {
 
 __api void hir_tok_init(hir_tok_t *token, loc_t start, u16_t length);
 __api void hir_tok_dtor(hir_tok_t *token);
-
-typedef struct {
-	bool eof;
-	source_t *src;
-	deqof(hir_tok_t) lookahead;
-	vecof(diag_t) *diags;
-} hir_lexer_t;
-
-__api void hir_lexer_init(hir_lexer_t *self, source_t *src,
-						  vecof(diag_t) *diags);
-__api void hir_lexer_dtor(hir_lexer_t *self);
-__api hir_tok_t *hir_lexer_peek(hir_lexer_t *self);
-__api hir_tok_t *hir_lexer_peekn(hir_lexer_t *self, u8_t n);
-__api hir_tok_t *hir_lexer_next(hir_lexer_t *self);
 
 #endif /* !__GUTS_HIR_FE_H */
 /*!@} */

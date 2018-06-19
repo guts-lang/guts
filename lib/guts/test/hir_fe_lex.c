@@ -24,7 +24,7 @@
  * SOFTWARE.
  */
 
-#include "guts/hir/fe.h"
+#include "guts/hir/lexer.h"
 
 #include "test.h"
 
@@ -51,6 +51,7 @@ int main(void)
 	ASSERT_EQ(1, tok->span.start.col);
 	ASSERT_EQ(1, tok->span.start.raw);
 	ASSERT_EQ(0, tok->span.start.off);
+	hir_tok_dtor(tok);
 
 	ASSERT(tok = hir_lexer_next(&lexer));
 	ASSERT_EQ(HIR_TOK_IDENT, tok->kind);
@@ -59,6 +60,7 @@ int main(void)
 	ASSERT_EQ(1, tok->span.start.raw);
 	ASSERT_EQ(3, tok->span.start.off);
 	ASSERT_EQ(0, memcmp("main", tok->ident, tok->span.length));
+	hir_tok_dtor(tok);
 
 	ASSERT(tok = hir_lexer_next(&lexer));
 	ASSERT_EQ(HIR_TOK_LPAR, tok->kind);
@@ -66,6 +68,7 @@ int main(void)
 	ASSERT_EQ(8, tok->span.start.col);
 	ASSERT_EQ(1, tok->span.start.raw);
 	ASSERT_EQ(7, tok->span.start.off);
+	hir_tok_dtor(tok);
 
 	ASSERT(tok = hir_lexer_next(&lexer));
 	ASSERT_EQ(HIR_TOK_RPAR, tok->kind);
@@ -73,6 +76,7 @@ int main(void)
 	ASSERT_EQ(9, tok->span.start.col);
 	ASSERT_EQ(1, tok->span.start.raw);
 	ASSERT_EQ(8, tok->span.start.off);
+	hir_tok_dtor(tok);
 
 	ASSERT(tok = hir_lexer_next(&lexer));
 	ASSERT_EQ(HIR_TOK_LCUR, tok->kind);
@@ -80,6 +84,7 @@ int main(void)
 	ASSERT_EQ(1, tok->span.start.col);
 	ASSERT_EQ(2, tok->span.start.raw);
 	ASSERT_EQ(10, tok->span.start.off);
+	hir_tok_dtor(tok);
 
 	ASSERT(tok = hir_lexer_next(&lexer));
 	ASSERT_EQ(HIR_TOK_RETURN, tok->kind);
@@ -87,6 +92,7 @@ int main(void)
 	ASSERT_EQ(5, tok->span.start.col);
 	ASSERT_EQ(3, tok->span.start.raw);
 	ASSERT_EQ(16, tok->span.start.off);
+	hir_tok_dtor(tok);
 
 	ASSERT(tok = hir_lexer_next(&lexer));
 	ASSERT_EQ(HIR_TOK_LIT_INTEGER, tok->kind);
@@ -95,6 +101,7 @@ int main(void)
 	ASSERT_EQ(3, tok->span.start.raw);
 	ASSERT_EQ(23, tok->span.start.off);
 	ASSERT_EQ(0, memcmp("0", tok->lit_integer.number, tok->span.length));
+	hir_tok_dtor(tok);
 
 	ASSERT(tok = hir_lexer_next(&lexer));
 	ASSERT_EQ(HIR_TOK_SEMICOLON, tok->kind);
@@ -102,6 +109,7 @@ int main(void)
 	ASSERT_EQ(13, tok->span.start.col);
 	ASSERT_EQ(3, tok->span.start.raw);
 	ASSERT_EQ(24, tok->span.start.off);
+	hir_tok_dtor(tok);
 
 	ASSERT(tok = hir_lexer_next(&lexer));
 	ASSERT_EQ(HIR_TOK_RCUR, tok->kind);
@@ -109,6 +117,7 @@ int main(void)
 	ASSERT_EQ(1, tok->span.start.col);
 	ASSERT_EQ(4, tok->span.start.raw);
 	ASSERT_EQ(26, tok->span.start.off);
+	hir_tok_dtor(tok);
 
 	ASSERT(tok = hir_lexer_next(&lexer));
 	ASSERT_EQ(HIR_TOK_EOF, tok->kind);
@@ -116,6 +125,7 @@ int main(void)
 	ASSERT_EQ(1, tok->span.start.col);
 	ASSERT_EQ(5, tok->span.start.raw);
 	ASSERT_EQ(28, tok->span.start.off);
+	hir_tok_dtor(tok);
 
 	ASSERT_NULL(hir_lexer_next(&lexer));
 

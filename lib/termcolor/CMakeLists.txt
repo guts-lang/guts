@@ -45,7 +45,7 @@ option(${PROJECT_NAME}_ASAN     "Enable libwrap address sanitizer" OFF)
 # Dependencies
 ##
 if (NOT TARGET Wrap::libwrap)
-  find_package(Wrap 0.0.1 REQUIRED COMPONENT libwrap)
+  find_package(Wrap 0.0.1 REQUIRED)
 endif()
 
 ## ************************************************************************** ##
@@ -105,7 +105,8 @@ else ()
 endif ()
 
 install(FILES ${CONF_H} DESTINATION ${__INC_INSDIR}/${__TARGET_NAME})
-install(DIRECTORY ${__INC_DIR}/${__TARGET_NAME} DESTINATION ${__INC_INSDIR})
+install(DIRECTORY ${__INC_DIR}/${__TARGET_NAME} DESTINATION ${__INC_INSDIR}
+  FILES_MATCHING PATTERN "*.h")
 install(FILES ${__INC_DIR}/${__TARGET_NAME}.h DESTINATION ${__INC_INSDIR})
 
 ## ************************************************************************** ##

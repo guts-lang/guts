@@ -24,15 +24,19 @@
  * SOFTWARE.
  */
 
-/*!@file guts/hir.h
- * @author uael
- *
- * @addtogroup guts.hir @{
- */
-#ifndef __GUTS_HIR_H
-# define __GUTS_HIR_H
+#include "guts/hir/token.h"
 
-#include "guts/hir/lexer.h"
+void hir_tok_init(hir_tok_t *token, loc_t start, u16_t length)
+{
+	token->span = (span_t) {
+		.start = start,
+		.length = length
+	};
+}
 
-#endif /* !__GUTS_HIR_H */
-/*!@} */
+void hir_tok_dtor(hir_tok_t *token)
+{
+	if (token->kind == HIR_TOK_LIT_STRING)
+		vecdtor(token->lit_string);
+	bzero(token, sizeof(hir_tok_t));
+}

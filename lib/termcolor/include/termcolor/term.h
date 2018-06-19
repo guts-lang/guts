@@ -44,10 +44,48 @@
 
 #include <stdio.h>
 
+/*!@brief
+ * TODO
+ *
+ * @param stream
+ * @param spec
+ * @return
+ */
 __api FILE *termcolor_set(FILE *stream, color_spec_t spec);
+
+/*!@brief
+ * TODO
+ *
+ * @param stream
+ * @param color
+ * @return
+ */
 __api FILE *termcolor_setfg(FILE *stream, color_t color);
+
+/*!@brief
+ * TODO
+ *
+ * @param stream
+ * @param color
+ * @return
+ */
 __api FILE *termcolor_setbg(FILE *stream, color_t color);
+
+/*!@brief
+ * TODO
+ *
+ * @param stream
+ * @param flags
+ * @return
+ */
 __api FILE *termcolor_setfl(FILE *stream, u8_t flags);
+
+/*!@brief
+ * TODO
+ *
+ * @param stream
+ * @return
+ */
 __api FILE *termcolor_reset(FILE *stream);
 
 #endif /* !__TERMCOLOR_TERM_H */

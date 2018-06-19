@@ -109,7 +109,8 @@ else ()
 endif ()
 
 install(FILES ${CONF_H} DESTINATION ${__INC_INSDIR}/${__TARGET_NAME})
-install(DIRECTORY ${__INC_DIR}/${__TARGET_NAME} DESTINATION ${__INC_INSDIR})
+install(DIRECTORY ${__INC_DIR}/${__TARGET_NAME} DESTINATION ${__INC_INSDIR}
+  FILES_MATCHING PATTERN "*.h")
 install(FILES ${__INC_DIR}/${__TARGET_NAME}.h DESTINATION ${__INC_INSDIR})
 
 ## ************************************************************************** ##
