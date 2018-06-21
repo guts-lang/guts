@@ -32,8 +32,8 @@
 #ifndef __GUTS_HIR_LITERAL_H
 # define __GUTS_HIR_LITERAL_H
 
-#include <ds/deque.h>
-#include <il/codemap.h>
+#include <ds/vector.h>
+#include <il/diagnostic.h>
 
 #include "guts/conf.h"
 

@@ -24,6 +24,8 @@
  * SOFTWARE.
  */
 
+#include <il/codemap.h>
+
 #include "guts/hir/lexer.h"
 
 #include "test.h"

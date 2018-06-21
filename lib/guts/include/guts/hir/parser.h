@@ -24,32 +24,24 @@
  * SOFTWARE.
  */
 
-/*!@file guts/hir/lexer.h
+/*!@file guts/hir/parser.h
  * @author uael
  *
  * @addtogroup guts.hir @{
  */
-#ifndef __GUTS_HIR_LEXER_H
-# define __GUTS_HIR_LEXER_H
+#ifndef __GUTS_HIR_PARSER_H
+# define __GUTS_HIR_PARSER_H
 
-#include <il/source.h>
-#include <ds/deque.h>
+#include <ds/stack.h>
+#include <il/codemap.h>
 
-#include "token.h"
+#include "lexer.h"
 
 typedef struct {
-	bool eof;
-	source_t *src;
-	deqof(hir_tok_t) lookahead;
-	vecof(diag_t) *diags;
-} hir_lexer_t;
+	codemap_t codemap;
+	stackof(hir_lexer_t) lexers;
+	hir_lexer_t *lexer;
+} hir_parser_t;
 
-__api void hir_lexer_init(hir_lexer_t *self, source_t *src,
-						  vecof(diag_t) *diags);
-__api void hir_lexer_dtor(hir_lexer_t *self);
-__api hir_tok_t *hir_lexer_peek(hir_lexer_t *self);
-__api hir_tok_t *hir_lexer_peekn(hir_lexer_t *self, u8_t n);
-__api hir_tok_t *hir_lexer_next(hir_lexer_t *self);
-
-#endif /* !__GUTS_HIR_LEXER_H */
+#endif /* !__GUTS_HIR_PARSER_H */
 /*!@} */

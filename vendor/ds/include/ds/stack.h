@@ -24,32 +24,32 @@
  * SOFTWARE.
  */
 
-/*!@file guts/hir/lexer.h
+/*!@file ds/stack.h
  * @author uael
  *
- * @addtogroup guts.hir @{
+ * @addtogroup ds @{
  */
-#ifndef __GUTS_HIR_LEXER_H
-# define __GUTS_HIR_LEXER_H
+#ifndef __DS_STACK_H
+# define __DS_STACK_H
 
-#include <il/source.h>
-#include <ds/deque.h>
+#include "ds/sequence.h"
 
-#include "token.h"
+#define __STACK_GUARD SEQGUARD
+#define __STACK_TSZ u32_t
 
-typedef struct {
-	bool eof;
-	source_t *src;
-	deqof(hir_tok_t) lookahead;
-	vecof(diag_t) *diags;
-} hir_lexer_t;
+#define stackof(T) seqof(T)
 
-__api void hir_lexer_init(hir_lexer_t *self, source_t *src,
-						  vecof(diag_t) *diags);
-__api void hir_lexer_dtor(hir_lexer_t *self);
-__api hir_tok_t *hir_lexer_peek(hir_lexer_t *self);
-__api hir_tok_t *hir_lexer_peekn(hir_lexer_t *self, u8_t n);
-__api hir_tok_t *hir_lexer_next(hir_lexer_t *self);
+#define stackdtor(s) seqdtor(s, __STACK_GUARD, __STACK_TSZ)
+#define stacklen(s) seqlen(s, __STACK_TSZ)
+#define stackcap(s) seqcap(s, __STACK_TSZ)
+#define stackempty(s) seqempty(s, __STACK_TSZ)
+#define stackbeg(s) seqbeg(s)
+#define stackend(s) seqend(s, __STACK_TSZ)
+#define stackback(s) seqback(s, __STACK_TSZ)
+#define stackat(s, i) seqat(s, i)
+#define stackgrow(s, n) seqgrow(s, n, __STACK_GUARD, __STACK_TSZ)
+#define stackpush(s, item) seqpush(s, item, __STACK_GUARD, __STACK_TSZ)
+#define stackpop(s) (stacklen(s) ? ((s) + __seqlen(s, __STACK_TSZ)--) : NULL)
 
-#endif /* !__GUTS_HIR_LEXER_H */
+#endif /* !__DS_STACK_H */
 /*!@} */
