@@ -79,6 +79,7 @@ typedef struct {
 
 /*!@brief
  * Floating point number literal.
+ * Parsed as a `hir_integer_t' then converted to floating number on resolve.
  */
 typedef struct {
 
@@ -95,17 +96,46 @@ typedef struct {
 		HIR_FLOAT_LDOUBLE, /*!< `l' suffix. */
 	} size;
 
-	/*! Union type to store resolved or unresolved float value. */
-	union {
-
-		/*! Unresolved value, contains prefix and suffix. */
-		char __const *number;
-
-		/*! Resolved value. */
-		f64_t value;
-	};
+	/*! floating value. */
+	long double value;
 
 } hir_float_t;
+
+/*!@brief
+ * A UTF-8 string literal: `"foo"`.
+ */
+typedef vecof(char) hir_string_t;
+
+/*!@brief
+ * A character literal: `'a'`.
+ */
+typedef char hir_char_t;
+
+/*!@brief
+ * A boolean literal: `true` or `false`.
+ */
+typedef bool hir_bool_t;
+
+/*!@brief
+ * A literal such as a string or integer or boolean.
+ */
+typedef struct {
+	enum {
+		HIR_LIT_INTEGER = 0,
+		HIR_LIT_FLOAT,
+		HIR_LIT_STRING,
+		HIR_LIT_CHAR,
+		HIR_LIT_BOOL,
+		HIR_LIT_NULL,
+	} kind;
+	union {
+		hir_integer_t integer;
+		hir_float_t floating;
+		hir_string_t string;
+		hir_char_t chr;
+		hir_bool_t boolean;
+	};
+} hit_lit_t;
 
 /*!@brief
  * TODO
@@ -115,10 +145,6 @@ typedef struct {
  * @return
  */
 __api bool hit_number_resolve(struct hir_tok *tok, vecof(diag_t) *diags);
-
-typedef vecof(char) hir_string_t;
-
-typedef char __const *hir_ident_t;
 
 #endif /* !__GUTS_HIR_LITERAL_H */
 /*!@} */

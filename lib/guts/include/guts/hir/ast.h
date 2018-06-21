@@ -32,7 +32,7 @@
 #ifndef __GUTS_HIR_AST_H
 # define __GUTS_HIR_AST_H
 
-#include "literal.h"
+#include "token.h"
 
 typedef struct {
 

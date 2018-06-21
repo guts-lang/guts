@@ -113,6 +113,8 @@ typedef enum {
 
 } tok_kind_t;
 
+typedef char __const *hir_ident_t;
+
 typedef struct hir_tok {
 	tok_kind_t kind: 8;
 	span_t span;
