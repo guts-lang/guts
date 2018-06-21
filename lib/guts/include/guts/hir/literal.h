@@ -39,42 +39,72 @@
 
 struct hir_tok;
 
-typedef enum {
-	HIR_INTEGER_UNRESOLVED = 0,
-	HIR_INTEGER_DECIMAL,
-	HIR_INTEGER_OCTAL,
-	HIR_INTEGER_HEXADECIMAL,
-} hit_integer_base_t;
-
-typedef enum {
-	HIR_INTEGER_INT,
-	HIR_INTEGER_LONG,
-	HIR_INTEGER_LLONG,
-} hit_integer_size_t;
-
+/*!@brief
+ * Integer number literal.
+ * When base is set to `HIR_INTEGER_UNRESOLVED' the `number' field point to
+ * the begin of the number in the source string.
+ * Once resolved the `base', `size' and `number' fields are set.
+ */
 typedef struct {
-	hit_integer_base_t base;
-	hit_integer_size_t size;
+
+	/*! Base of the integer literal. */
+	enum {
+		HIR_INTEGER_UNRESOLVED = 0, /*!< Must be resolved. */
+		HIR_INTEGER_DECIMAL,        /*!< By default, no `0o' or `0x' prefix. */
+		HIR_INTEGER_OCTAL,          /*!< `0o' prefix. */
+		HIR_INTEGER_HEXADECIMAL,    /*!< `0x' prefix. */
+	} base;
+
+	/*! Size part of a integer literal suffix. */
+	enum {
+		HIR_INTEGER_INT = 0, /*!< By default, no `l' or `ll' suffix. */
+		HIR_INTEGER_LONG,    /*!< `l' suffix. */
+		HIR_INTEGER_LLONG,   /*!< `ll' suffix. */
+	} size;
+
+	/*! Integer literal has unsigned type, `u' suffix. */
 	bool unsign;
-	char __const * number;
+
+	/*! Union type to store resolved or unresolved integer value. */
+	union {
+
+		/*! Unresolved value, contains prefix and suffix. */
+		char __const *number;
+
+		/*! Resolved value. */
+		i64_t value;
+	};
+
 } hir_integer_t;
 
-typedef enum {
-	HIR_FLOAT_UNRESOLVED = 0,
-	HIR_FLOAT_DECIMAL,
-	HIR_FLOAT_HEXADECIMAL,
-} hit_float_base_t;
-
-typedef enum {
-	HIR_FLOAT_FLOAT,
-	HIR_FLOAT_DOUBLE,
-	HIR_FLOAT_LDOUBLE
-} hit_float_size_t;
-
+/*!@brief
+ * Floating point number literal.
+ */
 typedef struct {
-	hit_float_base_t base;
-	hit_float_size_t size;
-	char __const * number;
+
+	/*! Floating point number base. */
+	enum {
+		HIR_FLOAT_DECIMAL,     /*!< By default, no prefix. */
+		HIR_FLOAT_HEXADECIMAL, /*!< Hexadecimal prefix. */
+	} base;
+
+	/*! Floating point literal format specified by the suffix. */
+	enum {
+		HIR_FLOAT_FLOAT,   /*!< `f' suffix. */
+		HIR_FLOAT_DOUBLE,  /*!< By default, no suffix. */
+		HIR_FLOAT_LDOUBLE, /*!< `l' suffix. */
+	} size;
+
+	/*! Union type to store resolved or unresolved float value. */
+	union {
+
+		/*! Unresolved value, contains prefix and suffix. */
+		char __const *number;
+
+		/*! Resolved value. */
+		f64_t value;
+	};
+
 } hir_float_t;
 
 /*!@brief
