@@ -46,3 +46,4 @@ macro (guts_register_test suite test)
 endmacro ()
 
 guts_register_test(hir_fe lex)
+guts_register_test(hir_fe expr)

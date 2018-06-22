@@ -121,7 +121,7 @@ typedef struct hir_tok {
 	span_t span;
 
 	union {
-		hir_integer_t lit_number;
+		char __const *lit_number;
 		hir_string_t lit_string;
 		hir_char_t lit_char;
 		hir_bool_t lit_bool;

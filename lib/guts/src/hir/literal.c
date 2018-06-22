@@ -26,8 +26,10 @@
 
 #include "guts/hir/literal.h"
 
-bool hit_number_resolve(struct hir_tok *tok, vecof(diag_t) *diags)
+bool hir_lit_resolve(hir_lit_t *self, struct hir_tok *tok,
+					 vecof(diag_t) *diags)
 {
+	(void)self;
 	(void)tok;
 	(void)diags;
 

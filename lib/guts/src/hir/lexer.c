@@ -301,10 +301,7 @@ static bool __lookahead(hir_lexer_t *self)
 			u16_t len;
 			char c2;
 
-			tok.lit_number.base = HIR_INTEGER_UNRESOLVED;
-			tok.lit_number.number = source_str(self->src);
-			tok.lit_number.unsign = false;
-			tok.lit_number.size = HIR_INTEGER_INT;
+			tok.lit_number = source_str(self->src);
 
 			if (source_peek(self->src) == '.')
 				source_next(self->src);

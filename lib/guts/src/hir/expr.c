@@ -24,6 +24,8 @@
  * SOFTWARE.
  */
 
+#include <il/span.h>
+#include <il/loc.h>
 #include "guts/hir/expr.h"
 
 #define TRANSFER(e) if (!(e)) return NULL
@@ -48,24 +50,51 @@ static void __commas(hir_lexer_t *lexer, vecof(hir_expr_t *) *commas)
 static hir_expr_t *__primary(hir_lexer_t *lexer)
 {
 	hir_tok_t *tok;
+	hir_expr_t *expr;
 	vecof(hir_expr_t *) commas;
+	span_t start;
 
 	TRANSFER(tok = hir_lexer_peek(lexer));
+	start = tok->span;
 	switch (tok->kind) {
 		case HIR_TOK_IDENT:
 			hir_lexer_next(lexer);
 			return NEW(hir_expr_t, {
 				.kind = HIR_EXPR_IDENT,
+				.span = start,
 				.ident = tok->ident
 			});
 		case HIR_TOK_LPAR:
 			hir_lexer_next(lexer);
+			expr = hir_expr_parse(lexer);
+			if (hir_lexer_peek(lexer)->kind != HIR_TOK_COMMA) {
+				tok = hir_lexer_consume(lexer, HIR_TOK_RPAR);
+				start.length = (u16_t) (tok->span.start.off - start.start.off);
+				return NEW(hir_expr_t, {
+					.kind = HIR_EXPR_PAREN,
+					.span = start,
+					.paren = { expr }
+				});
+			}
+			vecpush(commas, expr);
+			__commas(lexer, &commas);
+			tok = hir_lexer_consume(lexer, HIR_TOK_RPAR);
+			start.length = (u16_t) (tok->span.start.off - start.start.off);
+			return NEW(hir_expr_t, {
+				.kind = HIR_EXPR_TUPLE,
+				.span = tok->span,
+				.tuple = { commas }
+			});
+		case HIR_TOK_LBRA:
+			hir_lexer_next(lexer);
 			commas = NULL;
 			__commas(lexer, &commas);
-			hir_lexer_consume(lexer, HIR_TOK_RPAR);
+			tok = hir_lexer_consume(lexer, HIR_TOK_RBRA);
+			start.length = (u16_t) (tok->span.start.off - start.start.off);
 			return NEW(hir_expr_t, {
-				.kind = HIR_EXPR_PAREN,
-				.paren = { commas }
+				.kind = HIR_EXPR_ARRAY,
+				.span = tok->span,
+				.array = { commas }
 			});
 		default:
 			return NULL;
@@ -74,8 +103,7 @@ static hir_expr_t *__primary(hir_lexer_t *lexer)
 
 static hir_expr_t *__assignment(hir_lexer_t *lexer)
 {
-	(void)lexer;
-	return NULL;
+	return __primary(lexer);
 }
 
 hir_expr_t *hir_expr_parse(hir_lexer_t *lexer)

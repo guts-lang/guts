@@ -102,7 +102,7 @@ int main(void)
 	ASSERT_EQ(12, tok->span.start.col);
 	ASSERT_EQ(3, tok->span.start.raw);
 	ASSERT_EQ(23, tok->span.start.off);
-	ASSERT_EQ(0, memcmp("0", tok->lit_number.number, tok->span.length));
+	ASSERT_EQ(0, memcmp("0", tok->lit_number, tok->span.length));
 	hir_tok_dtor(tok);
 
 	ASSERT(tok = hir_lexer_next(&lexer));

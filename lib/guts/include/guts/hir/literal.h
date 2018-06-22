@@ -41,18 +41,14 @@ struct hir_tok;
 
 /*!@brief
  * Integer number literal.
- * When base is set to `HIR_INTEGER_UNRESOLVED' the `number' field point to
- * the begin of the number in the source string.
- * Once resolved the `base', `size' and `number' fields are set.
  */
 typedef struct {
 
 	/*! Base of the integer literal. */
 	enum {
-		HIR_INTEGER_UNRESOLVED = 0, /*!< Must be resolved. */
-		HIR_INTEGER_DECIMAL,        /*!< By default, no `0o' or `0x' prefix. */
-		HIR_INTEGER_OCTAL,          /*!< `0o' prefix. */
-		HIR_INTEGER_HEXADECIMAL,    /*!< `0x' prefix. */
+		HIR_INTEGER_DECIMAL = 0, /*!< By default, no `0o' or `0x' prefix. */
+		HIR_INTEGER_OCTAL,       /*!< `0o' prefix. */
+		HIR_INTEGER_HEXADECIMAL, /*!< `0x' prefix. */
 	} base;
 
 	/*! Size part of a integer literal suffix. */
@@ -65,35 +61,27 @@ typedef struct {
 	/*! Integer literal has unsigned type, `u' suffix. */
 	bool unsign;
 
-	/*! Union type to store resolved or unresolved integer value. */
-	union {
-
-		/*! Unresolved value, contains prefix and suffix. */
-		char __const *number;
-
-		/*! Resolved value. */
-		long long int value;
-	};
+	/*! Integer value. */
+	long long int value;
 
 } hir_integer_t;
 
 /*!@brief
  * Floating point number literal.
- * Parsed as a `hir_integer_t' then converted to floating number on resolve.
  */
 typedef struct {
 
 	/*! Floating point number base. */
 	enum {
-		HIR_FLOAT_DECIMAL = 0,     /*!< By default, no prefix. */
+		HIR_FLOAT_DECIMAL = 0, /*!< By default, no prefix. */
 		HIR_FLOAT_HEXADECIMAL, /*!< Hexadecimal prefix. */
 	} base;
 
 	/*! Floating point literal format specified by the suffix. */
 	enum {
 		HIR_FLOAT_DOUBLE = 0,  /*!< By default, no suffix. */
-		HIR_FLOAT_FLOAT,   /*!< `f' suffix. */
-		HIR_FLOAT_LDOUBLE, /*!< `l' suffix. */
+		HIR_FLOAT_FLOAT,       /*!< `f' suffix. */
+		HIR_FLOAT_LDOUBLE,     /*!< `l' suffix. */
 	} size;
 
 	/*! floating value. */
@@ -138,13 +126,16 @@ typedef struct {
 } hir_lit_t;
 
 /*!@brief
- * TODO
+ * Convert a literal token to a proper literal.
+ * Numbers are resolved to integer or float.
  *
- * @param tok
- * @param diags
- * @return
+ * @param self  The literal.
+ * @param tok   The token to resolve.
+ * @param diags [NULLABLE] To vector of diagnostic pointer.
+ * @return      false on error, true otherwise.
  */
-__api bool hir_lit_resolve(struct hir_tok *tok, vecof(diag_t) *diags);
+__api bool hir_lit_resolve(hir_lit_t *self, struct hir_tok *tok,
+						   vecof(diag_t) *diags);
 
 #endif /* !__GUTS_HIR_LITERAL_H */
 /*!@} */

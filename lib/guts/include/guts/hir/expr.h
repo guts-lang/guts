@@ -46,6 +46,8 @@ struct hir_expr {
 		HIR_EXPR_IDENT = 0,
 		HIR_EXPR_LIT,
 		HIR_EXPR_PAREN,
+		HIR_EXPR_TUPLE,
+		HIR_EXPR_ARRAY,
 	} kind;
 
 	union {
@@ -53,16 +55,16 @@ struct hir_expr {
 		hir_lit_t lit;
 
 		struct {
-			vecof(hir_expr_t *) elems;
+			hir_expr_t *expr;
 		} paren;
 
 		struct {
 			vecof(hir_expr_t *) elems;
-		} array;
+		} tuple;
 
 		struct {
 			vecof(hir_expr_t *) elems;
-		} tuple;
+		} array;
 
 		struct {
 			bool indirect;
