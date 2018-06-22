@@ -76,6 +76,7 @@ static hir_expr_t *__primary(hir_lexer_t *lexer)
 					.paren = { expr }
 				});
 			}
+			commas = NULL;
 			vecpush(commas, expr);
 			__commas(lexer, &commas);
 			tok = hir_lexer_consume(lexer, HIR_TOK_RPAR);
