@@ -249,7 +249,15 @@ static bool __lookahead(hir_lexer_t *self)
 					if (!memcmp("char", tok.ident, 4))
 						MATCH(HIR_TOK_CHAR, len);
 					else if (!memcmp("else", tok.ident, 4))
-						MATCH(HIR_TOK_ELSE, len);
+						MATCH(HIR_TOK_CHAR, len);
+					else if (!memcmp("true", tok.ident, 4))
+						MATCH(HIR_TOK_LIT_BOOL, len, { tok.lit_bool = true; });
+					else if (!memcmp("null", tok.ident, 4))
+						MATCH(HIR_TOK_LIT_NULL, len);
+					else break;
+				case 5:
+					if (!memcmp("false", tok.ident, 5))
+						MATCH(HIR_TOK_LIT_BOOL, len, { tok.lit_bool = false; });
 					else break;
 				case 6:
 					if (!memcmp("struct", tok.ident, 6))
@@ -270,10 +278,10 @@ static bool __lookahead(hir_lexer_t *self)
 			u16_t len;
 			char c2;
 
-			tok.lit_integer.base = HIR_INTEGER_UNRESOLVED;
-			tok.lit_integer.number = source_str(self->src);
-			tok.lit_integer.unsign = false;
-			tok.lit_integer.size = HIR_INTEGER_INT;
+			tok.lit_number.base = HIR_INTEGER_UNRESOLVED;
+			tok.lit_number.number = source_str(self->src);
+			tok.lit_number.unsign = false;
+			tok.lit_number.size = HIR_INTEGER_INT;
 
 			if (source_peek(self->src) == '.')
 				source_next(self->src);
@@ -294,7 +302,7 @@ static bool __lookahead(hir_lexer_t *self)
 			}
 			//TODO(uael): check OF
 			len = (u16_t) (source_loc(self->src).off - start.off);
-			MATCH(HIR_TOK_LIT_INTEGER, len);
+			MATCH(HIR_TOK_LIT_NUMBER, len);
 		}
 
 		lit_string: {

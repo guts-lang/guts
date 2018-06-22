@@ -72,7 +72,7 @@ typedef struct {
 		char __const *number;
 
 		/*! Resolved value. */
-		i64_t value;
+		long long int value;
 	};
 
 } hir_integer_t;
@@ -85,14 +85,14 @@ typedef struct {
 
 	/*! Floating point number base. */
 	enum {
-		HIR_FLOAT_DECIMAL,     /*!< By default, no prefix. */
+		HIR_FLOAT_DECIMAL = 0,     /*!< By default, no prefix. */
 		HIR_FLOAT_HEXADECIMAL, /*!< Hexadecimal prefix. */
 	} base;
 
 	/*! Floating point literal format specified by the suffix. */
 	enum {
+		HIR_FLOAT_DOUBLE = 0,  /*!< By default, no suffix. */
 		HIR_FLOAT_FLOAT,   /*!< `f' suffix. */
-		HIR_FLOAT_DOUBLE,  /*!< By default, no suffix. */
 		HIR_FLOAT_LDOUBLE, /*!< `l' suffix. */
 	} size;
 
@@ -135,7 +135,7 @@ typedef struct {
 		hir_char_t chr;
 		hir_bool_t boolean;
 	};
-} hit_lit_t;
+} hir_lit_t;
 
 /*!@brief
  * TODO
@@ -144,7 +144,7 @@ typedef struct {
  * @param diags
  * @return
  */
-__api bool hit_number_resolve(struct hir_tok *tok, vecof(diag_t) *diags);
+__api bool hir_number_resolve(struct hir_tok *tok, vecof(diag_t) *diags);
 
 #endif /* !__GUTS_HIR_LITERAL_H */
 /*!@} */

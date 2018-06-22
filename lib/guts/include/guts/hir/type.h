@@ -24,15 +24,69 @@
  * SOFTWARE.
  */
 
-/*!@file guts/hir/ast.h
+/*!@file guts/hir/type.h
  * @author uael
  *
  * @addtogroup guts.hir @{
  */
-#ifndef __GUTS_HIR_AST_H
-# define __GUTS_HIR_AST_H
+#ifndef __GUTS_HIR_TYPE_H
+# define __GUTS_HIR_TYPE_H
 
 #include "token.h"
 
-#endif /* !__GUTS_HIR_AST_H */
+struct hir_expr;
+
+typedef struct hir_ty hir_ty_t;
+
+struct hir_ty {
+
+	span_t span;
+
+	enum {
+		HIR_TY_SLICE = 0,
+		HIR_TY_ARRAY,
+		HIR_TY_PTR,
+		HIR_TY_FN,
+		HIR_TY_TUPLE,
+		HIR_TY_INTEGER,
+		HIR_TY_FLOATING,
+		HIR_TY_BOOL,
+		HIR_TY_VOID,
+	} kind;
+
+	union {
+		struct {
+			hir_ty_t *elem;
+		} slice;
+
+		struct {
+			hir_ty_t *elem;
+			struct hir_expr *len;
+		} array;
+
+		struct {
+			hir_ty_t *elem;
+		} ptr;
+
+		struct {
+			hir_ty_t *output;
+			vecof(hir_ty_t *) inputs;
+		} fn;
+
+		struct {
+			vecof(hir_ty_t *) elems;
+		} tuple;
+
+		struct {
+			u8_t bytes;
+			bool unsign;
+		} integer;
+
+		struct {
+			u8_t bytes;
+		} floating;
+	};
+};
+
+#endif /* !__GUTS_HIR_TYPE_H */
 /*!@} */

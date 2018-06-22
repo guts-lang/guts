@@ -71,10 +71,12 @@ file(GLOB_RECURSE __HDRS ${CONF_H} ${__INC_DIR}/*.h)
 
 add_library(${__TARGET} ${__HDRS}
   ${__SRC_DIR}/hir/ast.c
+  ${__SRC_DIR}/hir/expr.c
   ${__SRC_DIR}/hir/lexer.c
   ${__SRC_DIR}/hir/literal.c
   ${__SRC_DIR}/hir/parser.c
   ${__SRC_DIR}/hir/token.c
+  ${__SRC_DIR}/hir/type.c
   ${__SRC_DIR}/hir.c)
 add_library(Guts::${__TARGET} ALIAS ${__TARGET})
 set_target_properties(${__TARGET} PROPERTIES

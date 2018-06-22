@@ -24,15 +24,6 @@
  * SOFTWARE.
  */
 
-/*!@file guts/hir/ast.h
- * @author uael
- *
- * @addtogroup guts.hir @{
- */
-#ifndef __GUTS_HIR_AST_H
-# define __GUTS_HIR_AST_H
+#include "guts/hir/expr.h"
 
-#include "token.h"
 
-#endif /* !__GUTS_HIR_AST_H */
-/*!@} */

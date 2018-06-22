@@ -97,12 +97,12 @@ int main(void)
 	hir_tok_dtor(tok);
 
 	ASSERT(tok = hir_lexer_next(&lexer));
-	ASSERT_EQ(HIR_TOK_LIT_INTEGER, tok->kind);
+	ASSERT_EQ(HIR_TOK_LIT_NUMBER, tok->kind);
 	ASSERT_EQ(1, tok->span.length);
 	ASSERT_EQ(12, tok->span.start.col);
 	ASSERT_EQ(3, tok->span.start.raw);
 	ASSERT_EQ(23, tok->span.start.off);
-	ASSERT_EQ(0, memcmp("0", tok->lit_integer.number, tok->span.length));
+	ASSERT_EQ(0, memcmp("0", tok->lit_number.number, tok->span.length));
 	hir_tok_dtor(tok);
 
 	ASSERT(tok = hir_lexer_next(&lexer));
