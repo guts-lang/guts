@@ -32,7 +32,7 @@
 #ifndef __GUTS_HIR_TYPE_H
 # define __GUTS_HIR_TYPE_H
 
-#include "token.h"
+#include "lexer.h"
 
 struct hir_expr;
 

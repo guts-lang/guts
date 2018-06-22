@@ -144,7 +144,7 @@ typedef struct {
  * @param diags
  * @return
  */
-__api bool hir_number_resolve(struct hir_tok *tok, vecof(diag_t) *diags);
+__api bool hir_lit_resolve(struct hir_tok *tok, vecof(diag_t) *diags);
 
 #endif /* !__GUTS_HIR_LITERAL_H */
 /*!@} */

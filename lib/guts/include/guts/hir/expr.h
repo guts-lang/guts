@@ -40,16 +40,21 @@ struct hir_expr {
 
 	span_t span;
 
-	hir_ty_t type;
+	hir_ty_t *type;
 
 	enum {
 		HIR_EXPR_IDENT = 0,
 		HIR_EXPR_LIT,
+		HIR_EXPR_PAREN,
 	} kind;
 
 	union {
 		hir_ident_t ident;
 		hir_lit_t lit;
+
+		struct {
+			vecof(hir_expr_t *) elems;
+		} paren;
 
 		struct {
 			vecof(hir_expr_t *) elems;
@@ -133,6 +138,8 @@ struct hir_expr {
 		} cond;
 	};
 };
+
+__api hir_expr_t *hir_expr_parse(hir_lexer_t *lexer);
 
 #endif /* !__GUTS_HIR_EXPR_H */
 /*!@} */

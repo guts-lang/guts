@@ -25,6 +25,7 @@
  */
 
 #include <ctype.h>
+#include <guts.h>
 
 #include "guts/hir/lexer.h"
 
@@ -75,6 +76,28 @@ hir_tok_t *hir_lexer_next(hir_lexer_t *self)
 			return NULL;
 	}
 	return dequsht(self->lookahead);
+}
+
+hir_tok_t *hir_lexer_consume(hir_lexer_t *self, tok_kind_t kind)
+{
+	hir_tok_t *tok;
+
+	if (self->eof) return NULL;
+	if (deqempty(self->lookahead)) {
+		if (!__lookahead(self))
+			return NULL;
+	}
+	tok = dequsht(self->lookahead);
+	if (tok->kind != kind && self->diags) {
+		diag_t error;
+
+		diag_error(&error, "unexpected token, expected `%s' got `%s'",
+			hir_tok_toa(kind), hir_tok_toa(tok->kind));
+		diag_labelize(&error, true, tok->span, NULL);
+		vecpush(*self->diags, error);
+		return NULL;
+	}
+	return tok;
 }
 
 #define MATCH(k, len, ...) do { \

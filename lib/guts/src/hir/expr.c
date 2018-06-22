@@ -26,4 +26,59 @@
 
 #include "guts/hir/expr.h"
 
+#define TRANSFER(e) if (!(e)) return NULL
+#define NEW(T, ...) memcpy(malloc(sizeof(T)), &((T)__VA_ARGS__), sizeof(T))
 
+static hir_expr_t *__assignment(hir_lexer_t *lexer);
+
+static void __commas(hir_lexer_t *lexer, vecof(hir_expr_t *) *commas)
+{
+	hir_tok_t *tok;
+
+	vecpush(*commas, __assignment(lexer));
+	while (true) {
+		tok = hir_lexer_peek(lexer);
+		if (tok->kind != HIR_TOK_COMMA)
+			return;
+		hir_lexer_next(lexer);
+		vecpush(*commas, __assignment(lexer));
+	}
+}
+
+static hir_expr_t *__primary(hir_lexer_t *lexer)
+{
+	hir_tok_t *tok;
+	vecof(hir_expr_t *) commas;
+
+	TRANSFER(tok = hir_lexer_peek(lexer));
+	switch (tok->kind) {
+		case HIR_TOK_IDENT:
+			hir_lexer_next(lexer);
+			return NEW(hir_expr_t, {
+				.kind = HIR_EXPR_IDENT,
+				.ident = tok->ident
+			});
+		case HIR_TOK_LPAR:
+			hir_lexer_next(lexer);
+			commas = NULL;
+			__commas(lexer, &commas);
+			hir_lexer_consume(lexer, HIR_TOK_RPAR);
+			return NEW(hir_expr_t, {
+				.kind = HIR_EXPR_PAREN,
+				.paren = { commas }
+			});
+		default:
+			return NULL;
+	}
+}
+
+static hir_expr_t *__assignment(hir_lexer_t *lexer)
+{
+	(void)lexer;
+	return NULL;
+}
+
+hir_expr_t *hir_expr_parse(hir_lexer_t *lexer)
+{
+	return __primary(lexer);
+}
