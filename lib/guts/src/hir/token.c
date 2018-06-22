@@ -26,7 +26,7 @@
 
 #include "guts/hir/token.h"
 
-FORCEINLINE CONST
+FORCEINLINE
 void hir_tok_init(hir_tok_t *token, loc_t start, u16_t length)
 {
 	token->span = (span_t) {
