@@ -41,7 +41,7 @@ static void __commas(hir_lexer_t *lexer, vecof(hir_expr_t *) *commas)
 	while (true) {
 		tok = hir_lexer_peek(lexer);
 		if (tok->kind != HIR_TOK_COMMA)
-			return;
+			break;
 		hir_lexer_next(lexer);
 		vecpush(*commas, __assignment(lexer));
 	}
@@ -82,7 +82,7 @@ static hir_expr_t *__primary(hir_lexer_t *lexer)
 			start.length = (u16_t) (tok->span.start.off - start.start.off);
 			return NEW(hir_expr_t, {
 				.kind = HIR_EXPR_TUPLE,
-				.span = tok->span,
+				.span = start,
 				.tuple = { commas }
 			});
 		case HIR_TOK_LBRA:
@@ -93,7 +93,7 @@ static hir_expr_t *__primary(hir_lexer_t *lexer)
 			start.length = (u16_t) (tok->span.start.off - start.start.off);
 			return NEW(hir_expr_t, {
 				.kind = HIR_EXPR_ARRAY,
-				.span = tok->span,
+				.span = start,
 				.array = { commas }
 			});
 		default:
