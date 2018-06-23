@@ -49,12 +49,14 @@ typedef u32_t (map_hash_t)(uintptr_t key);
 	map_hash_t *hash; \
 }
 
+/* TODO: store hash and flags in a separate buffer ? */
 typedef struct {
 	u32_t flags: 2; \
 	u32_t hash: 30; \
 	uintptr_t key;
 } entry_t;
 
+/* TODO: store key and value sizeof to avoid limit the key size to uintptr_t. */
 typedef struct {
 	void *buckets;
 	u32_t len, bit;
@@ -86,6 +88,8 @@ static void htable_init(htable_t *map, usize_t esz, map_eq_t *eq, map_hash_t *ha
 }
 
 /* TODO: shrink. */
+/* TODO: re hash with a recursive function which mark items as moving and find
+ * the new space to store it. Increment the flags field by one bit. */
 static void htable_resize(htable_t *map, u32_t bit)
 {
 	u32_t i, new_max, old_max, mask;
