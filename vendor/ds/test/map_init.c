@@ -177,6 +177,7 @@ static u32_t htable_get(htable_t *map, uintptr_t key)
 	while (true) {
 		entry = (entry_t *) ((char *)map->buckets + (idx * map->esz));
 
+		/* TODO: don't check for eq if next empty or next hash differ. */
 		if (entry->flags == taken_bit && map->eq(entry->key, key))
 			return idx;
 		if (!entry->flags || (idx = (idx + 1) & mask) == last)
