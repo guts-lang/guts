@@ -1,0 +1,49 @@
+#
+# MIT License
+#
+# Copyright (c) 2016-2018 Abel Lucas <www.github.com/uael>
+# Copyright (c) 2016-2018 Guts <www.github.com/guts-lang>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+
+add_custom_target(check_ds
+  COMMAND ${CMAKE_CTEST_COMMAND} -R '^test_ds_.*' --timeout 2)
+
+macro (ds_register_test suite test)
+  if (NOT TARGET check_ds_${suite})
+    add_custom_target(check_ds_${suite}
+      COMMAND ${CMAKE_CTEST_COMMAND} -R '^test_ds_${suite}_.*' --timeout 2)
+  endif ()
+
+  set(name ${suite}_${test})
+
+  add_executable(test_ds_${name} ${name}.c test.h)
+  target_link_libraries(test_ds_${name} DS::libds)
+
+  add_test(test_ds_${name} test_ds_${name})
+  add_dependencies(check test_ds_${name})
+  add_dependencies(check_ds test_ds_${name})
+  add_dependencies(check_ds_${suite} test_ds_${name})
+  add_dependencies(test_ds_${name} DS::libds)
+endmacro ()
+
+ds_register_test(map init)
+ds_register_test(list init)
