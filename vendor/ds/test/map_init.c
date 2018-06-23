@@ -85,6 +85,7 @@ static void htable_init(htable_t *map, usize_t esz, map_eq_t *eq, map_hash_t *ha
 	map->hash = hash ? hash : __hash;
 }
 
+/* TODO: shrink. */
 static void htable_resize(htable_t *map, u32_t bit)
 {
 	u32_t i, new_max, old_max, mask;
