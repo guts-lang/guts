@@ -36,13 +36,13 @@
 
 #define setof(TItem) htableof(TItem)
 
-#define setinit(M, EQ, HASH) htable_init( \
-	(htable_t *)(M), sizeof(*(M)->entries), sizeof(*(M)->entries), \
+#define setinit(S, EQ, HASH) htable_init( \
+	(htable_t *)(S), sizeof(*(S)->entries), sizeof(*(S)->entries), \
 	EQ, HASH \
 )
-#define setput(M, K) htable_put((htable_t *)(M), (u8_t *)(K))
-#define sethas(M, K) htable_has((htable_t *)(M), (u8_t *)(K))
-#define setdel(M, K) htable_del((htable_t *)(M), (u8_t *)(K))
+#define setput(S, K) htable_put((htable_t *)(S), (u8_t *)(K))
+#define sethas(S, K) htable_has((htable_t *)(S), (u8_t *)(K))
+#define setdel(S, K) htable_del((htable_t *)(S), (u8_t *)(K))
 
 #endif /* !__DS_SET_H */
 /*!@} */
