@@ -24,13 +24,12 @@
  * SOFTWARE.
  */
 
-#include <stdio.h>
 #include "ds/htable.h"
 
 FORCEINLINE
-u8_t **__entry(htable_t *self, u32_t idx)
+static u8_t **__entry(htable_t *self, u32_t idx)
 {
-	return self->entries + (idx * self->esz);
+	return (u8_t **)(self->entries + (idx * self->esz));
 }
 
 #define taken_bit 0x2
@@ -54,7 +53,6 @@ static void __resize(htable_t *self, u32_t bit)
 	}
 
 	/* rehash */
-	printf("before rehash\n");
 	for (i = 0; i < old_max; ++i) {
 		if (self->spans[i].flags & taken_bit) {
 
@@ -74,22 +72,17 @@ static void __resize(htable_t *self, u32_t bit)
 				if (i == j)
 					break;
 				if (j < old_max && self->spans[j].flags & taken_bit) {
-					printf("memswap a\n");
-					memswap(__entry(self, i), __entry(self, j), self->esz);
-					printf("memswap b\n");
+					memswap(__entry(self, j), __entry(self, i), self->esz);
 					span = self->spans + j;
 					span->flags = 0;
 				} else {
-					printf("memcpy a %u/%u\n", j, new_max);
 					memcpy(__entry(self, j), __entry(self, i), self->esz);
-					printf("memcpy b\n");
 					break;
 				}
 			}
 		}
 	}
 
-	printf("after rehash\n");
 	free(self->spans);
 
 	/* shrink */
@@ -101,7 +94,7 @@ static void __resize(htable_t *self, u32_t bit)
 }
 
 void htable_init(htable_t *self, usize_t ksz, usize_t esz,
-	hash_fn_t *hash, eq_fn_t *eq)
+	eq_fn_t *eq, hash_fn_t *hash)
 {
 	bzero(self, sizeof(htable_t));
 	self->ksz = (u32_t)ksz;
@@ -135,8 +128,6 @@ u32_t htable_put(htable_t *self, u8_t const *key)
 
 			span->flags = taken_bit;
 			span->hash = s.hash;
-
-			printf("put %s to %u\n", key, i);
 
 			memcpy(entry, &key, self->ksz);
 

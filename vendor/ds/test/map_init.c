@@ -24,12 +24,9 @@
  * SOFTWARE.
  */
 
-#include <string.h>
-
 #include "test.h"
 
 #include "ds/map.h"
-#include "ds/set.h"
 
 #define KEYS 1000
 
@@ -243,7 +240,26 @@ int main(void)
 	u32_t i, idx;
 	htable_span_t e;
 
-	mapinit(&__map, hash_str, eq_str);
+	mapinit(&__map, eq_str, hash_str);
+
+	for (i = 0; i < KEYS; ++i)
+		mapput(&__map, __keys[i], i);
+
+	for (i = 0; i < KEYS; ++i) {
+		ASSERT_TRUE(maphas(&__map, __keys[i]));
+
+		idx = mapget(&__map, __keys[i]);
+		ASSERT_NEQ(U32_MAX, idx);
+		ASSERT_EQ(i, __map.entries[idx].val);
+		ASSERT_STREQ(__map.entries[idx].key, __keys[i]);
+
+		e.hash = hash_str((u8_t *)__keys[i]) << 2;
+		ASSERT_EQ(e.hash, __map.spans[idx].hash);
+
+		ASSERT_TRUE(mapdel(&__map, __keys[i]));
+		ASSERT_FALSE(maphas(&__map, __keys[i]));
+		ASSERT_FALSE(mapdel(&__map, __keys[i]));
+	}
 
 	for (i = 0; i < KEYS; ++i)
 		mapput(&__map, __keys[i], i);

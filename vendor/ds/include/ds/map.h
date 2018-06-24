@@ -40,17 +40,17 @@
 }
 #define mapof(TKey, TVal) htableof(pairof(TKey, TVal))
 
-#define mapinit(M, HASH, EQ) htable_init( \
+#define mapinit(M, EQ, HASH) htable_init( \
 	(htable_t *)(M), sizeof((M)->entries->key), sizeof(*(M)->entries), \
-	HASH, EQ \
+	EQ, HASH \
 )
 #define mapput(M, K, V) do { \
-	usize_t __idx = htable_put((htable_t *)(M), (u8_t *)(K)); \
+	usize_t __idx = htable_put((htable_t *)(M), (u8_t const *)(K)); \
 	(M)->entries[__idx].val = (V); \
 } while (false)
-#define maphas(M, K) htable_has((htable_t *)(M), (u8_t *)(K))
-#define mapget(M, K) htable_get((htable_t *)(M), (u8_t *)(K))
-#define mapdel(M, K) htable_del((htable_t *)(M), (u8_t *)(K))
+#define maphas(M, K) htable_has((htable_t *)(M), (u8_t const *)(K))
+#define mapget(M, K) htable_get((htable_t *)(M), (u8_t const *)(K))
+#define mapdel(M, K) htable_del((htable_t *)(M), (u8_t const *)(K))
 
 #endif /* !__DS_MAP_H */
 /*!@} */

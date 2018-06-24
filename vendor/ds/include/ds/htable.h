@@ -44,11 +44,11 @@ typedef struct {
 	htable_span_t *spans; \
 	u32_t len, bit; \
 	u32_t ksz, esz; \
-	hash_fn_t *hash; \
 	eq_fn_t *eq; \
+	hash_fn_t *hash; \
 }
 
-typedef htableof(u8_t *) htable_t;
+typedef htableof(u8_t) htable_t;
 
 /*!
  *
@@ -59,7 +59,7 @@ typedef htableof(u8_t *) htable_t;
  * @param eq
  */
 __api void htable_init(htable_t *self, usize_t ksz, usize_t esz,
-					   hash_fn_t *hash, eq_fn_t *eq);
+					   eq_fn_t *eq, hash_fn_t *hash);
 
 /*!
  *
