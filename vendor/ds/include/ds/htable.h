@@ -24,44 +24,74 @@
  * SOFTWARE.
  */
 
-/*!@file wrap/string.h
+/*!@file ds/htable.h
  * @author uael
  *
- * @addtogroup wrap @{
+ * @addtogroup ds @{
  */
-#ifndef __WRAP_STRING_H
-# define __WRAP_STRING_H
+#ifndef __DS_HTABLE_H
+# define __DS_HTABLE_H
 
-#include "wrap/types.h"
+#include "ds/hash.h"
 
-#ifdef HAS_STRING_H
-# include <string.h>
-#endif
-#ifdef HAS_STRINGS_H
-# include <strings.h>
-#endif
+typedef struct {
+	u32_t flags: 2;
+	u32_t hash: 30;
+} htable_span_t;
 
-#ifndef HAS_BZERO
-__api void
-bzero(void *ptr, usize_t n);
-#endif
+#define htableof(TItem) struct { \
+	TItem *entries; \
+	htable_span_t *spans; \
+	u32_t len, bit; \
+	u32_t ksz, esz; \
+	hash_fn_t *hash; \
+	eq_fn_t *eq; \
+}
 
-#ifndef HAS_STRLCPY
-__api usize_t
-strlcpy(char *__restrict dst, const char *__restrict src, usize_t dstsize);
-#endif
+typedef htableof(u8_t *) htable_t;
 
-#ifndef HAS_STRNCPY
-__api char *
-strncpy(char *dst, __const char *src, usize_t n);
-#endif
+/*!
+ *
+ * @param self
+ * @param ksz
+ * @param esz
+ * @param hash
+ * @param eq
+ */
+__api void htable_init(htable_t *self, usize_t ksz, usize_t esz,
+					   hash_fn_t *hash, eq_fn_t *eq);
 
-#ifndef HAS_STRNLEN
-__api usize_t
-strnlen(const char *s, usize_t n);
-#endif
+/*!
+ *
+ * @param self
+ * @param key
+ * @return
+ */
+__api u32_t htable_put(htable_t *self, u8_t const *key);
 
-__api void memswap(void *a, void *b, usize_t sz);
+/*!
+ *
+ * @param self
+ * @param key
+ * @return
+ */
+__api u32_t htable_get(htable_t *self, u8_t const *key);
 
-#endif /* !__WRAP_STRING_H */
+/*!
+ *
+ * @param self
+ * @param key
+ * @return
+ */
+__api bool htable_has(htable_t *self, u8_t const *key);
+
+/*!
+ *
+ * @param self
+ * @param key
+ * @return
+ */
+__api bool htable_del(htable_t *self, u8_t const *key);
+
+#endif /* !__DS_HTABLE_H */
 /*!@} */

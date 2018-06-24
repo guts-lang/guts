@@ -50,6 +50,7 @@ endif()
 # Project directories definition
 ##
 set(__INC_DIR     ${CMAKE_CURRENT_LIST_DIR}/include)
+set(__SRC_DIR     ${CMAKE_CURRENT_LIST_DIR}/src)
 set(__TEST_DIR    ${CMAKE_CURRENT_LIST_DIR}/test)
 set(__INC_INSDIR  ${CMAKE_INSTALL_INCLUDEDIR})
 set(__LIB_INSDIR  ${CMAKE_INSTALL_LIBDIR})
@@ -71,20 +72,42 @@ configure_file(${__INC_DIR}/${__TARGET_NAME}/conf.h.in ${CONF_H} @ONLY)
 
 file(GLOB_RECURSE __HDRS ${CONF_H} ${__INC_DIR}/*.h)
 
-add_library(${__TARGET} INTERFACE)
+add_library(${__TARGET} ${__HDRS}
+  ${__SRC_DIR}/hash.c
+  ${__SRC_DIR}/htable.c)
 add_library(${PROJECT_NAME}::${__TARGET} ALIAS ${__TARGET})
+set_target_properties(${__TARGET} PROPERTIES
+  C_STANDARD 90 OUTPUT_NAME "${__TARGET_NAME}")
 
-target_link_libraries(${__TARGET} INTERFACE Wrap::libwrap)
+target_link_libraries(${__TARGET} PUBLIC Wrap::libwrap)
+target_compile_definitions(${__TARGET} PRIVATE API_COMPILE)
 target_include_directories(${__TARGET}
-  INTERFACE
-    $<INSTALL_INTERFACE:${__INC_INSDIR}>
-    $<BUILD_INTERFACE:${__INC_DIR}>
-    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>)
-
+  PRIVATE ${__SRC_DIR}
+  PUBLIC
+  $<INSTALL_INTERFACE:${__INC_INSDIR}>
+  $<BUILD_INTERFACE:${__INC_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>)
+if (MSVC)
+  target_compile_definitions(${__TARGET} PRIVATE _CRT_SECURE_NO_WARNINGS)
+  target_compile_options(${__TARGET} PRIVATE /Oy /W3)
+else ()
+  target_compile_options(${__TARGET}
+    PRIVATE
+    -Wall -Werror -Wextra
+    -ansi -fomit-frame-pointer
+    -Wno-missing-field-initializers
+    $<$<BOOL:${${PROJECT_NAME}_COVERAGE}>:--coverage>
+    $<$<BOOL:${${PROJECT_NAME}_ASAN}>:-fsanitize=address>)
+  target_link_libraries(${__TARGET}
+    PRIVATE
+    $<$<BOOL:${${PROJECT_NAME}_ASAN}>:-fsanitize=address>
+    $<$<BOOL:${${PROJECT_NAME}_ASAN}>:-fno-omit-frame-pointer>)
+endif ()
 
 install(FILES ${CONF_H} DESTINATION ${__INC_INSDIR}/${__TARGET_NAME})
 install(DIRECTORY ${__INC_DIR}/${__TARGET_NAME} DESTINATION ${__INC_INSDIR}
   FILES_MATCHING PATTERN "*.h")
+install(FILES ${__INC_DIR}/${__TARGET_NAME}.h DESTINATION ${__INC_INSDIR})
 
 ## ************************************************************************** ##
 # Testing

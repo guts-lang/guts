@@ -24,44 +24,48 @@
  * SOFTWARE.
  */
 
-/*!@file wrap/string.h
- * @author uael
- *
- * @addtogroup wrap @{
- */
-#ifndef __WRAP_STRING_H
-# define __WRAP_STRING_H
+#include "ds/hash.h"
 
-#include "wrap/types.h"
+FORCEINLINE
+u32_t hash_u32(u8_t const *key)
+{
+	return (u32_t)(uintptr_t)key;
+}
 
-#ifdef HAS_STRING_H
-# include <string.h>
-#endif
-#ifdef HAS_STRINGS_H
-# include <strings.h>
-#endif
+FORCEINLINE
+u32_t hash_u64(u8_t const *key)
+{
+	const u64_t k = (u64_t)(uintptr_t)key;
 
-#ifndef HAS_BZERO
-__api void
-bzero(void *ptr, usize_t n);
-#endif
+	return (u32_t)(k >> 33 ^ k << 11);
+}
 
-#ifndef HAS_STRLCPY
-__api usize_t
-strlcpy(char *__restrict dst, const char *__restrict src, usize_t dstsize);
-#endif
+FORCEINLINE
+u32_t hash_str(u8_t const *key)
+{
+	const char *s = (const char *) key;
+	u32_t h;
 
-#ifndef HAS_STRNCPY
-__api char *
-strncpy(char *dst, __const char *src, usize_t n);
-#endif
+	if ((h = (u32_t) *s))
+		for (++s; *s; ++s)
+			h = (h << 5) - h + (u32_t) *s;
+	return h;
+}
 
-#ifndef HAS_STRNLEN
-__api usize_t
-strnlen(const char *s, usize_t n);
-#endif
+FORCEINLINE
+bool eq_u32(u8_t const *a, u8_t const *b)
+{
+	return (bool)(a == b);
+}
 
-__api void memswap(void *a, void *b, usize_t sz);
+FORCEINLINE
+bool eq_u64(u8_t const *a, u8_t const *b)
+{
+	return (bool)(a == b);
+}
 
-#endif /* !__WRAP_STRING_H */
-/*!@} */
+FORCEINLINE
+bool eq_str(u8_t const *a, u8_t const *b)
+{
+	return (bool)(!strcmp((const char *)a, (const char *)b));
+}

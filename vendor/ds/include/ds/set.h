@@ -24,44 +24,25 @@
  * SOFTWARE.
  */
 
-/*!@file wrap/string.h
+/*!@file ds/set.h
  * @author uael
  *
- * @addtogroup wrap @{
+ * @addtogroup ds @{
  */
-#ifndef __WRAP_STRING_H
-# define __WRAP_STRING_H
+#ifndef __DS_SET_H
+# define __DS_SET_H
 
-#include "wrap/types.h"
+#include "ds/htable.h"
 
-#ifdef HAS_STRING_H
-# include <string.h>
-#endif
-#ifdef HAS_STRINGS_H
-# include <strings.h>
-#endif
+#define setof(TItem) htableof(TItem)
 
-#ifndef HAS_BZERO
-__api void
-bzero(void *ptr, usize_t n);
-#endif
+#define setinit(M, EQ, HASH) htable_init( \
+	(htable_t *)(M), sizeof(*(M)->entries), sizeof(*(M)->entries), \
+	EQ, HASH \
+)
+#define setput(M, K) htable_put((htable_t *)(M), (u8_t *)(K))
+#define sethas(M, K) htable_has((htable_t *)(M), (u8_t *)(K))
+#define setdel(M, K) htable_del((htable_t *)(M), (u8_t *)(K))
 
-#ifndef HAS_STRLCPY
-__api usize_t
-strlcpy(char *__restrict dst, const char *__restrict src, usize_t dstsize);
-#endif
-
-#ifndef HAS_STRNCPY
-__api char *
-strncpy(char *dst, __const char *src, usize_t n);
-#endif
-
-#ifndef HAS_STRNLEN
-__api usize_t
-strnlen(const char *s, usize_t n);
-#endif
-
-__api void memswap(void *a, void *b, usize_t sz);
-
-#endif /* !__WRAP_STRING_H */
+#endif /* !__DS_SET_H */
 /*!@} */

@@ -24,44 +24,29 @@
  * SOFTWARE.
  */
 
-/*!@file wrap/string.h
+/*!@file ds/hash.h
  * @author uael
  *
- * @addtogroup wrap @{
+ * @addtogroup ds @{
  */
-#ifndef __WRAP_STRING_H
-# define __WRAP_STRING_H
+#ifndef __DS_HASH_H
+# define __DS_HASH_H
 
-#include "wrap/types.h"
+#include <wrap.h>
 
-#ifdef HAS_STRING_H
-# include <string.h>
-#endif
-#ifdef HAS_STRINGS_H
-# include <strings.h>
-#endif
+#include "ds/conf.h"
 
-#ifndef HAS_BZERO
-__api void
-bzero(void *ptr, usize_t n);
-#endif
+typedef u32_t (hash_fn_t)(u8_t const *key);
 
-#ifndef HAS_STRLCPY
-__api usize_t
-strlcpy(char *__restrict dst, const char *__restrict src, usize_t dstsize);
-#endif
+__api u32_t hash_u32(u8_t const *key);
+__api u32_t hash_u64(u8_t const *key);
+__api u32_t hash_str(u8_t const *key);
 
-#ifndef HAS_STRNCPY
-__api char *
-strncpy(char *dst, __const char *src, usize_t n);
-#endif
+typedef bool (eq_fn_t)(u8_t const *a, u8_t const *b);
 
-#ifndef HAS_STRNLEN
-__api usize_t
-strnlen(const char *s, usize_t n);
-#endif
+__api bool eq_u32(u8_t const *a, u8_t const *b);
+__api bool eq_u64(u8_t const *a, u8_t const *b);
+__api bool eq_str(u8_t const *a, u8_t const *b);
 
-__api void memswap(void *a, void *b, usize_t sz);
-
-#endif /* !__WRAP_STRING_H */
+#endif /* !__DS_HASH_H */
 /*!@} */
