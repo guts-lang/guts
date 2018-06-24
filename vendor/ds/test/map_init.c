@@ -217,8 +217,6 @@ static u32_t htable_put(htable_t *map, u8_t *key)
 
 			entry->flags = taken_bit;
 			entry->hash = hash;
-
-			printf("put %u to %u\n", hash, i);
 			
 			memcpy(map->buckets + (i * map->psz), &key, map->ksz);
 
