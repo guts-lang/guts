@@ -40,9 +40,9 @@
 	(htable_t *)(S), sizeof(*(S)->entries), sizeof(*(S)->entries), \
 	EQ, HASH \
 )
-#define setput(S, K) htable_put((htable_t *)(S), (u8_t *)(K))
-#define sethas(S, K) htable_has((htable_t *)(S), (u8_t *)(K))
-#define setdel(S, K) htable_del((htable_t *)(S), (u8_t *)(K))
+#define setput(S, K) htable_put((htable_t *)(S), (u8_t const *)(K))
+#define sethas(S, K) htable_has((htable_t *)(S), (u8_t const *)(K))
+#define setdel(S, K) htable_del((htable_t *)(S), (u8_t const *)(K))
 
 #endif /* !__DS_SET_H */
 /*!@} */
