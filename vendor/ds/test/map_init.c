@@ -45,7 +45,7 @@ typedef u32_t (map_hash_t)(u8_t const *key);
 	TItem *entries; \
 	htable_span_t *spans; \
 	u32_t len, bit; \
-	u32_t ksz, psz; \
+	u32_t ksz, esz; \
 	map_eq_t *eq; \
 	map_hash_t *hash; \
 }
@@ -63,7 +63,7 @@ typedef struct {
 	char *entries;
 	htable_span_t *spans;
 	u32_t len, bit;
-	u32_t ksz, psz;
+	u32_t ksz, esz;
 	map_eq_t *eq;
 	map_hash_t *hash;
 } htable_t;
@@ -78,12 +78,12 @@ static u32_t __hash(u8_t const *key)
 	return (u32_t)(uintptr_t)key;
 }
 
-static void htable_init(htable_t *map, usize_t ksz, usize_t psz,
+static void htable_init(htable_t *map, usize_t ksz, usize_t esz,
 						map_eq_t *eq, map_hash_t *hash)
 {
 	bzero(map, sizeof(htable_t));
 	map->ksz = (u32_t)ksz;
-	map->psz = (u32_t)psz;
+	map->esz = (u32_t)esz;
 	map->eq = eq ? eq : __eq;
 	map->hash = hash ? hash : __hash;
 }
@@ -131,7 +131,7 @@ static void memswap(void *a, void *b, size_t size)
 FORCEINLINE
 u8_t **__entry(htable_t *map, u32_t idx)
 {
-	return (u8_t **)(map->entries + (idx * map->psz));
+	return (u8_t **)(map->entries + (idx * map->esz));
 }
 
 static void htable_resize(htable_t *map, u32_t bit)
@@ -146,9 +146,9 @@ static void htable_resize(htable_t *map, u32_t bit)
 
 	/* grow */
 	if (bit > map->bit) {
-		map->entries = realloc(map->entries, new_max * map->psz);
-		bzero(map->entries + (old_max * map->psz),
-			((new_max - old_max) * map->psz));
+		map->entries = realloc(map->entries, new_max * map->esz);
+		bzero(map->entries + (old_max * map->esz),
+			((new_max - old_max) * map->esz));
 	}
 
 	/* rehash */
@@ -171,11 +171,11 @@ static void htable_resize(htable_t *map, u32_t bit)
 				if (i == j)
 					break;
 				if (j < old_max && map->spans[j].flags & taken_bit) {
-					memswap(__entry(map, i), __entry(map, j), map->psz);
+					memswap(__entry(map, i), __entry(map, j), map->esz);
 					span = map->spans + j;
 					span->flags = 0;
 				} else {
-					memcpy(__entry(map, j), __entry(map, i), map->psz);
+					memcpy(__entry(map, j), __entry(map, i), map->esz);
 					break;
 				}
 			}
@@ -186,7 +186,7 @@ static void htable_resize(htable_t *map, u32_t bit)
 
 	/* shrink */
 	if (bit < map->bit)
-		map->entries = realloc(map->entries, new_max * map->psz);
+		map->entries = realloc(map->entries, new_max * map->esz);
 	
 	map->bit = bit;
 	map->spans = new_spans;
