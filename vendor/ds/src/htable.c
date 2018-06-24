@@ -108,7 +108,7 @@ void htable_init(htable_t *self, usize_t ksz, usize_t esz,
 	self->esz = (u32_t)esz;
 	self->eq = eq ? eq : eq_u32;
 	self->hash = hash ? hash : hash_u32;
-	printf("init %u %u\n", ksz, esz);
+	printf("init %llu %llu\n", ksz, esz);
 }
 
 u32_t htable_put(htable_t *self, u8_t const *key)
