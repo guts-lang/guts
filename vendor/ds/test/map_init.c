@@ -24,67 +24,108 @@
  * SOFTWARE.
  */
 
+#include <string.h>
+
 #include "test.h"
 
 #include "ds/map.h"
 
-typedef int (map_eq_t)(uintptr_t a, uintptr_t b);
-typedef u32_t (map_hash_t)(uintptr_t key);
+typedef int (map_eq_t)(u8_t const *a, u8_t const *b);
+typedef u32_t (map_hash_t)(u8_t const *key);
 
 #define taken_bit 0x2
 #define deleted_bit 0x1
 
-#define entryof(TVal) struct { \
-	u32_t flags: 2; \
-	u32_t hash: 30; \
-	uintptr_t key; \
+#define pairof(TKey, TVal) struct { \
+	TKey key; \
 	TVal val; \
 }
 
-#define mapof(TVal) struct { \
-	entryof(TVal) *buckets; \
+#define htableof(TItem) struct { \
+	TItem *buckets; \
+	htable_entry_t *entries; \
 	u32_t len, bit; \
-	u64_t esz; \
+	u32_t ksz, psz; \
 	map_eq_t *eq; \
 	map_hash_t *hash; \
 }
 
-/* TODO: store hash and flags in a separate buffer ? */
+#define mapof(TKey, TVal) htableof(pairof(TKey, TVal))
+#define setof(TItem) htableof(TItem)
+
 typedef struct {
-	u32_t flags: 2; \
-	u32_t hash: 30; \
-	uintptr_t key;
-} entry_t;
+	u32_t flags: 2;
+	u32_t hash: 30;
+} htable_entry_t;
 
 /* TODO: store key and value sizeof to avoid limit the key size to uintptr_t. */
 typedef struct {
-	void *buckets;
+	char *buckets;
+	htable_entry_t *entries;
 	u32_t len, bit;
-	u64_t esz;
+	u32_t ksz, psz;
 	map_eq_t *eq;
 	map_hash_t *hash;
 } htable_t;
 
-FORCEINLINE CONST
-static int __eq(uintptr_t a, uintptr_t b)
+static int __eq(u8_t const *a, u8_t const *b)
 {
 	return a == b;
 }
 
-FORCEINLINE CONST
-static u32_t __hash(uintptr_t key)
+static u32_t __hash(u8_t const *key)
 {
-	return (u32_t)key;
+	return (u32_t)(uintptr_t)key;
 }
 
-static void htable_init(htable_t *map, usize_t esz, map_eq_t *eq, map_hash_t *hash)
+static void htable_init(htable_t *map, usize_t ksz, usize_t psz,
+						map_eq_t *eq, map_hash_t *hash)
 {
-	assert(esz >= sizeof(entry_t));
-
 	bzero(map, sizeof(htable_t));
-	map->esz = esz;
+	map->ksz = (u32_t)ksz;
+	map->psz = (u32_t)psz;
 	map->eq = eq ? eq : __eq;
 	map->hash = hash ? hash : __hash;
+}
+
+static void swap_byte(void *a, void *b, size_t count)
+{
+	char *x = (char *)a;
+	char *y = (char *)b;
+
+	while (count--) {
+		char t = *x;
+		*x = *y;
+		*y = t;
+		x += 1;
+		y += 1;
+	}
+}
+
+static void swap_word(void *a, void *b, size_t count)
+{
+	char *x = (char *)a;
+	char *y = (char *)b;
+	long t[1];
+
+	while (count--) {
+		memcpy(t, x, sizeof(long));
+		memcpy(x, y, sizeof(long));
+		memcpy(y, t, sizeof(long));
+		x += sizeof(long);
+		y += sizeof(long);
+	}
+}
+
+static void memswap(void *a, void *b, size_t size)
+{
+	size_t words = size / sizeof(long);
+	size_t bytes = size % sizeof(long);
+
+	swap_word(a, b, words);
+	a = (char *)a + words * sizeof(long);
+	b = (char *)b + words * sizeof(long);
+	swap_byte(a, b, bytes);
 }
 
 /* TODO: shrink. */
@@ -92,50 +133,69 @@ static void htable_init(htable_t *map, usize_t esz, map_eq_t *eq, map_hash_t *ha
  * the new space to store it. Increment the flags field by one bit. */
 static void htable_resize(htable_t *map, u32_t bit)
 {
-	u32_t i, new_max, old_max, mask;
+	u32_t i, old_max, new_max, new_mask;
+	htable_entry_t *new_entries, *entry;
 
-	old_max = 1U << map->bit;
+	old_max = map->bit ? 1U << map->bit : 0;
 
-	map->bit = bit;
 	new_max = 1U << bit;
-	mask = new_max - 1;
-	map->buckets = realloc(map->buckets, new_max * map->esz);
+	new_mask = new_max - 1;
+
+	new_entries = calloc(new_max, sizeof(htable_entry_t));
+	
+	if (bit > map->bit) {
+		map->buckets = realloc(map->buckets, new_max * map->psz);
+		bzero(map->buckets + (old_max * map->psz),
+			((new_max - old_max) * map->psz));
+	}
 
 	for (i = 0; i < old_max; ++i) {
-		entry_t *entry, *next;
-		u32_t j;
+		if (map->entries[i].flags == taken_bit) {
 
-		entry = (entry_t *) ((char *)map->buckets + (i * map->esz));
-
-		/* Deleted bucket are reused. */
-		if (entry->flags == deleted_bit) entry->flags = 0;
-		else if (entry->flags && (entry->hash & mask) != i) {
+			entry = map->entries + i;
 			entry->flags = 0;
-			j = entry->hash & mask;
 
-			/* Find a new entry. */
 			while (true) {
-				next = (entry_t *) ((char *)map->buckets + (j * map->esz));
-				if (next->flags == 0 || (next->flags == deleted_bit))
+				u32_t j;
+
+				j = entry->hash & new_mask;
+				while (new_entries[j].flags)
+					j = (j + 1) & new_mask;
+
+				new_entries[j].flags = taken_bit;
+				new_entries[j].hash = entry->hash;
+
+				if (i == j)
 					break;
-
-				j = (j + 1) & mask;
+				printf("move %u from %u to %u\n", entry->hash, i, j);
+				if (j < old_max && map->entries[j].flags == taken_bit) {
+					memswap(map->buckets + (i * map->psz),
+						map->buckets + (j * map->psz), map->psz);
+					entry = map->entries + j;
+					entry->flags = 0;
+				} else {
+					memcpy(map->buckets + (j * map->psz),
+						map->buckets + (i * map->psz), map->psz);
+					break;
+				}
 			}
-
-			/* Copy entry if we find a better space to store it. */
-			if (j == i) next = entry;
-			else memcpy(next, entry, map->esz);
-
-			/* Mark new entry has taken. */
-			next->flags = taken_bit;
 		}
 	}
+
+	free(map->entries);
+
+	if (bit < map->bit)
+		map->buckets = realloc(map->buckets, new_max * map->psz);
+	
+	map->bit = bit;
+	map->entries = new_entries;
 }
 
-static u32_t htable_put(htable_t *map, uintptr_t key)
+static u32_t htable_put(htable_t *map, u8_t *key)
 {
-	entry_t *entry;
+	htable_entry_t *entry;
 	u32_t i, hash, mask;
+	u8_t *pair_key;
 
 	if (!map->bit) /* initialize */
 		htable_resize(map, 4);
@@ -146,15 +206,21 @@ static u32_t htable_put(htable_t *map, uintptr_t key)
 	mask = (1U << map->bit) - 1;
 	i = hash & mask;
 
+	pair_key = alloca(map->ksz);
 	while (true) {
-		entry = (entry_t *) ((char *)map->buckets + (i * map->esz));
+
+		memcpy(pair_key, map->buckets + (i * map->psz), map->ksz);
+		entry = map->entries + i;
 
 		if (!entry->flags || (entry->flags == deleted_bit)
-			|| map->eq(entry->key, key)) {
+			|| map->eq(*(u8_t **)pair_key, key)) {
 
 			entry->flags = taken_bit;
-			entry->key = key;
 			entry->hash = hash;
+
+			printf("put %u to %u\n", hash, i);
+			
+			memcpy(map->buckets + (i * map->psz), &key, map->ksz);
 
 			++map->len;
 			return i;
@@ -164,39 +230,43 @@ static u32_t htable_put(htable_t *map, uintptr_t key)
 	}
 }
 
-static u32_t htable_get(htable_t *map, uintptr_t key)
+static u32_t htable_get(htable_t *map, u8_t *key)
 {
-	entry_t *entry;
-	u32_t idx, hash, last, mask;
+	htable_entry_t *entry;
+	u32_t i, hash, last, mask;
+	u8_t *pair_key;
 
 	hash = map->hash(key) << 2;
 	mask = (1U << map->bit) - 1;
-	idx = hash & mask;
-	last = idx;
+	i = hash & mask;
+	last = i;
 
+	pair_key = alloca(map->ksz);
 	while (true) {
-		entry = (entry_t *) ((char *)map->buckets + (idx * map->esz));
+		memcpy(pair_key, map->buckets + (i * map->psz), map->ksz);
+		entry = map->entries + i;
 
-		/* TODO: don't check for eq if next empty or next hash differ. */
-		if (entry->flags == taken_bit && map->eq(entry->key, key))
-			return idx;
-		if (!entry->flags || (idx = (idx + 1) & mask) == last)
+		/* TODO: check for hash eq. */
+		if (entry->flags == taken_bit
+			&& map->eq(*(u8_t **)pair_key, key))
+			return i;
+		if (!entry->flags || (i = (i + 1) & mask) == last)
 			return U32_MAX;
 	}
 }
 
-static bool htable_delat(htable_t *map, u32_t idx)
+static bool htable_del(htable_t *map, u8_t *key)
 {
-	if (map->bit && idx < (1U << map->bit)) {
-		entry_t *entry;
+	u32_t i;
 
-		entry = (entry_t *) ((char *)map->buckets + (idx * map->esz));
+	if ((i = htable_get(map, key)) != U32_MAX) {
+		htable_entry_t *entry;
 
-		if (entry->flags != taken_bit)
-			return false;
-
+		entry = map->entries + i;
 		entry->flags = deleted_bit;
 		--map->len;
+
+		printf("del %u at %u\n", entry->hash, i);
 
 		/* shrink */
 		if (map->len <= (1U << map->bit) * 0.15 && map->bit > 4)
@@ -208,38 +278,17 @@ static bool htable_delat(htable_t *map, u32_t idx)
 	return false;
 }
 
-static bool htable_del(htable_t *map, uintptr_t key)
+static bool htable_contains(htable_t *map, u8_t *key)
 {
-	u32_t idx;
-
-	if ((idx = htable_get(map, key)) != U32_MAX) {
-		entry_t *entry;
-
-		entry = (entry_t *) ((char *)map->buckets + (idx * map->esz));
-		entry->flags = deleted_bit;
-		--map->len;
-
-		/* shrink */
-		if (map->len <= (1U << map->bit) * 0.15 && map->bit > 4)
-			htable_resize(map, map->bit - 1);
-
-		return true;
-	}
-
-	return false;
+	return (bool)(htable_get(map, key) != U32_MAX);
 }
 
-static bool htable_contains(htable_t *map, uintptr_t key)
-{
-	return htable_get(map, key) != U32_MAX;
-}
-
-static int __streq(uintptr_t a, uintptr_t b)
+static int __streq(u8_t const *a, u8_t const *b)
 {
 	return !strcmp((const char *) a, (const char *) b);
 }
 
-static u32_t __strhash(uintptr_t key)
+static u32_t __strhash(u8_t const *key)
 {
 	const char *s = (const char *) key;
 	u32_t h = (u32_t) *s;
@@ -303,26 +352,54 @@ static __const char *__keys[KEYS] = {
 	"lQBpXSNdCr", "tyecI9yCnQ", "Q5TiFHHfvn", "lxP6DeavWK", "WXfjpRcX0t",
 };
 
+static mapof(char *, u32_t) __map;
+
+#define mapinit(M, EQ, HASH) htable_init( \
+	(htable_t *)(M), sizeof((M)->buckets->key), sizeof(*(M)->buckets), \
+	EQ, HASH \
+)
+#define mapput(M, K, V) do { \
+	usize_t __idx = htable_put((htable_t *)(M), (u8_t *)(K)); \
+	(M)->buckets[__idx].val = (V); \
+} while (false)
+#define maphas(M, K) htable_contains((htable_t *)(M), (u8_t *)(K))
+#define mapget(M, K) htable_get((htable_t *)(M), (u8_t *)(K))
+#define mapdel(M, K) htable_del((htable_t *)(M), (u8_t *)(K))
+
+#define setinit(M, EQ, HASH) htable_init( \
+	(htable_t *)(M), sizeof(*(M)->buckets), sizeof(*(M)->buckets), \
+	EQ, HASH \
+)
+#define setput(M, K) htable_put((htable_t *)(M), (u8_t *)(K))
+#define sethas(M, K) htable_contains((htable_t *)(M), (u8_t *)(K))
+#define setdel(M, K) htable_del((htable_t *)(M), (u8_t *)(K))
+
 int main(void)
 {
-	mapof(u32_t) map;
 	u32_t i, idx;
 
-	htable_init((htable_t *)&map, sizeof(*map.buckets), __streq, __strhash);
+	mapinit(&__map, __streq, __strhash);
+
+	for (i = 0; i < KEYS; ++i)
+		mapput(&__map, __keys[i], i);
 
 	for (i = 0; i < KEYS; ++i) {
-		idx = htable_put((htable_t *)&map, (uintptr_t)__keys[i]);
-		map.buckets[idx].val = i;
-	}
+		ASSERT_TRUE(maphas(&__map, __keys[i]));
 
-	for (i = 0; i < KEYS; ++i) {
-		ASSERT_TRUE(htable_contains((htable_t *)&map, (uintptr_t)__keys[i]));
-
-		idx = htable_get((htable_t *)&map, (uintptr_t)__keys[i]);
+		idx = mapget(&__map, __keys[i]);
 		ASSERT_NEQ(U32_MAX, idx);
-		ASSERT_EQ(i, map.buckets[idx].val);
+		ASSERT_EQ(i, __map.buckets[idx].val);
+		ASSERT_STREQ(__map.buckets[idx].key, __keys[i]);
+		/*printf("check %s %u %u\n", __keys[i], __strhash(__keys[i]) << 2,
+			__map.entries[idx].hash);
+		ASSERT_EQ(__strhash(__keys[i]) << 2, __map.entries[idx].hash);*/
+
+		ASSERT_TRUE(mapdel(&__map, __keys[i]));
+		ASSERT_FALSE(maphas(&__map, __keys[i]));
+		ASSERT_FALSE(mapdel(&__map, __keys[i]));
 	}
 
-	free(map.buckets);
+	free(__map.buckets);
+	free(__map.entries);
 	return 0;
 }
