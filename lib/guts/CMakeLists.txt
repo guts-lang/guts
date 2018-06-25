@@ -72,9 +72,12 @@ file(GLOB_RECURSE __HDRS ${CONF_H} ${__INC_DIR}/*.h)
 add_library(${__TARGET} ${__HDRS}
   ${__SRC_DIR}/hir/entity.c
   ${__SRC_DIR}/hir/expr.c
+  ${__SRC_DIR}/hir/ir.c
   ${__SRC_DIR}/hir/lexer.c
   ${__SRC_DIR}/hir/literal.c
   ${__SRC_DIR}/hir/parser.c
+  ${__SRC_DIR}/hir/scope.c
+  ${__SRC_DIR}/hir/stmt.c
   ${__SRC_DIR}/hir/token.c
   ${__SRC_DIR}/hir/type.c
   ${__SRC_DIR}/hir.c)

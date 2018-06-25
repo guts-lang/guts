@@ -34,13 +34,9 @@
 
 #include "type.h"
 
-typedef struct hir_expr hir_expr_t;
+struct hir_stmt;
 
-struct hir_expr {
-
-	span_t span;
-
-	hir_ty_t *type;
+typedef struct hir_expr {
 
 	enum {
 		HIR_EXPR_IDENT = 0,
@@ -50,31 +46,33 @@ struct hir_expr {
 		HIR_EXPR_ARRAY,
 	} kind;
 
+	span_t span;
+
 	union {
 		hir_ident_t ident;
 		hir_lit_t lit;
 
 		struct {
-			hir_expr_t *expr;
+			struct hir_expr *expr;
 		} paren;
 
 		struct {
-			vecof(hir_expr_t *) elems;
+			vecof(struct hir_expr *) elems;
 		} tuple;
 
 		struct {
-			vecof(hir_expr_t *) elems;
+			vecof(struct hir_expr *) elems;
 		} array;
 
 		struct {
 			bool indirect;
-			hir_expr_t *expr;
+			struct hir_expr *expr;
 			hir_ident_t ident;
 		} member;
 
 		struct {
-			hir_expr_t *callee;
-			vecof(hir_expr_t *) arguments;
+			struct hir_expr *callee;
+			vecof(struct hir_expr *) arguments;
 		} call;
 
 		struct {
@@ -91,7 +89,7 @@ struct hir_expr {
 				HIR_UNARY_NOT,
 			} operator;
 
-			hir_expr_t *operand;
+			struct hir_expr *operand;
 		} unary;
 
 		struct {
@@ -105,7 +103,6 @@ struct hir_expr {
 				HIR_BINARY_NEQ,
 				HIR_BINARY_LAND,
 				HIR_BINARY_LOR,
-
 				HIR_BINARY_MUL,
 				HIR_BINARY_DIV,
 				HIR_BINARY_MOD,
@@ -129,17 +126,12 @@ struct hir_expr {
 				HIR_BINARY_ASSIGN_XOR,
 			} operator;
 
-			hir_expr_t *lhs;
-			hir_expr_t *rhs;
+			struct hir_expr *lhs;
+			struct hir_expr *rhs;
 		} binary;
-
-		struct {
-			hir_expr_t *cond;
-			hir_expr_t *block;
-			hir_expr_t *else_branch;
-		} cond;
 	};
-};
+
+} hir_expr_t;
 
 __api hir_expr_t *hir_expr_parse(hir_lexer_t *lexer);
 

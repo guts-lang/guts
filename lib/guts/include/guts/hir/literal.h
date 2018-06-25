@@ -108,6 +108,7 @@ typedef bool hir_bool_t;
  * A literal such as a string or integer or boolean.
  */
 typedef struct {
+
 	enum {
 		HIR_LIT_INTEGER = 0,
 		HIR_LIT_FLOAT,
@@ -116,6 +117,7 @@ typedef struct {
 		HIR_LIT_BOOL,
 		HIR_LIT_NULL,
 	} kind;
+
 	union {
 		hir_integer_t integer;
 		hir_float_t floating;
@@ -123,6 +125,7 @@ typedef struct {
 		hir_char_t chr;
 		hir_bool_t boolean;
 	};
+
 } hir_lit_t;
 
 /*!@brief

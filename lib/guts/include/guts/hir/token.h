@@ -130,6 +130,7 @@ typedef struct hir_tok {
 		hir_ident_t ident;
 		tok_kind_t syntax;
 	};
+
 } hir_tok_t;
 
 __api void hir_tok_init(hir_tok_t *token, loc_t start, u16_t length);

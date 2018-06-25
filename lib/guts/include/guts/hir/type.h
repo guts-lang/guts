@@ -32,13 +32,11 @@
 #ifndef __GUTS_HIR_TYPE_H
 # define __GUTS_HIR_TYPE_H
 
-#include "lexer.h"
+#include "parser.h"
 
 struct hir_expr;
 
-typedef struct hir_ty hir_ty_t;
-
-struct hir_ty {
+typedef struct hir_ty {
 
 	span_t span;
 
@@ -56,25 +54,25 @@ struct hir_ty {
 
 	union {
 		struct {
-			hir_ty_t *elem;
+			struct hir_ty *elem;
 		} slice;
 
 		struct {
-			hir_ty_t *elem;
+			struct hir_ty *elem;
 			struct hir_expr *len;
 		} array;
 
 		struct {
-			hir_ty_t *elem;
+			struct hir_ty *elem;
 		} ptr;
 
 		struct {
-			hir_ty_t *output;
-			vecof(hir_ty_t *) inputs;
+			struct hir_ty *output;
+			vecof(struct hir_ty *) inputs;
 		} fn;
 
 		struct {
-			vecof(hir_ty_t *) elems;
+			vecof(struct hir_ty *) elems;
 		} tuple;
 
 		struct {
@@ -86,7 +84,8 @@ struct hir_ty {
 			u8_t bytes;
 		} floating;
 	};
-};
+
+} hir_ty_t;
 
 #endif /* !__GUTS_HIR_TYPE_H */
 /*!@} */
