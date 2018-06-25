@@ -60,11 +60,13 @@ typedef enum {
 	HIR_TOK_F64,    /*!< `f64'.    */
 
 	/* Keyword */
+	HIR_TOK_INCLUDE,   /*!< `include'.   */
 	HIR_TOK_USE,       /*!< `use'.       */
 	HIR_TOK_NAMESPACE, /*!< `namespace'. */
 	HIR_TOK_IF,        /*!< `if'.        */
 	HIR_TOK_ELSE,      /*!< `else'.      */
 	HIR_TOK_RETURN,    /*!< `return'.    */
+	HIR_TOK_AS,        /*!< `as'.        */
 
 	/* Symbol */
 	HIR_TOK_COLON,     /*!< `:'. */

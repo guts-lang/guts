@@ -247,6 +247,8 @@ static bool __lookahead(hir_lexer_t *self)
 						MATCH(HIR_TOK_U8, len);
 					else if (!memcmp("if", tok.ident, 2))
 						MATCH(HIR_TOK_IF, len);
+					else if (!memcmp("as", tok.ident, 2))
+						MATCH(HIR_TOK_AS, len);
 					else break;
 				case 3:
 					if (!memcmp("i16", tok.ident, 3))
@@ -287,6 +289,10 @@ static bool __lookahead(hir_lexer_t *self)
 						MATCH(HIR_TOK_STRUCT, len);
 					else if (!memcmp("return", tok.ident, 6))
 						MATCH(HIR_TOK_RETURN, len);
+					else break;
+				case 7:
+					if (!memcmp("include", tok.ident, 7))
+						MATCH(HIR_TOK_INCLUDE, len);
 					else break;
 				case 9:
 					if (!memcmp("namespace", tok.ident, 9))
