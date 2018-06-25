@@ -44,6 +44,7 @@
 	(htable_t *)(M), sizeof((M)->entries->key), sizeof(*(M)->entries), \
 	EQ, HASH \
 )
+#define mapdtor(M) htable_dtor((htable_t *)(M));
 #define mapput(M, K, V) do { \
 	usize_t __idx = htable_put((htable_t *)(M), (u8_t const *)(K)); \
 	(M)->entries[__idx].val = (V); \
@@ -51,6 +52,16 @@
 #define maphas(M, K) htable_has((htable_t *)(M), (u8_t const *)(K))
 #define mapget(M, K) htable_get((htable_t *)(M), (u8_t const *)(K))
 #define mapdel(M, K) htable_del((htable_t *)(M), (u8_t const *)(K))
+
+#define mapitof(TKey, TVal) htableitof(pairof(TKey, TVal))
+#define mappair(IT) ((IT)->item)
+#define mapkey(IT) (mappair(IT)->key)
+#define mapval(IT)	(mappair(IT)->val)
+#define mapeach(IT, M) for ( \
+	htable_iter_init((htable_iter_t *)(IT), (htable_t *)(M)); \
+	htable_iter_hasnext((htable_iter_t *)(IT)); \
+	htable_iter_next((htable_iter_t *)(IT)) \
+)
 
 #endif /* !__DS_MAP_H */
 /*!@} */

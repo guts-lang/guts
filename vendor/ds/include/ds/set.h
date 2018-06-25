@@ -40,9 +40,18 @@
 	(htable_t *)(S), sizeof(*(S)->entries), sizeof(*(S)->entries), \
 	EQ, HASH \
 )
+#define setdtor(S) htable_dtor((htable_t *)(S));
 #define setput(S, K) htable_put((htable_t *)(S), (u8_t const *)(K))
 #define sethas(S, K) htable_has((htable_t *)(S), (u8_t const *)(K))
 #define setdel(S, K) htable_del((htable_t *)(S), (u8_t const *)(K))
+
+#define setitof(TItem) htableitof(TItem)
+#define setitem(IT) (*(IT)->item)
+#define seteach(IT, S) for ( \
+	htable_iter_init((htable_iter_t *)(IT), (htable_t *)(S)); \
+	htable_iter_hasnext((htable_iter_t *)(IT)); \
+	htable_iter_next((htable_iter_t *)(IT)) \
+)
 
 #endif /* !__DS_SET_H */
 /*!@} */

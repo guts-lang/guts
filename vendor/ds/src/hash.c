@@ -26,13 +26,13 @@
 
 #include "ds/hash.h"
 
-FORCEINLINE
+FORCEINLINE PURE
 u32_t hash_u32(u8_t const *key)
 {
 	return (u32_t)(uintptr_t)key;
 }
 
-FORCEINLINE
+FORCEINLINE PURE
 u32_t hash_u64(u8_t const *key)
 {
 	const u64_t k = (u64_t)(uintptr_t)key;
@@ -40,7 +40,7 @@ u32_t hash_u64(u8_t const *key)
 	return (u32_t)(k >> 33 ^ k << 11);
 }
 
-FORCEINLINE
+FORCEINLINE PURE
 u32_t hash_str(u8_t const *key)
 {
 	const char *s = (const char *) key;
@@ -52,19 +52,19 @@ u32_t hash_str(u8_t const *key)
 	return h;
 }
 
-FORCEINLINE
+FORCEINLINE PURE
 bool eq_u32(u8_t const *a, u8_t const *b)
 {
 	return (bool)(a == b);
 }
 
-FORCEINLINE
+FORCEINLINE PURE
 bool eq_u64(u8_t const *a, u8_t const *b)
 {
 	return (bool)(a == b);
 }
 
-FORCEINLINE
+FORCEINLINE PURE
 bool eq_str(u8_t const *a, u8_t const *b)
 {
 	return (bool)(!strcmp((const char *)a, (const char *)b));

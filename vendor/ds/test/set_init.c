@@ -26,24 +26,24 @@
 
 #include "test.h"
 
-#include "ds/map.h"
+#include "ds/set.h"
 
-static mapof(char const *, u32_t) __map;
+static setof(char const *) __set;
 
 int main(void)
 {
-	mapinit(&__map, eq_str, hash_str);
+	setinit(&__set, eq_str, hash_str);
 
-	ASSERT_EQ(NULL, __map.spans);
-	ASSERT_EQ(NULL, __map.entries);
-	ASSERT_EQ(sizeof(*__map.entries), __map.esz);
-	ASSERT_EQ(sizeof(char const *), __map.ksz);
-	ASSERT_EQ(eq_str, __map.eq);
-	ASSERT_EQ(hash_str, __map.hash);
-	ASSERT_EQ(0, __map.bit);
-	ASSERT_EQ(0, __map.len);
-	
-	mapdtor(&__map);
+	ASSERT_EQ(NULL, __set.spans);
+	ASSERT_EQ(NULL, __set.entries);
+	ASSERT_EQ(sizeof(char const *), __set.esz);
+	ASSERT_EQ(sizeof(char const *), __set.ksz);
+	ASSERT_EQ(eq_str, __set.eq);
+	ASSERT_EQ(hash_str, __set.hash);
+	ASSERT_EQ(0, __set.bit);
+	ASSERT_EQ(0, __set.len);
+
+	setdtor(&__set);
 
 	return 0;
 }

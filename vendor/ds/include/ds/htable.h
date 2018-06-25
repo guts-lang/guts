@@ -64,6 +64,12 @@ __api void htable_init(htable_t *self, usize_t ksz, usize_t esz,
 /*!
  *
  * @param self
+ */
+__api void htable_dtor(htable_t *self);
+
+/*!
+ *
+ * @param self
  * @param key
  * @return
  */
@@ -92,6 +98,34 @@ __api bool htable_has(htable_t *self, u8_t const *key);
  * @return
  */
 __api bool htable_del(htable_t *self, u8_t const *key);
+
+#define htableitof(TItem) struct { \
+	htable_t *table; \
+	TItem *item; \
+	u32_t idx; \
+}
+
+typedef htableitof(u8_t) htable_iter_t;
+
+/*!
+ *
+ * @param self
+ * @param htable
+ */
+__api void htable_iter_init(htable_iter_t *self, htable_t *htable);
+
+/*!
+ *
+ * @param self
+ * @return
+ */
+__api bool htable_iter_hasnext(htable_iter_t *self);
+
+/*!
+ *
+ * @param self
+ */
+__api void htable_iter_next(htable_iter_t *self);
 
 #endif /* !__DS_HTABLE_H */
 /*!@} */

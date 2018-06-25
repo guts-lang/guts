@@ -26,14 +26,16 @@
 
 #include "ds/htable.h"
 
+#define TAKEN_ENTRY 0x1
+#define DELETED_ENTRY 0x2
+#define GROW_FACTOR (0.66)
+#define SHRINK_FACTOR (0.21)
+
 FORCEINLINE
 static u8_t **__entry(htable_t *self, u32_t idx)
 {
 	return (u8_t **)(self->entries + (idx * self->esz));
 }
-
-#define taken_bit 0x2
-#define deleted_bit 0x1
 
 static void __resize(htable_t *self, u32_t bit)
 {
@@ -54,7 +56,7 @@ static void __resize(htable_t *self, u32_t bit)
 
 	/* rehash */
 	for (i = 0; i < old_max; ++i) {
-		if (self->spans[i].flags & taken_bit) {
+		if (self->spans[i].flags & TAKEN_ENTRY) {
 
 			span = self->spans + i;
 			span->flags = 0;
@@ -66,12 +68,12 @@ static void __resize(htable_t *self, u32_t bit)
 				while (new_spans[j].flags)
 					j = (j + 1) & new_mask;
 
-				new_spans[j].flags = taken_bit;
+				new_spans[j].flags = TAKEN_ENTRY;
 				new_spans[j].hash = span->hash;
 
 				if (i == j)
 					break;
-				if (j < old_max && self->spans[j].flags & taken_bit) {
+				if (j < old_max && self->spans[j].flags & TAKEN_ENTRY) {
 					memswap(__entry(self, j), __entry(self, i), self->esz);
 					span = self->spans + j;
 					span->flags = 0;
@@ -93,14 +95,22 @@ static void __resize(htable_t *self, u32_t bit)
 	self->spans = new_spans;
 }
 
+FORCEINLINE
 void htable_init(htable_t *self, usize_t ksz, usize_t esz,
-	eq_fn_t *eq, hash_fn_t *hash)
+				 eq_fn_t *eq, hash_fn_t *hash)
 {
 	bzero(self, sizeof(htable_t));
 	self->ksz = (u32_t)ksz;
 	self->esz = (u32_t)esz;
 	self->eq = eq ? eq : eq_u32;
 	self->hash = hash ? hash : hash_u32;
+}
+
+FORCEINLINE
+void htable_dtor(htable_t *self)
+{
+	free(self->entries);
+	free(self->spans);
 }
 
 u32_t htable_put(htable_t *self, u8_t const *key)
@@ -110,7 +120,7 @@ u32_t htable_put(htable_t *self, u8_t const *key)
 
 	if (!self->bit) /* initialize */
 		__resize(self, 4);
-	else if (self->len >= (1U << self->bit) * 0.55) /* grow */
+	else if (self->len >= (1U << self->bit) * GROW_FACTOR) /* grow */
 		__resize(self, self->bit + 1);
 
 	s.hash = self->hash(key) << 2;
@@ -123,10 +133,10 @@ u32_t htable_put(htable_t *self, u8_t const *key)
 		span = self->spans + i;
 		entry = __entry(self, i);
 
-		if (!span->flags || (span->flags & deleted_bit)
+		if (!span->flags || (span->flags & DELETED_ENTRY)
 			|| (s.hash == span->hash && self->eq(*entry, key))) {
 
-			span->flags = taken_bit;
+			span->flags = TAKEN_ENTRY;
 			span->hash = s.hash;
 
 			memcpy(entry, &key, self->ksz);
@@ -152,7 +162,7 @@ u32_t htable_get(htable_t *self, u8_t const *key)
 	while (true) {
 		span = self->spans + i;
 
-		if (span->flags & taken_bit && s.hash == span->hash
+		if (span->flags & TAKEN_ENTRY && s.hash == span->hash
 			&& self->eq(*__entry(self, i), key))
 			return i;
 
@@ -161,26 +171,57 @@ u32_t htable_get(htable_t *self, u8_t const *key)
 	}
 }
 
+FORCEINLINE
 bool htable_has(htable_t *self, u8_t const *key)
 {
 	return (bool)(htable_get(self, key) != U32_MAX);
 }
 
+FORCEINLINE
 bool htable_del(htable_t *self, u8_t const *key)
 {
 	u32_t i;
 
 	if ((i = htable_get(self, key)) != U32_MAX) {
 
-		self->spans[i].flags = deleted_bit;
+		self->spans[i].flags = DELETED_ENTRY;
 		--self->len;
 
 		/* shrink */
-		if (self->len <= (1U << self->bit) * 0.15 && self->bit > 4)
+		if (self->len <= (1U << self->bit) * SHRINK_FACTOR && self->bit > 4)
 			__resize(self, self->bit - 1);
 
 		return true;
 	}
 
 	return false;
+}
+
+FORCEINLINE
+void htable_iter_init(htable_iter_t *self, htable_t *htable)
+{
+	self->idx = 0;
+	self->item = NULL;
+	self->table = htable;
+}
+
+FORCEINLINE
+bool htable_iter_hasnext(htable_iter_t *self)
+{
+	const u32_t max = 1U << self->table->bit;
+
+	for (; self->idx < max; ++self->idx) {
+		if (self->table->spans[self->idx].flags & TAKEN_ENTRY) {
+			self->item = (u8_t *) __entry(self->table, self->idx);
+			return true;
+		}
+	}
+	return false;
+
+}
+
+FORCEINLINE
+void htable_iter_next(htable_iter_t *self)
+{
+	++self->idx;
 }

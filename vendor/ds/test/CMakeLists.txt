@@ -46,4 +46,7 @@ macro (ds_register_test suite test)
 endmacro ()
 
 ds_register_test(map init)
+ds_register_test(map basic)
+ds_register_test(set init)
+ds_register_test(set basic)
 ds_register_test(list init)
