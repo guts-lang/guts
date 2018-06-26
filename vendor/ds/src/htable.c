@@ -24,7 +24,6 @@
  * SOFTWARE.
  */
 
-#include <ds/map.h>
 #include "ds/htable.h"
 
 #define TAKEN_ENTRY 0x1
