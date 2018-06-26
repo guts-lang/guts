@@ -47,3 +47,4 @@ endmacro ()
 
 guts_register_test(hir_fe lex)
 guts_register_test(hir_fe expr)
+guts_register_test(hir parser)

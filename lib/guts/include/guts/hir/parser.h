@@ -38,10 +38,18 @@
 #include "lexer.h"
 
 typedef struct {
-	codemap_t codemap;
+	codemap_t *codemap;
 	stackof(hir_lexer_t) lexers;
 	hir_lexer_t *lexer;
 } hir_parser_t;
+
+__api void hir_parser_init(hir_parser_t *self, codemap_t *codemap);
+__api void hir_parser_dtor(hir_parser_t *self);
+__api int hir_parser_include(hir_parser_t *self, char __const *str, bool virt);
+__api hir_tok_t *hir_parser_peek(hir_parser_t *self);
+__api hir_tok_t *hir_parser_peekn(hir_parser_t *self, u8_t n);
+__api hir_tok_t *hir_parser_next(hir_parser_t *self);
+__api hir_tok_t *hir_parser_consume(hir_parser_t *self, hir_tok_kind_t kind);
 
 #endif /* !__GUTS_HIR_PARSER_H */
 /*!@} */

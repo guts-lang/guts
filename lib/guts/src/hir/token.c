@@ -110,7 +110,7 @@ static char __const *__token_toa[] = {
 };
 
 FORCEINLINE PURE
-char __const *hir_tok_toa(tok_kind_t kind)
+char __const *hir_tok_toa(hir_tok_kind_t kind)
 {
 	return __token_toa[kind];
 }

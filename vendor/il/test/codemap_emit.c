@@ -42,7 +42,7 @@ int main(void)
 
 	codemap_init(&cm, NULL);
 	codemap_src_push(&cm, SRC, true);
-	src = vecat(cm.sources, 0);
+	src = *vecat(cm.sources, 0);
 
 	while (source_next(src));
 

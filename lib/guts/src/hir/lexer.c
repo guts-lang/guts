@@ -48,7 +48,6 @@ static bool __lookahead(hir_lexer_t *self);
 
 hir_tok_t *hir_lexer_peek(hir_lexer_t *self)
 {
-	if (self->eof) return NULL;
 	if (deqempty(self->lookahead)) {
 		if (!__lookahead(self))
 			return NULL;
@@ -58,7 +57,6 @@ hir_tok_t *hir_lexer_peek(hir_lexer_t *self)
 
 hir_tok_t *hir_lexer_peekn(hir_lexer_t *self, u8_t n)
 {
-	if (self->eof) return NULL;
 	if (deqlen(self->lookahead) <= n) {
 		while (deqlen(self->lookahead) <= n) {
 			if (!__lookahead(self))
@@ -70,7 +68,6 @@ hir_tok_t *hir_lexer_peekn(hir_lexer_t *self, u8_t n)
 
 hir_tok_t *hir_lexer_next(hir_lexer_t *self)
 {
-	if (self->eof) return NULL;
 	if (deqempty(self->lookahead)) {
 		if (!__lookahead(self))
 			return NULL;
@@ -78,7 +75,7 @@ hir_tok_t *hir_lexer_next(hir_lexer_t *self)
 	return dequsht(self->lookahead);
 }
 
-hir_tok_t *hir_lexer_consume(hir_lexer_t *self, tok_kind_t kind)
+hir_tok_t *hir_lexer_consume(hir_lexer_t *self, hir_tok_kind_t kind)
 {
 	hir_tok_t *tok;
 
@@ -95,7 +92,7 @@ hir_tok_t *hir_lexer_consume(hir_lexer_t *self, tok_kind_t kind)
 			hir_tok_toa(kind), hir_tok_toa(tok->kind));
 		diag_labelize(&error, true, tok->span, NULL);
 		vecpush(*self->diags, error);
-		return NULL;
+		tok = NULL;
 	}
 	return tok;
 }
@@ -124,6 +121,8 @@ static bool __lookahead(hir_lexer_t *self)
 	hir_tok_t tok;
 	loc_t start;
 
+	if (self->eof)
+		return false;
 	while (isspace(c = source_peek(self->src)))
 		source_next(self->src);
 	start = source_loc(self->src);
@@ -220,6 +219,7 @@ static bool __lookahead(hir_lexer_t *self)
 				diag_labelize(&error, true, span(start, 1), NULL);
 				vecpush(*self->diags, error);
 			}
+			self->eof = true;
 			return false;
 		}
 

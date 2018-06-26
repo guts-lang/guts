@@ -24,54 +24,11 @@
  * SOFTWARE.
  */
 
-#include <il/codemap.h>
-#include <guts/hir/expr.h>
-#include <il/span.h>
-
 #include "guts/hir/expr.h"
 
 #include "test.h"
 
 int main(void)
 {
-	source_t *src;
-	codemap_t fe;
-	hir_lexer_t lexer;
-	static char __const *SRC =
-		"[la, lol, foo, bar]\n";
-
-	codemap_init(&fe, NULL);
-	src = codemap_src_push(&fe, SRC, true);
-
-	hir_lexer_init(&lexer, src, &fe.diagnostics);
-
-	hir_expr_t *expr = hir_expr_parse(&lexer);
-	ASSERT(expr);
-	ASSERT_EQ(HIR_EXPR_ARRAY, expr->kind);
-	ASSERT_EQ(4, veclen(expr->array.elems));
-
-	ASSERT_EQ(HIR_EXPR_IDENT, expr->array.elems[0]->kind);
-	ASSERT_EQ(0, memcmp(expr->array.elems[0]->ident, "la",
-		expr->array.elems[0]->span.length));
-
-	ASSERT_EQ(HIR_EXPR_IDENT, expr->array.elems[1]->kind);
-	ASSERT_EQ(0, memcmp(expr->array.elems[1]->ident, "lol",
-		expr->array.elems[1]->span.length));
-
-	ASSERT_EQ(HIR_EXPR_IDENT, expr->array.elems[2]->kind);
-	ASSERT_EQ(0, memcmp(expr->array.elems[2]->ident, "foo",
-		expr->array.elems[2]->span.length));
-
-	ASSERT_EQ(HIR_EXPR_IDENT, expr->array.elems[3]->kind);
-	ASSERT_EQ(0, memcmp(expr->array.elems[3]->ident, "bar",
-		expr->array.elems[3]->span.length));
-
-	//TODO: dtor expr
-
-	hir_lexer_dtor(&lexer);
-
-	codemap_emit(&fe, stdout);
-	codemap_dtor(&fe);
-	hir_lexer_dtor(&lexer);
 	return 0;
 }

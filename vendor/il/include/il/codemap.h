@@ -42,7 +42,7 @@ struct codemap;
 typedef int (emitter_t)(FILE *stream, struct codemap *fe, diag_t *diag);
 
 typedef struct codemap {
-	vecof(source_t) sources;
+	vecof(source_t *) sources;
 	vecof(diag_t) diagnostics;
 	emitter_t *emitter;
 } codemap_t;

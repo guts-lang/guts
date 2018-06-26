@@ -24,6 +24,124 @@
  * SOFTWARE.
  */
 
+#include <guts.h>
+#include <guts/hir/parser.h>
 #include "guts/hir/parser.h"
 
+void hir_parser_init(hir_parser_t *self, codemap_t *codemap)
+{
+	u32_t i;
+	source_t *source;
+	hir_lexer_t lexer;
 
+	self->codemap = codemap;
+	self->lexer = NULL;
+	self->lexers = NULL;
+
+	for (i = 0; i < veclen(codemap->sources); ++i) {
+		source = codemap->sources[i];
+		hir_lexer_init(&lexer, source, &codemap->diagnostics);
+		stackpush(self->lexers, lexer);
+		self->lexer = stackback(self->lexers);
+	}
+}
+
+void hir_parser_dtor(hir_parser_t *self)
+{
+	hir_lexer_t *lexer;
+
+	while ((lexer = stackpop(self->lexers)))
+		hir_lexer_dtor(lexer);
+	stackdtor(self->lexers);
+}
+
+int hir_parser_include(hir_parser_t *self, char __const *str, bool virt)
+{
+	source_t *source;
+	hir_lexer_t lexer;
+
+	if (!(source = codemap_src_push(self->codemap, str, virt)))
+		return -1;
+	hir_lexer_init(&lexer, source, &self->codemap->diagnostics);
+	stackpush(self->lexers, lexer);
+	self->lexer = stackback(self->lexers);
+	return 0;
+}
+
+hir_tok_t *hir_parser_peek(hir_parser_t *self)
+{
+	hir_tok_t *tok;
+
+	if (!self->lexer)
+		return NULL;
+	if (!(tok = hir_lexer_peek(self->lexer)) || tok->kind == HIR_TOK_EOF) {
+		stackpop(self->lexers);
+		if (!stacklen(self->lexers))
+			return tok;
+		self->lexer = stackback(self->lexers);
+		return hir_parser_peek(self);
+	}
+	return tok;
+}
+
+hir_tok_t *hir_parser_peekn(hir_parser_t *self, u8_t n)
+{
+	hir_tok_t *tok;
+	u8_t count;
+	hir_lexer_t *lexer;
+
+	if (!self->lexer)
+		return NULL;
+	if (!(tok = hir_lexer_peekn(self->lexer, n)) || tok->kind == HIR_TOK_EOF) {
+		if (!stacklen(self->lexers))
+			return NULL;
+		count = 0;
+		lexer = self->lexer;
+		do {
+			count += (u8_t) (deqlen(lexer->lookahead) ? deqlen(lexer->lookahead) - 1 : 0);
+			--lexer;
+			tok = hir_lexer_peekn(lexer, n - count);
+		} while ((!tok || tok->kind == HIR_TOK_EOF)
+			&& lexer > stackbeg(self->lexers));
+	}
+	return tok;
+}
+
+hir_tok_t *hir_parser_next(hir_parser_t *self)
+{
+	hir_tok_t *tok;
+
+	if (!self->lexer)
+		return NULL;
+	if (!(tok = hir_lexer_next(self->lexer)) || tok->kind == HIR_TOK_EOF) {
+		stackpop(self->lexers);
+		if (!stacklen(self->lexers))
+			return tok;
+		self->lexer = stackback(self->lexers);
+		return hir_parser_next(self);
+	}
+	return tok;
+}
+
+hir_tok_t *hir_parser_consume(hir_parser_t *self, hir_tok_kind_t kind)
+{
+	hir_tok_t *tok;
+	u32_t errs;
+
+	if (!self->lexer)
+		return NULL;
+
+	errs = veclen(self->codemap->diagnostics);
+	if ((tok = hir_parser_next(self)) && tok->kind != kind) {
+		if (errs == veclen(self->codemap->diagnostics)) {
+			diag_t error;
+
+			diag_error(&error, "unexpected token, expected `%s' got `%s'",
+				hir_tok_toa(kind), hir_tok_toa(tok->kind));
+			diag_labelize(&error, true, tok->span, NULL);
+			vecpush(self->codemap->diagnostics, error);
+		}
+		tok = NULL;
+	}
+	return tok;
+}

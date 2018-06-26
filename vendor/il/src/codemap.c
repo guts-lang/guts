@@ -40,9 +40,13 @@ FORCEINLINE
 void codemap_dtor(codemap_t *self)
 {
 	usize_t i;
+	source_t *source;
 
-	for (i = 0; i < veclen(self->sources); ++i)
-		source_dtor(vecat(self->sources, i));
+	for (i = 0; i < veclen(self->sources); ++i) {
+		source = *vecat(self->sources, i);
+		source_dtor(source);
+		free(source);
+	}
 	vecdtor(self->sources);
 	for (i = 0; i < veclen(self->diagnostics); ++i)
 		diag_dtor(vecat(self->diagnostics, i));
@@ -52,14 +56,16 @@ void codemap_dtor(codemap_t *self)
 FORCEINLINE
 source_t *codemap_src_push(codemap_t *self, char __const *str, bool virtual)
 {
-	source_t src;
+	source_t *src;
 
-	if (source_init(&src, str, virtual))
+	if (!(src = malloc(sizeof(source_t))))
+		return NULL;
+	if (source_init(src, str, virtual))
 		return NULL;
 
-	src.loc.src = (u32_t)veclen(self->sources);
+	src->loc.src = (u32_t)veclen(self->sources);
 	vecpush(self->sources, src);
-	return vecback(self->sources);
+	return src;
 }
 
 FORCEINLINE
@@ -70,7 +76,7 @@ source_t *codemap_src_find(codemap_t *self, loc_t *loc)
 		return NULL;
 	}
 
-	return vecat(self->sources, loc->src);
+	return *vecat(self->sources, loc->src);
 }
 
 FORCEINLINE

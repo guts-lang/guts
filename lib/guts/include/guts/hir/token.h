@@ -114,12 +114,12 @@ typedef enum {
 	HIR_TOK_DIV_ASSIGN, /*!< `/='. */
 	HIR_TOK_MOD_ASSIGN, /*!< `%='. */
 
-} tok_kind_t;
+} hir_tok_kind_t;
 
 typedef char __const *hir_ident_t;
 
 typedef struct hir_tok {
-	tok_kind_t kind: 8;
+	hir_tok_kind_t kind: 8;
 	span_t span;
 
 	union {
@@ -128,14 +128,14 @@ typedef struct hir_tok {
 		hir_char_t lit_char;
 		hir_bool_t lit_bool;
 		hir_ident_t ident;
-		tok_kind_t syntax;
+		hir_tok_kind_t syntax;
 	};
 
 } hir_tok_t;
 
 __api void hir_tok_init(hir_tok_t *token, loc_t start, u16_t length);
 __api void hir_tok_dtor(hir_tok_t *token);
-__api char __const *hir_tok_toa(tok_kind_t kind);
+__api char __const *hir_tok_toa(hir_tok_kind_t kind);
 
 #endif /* !__GUTS_HIR_FE_H */
 /*!@} */

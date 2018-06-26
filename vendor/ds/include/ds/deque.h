@@ -55,6 +55,7 @@
 #define deqnpush(d, items, n) seqnpush(d, items, n, __DEQ_GUARD, __DEQ_TSZ)
 #define deqpush(d, item) seqpush(d, item, __DEQ_GUARD, __DEQ_TSZ)
 #define dequsht(d) ((d) ? ((__deqcur(d) = __deqcur(d) + 1), deqat(d, -1)) : NULL)
+#define deqpop(s) (deqlen(s) ? ((s) + __seqlen(s, __DEQ_TSZ)--) : NULL)
 
 #endif /* !__DS_DEQUE_H */
 /*!@} */

@@ -133,7 +133,7 @@ typedef struct hir_expr {
 
 } hir_expr_t;
 
-__api hir_expr_t *hir_expr_parse(hir_lexer_t *lexer);
+__api bool hir_expr_parse(hir_expr_t *expr, hir_parser_t *parser);
 
 #endif /* !__GUTS_HIR_EXPR_H */
 /*!@} */
