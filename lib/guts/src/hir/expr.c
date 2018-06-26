@@ -25,3 +25,10 @@
  */
 
 #include "guts/hir/expr.h"
+
+parse_st_t hir_expr_parse(hir_expr_t *expr, hir_parser_t *parser)
+{
+	(void)expr;
+	(void)parser;
+	return PARSE_NONE;
+}

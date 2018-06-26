@@ -34,19 +34,25 @@
 
 #include <ds/map.h>
 
-#include "type.h"
+#include "token.h"
 
 typedef struct {
-	hir_ident_t *ident;
+	hir_ident_t ident;
 	u16_t len;
 } hir_name_t;
 
 struct hir_entity;
 
 typedef struct hir_scope {
+	struct hir_scope *parent;
 	struct hir_entity *entity;
-	mapof(hir_name_t, struct hir_entity *) childs;
+	mapof(hir_name_t *, struct hir_entity *) childs;
 } hir_scope_t;
+
+__api void hir_scope_init(hir_scope_t *self, struct hir_scope *parent,
+						  struct hir_entity *entity);
+__api struct hir_entity *hir_scope_add(hir_scope_t *self, struct hir_entity *e);
+__api struct hir_entity *hir_scope_find(hir_scope_t *self, hir_name_t *name);
 
 #endif /* !__GUTS_HIR_SCOPE_H */
 /*!@} */

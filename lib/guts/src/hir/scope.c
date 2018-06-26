@@ -25,5 +25,52 @@
  */
 
 #include "guts/hir/scope.h"
+#include "guts/hir/entity.h"
 
+static bool __eq_name(u8_t const *a, u8_t const *b)
+{
+	hir_name_t *na, *nb;
 
+	na = (hir_name_t *) a;
+	nb = (hir_name_t *) b;
+	return (bool)(na->len == nb->len && !memcmp(na->ident, nb->ident, na->len));
+}
+
+static u32_t __hash_name(u8_t const *key)
+{
+	hir_name_t *nkey;
+
+	nkey = (hir_name_t *) key;
+	return hash_strn((const u8_t *) nkey->ident, nkey->len);
+}
+
+FORCEINLINE
+void hir_scope_init(hir_scope_t *self, struct hir_scope *parent,
+					struct hir_entity *entity)
+{
+	self->parent = parent;
+	self->entity = entity;
+	mapinit(&self->childs, __eq_name, __hash_name);
+}
+
+hir_entity_t *hir_scope_add(hir_scope_t *self, hir_entity_t *e)
+{
+	assert(e);
+
+	if (maphas(&self->childs, &e->name))
+		return NULL;
+	e = memcpy(malloc(sizeof(hir_entity_t)), e, sizeof(hir_entity_t));
+	mapput(&self->childs, &e->name, e);
+	return e;
+}
+
+hir_entity_t *hir_scope_find(hir_scope_t *self, hir_name_t *name)
+{
+	u32_t idx;
+
+	if ((idx = mapget(&self->childs, name)) != U32_MAX)
+		return self->childs.entries[idx].val;
+	if (self->parent)
+		return hir_scope_find(self->parent, name);
+	return NULL;
+}

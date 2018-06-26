@@ -36,14 +36,23 @@
 #include <il/codemap.h>
 
 #include "lexer.h"
+#include "scope.h"
 
 typedef struct {
 	codemap_t *codemap;
+	hir_scope_t *root, *current;
 	stackof(hir_lexer_t) lexers;
 	hir_lexer_t *lexer;
 } hir_parser_t;
 
-__api void hir_parser_init(hir_parser_t *self, codemap_t *codemap);
+typedef enum {
+	PARSE_OK = 0,
+	PARSE_NONE,
+	PARSE_ERROR,
+} parse_st_t;
+
+__api void hir_parser_init(hir_parser_t *self, codemap_t *codemap,
+						   hir_scope_t *root);
 __api void hir_parser_dtor(hir_parser_t *self);
 __api int hir_parser_include(hir_parser_t *self, char __const *str, bool virt);
 __api hir_tok_t *hir_parser_peek(hir_parser_t *self);

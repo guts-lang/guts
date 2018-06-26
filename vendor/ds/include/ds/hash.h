@@ -41,6 +41,7 @@ typedef u32_t (hash_fn_t)(u8_t const *key);
 __api u32_t hash_u32(u8_t const *key);
 __api u32_t hash_u64(u8_t const *key);
 __api u32_t hash_str(u8_t const *key);
+__api u32_t hash_strn(u8_t const *key, u32_t n);
 
 typedef bool (eq_fn_t)(u8_t const *a, u8_t const *b);
 

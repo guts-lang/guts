@@ -46,7 +46,7 @@ int main(void)
 
 	codemap_init(&codemap, NULL);
 	codemap_src_push(&codemap, SRC, true);
-	hir_parser_init(&parser, &codemap);
+	hir_parser_init(&parser, &codemap, NULL);
 
 	ASSERT(hir_parser_consume(&parser, HIR_TOK_IDENT));
 	hir_parser_include(&parser, SRC1, true);

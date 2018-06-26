@@ -24,11 +24,10 @@
  * SOFTWARE.
  */
 
-#include <guts.h>
-#include <guts/hir/parser.h>
 #include "guts/hir/parser.h"
 
-void hir_parser_init(hir_parser_t *self, codemap_t *codemap)
+void hir_parser_init(hir_parser_t *self, codemap_t *codemap,
+					 hir_scope_t *root)
 {
 	u32_t i;
 	source_t *source;
@@ -37,6 +36,11 @@ void hir_parser_init(hir_parser_t *self, codemap_t *codemap)
 	self->codemap = codemap;
 	self->lexer = NULL;
 	self->lexers = NULL;
+	self->root = root;
+	self->current = root;
+
+	if (root)
+		hir_scope_init(root, NULL, NULL);
 
 	for (i = 0; i < veclen(codemap->sources); ++i) {
 		source = codemap->sources[i];

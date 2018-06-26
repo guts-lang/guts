@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+#include <ds/map.h>
 #include "ds/htable.h"
 
 #define TAKEN_ENTRY 0x1
@@ -153,6 +154,9 @@ u32_t htable_get(htable_t *self, u8_t const *key)
 {
 	htable_span_t *span, s;
 	u32_t i, last, mask;
+
+	if (!self->len)
+		return U32_MAX;
 
 	s.hash = self->hash(key) << 2;
 	mask = (1U << self->bit) - 1;

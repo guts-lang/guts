@@ -26,4 +26,3 @@
 
 #include "guts/hir/entity.h"
 
-

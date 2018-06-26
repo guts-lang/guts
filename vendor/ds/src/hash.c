@@ -40,7 +40,7 @@ u32_t hash_u64(u8_t const *key)
 	return (u32_t)(k >> 33 ^ k << 11);
 }
 
-FORCEINLINE PURE
+FORCEINLINE
 u32_t hash_str(u8_t const *key)
 {
 	const char *s = (const char *) key;
@@ -48,6 +48,18 @@ u32_t hash_str(u8_t const *key)
 
 	if ((h = (u32_t) *s))
 		for (++s; *s; ++s)
+			h = (h << 5) - h + (u32_t) *s;
+	return h;
+}
+
+FORCEINLINE
+u32_t hash_strn(u8_t const *key, u32_t n)
+{
+	const char *s = (const char *) key;
+	u32_t h;
+
+	if ((h = (u32_t) *s))
+		for (++s; *s && (s -  (const char *) key) < n; ++s)
 			h = (h << 5) - h + (u32_t) *s;
 	return h;
 }
@@ -64,7 +76,7 @@ bool eq_u64(u8_t const *a, u8_t const *b)
 	return (bool)(a == b);
 }
 
-FORCEINLINE PURE
+FORCEINLINE
 bool eq_str(u8_t const *a, u8_t const *b)
 {
 	return (bool)(!strcmp((const char *)a, (const char *)b));
