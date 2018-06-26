@@ -94,6 +94,8 @@ int main(void)
 	ASSERT(hir_scope_find(&c->namespace.scope, &(hir_name_t){ "fla", 3 }));
 	ASSERT(hir_scope_find(&c->namespace.scope, &(hir_name_t){ "blu", 3 }));
 
+	//TODO: cleanup..
+
 	codemap_emit(&codemap, stdout);
 	codemap_dtor(&codemap);
 	hir_parser_dtor(&parser);
