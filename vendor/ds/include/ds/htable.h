@@ -35,7 +35,7 @@
 #include "ds/hash.h"
 
 typedef struct {
-	u32_t flags: 2;
+	u32_t flag: 2;
 	u32_t hash: 30;
 } htable_span_t;
 

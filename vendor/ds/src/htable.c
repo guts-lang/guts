@@ -56,27 +56,27 @@ static void __resize(htable_t *self, u32_t bit)
 
 	/* rehash */
 	for (i = 0; i < old_max; ++i) {
-		if (self->spans[i].flags & TAKEN_ENTRY) {
+		if (self->spans[i].flag & TAKEN_ENTRY) {
 
 			span = self->spans + i;
-			span->flags = 0;
+			span->flag = 0;
 
 			while (true) {
 				u32_t j;
 
-				j = span->hash & new_mask;
-				while (new_spans[j].flags)
+				j = (u32_t) (span->hash & new_mask);
+				while (new_spans[j].flag)
 					j = (j + 1) & new_mask;
 
-				new_spans[j].flags = TAKEN_ENTRY;
+				new_spans[j].flag = TAKEN_ENTRY;
 				new_spans[j].hash = span->hash;
 
 				if (i == j)
 					break;
-				if (j < old_max && self->spans[j].flags & TAKEN_ENTRY) {
+				if (j < old_max && self->spans[j].flag & TAKEN_ENTRY) {
 					memswap(__entry(self, j), __entry(self, i), self->esz);
 					span = self->spans + j;
-					span->flags = 0;
+					span->flag = 0;
 				} else {
 					memcpy(__entry(self, j), __entry(self, i), self->esz);
 					break;
@@ -125,7 +125,7 @@ u32_t htable_put(htable_t *self, u8_t const *key)
 
 	s.hash = self->hash(key) << 2;
 	mask = (1U << self->bit) - 1;
-	i = s.hash & mask;
+	i = (u32_t) (s.hash & mask);
 
 	while (true) {
 		u8_t **entry;
@@ -133,10 +133,10 @@ u32_t htable_put(htable_t *self, u8_t const *key)
 		span = self->spans + i;
 		entry = __entry(self, i);
 
-		if (!span->flags || (span->flags & DELETED_ENTRY)
+		if (!span->flag || (span->flag & DELETED_ENTRY)
 			|| (s.hash == span->hash && self->eq(*entry, key))) {
 
-			span->flags = TAKEN_ENTRY;
+			span->flag = TAKEN_ENTRY;
 			span->hash = s.hash;
 
 			memcpy(entry, &key, self->ksz);
@@ -159,17 +159,17 @@ u32_t htable_get(htable_t *self, u8_t const *key)
 
 	s.hash = self->hash(key) << 2;
 	mask = (1U << self->bit) - 1;
-	i = s.hash & mask;
+	i = (u32_t) (s.hash & mask);
 	last = i;
 
 	while (true) {
 		span = self->spans + i;
 
-		if (span->flags & TAKEN_ENTRY && s.hash == span->hash
+		if (span->flag & TAKEN_ENTRY && s.hash == span->hash
 			&& self->eq(*__entry(self, i), key))
 			return i;
 
-		if (!span->flags || (i = (i + 1) & mask) == last)
+		if (!span->flag || (i = (i + 1) & mask) == last)
 			return U32_MAX;
 	}
 }
@@ -187,7 +187,7 @@ bool htable_del(htable_t *self, u8_t const *key)
 
 	if ((i = htable_get(self, key)) != U32_MAX) {
 
-		self->spans[i].flags = DELETED_ENTRY;
+		self->spans[i].flag = DELETED_ENTRY;
 		--self->len;
 
 		/* shrink */
@@ -214,7 +214,7 @@ bool htable_iter_hasnext(htable_iter_t *self)
 	const u32_t max = 1U << self->table->bit;
 
 	for (; self->idx < max; ++self->idx) {
-		if (self->table->spans[self->idx].flags & TAKEN_ENTRY) {
+		if (self->table->spans[self->idx].flag & TAKEN_ENTRY) {
 			self->item = (u8_t *) __entry(self->table, self->idx);
 			return true;
 		}
