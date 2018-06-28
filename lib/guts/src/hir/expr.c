@@ -25,6 +25,8 @@
  */
 
 #include <guts/hir/expr.h>
+#include <il/span.h>
+#include <il/loc.h>
 #include "guts/hir/expr.h"
 #include "guts/hir/entity.h"
 #include "guts/hir/parser.h"
@@ -51,7 +53,8 @@ static parse_st_t __literal(hir_expr_t *expr, hir_parser_t *parser)
 {
 	hir_tok_t *tok;
 
-	if (!(tok = hir_parser_peek(parser))) return PARSE_ERROR;
+	if (!(tok = hir_parser_peek(parser)))
+		return PARSE_ERROR;
 
 	switch (tok->kind) {
 		case HIR_TOK_LIT_NUMBER:
@@ -70,6 +73,12 @@ static parse_st_t __literal(hir_expr_t *expr, hir_parser_t *parser)
 	}
 }
 
+/*
+static parse_st_t __commas(vecof(hir_expr_t *) exprs, hir_parser_t *parser)
+{
+	return PARSE_NONE;
+}*/
+
 /*!@brief
  *
  * @code
@@ -77,7 +86,8 @@ static parse_st_t __literal(hir_expr_t *expr, hir_parser_t *parser)
  *   : __literal
  *   | HIR_TOK_IDENT
  *   | '(' __expr ')'
- *   | '('__commas ')' #TODO
+ *   | '(' __commas ')' #TODO
+ *   | '[' __commas ']' #TODO
  *   ;
  * @endcode
  *
@@ -90,27 +100,18 @@ static parse_st_t __primary(hir_expr_t *expr, hir_parser_t *parser)
 	parse_st_t st;
 	hir_tok_t *tok;
 
-	if ((st = __literal(expr, parser)) != PARSE_NONE) return st;
-	if (!(tok = hir_parser_peek(parser))) return PARSE_ERROR;
+	if ((st = __literal(expr, parser)) != PARSE_NONE)
+		return st;
+	if (!(tok = hir_parser_peek(parser)))
+		return PARSE_ERROR;
 
 	switch (tok->kind) {
 		case HIR_TOK_IDENT: {
-			hir_entity_t *ent;
-
-			if (!(ent = hir_scope_locate(parser->current, tok->ident,
-				tok->span))) {
-				diag_t e;
-
-				diag_error(&e, "‘%.*s’ undeclared (first use in this function)",
-					(int) tok->span.length, tok->ident);
-				diag_labelize(&e, true, tok->span, NULL);
-				codemap_diagnostic(parser->codemap, e);
-				return PARSE_ERROR;
-			}
 			expr->span = tok->span;
 			expr->kind = HIR_EXPR_IDENT;
 			expr->ident = tok->ident;
 			hir_parser_next(parser);
+
 			return PARSE_OK;
 		}
 		case HIR_TOK_LPAR: {
@@ -124,11 +125,56 @@ static parse_st_t __primary(hir_expr_t *expr, hir_parser_t *parser)
 
 			expr->kind = HIR_EXPR_PAREN;
 			expr->paren.expr = memdup(&r, sizeof(hir_expr_t));
-			hir_parser_consume(parser, HIR_TOK_RPAR);
+			tok = hir_parser_consume(parser, HIR_TOK_RPAR);
+			expr->span.length = span_diff(tok->span, expr->span);
+
 			return PARSE_OK;
 		}
 		default:
 			return PARSE_NONE;
+	}
+}
+
+/*!@brief
+ *
+ * @code
+ * __postfix
+ *   : __primary
+ *   | __postfix '(' __commas ')' #TODO
+ *   | __postfix '[' __commas ']' #TODO
+ *   | __postfix '[' __commas ',' ']' #TODO
+ *   ;
+ * @endcode
+ *
+ * @param expr
+ * @param parser
+ * @return
+ */
+static parse_st_t __postfix(hir_expr_t *expr, hir_parser_t *parser)
+{
+	parse_st_t st;
+	hir_expr_t r1;
+	hir_tok_t *tok;
+
+	if ((st = __primary(&r1, parser)) != PARSE_OK)
+		return st;
+
+	while (true) {
+		if (!(tok = hir_parser_peek(parser)))
+			return PARSE_ERROR;
+
+		switch (tok->kind) {
+			case HIR_TOK_LPAR: {
+				return PARSE_OK;
+			}
+			case HIR_TOK_LBRA: {
+				return PARSE_OK;
+			}
+			default: {
+				*expr = r1;
+				return PARSE_OK;
+			}
+		}
 	}
 }
 
@@ -143,7 +189,7 @@ static parse_st_t __primary(hir_expr_t *expr, hir_parser_t *parser)
  */
 static parse_st_t __expr(hir_expr_t *expr, hir_parser_t *parser)
 {
-	return __primary(expr, parser);
+	return __postfix(expr, parser);
 }
 
 /*!@brief

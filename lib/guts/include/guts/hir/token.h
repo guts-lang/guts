@@ -136,6 +136,7 @@ typedef struct hir_tok {
 __api void hir_tok_init(hir_tok_t *token, loc_t start, u16_t length);
 __api void hir_tok_dtor(hir_tok_t *token);
 __api char __const *hir_tok_toa(hir_tok_kind_t kind);
+__api u16_t hir_tok_diff(hir_tok_t *a, hir_tok_t *b);
 
 #endif /* !__GUTS_HIR_FE_H */
 /*!@} */

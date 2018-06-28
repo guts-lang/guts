@@ -33,3 +33,9 @@ span_t span(loc_t start, u16_t length)
 		start, length
 	};
 }
+
+FORCEINLINE
+u16_t span_diff(span_t a, span_t b)
+{
+	return (u16_t)(a.start.off - b.start.off);
+}

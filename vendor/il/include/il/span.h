@@ -40,6 +40,7 @@ typedef struct {
 } span_t;
 
 __api span_t span(loc_t start, u16_t length);
+__api u16_t span_diff(span_t a, span_t b);
 
 #endif /* !__IL_SPAN_H */
 /*!@} */
