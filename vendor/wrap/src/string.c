@@ -129,3 +129,9 @@ void memswap(void *a, void *b, size_t size)
 	b = (char *)b + words * sizeof(long);
 	__swapbyte(a, b, bytes);
 }
+
+FORCEINLINE
+void *memdup(void const *src, usize_t sz)
+{
+	return memcpy(malloc(sz), src, sz);
+}

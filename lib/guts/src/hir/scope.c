@@ -24,6 +24,8 @@
  * SOFTWARE.
  */
 
+#include <guts/hir/scope.h>
+#include <il/span.h>
 #include "guts/hir/scope.h"
 #include "guts/hir/entity.h"
 
@@ -68,9 +70,20 @@ hir_entity_t *hir_scope_find(hir_scope_t *self, hir_name_t *name)
 {
 	u32_t idx;
 
+	if (!self)
+		return NULL;
 	if ((idx = mapget(&self->childs, name)) != U32_MAX)
 		return self->childs.entries[idx].val;
-	if (self->parent)
-		return hir_scope_find(self->parent, name);
-	return NULL;
+	return hir_scope_find(self->parent, name);
+}
+
+FORCEINLINE
+hir_entity_t *hir_scope_locate(hir_scope_t *self, hir_ident_t id,
+							   span_t span)
+{
+	hir_name_t name;
+
+	name.ident = id;
+	name.len = span.length;
+	return hir_scope_find(self, &name);
 }

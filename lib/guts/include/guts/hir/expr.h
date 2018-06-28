@@ -39,8 +39,8 @@ struct hir_stmt;
 typedef struct hir_expr {
 
 	enum {
-		HIR_EXPR_IDENT = 0,
-		HIR_EXPR_LIT,
+		HIR_EXPR_LIT = 0,
+		HIR_EXPR_IDENT,
 		HIR_EXPR_PAREN,
 		HIR_EXPR_TUPLE,
 		HIR_EXPR_ARRAY,
@@ -49,8 +49,8 @@ typedef struct hir_expr {
 	span_t span;
 
 	union {
-		hir_ident_t ident;
 		hir_lit_t lit;
+		hir_ident_t ident;
 
 		struct {
 			struct hir_expr *expr;

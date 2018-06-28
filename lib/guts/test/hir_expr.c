@@ -30,5 +30,18 @@
 
 int main(void)
 {
+	codemap_t codemap;
+	hir_parser_t parser;
+	hir_expr_t expr;
+
+	codemap_init(&codemap, NULL);
+	codemap_src_push(&codemap, "(5)\n", true);
+	hir_parser_init(&parser, &codemap, NULL);
+
+	hir_expr_parse(&expr, &parser);
+
+	codemap_emit(&codemap, stdout);
+	codemap_dtor(&codemap);
+	hir_parser_dtor(&parser);
 	return 0;
 }

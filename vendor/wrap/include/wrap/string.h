@@ -62,6 +62,7 @@ strnlen(const char *s, usize_t n);
 #endif
 
 __api void memswap(void *a, void *b, usize_t sz);
+__api void *memdup(void const *src, usize_t sz);
 
 #endif /* !__WRAP_STRING_H */
 /*!@} */

@@ -53,6 +53,8 @@ __api void hir_scope_init(hir_scope_t *self, struct hir_scope *parent,
 						  struct hir_entity *entity);
 __api struct hir_entity *hir_scope_add(hir_scope_t *self, struct hir_entity *e);
 __api struct hir_entity *hir_scope_find(hir_scope_t *self, hir_name_t *name);
+__api struct hir_entity *hir_scope_locate(hir_scope_t *self, hir_ident_t id,
+										  span_t span);
 
 #endif /* !__GUTS_HIR_SCOPE_H */
 /*!@} */
