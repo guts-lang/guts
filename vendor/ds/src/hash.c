@@ -59,7 +59,7 @@ u32_t hash_strn(u8_t const *key, u32_t n)
 	u32_t h;
 
 	if ((h = (u32_t) *s))
-		for (++s; *s && (s -  (const char *) key) < n; ++s)
+		for (++s; *s && (u32_t)(s -  (const char *) key) < n; ++s)
 			h = (h << 5) - h + (u32_t) *s;
 	return h;
 }
