@@ -73,11 +73,12 @@ static parse_st_t __literal(hir_expr_t *expr, hir_parser_t *parser)
 	}
 }
 
-/*
-static parse_st_t __commas(vecof(hir_expr_t *) exprs, hir_parser_t *parser)
+static parse_st_t __commas(vecof(hir_expr_t *) *exprs, hir_parser_t *parser)
 {
+	(void)exprs;
+	(void)parser;
 	return PARSE_NONE;
-}*/
+}
 
 /*!@brief
  *
@@ -123,10 +124,23 @@ static parse_st_t __primary(hir_expr_t *expr, hir_parser_t *parser)
 			if ((st = __expr(&r, parser)) != PARSE_OK)
 				return st;
 
-			expr->kind = HIR_EXPR_PAREN;
-			expr->paren.expr = memdup(&r, sizeof(hir_expr_t));
-			tok = hir_parser_consume(parser, HIR_TOK_RPAR);
-			expr->span.length = span_diff(tok->span, expr->span);
+			tok = hir_parser_any(parser, (hir_tok_kind_t[]){
+				HIR_TOK_RPAR, HIR_TOK_COLON
+			});
+
+			if (tok->kind == HIR_TOK_RPAR) {
+				expr->kind = HIR_EXPR_PAREN;
+				expr->paren.expr = memdup(&r, sizeof(hir_expr_t));
+				expr->span.length = span_diff(tok->span, expr->span);
+			} else {
+				expr->kind = HIR_EXPR_TUPLE;
+
+				if ((st = __commas(&expr->tuple.elems, parser)) != PARSE_OK)
+					return st;
+
+				tok = hir_parser_consume(parser, HIR_TOK_RPAR);
+				expr->span.length = span_diff(tok->span, expr->span);
+			}
 
 			return PARSE_OK;
 		}
@@ -208,5 +222,6 @@ static parse_st_t __expr(hir_expr_t *expr, hir_parser_t *parser)
  */
 parse_st_t hir_expr_parse(hir_expr_t *expr, hir_parser_t *parser)
 {
+	bzero(expr, sizeof(hir_expr_t));
 	return __expr(expr, parser);
 }
