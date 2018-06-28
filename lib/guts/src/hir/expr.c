@@ -125,7 +125,7 @@ static parse_st_t __primary(hir_expr_t *expr, hir_parser_t *parser)
 				return st;
 
 			tok = hir_parser_any(parser, (hir_tok_kind_t[]){
-				HIR_TOK_RPAR, HIR_TOK_COLON
+				HIR_TOK_RPAR, HIR_TOK_COLON, HIR_TOK_EOF
 			});
 
 			if (tok->kind == HIR_TOK_RPAR) {
