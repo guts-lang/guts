@@ -75,9 +75,32 @@ static parse_st_t __literal(hir_expr_t *expr, hir_parser_t *parser)
 
 static parse_st_t __commas(vecof(hir_expr_t *) *exprs, hir_parser_t *parser)
 {
-	(void)exprs;
-	(void)parser;
-	return PARSE_NONE;
+	hir_tok_t *tok;
+	hir_expr_t r;
+	parse_st_t st;
+
+	if (!(tok = hir_parser_peek(parser)))
+		return PARSE_ERROR;
+
+	if (tok->kind == HIR_TOK_COMMA) {
+		hir_parser_next(parser);
+		return PARSE_OK;
+	}
+
+	while (true) {
+		if ((st = __expr(&r, parser)) != PARSE_OK)
+			return st == PARSE_NONE ? PARSE_OK : st;
+
+		vecpush(*exprs, memdup(&r, sizeof(hir_expr_t)));
+
+		if (!(tok = hir_parser_peek(parser)))
+			return PARSE_ERROR;
+
+		if (tok->kind != HIR_TOK_COMMA)
+			break;
+	}
+
+	return PARSE_OK;
 }
 
 /*!@brief
@@ -135,6 +158,7 @@ static parse_st_t __primary(hir_expr_t *expr, hir_parser_t *parser)
 			} else {
 				expr->kind = HIR_EXPR_TUPLE;
 
+				vecpush(expr->tuple.elems, memdup(&r, sizeof(hir_expr_t)));
 				if ((st = __commas(&expr->tuple.elems, parser)) != PARSE_OK)
 					return st;
 
