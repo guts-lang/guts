@@ -59,7 +59,7 @@ __api hir_tok_t *hir_parser_peek(hir_parser_t *self);
 __api hir_tok_t *hir_parser_peekn(hir_parser_t *self, u8_t n);
 __api hir_tok_t *hir_parser_next(hir_parser_t *self);
 __api hir_tok_t *hir_parser_consume(hir_parser_t *self, hir_tok_kind_t kind);
-__api hir_tok_t *hir_parser_any(hir_parser_t *self, hir_tok_kind_t *kind);
+__api hir_tok_t *hir_parser_any(hir_parser_t *self, char __const *kinds);
 
 #endif /* !__GUTS_HIR_PARSER_H */
 /*!@} */

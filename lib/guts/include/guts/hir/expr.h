@@ -44,6 +44,8 @@ typedef struct hir_expr {
 		HIR_EXPR_PAREN,
 		HIR_EXPR_TUPLE,
 		HIR_EXPR_ARRAY,
+		HIR_EXPR_CALL,
+		HIR_EXPR_BINARY,
 	} kind;
 
 	span_t span;

@@ -150,7 +150,7 @@ hir_tok_t *hir_parser_consume(hir_parser_t *self, hir_tok_kind_t kind)
 	return tok;
 }
 
-hir_tok_t *hir_parser_any(hir_parser_t *self, hir_tok_kind_t *kinds)
+hir_tok_t *hir_parser_any(hir_parser_t *self, char __const *kinds)
 {
 	hir_tok_t *tok;
 	u32_t errs;
@@ -160,7 +160,7 @@ hir_tok_t *hir_parser_any(hir_parser_t *self, hir_tok_kind_t *kinds)
 
 	errs = veclen(self->codemap->diagnostics);
 	if ((tok = hir_parser_next(self))
-		&& !strchr((char __const *)kinds, tok->kind)) {
+		&& !strchr(kinds, tok->kind)) {
 
 		if (errs == veclen(self->codemap->diagnostics)) {
 			u8_t i;
@@ -172,18 +172,21 @@ hir_tok_t *hir_parser_any(hir_parser_t *self, hir_tok_kind_t *kinds)
 				char __const *kind;
 
 				expected[i++] = '`';
-				kind = hir_tok_toa(*kinds++);
+				kind = hir_tok_toa((hir_tok_kind_t)*kinds++);
 				while (*kind)
 					expected[i++] = *kind++;
 				expected[i++] = '\'';
 
-				if (*kinds) {
+				if (*kinds && *(kinds + 1)) {
 					strcpy(expected + i, ", ");
 					i += 2;
+				} else if (*kinds) {
+					strcpy(expected + i, " or ");
+					i += 4;
 				}
 			}
 
-			diag_error(&error, "unexpected token, expected [%s] got `%s'",
+			diag_error(&error, "unexpected token, expected %s got `%s'",
 				expected, hir_tok_toa(tok->kind));
 			diag_labelize(&error, true, tok->span, NULL);
 			vecpush(self->codemap->diagnostics, error);
