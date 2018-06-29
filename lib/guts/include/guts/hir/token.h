@@ -90,14 +90,15 @@ typedef enum {
 	HIR_TOK_NEQ,        /*!< `!='. */
 	HIR_TOK_GT,         /*!< `>'.  */
 	HIR_TOK_GEQ,        /*!< `>='. */
-	HIR_TOK_LEQ,        /*!< `<='. */
 	HIR_TOK_LT,         /*!< `<'.  */
+	HIR_TOK_LEQ,        /*!< `<='. */
 	HIR_TOK_LAND,       /*!< `&&'. */
 	HIR_TOK_LOR,        /*!< `||'. */
 	HIR_TOK_LSH,        /*!< `<<'. */
 	HIR_TOK_RSH,        /*!< `>>'. */
 	HIR_TOK_AND,        /*!< `&'.  */
 	HIR_TOK_OR,         /*!< `|'.  */
+	HIR_TOK_XOR,        /*!< `^'.  */
 	HIR_TOK_ADD,        /*!< `+'.  */
 	HIR_TOK_SUB,        /*!< `-'.  */
 	HIR_TOK_MUL,        /*!< `*'.  */
@@ -108,6 +109,7 @@ typedef enum {
 	HIR_TOK_RSH_ASSIGN, /*!< `>>'. */
 	HIR_TOK_AND_ASSIGN, /*!< `&='. */
 	HIR_TOK_OR_ASSIGN,  /*!< `|='. */
+	HIR_TOK_XOR_ASSIGN, /*!< `^='. */
 	HIR_TOK_ADD_ASSIGN, /*!< `+='. */
 	HIR_TOK_SUB_ASSIGN, /*!< `-='. */
 	HIR_TOK_MUL_ASSIGN, /*!< `*='. */

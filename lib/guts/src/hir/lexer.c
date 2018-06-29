@@ -190,6 +190,10 @@ static bool __lookahead(hir_lexer_t *self)
 			case '|': MATCH_SKIP(HIR_TOK_LOR, 2);
 			default: MATCH_SKIP(HIR_TOK_OR, 1);
 		}
+		case '^': switch (source_peekn(self->src, 1)) {
+			case '=': MATCH_SKIP(HIR_TOK_XOR_ASSIGN, 2);
+			default: MATCH_SKIP(HIR_TOK_XOR, 1);
+		}
 		case '*': switch (source_peekn(self->src, 1)) {
 			case '=': MATCH_SKIP(HIR_TOK_MUL_ASSIGN, 2);
 			default: MATCH_SKIP(HIR_TOK_MUL, 1);
@@ -230,7 +234,7 @@ static bool __lookahead(hir_lexer_t *self)
 
 		ident: {
 			u16_t len;
-			
+
 			tok.ident = source_str(self->src);
 
 			source_next(self->src);

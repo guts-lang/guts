@@ -140,8 +140,8 @@ hir_tok_t *hir_parser_consume(hir_parser_t *self, hir_tok_kind_t kind)
 		if (errs == veclen(self->codemap->diagnostics)) {
 			diag_t error;
 
-			diag_error(&error, "unexpected token, expected `%s' got `%s'",
-				hir_tok_toa(kind), hir_tok_toa(tok->kind));
+			diag_error(&error, "unexpected token ‘%s’ expected ‘%s’",
+				hir_tok_toa(tok->kind), hir_tok_toa(kind));
 			diag_labelize(&error, true, tok->span, NULL);
 			vecpush(self->codemap->diagnostics, error);
 		}
@@ -186,8 +186,8 @@ hir_tok_t *hir_parser_any(hir_parser_t *self, char __const *kinds)
 				}
 			}
 
-			diag_error(&error, "unexpected token, expected %s got `%s'",
-				expected, hir_tok_toa(tok->kind));
+			diag_error(&error, "unexpected token ‘%s’ expected %s",
+				hir_tok_toa(tok->kind), expected);
 			diag_labelize(&error, true, tok->span, NULL);
 			vecpush(self->codemap->diagnostics, error);
 		}
