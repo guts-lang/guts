@@ -74,34 +74,47 @@ static parse_st_t __literal(hir_expr_t *expr, hir_parser_t *parser)
 	}
 }
 
+static parse_st_t __required_expr(hir_expr_t *expr, hir_parser_t *parser)
+{
+	parse_st_t st;
+	hir_tok_t *tok;
+
+	if ((st = __expr(expr, parser)) == PARSE_ERROR)
+		return st;
+	else if (st == PARSE_NONE) {
+		diag_t error;
+
+		if (!(tok = hir_parser_peek(parser)))
+			return PARSE_ERROR;
+
+		diag_error(&error,
+			"unexpected token, expected `<expression>' got `%s'",
+			hir_tok_toa(tok->kind));
+		diag_labelize(&error, true, tok->span, NULL);
+		codemap_diagnostic(parser->codemap, error);
+
+		return PARSE_ERROR;
+	}
+
+	return PARSE_OK;
+}
+
 static hir_tok_t *__commas(vecof(hir_expr_t *) *exprs, hir_parser_t *parser,
 						   bool trailing_comma, bool empty,
 						   hir_tok_kind_t closing)
 {
+	parse_st_t st;
 	hir_tok_t *tok;
 	hir_expr_t r;
-	parse_st_t st;
 
 	while (true) {
 		bzero(&r, sizeof(hir_expr_t));
 
-		if ((st = __expr(&r, parser)) == PARSE_ERROR)
+		if ((st = (!trailing_comma && (veclen(*exprs) || !empty)
+			? __required_expr : __expr)(&r, parser)) == PARSE_ERROR)
 			return NULL;
-		else if (st == PARSE_NONE) {
-			diag_t error;
-
-			if (trailing_comma || (!veclen(*exprs) && empty))
-				return hir_parser_consume(parser, closing);
-			if (!(tok = hir_parser_peek(parser)))
-				return NULL;
-
-			diag_error(&error, "unexpected token, expected `<expr>' got `%s'",
-				hir_tok_toa(tok->kind));
-			diag_labelize(&error, true, tok->span, NULL);
-			codemap_diagnostic(parser->codemap, error);
-
-			return NULL;
-		}
+		if (st == PARSE_NONE)
+			return hir_parser_consume(parser, closing);
 
 		vecpush(*exprs, memdup(&r, sizeof(hir_expr_t)));
 
@@ -119,8 +132,8 @@ static hir_tok_t *__commas(vecof(hir_expr_t *) *exprs, hir_parser_t *parser,
  * __primary
  *   : __literal
  *   | HIR_TOK_IDENT
- *   | '(' __expr ')'
- *   | '(' __commas ')'
+ *   | '(' __required_expr ')'
+ *   | '(' __required_expr, __commas ')'
  *   | '[' __commas ']'
  *   | '[' __commas ',' ']'
  *   ;
@@ -195,7 +208,7 @@ static parse_st_t __primary(hir_expr_t *expr, hir_parser_t *parser)
  * __postfix
  *   : __primary
  *   | __postfix '(' __commas ')'
- *   | __postfix '[' __expr ']'
+ *   | __postfix '[' __required_expr ']'
  *   | __postfix '.' HIR_TOK_IDENT #TODO
  *   | __postfix '->' HIR_TOK_IDENT #TODO
  *   | __postfix '--' #TODO
@@ -243,20 +256,8 @@ static parse_st_t __postfix(hir_expr_t *expr, hir_parser_t *parser)
 				hir_parser_next(parser);
 
 				bzero(&r1, sizeof(hir_expr_t));
-				if ((st = __expr(&r1, parser)) == PARSE_ERROR)
+				if ((st = __required_expr(&r1, parser)) == PARSE_ERROR)
 					return st;
-				else if (st == PARSE_NONE) {
-					diag_t error;
-
-					if (!(tok = hir_parser_peek(parser)))
-						return PARSE_ERROR;
-
-					diag_error(&error,
-						"unexpected token, expected `<expr>' got `%s'",
-						hir_tok_toa(tok->kind));
-					diag_labelize(&error, true, tok->span, NULL);
-					codemap_diagnostic(parser->codemap, error);
-				}
 
 				if (!(tok = hir_parser_consume(parser, HIR_TOK_RBRA)))
 					return PARSE_ERROR;
