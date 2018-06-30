@@ -46,19 +46,19 @@ typedef struct {
 
 	/*! Base of the integer literal. */
 	enum {
-		HIR_INTEGER_DECIMAL = 0, /*!< By default, no `0o' or `0x' prefix. */
-		HIR_INTEGER_OCTAL,       /*!< `0o' prefix. */
-		HIR_INTEGER_HEXADECIMAL, /*!< `0x' prefix. */
+		HIR_INTEGER_DECIMAL = 0, /*!< By default, no ‘0o’ or ‘0x’ prefix. */
+		HIR_INTEGER_OCTAL,       /*!< ‘0o’ prefix. */
+		HIR_INTEGER_HEXADECIMAL, /*!< ‘0x’ prefix. */
 	} base;
 
 	/*! Size part of a integer literal suffix. */
 	enum {
-		HIR_INTEGER_INT = 0, /*!< By default, no `l' or `ll' suffix. */
-		HIR_INTEGER_LONG,    /*!< `l' suffix. */
-		HIR_INTEGER_LLONG,   /*!< `ll' suffix. */
+		HIR_INTEGER_INT = 0, /*!< By default, no ‘l’ or ‘ll’ suffix. */
+		HIR_INTEGER_LONG,    /*!< ‘l’ suffix. */
+		HIR_INTEGER_LLONG,   /*!< ‘ll’ suffix. */
 	} size;
 
-	/*! Integer literal has unsigned type, `u' suffix. */
+	/*! Integer literal has unsigned type, ‘u’ suffix. */
 	bool unsign;
 
 	/*! Integer value. */
@@ -80,8 +80,8 @@ typedef struct {
 	/*! Floating point literal format specified by the suffix. */
 	enum {
 		HIR_FLOAT_DOUBLE = 0,  /*!< By default, no suffix. */
-		HIR_FLOAT_FLOAT,       /*!< `f' suffix. */
-		HIR_FLOAT_LDOUBLE,     /*!< `l' suffix. */
+		HIR_FLOAT_FLOAT,       /*!< ‘f’ suffix. */
+		HIR_FLOAT_LDOUBLE,     /*!< ‘l’ suffix. */
 	} size;
 
 	/*! floating value. */
@@ -90,12 +90,12 @@ typedef struct {
 } hir_float_t;
 
 /*!@brief
- * A UTF-8 string literal: `"foo"`.
+ * A UTF-8 string literal: ‘"foo"`.
  */
 typedef vecof(char) hir_string_t;
 
 /*!@brief
- * A character literal: `'a'`.
+ * A character literal: `’a'`.
  */
 typedef char hir_char_t;
 

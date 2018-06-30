@@ -36,23 +36,29 @@
 
 struct hir_expr;
 
+typedef enum {
+	HIR_TY_IDENT = 0,
+	HIR_TY_SLICE,
+	HIR_TY_ARRAY,
+	HIR_TY_PTR,
+	HIR_TY_FN,
+	HIR_TY_TUPLE,
+	HIR_TY_INTEGER,
+	HIR_TY_FLOATING,
+	HIR_TY_CHAR,
+	HIR_TY_BOOL,
+	HIR_TY_VOID,
+} hir_ty_kind_t;
+
 typedef struct hir_ty {
 
 	span_t span;
 
-	enum {
-		HIR_TY_SLICE = 0,
-		HIR_TY_ARRAY,
-		HIR_TY_PTR,
-		HIR_TY_FN,
-		HIR_TY_TUPLE,
-		HIR_TY_INTEGER,
-		HIR_TY_FLOATING,
-		HIR_TY_BOOL,
-		HIR_TY_VOID,
-	} kind;
+	hir_ty_kind_t kind: 8;
 
 	union {
+		hir_ident_t ident;
+
 		struct {
 			struct hir_ty *elem;
 		} slice;
@@ -86,6 +92,9 @@ typedef struct hir_ty {
 	};
 
 } hir_ty_t;
+
+__api hir_parse_t hir_ty_parse(hir_ty_t *ty, hir_parser_t *parser);
+__api hir_parse_t hir_ty_consume(hir_ty_t *ty, hir_parser_t *parser);
 
 #endif /* !__GUTS_HIR_TYPE_H */
 /*!@} */

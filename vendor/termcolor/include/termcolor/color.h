@@ -93,7 +93,7 @@ typedef struct {
 /*!@brief
  * Initialize a standard terminal color on the stack.
 
- * @param color The standard color (`TERMCOLOR_GREY' to `TERMCOLOR_WHITE')
+ * @param color The standard color (‘TERMCOLOR_GREY’ to ‘TERMCOLOR_WHITE’)
  * @return      A color.
  */
 __api color_t color(enum color color);
@@ -109,9 +109,9 @@ __api color_t color_ansi256(u8_t ansi);
 /*!@brief
  * Initialize a RGB terminal color on the stack.
  *
- * @param r The `r' from rgb
- * @param g The `b' from rgb
- * @param b The `g' from rgb
+ * @param r The ‘r’ from rgb
+ * @param g The ‘b’ from rgb
+ * @param b The ‘g’ from rgb
  * @return  A color.
  */
 __api color_t color_rgb(u8_t r, u8_t g, u8_t b);

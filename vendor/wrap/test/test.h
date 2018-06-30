@@ -34,7 +34,7 @@
 #include <stdio.h>
 
 #ifndef ASSERT_F
-# define ASSERT_F(...) "%s:%d: `%s'\n", __FILE__, __LINE__, #__VA_ARGS__
+# define ASSERT_F(...) "%s:%d: ‘%s’\n", __FILE__, __LINE__, #__VA_ARGS__
 #endif
 
 #define ASSERT(cond) do if(!(cond))exit(printf(ASSERT_F(cond))>0);while(0)

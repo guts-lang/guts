@@ -38,9 +38,12 @@
 #include "lexer.h"
 #include "scope.h"
 
+struct hir_entity;
+
 typedef struct {
 	codemap_t *codemap;
-	hir_scope_t *root, *current;
+	hir_scope_t *root, *scope;
+	struct hir_entity *entity;
 	stackof(hir_lexer_t) lexers;
 	hir_lexer_t *lexer;
 } hir_parser_t;
@@ -49,7 +52,7 @@ typedef enum {
 	PARSE_OK = 0,
 	PARSE_NONE,
 	PARSE_ERROR,
-} parse_st_t;
+} hir_parse_t;
 
 __api void hir_parser_init(hir_parser_t *self, codemap_t *codemap,
 						   hir_scope_t *root);
@@ -60,6 +63,13 @@ __api hir_tok_t *hir_parser_peekn(hir_parser_t *self, u8_t n);
 __api hir_tok_t *hir_parser_next(hir_parser_t *self);
 __api hir_tok_t *hir_parser_consume(hir_parser_t *self, hir_tok_kind_t kind);
 __api hir_tok_t *hir_parser_any(hir_parser_t *self, char __const *kinds);
+__api void hir_parser_scope(hir_parser_t *self, hir_scope_t *scope);
+__api void hir_parser_unscope(hir_parser_t *self);
+
+typedef hir_parse_t (hir_parse_rule_t)(void *self, hir_parser_t *parser);
+
+__api hir_parse_t hir_parse_required(hir_parse_rule_t *rule, void *self,
+									 hir_parser_t *parser, char __const *name);
 
 #endif /* !__GUTS_HIR_PARSER_H */
 /*!@} */

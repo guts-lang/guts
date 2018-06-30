@@ -52,20 +52,20 @@ int main(void)
 			entity.span = tok->span;
 			entity.name.len = tok->span.length;
 			entity.name.ident = tok->ident;
-			entity.parent = parser.current->entity;
-			ASSERT(entities[idx++] = hir_scope_add(parser.current, &entity));
-			hir_scope_init(&entities[idx - 1]->namespace.scope, parser.current,
+			entity.parent = parser.scope->entity;
+			ASSERT(entities[idx++] = hir_scope_add(parser.scope, &entity));
+			hir_scope_init(&entities[idx - 1]->namespace.scope, parser.scope,
 				entities[idx - 1]);
-			parser.current = &entities[idx - 1]->namespace.scope;
+			parser.scope = &entities[idx - 1]->namespace.scope;
 		} else if (tok->kind == HIR_TOK_RCUR) {
-			parser.current = parser.current->parent;
+			parser.scope = parser.scope->parent;
 		} else if (tok->kind == HIR_TOK_IDENT) {
 			bzero(&entity, sizeof(hir_entity_t));
 			entity.span = tok->span;
 			entity.name.len = tok->span.length;
 			entity.name.ident = tok->ident;
-			entity.parent = parser.current->entity;
-			ASSERT(entities[idx++] = hir_scope_add(parser.current, &entity));
+			entity.parent = parser.scope->entity;
+			ASSERT(entities[idx++] = hir_scope_add(parser.scope, &entity));
 		}
 	}
 

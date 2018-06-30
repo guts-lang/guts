@@ -24,27 +24,34 @@
  * SOFTWARE.
  */
 
-#ifndef __COMPAT_TEST_H
-# define __COMPAT_TEST_H
+#include "guts/hir/stmt.h"
 
-#include "wrap/conf.h"
-#include "wrap/string.h"
+#include "test.h"
 
-#include <assert.h>
-#include <stdio.h>
+int main(void)
+{
+	codemap_t codemap;
+	hir_parser_t parser;
+	hir_stmt_t stmt;
 
-#ifndef ASSERT_F
-# define ASSERT_F(...) "%s:%d: ‘%s’\n", __FILE__, __LINE__, #__VA_ARGS__
-#endif
+	codemap_init(&codemap, NULL);
+	codemap_src_push(&codemap,
+		"{\n"
+		"    let a : i8 = 0;\n"
+		"    let b : i8 = 5;\n"
+		"\n"
+		"    if true {\n"
+		"        return b;\n"
+		"    } else return a;\n"
+		"}\n",
+		true
+	);
+	hir_parser_init(&parser, &codemap, NULL);
 
-#define ASSERT(cond) do if(!(cond))exit(printf(ASSERT_F(cond))>0);while(0)
-#define ASSERT_EQ(a, b) ASSERT((a) == (b))
-#define ASSERT_GE(a, b) ASSERT((a) >= (b))
-#define ASSERT_LE(a, b) ASSERT((a) <= (b))
-#define ASSERT_NEQ(a, b) ASSERT((a) != (b))
-#define ASSERT_TRUE(a) ASSERT_EQ(a, true)
-#define ASSERT_FALSE(a) ASSERT_EQ(a, false)
-#define ASSERT_NULL(a) ASSERT_EQ(a, NULL)
-#define ASSERT_STREQ(a, b) ASSERT_EQ(0, strcmp(a, b))
+	hir_stmt_consume(&stmt, &parser);
 
-#endif /* !__COMPAT_TEST_H */
+	codemap_emit(&codemap, stdout);
+	codemap_dtor(&codemap);
+	hir_parser_dtor(&parser);
+	return 0;
+}

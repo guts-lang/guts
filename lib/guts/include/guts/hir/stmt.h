@@ -35,26 +35,37 @@
 #include "expr.h"
 #include "scope.h"
 
+typedef enum {
+	HIR_STMT_EXPR,
+	HIR_STMT_BLOCK,
+	HIR_STMT_LET,
+	HIR_STMT_IF,
+	HIR_STMT_WHILE,
+	HIR_STMT_CONTINUE,
+	HIR_STMT_BREAK,
+	HIR_STMT_RETURN,
+} hir_stmt_kind_t;
+
 typedef struct hir_stmt {
 
-	enum {
-		HIR_STMT_EXPR,
-		HIR_STMT_BLOCK,
-		HIR_STMT_IF,
-		HIR_STMT_WHILE,
-		HIR_STMT_RETURN,
-	} kind;
+	hir_stmt_kind_t kind: 8;
 
 	span_t span;
 
 	union {
-		hir_expr_t expr, return_stmt;
+		hir_expr_t expr, return_expr;
 
 		struct {
-			vecof(struct hir_stmt) stmts;
+			vecof(struct hir_stmt *) stmts;
 			hir_expr_t expr;
 			hir_scope_t scope;
 		} block;
+
+		struct {
+			hir_name_t name;
+			hir_ty_t ty;
+			hir_expr_t *value;
+		} let;
 
 		struct {
 			hir_expr_t cond;
@@ -68,6 +79,9 @@ typedef struct hir_stmt {
 	};
 
 } hir_stmt_t;
+
+__api hir_parse_t hir_stmt_parse(hir_stmt_t *stmt, hir_parser_t *parser);
+__api hir_parse_t hir_stmt_consume(hir_stmt_t *stmt, hir_parser_t *parser);
 
 #endif /* !__GUTS_HIR_STMT_H */
 /*!@} */

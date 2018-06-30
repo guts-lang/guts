@@ -24,6 +24,7 @@
  * SOFTWARE.
  */
 
+#include <guts/hir/parser.h>
 #include "guts/hir/parser.h"
 
 void hir_parser_init(hir_parser_t *self, codemap_t *codemap,
@@ -37,7 +38,7 @@ void hir_parser_init(hir_parser_t *self, codemap_t *codemap,
 	self->lexer = NULL;
 	self->lexers = NULL;
 	self->root = root;
-	self->current = root;
+	self->scope = root;
 
 	if (root)
 		hir_scope_init(root, NULL, NULL);
@@ -140,8 +141,8 @@ hir_tok_t *hir_parser_consume(hir_parser_t *self, hir_tok_kind_t kind)
 		if (errs == veclen(self->codemap->diagnostics)) {
 			diag_t error;
 
-			diag_error(&error, "unexpected token ‘%s’ expected ‘%s’",
-				hir_tok_toa(tok->kind), hir_tok_toa(kind));
+			diag_error(&error, "expected ‘%s’ before ‘%s’ token",
+				hir_tok_toa(kind), hir_tok_toa(tok->kind));
 			diag_labelize(&error, true, tok->span, NULL);
 			vecpush(self->codemap->diagnostics, error);
 		}
@@ -186,12 +187,53 @@ hir_tok_t *hir_parser_any(hir_parser_t *self, char __const *kinds)
 				}
 			}
 
-			diag_error(&error, "unexpected token ‘%s’ expected %s",
-				hir_tok_toa(tok->kind), expected);
+			diag_error(&error, "expected %s before ‘%s’ token",
+				expected, hir_tok_toa(tok->kind));
 			diag_labelize(&error, true, tok->span, NULL);
 			vecpush(self->codemap->diagnostics, error);
 		}
 		tok = NULL;
 	}
 	return tok;
+}
+
+FORCEINLINE
+void hir_parser_scope(hir_parser_t *self, hir_scope_t *scope)
+{
+	hir_scope_init(scope, self->scope, self->entity);
+	self->scope = scope;
+}
+
+FORCEINLINE
+void hir_parser_unscope(hir_parser_t *self)
+{
+	self->scope = self->scope->parent;
+	self->entity = self->scope ? self->scope->entity : NULL;
+}
+
+FORCEINLINE
+hir_parse_t hir_parse_required(hir_parse_rule_t *rule, void *self,
+	hir_parser_t *parser, char __const *name)
+{
+	hir_parse_t st;
+	hir_tok_t *tok;
+
+	if ((st = rule(self, parser)) == PARSE_ERROR)
+		return st;
+	else if (st == PARSE_NONE) {
+		diag_t error;
+
+		if (!(tok = hir_parser_peek(parser)))
+			return PARSE_ERROR;
+
+		diag_error(&error,
+			"expected %s before ‘%s’ token",
+			name, hir_tok_toa(tok->kind));
+		diag_labelize(&error, true, tok->span, NULL);
+		codemap_diagnostic(parser->codemap, error);
+
+		return PARSE_ERROR;
+	}
+
+	return PARSE_OK;
 }

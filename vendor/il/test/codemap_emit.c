@@ -47,15 +47,15 @@ int main(void)
 	while (source_next(src));
 
 	loc = source_locate(src, 3, 9);
-	diag_error(&err, "Unexpected type in `+' application");
-	diag_labelize(&err, true, span(loc, 2), "Expected `%s' but got `%s'",
+	diag_error(&err, "Unexpected type in ‘+’ application");
+	diag_labelize(&err, true, span(loc, 2), "Expected ‘%s’ but got ‘%s’",
 		"integer", "string");
-	diag_labelize(&err, false, span(loc, 2), "Expected `%s' but got `%s'",
+	diag_labelize(&err, false, span(loc, 2), "Expected ‘%s’ but got ‘%s’",
 		"integer", "string");
 	codemap_diagnostic(&cm, err);
 	loc2 = source_locate(src, 3, 1);
 	codemap_diagnostic(&cm, diag(
-		IL_SEVERITY_WARN, "`+` has no effect unless its result is used",
+		IL_SEVERITY_WARN, "‘+’ has no effect unless its result is used",
 		1, (diag_label_t[]) {
 			diag_label(true, span(loc2, 11), NULL),
 		}

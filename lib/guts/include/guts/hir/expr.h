@@ -43,6 +43,7 @@ typedef enum {
 	HIR_EXPR_TUPLE,
 	HIR_EXPR_ARRAY,
 	HIR_EXPR_CALL,
+	HIR_EXPR_CAST,
 	HIR_EXPR_UNARY,
 	HIR_EXPR_BINARY,
 } hir_expr_kind_t;
@@ -127,6 +128,11 @@ typedef struct hir_expr {
 		} call;
 
 		struct {
+			hir_ty_t ty;
+			struct hir_expr *expr;
+		} cast;
+
+		struct {
 			hir_unary_kind_t operator: 8;
 			struct hir_expr *operand;
 		} unary;
@@ -140,7 +146,8 @@ typedef struct hir_expr {
 
 } hir_expr_t;
 
-__api parse_st_t hir_expr_parse(hir_expr_t *expr, hir_parser_t *parser);
+__api hir_parse_t hir_expr_parse(hir_expr_t *expr, hir_parser_t *parser);
+__api hir_parse_t hir_expr_consume(hir_expr_t *expr, hir_parser_t *parser);
 
 #endif /* !__GUTS_HIR_EXPR_H */
 /*!@} */

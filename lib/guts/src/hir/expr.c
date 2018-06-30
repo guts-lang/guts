@@ -24,14 +24,15 @@
  * SOFTWARE.
  */
 
+#include <guts/hir/expr.h>
 #include "guts/hir/expr.h"
 #include "guts/hir/entity.h"
 #include "guts/hir/parser.h"
 
-typedef parse_st_t (rule_t)(hir_expr_t *expr, hir_parser_t *parser);
+typedef hir_parse_t (rule_t)(hir_expr_t *expr, hir_parser_t *parser);
 
-static parse_st_t __expr(hir_expr_t *expr, hir_parser_t *parser);
-static parse_st_t __cast(hir_expr_t *expr, hir_parser_t *parser);
+static hir_parse_t __expr(hir_expr_t *expr, hir_parser_t *parser);
+static hir_parse_t __cast(hir_expr_t *expr, hir_parser_t *parser);
 
 /*!@brief
  *
@@ -49,7 +50,8 @@ static parse_st_t __cast(hir_expr_t *expr, hir_parser_t *parser);
  * @param parser
  * @return
  */
-static parse_st_t __literal(hir_expr_t *expr, hir_parser_t *parser)
+FORCEINLINE
+static hir_parse_t __literal(hir_expr_t *expr, hir_parser_t *parser)
 {
 	hir_tok_t *tok;
 
@@ -73,37 +75,19 @@ static parse_st_t __literal(hir_expr_t *expr, hir_parser_t *parser)
 	}
 }
 
-static parse_st_t __required(rule_t *rule, hir_expr_t *expr,
+FORCEINLINE
+static hir_parse_t __required(rule_t *rule, hir_expr_t *expr,
 							 hir_parser_t *parser)
 {
-	parse_st_t st;
-	hir_tok_t *tok;
-
-	if ((st = rule(expr, parser)) == PARSE_ERROR)
-		return st;
-	else if (st == PARSE_NONE) {
-		diag_t error;
-
-		if (!(tok = hir_parser_peek(parser)))
-			return PARSE_ERROR;
-
-		diag_error(&error,
-			"expected expression before ‘%s’ token",
-			hir_tok_toa(tok->kind));
-		diag_labelize(&error, true, tok->span, NULL);
-		codemap_diagnostic(parser->codemap, error);
-
-		return PARSE_ERROR;
-	}
-
-	return PARSE_OK;
+	return hir_parse_required((hir_parse_rule_t *)rule, expr, parser,
+		"expression");
 }
 
 static hir_tok_t *__commas(vecof(hir_expr_t *) *exprs, hir_parser_t *parser,
 						   bool trailing_comma, bool empty,
 						   hir_tok_kind_t closing)
 {
-	parse_st_t st;
+	hir_parse_t st;
 	hir_tok_t *tok;
 	hir_expr_t r;
 
@@ -144,9 +128,9 @@ static hir_tok_t *__commas(vecof(hir_expr_t *) *exprs, hir_parser_t *parser,
  * @param parser
  * @return
  */
-static parse_st_t __primary(hir_expr_t *expr, hir_parser_t *parser)
+static hir_parse_t __primary(hir_expr_t *expr, hir_parser_t *parser)
 {
-	parse_st_t st;
+	hir_parse_t st;
 	hir_tok_t *tok;
 
 	if ((st = __literal(expr, parser)) != PARSE_NONE)
@@ -221,9 +205,9 @@ static parse_st_t __primary(hir_expr_t *expr, hir_parser_t *parser)
  * @param parser
  * @return
  */
-static parse_st_t __postfix(hir_expr_t *expr, hir_parser_t *parser)
+static hir_parse_t __postfix(hir_expr_t *expr, hir_parser_t *parser)
 {
-	parse_st_t st;
+	hir_parse_t st;
 	hir_expr_t r1;
 	hir_tok_t *tok;
 
@@ -277,7 +261,7 @@ static parse_st_t __postfix(hir_expr_t *expr, hir_parser_t *parser)
 	}
 }
 
-static parse_st_t __unary(hir_expr_t *expr, hir_parser_t *parser)
+static hir_parse_t __unary(hir_expr_t *expr, hir_parser_t *parser)
 {
 	hir_tok_t *tok;
 
@@ -313,14 +297,35 @@ static parse_st_t __unary(hir_expr_t *expr, hir_parser_t *parser)
 	}
 }
 
-static parse_st_t __cast(hir_expr_t *expr, hir_parser_t *parser)
+static hir_parse_t __cast(hir_expr_t *expr, hir_parser_t *parser)
 {
-	return __unary(expr, parser);
+	hir_parse_t st;
+	hir_expr_t lhs;
+	hir_tok_t *tok;
+
+	bzero(&lhs, sizeof(hir_expr_t));
+
+	if ((st = __unary(&lhs, parser)) != PARSE_OK)
+		return st;
+	if (!(tok = hir_parser_peek(parser)))
+		return st;
+	if (tok->kind != HIR_TOK_AS)
+		return st;
+
+	hir_parser_next(parser);
+
+	if (hir_ty_consume(&expr->cast.ty, parser) == PARSE_ERROR)
+		return PARSE_ERROR;
+
+	expr->kind = HIR_EXPR_CAST;
+	expr->cast.expr = memdup(&lhs, sizeof(hir_expr_t));
+
+	return PARSE_OK;
 }
 
-static parse_st_t __multiplicative(hir_expr_t *expr, hir_parser_t *parser)
+static hir_parse_t __multiplicative(hir_expr_t *expr, hir_parser_t *parser)
 {
-	parse_st_t st;
+	hir_parse_t st;
 	hir_expr_t lhs;
 	hir_tok_t *tok;
 
@@ -360,9 +365,9 @@ static parse_st_t __multiplicative(hir_expr_t *expr, hir_parser_t *parser)
 	}
 }
 
-static parse_st_t __additive(hir_expr_t *expr, hir_parser_t *parser)
+static hir_parse_t __additive(hir_expr_t *expr, hir_parser_t *parser)
 {
-	parse_st_t st;
+	hir_parse_t st;
 	hir_expr_t lhs;
 	hir_tok_t *tok;
 
@@ -401,9 +406,9 @@ static parse_st_t __additive(hir_expr_t *expr, hir_parser_t *parser)
 	}
 }
 
-static parse_st_t __shift(hir_expr_t *expr, hir_parser_t *parser)
+static hir_parse_t __shift(hir_expr_t *expr, hir_parser_t *parser)
 {
-	parse_st_t st;
+	hir_parse_t st;
 	hir_expr_t lhs;
 	hir_tok_t *tok;
 
@@ -442,9 +447,9 @@ static parse_st_t __shift(hir_expr_t *expr, hir_parser_t *parser)
 	}
 }
 
-static parse_st_t __relational(hir_expr_t *expr, hir_parser_t *parser)
+static hir_parse_t __relational(hir_expr_t *expr, hir_parser_t *parser)
 {
-	parse_st_t st;
+	hir_parse_t st;
 	hir_expr_t lhs;
 	hir_tok_t *tok;
 
@@ -485,9 +490,9 @@ static parse_st_t __relational(hir_expr_t *expr, hir_parser_t *parser)
 	}
 }
 
-static parse_st_t __equality(hir_expr_t *expr, hir_parser_t *parser)
+static hir_parse_t __equality(hir_expr_t *expr, hir_parser_t *parser)
 {
-	parse_st_t st;
+	hir_parse_t st;
 	hir_expr_t lhs;
 	hir_tok_t *tok;
 
@@ -526,9 +531,9 @@ static parse_st_t __equality(hir_expr_t *expr, hir_parser_t *parser)
 	}
 }
 
-static parse_st_t __add(hir_expr_t *expr, hir_parser_t *parser)
+static hir_parse_t __add(hir_expr_t *expr, hir_parser_t *parser)
 {
-	parse_st_t st;
+	hir_parse_t st;
 	hir_expr_t lhs;
 	hir_tok_t *tok;
 
@@ -566,9 +571,9 @@ static parse_st_t __add(hir_expr_t *expr, hir_parser_t *parser)
 	}
 }
 
-static parse_st_t __xor(hir_expr_t *expr, hir_parser_t *parser)
+static hir_parse_t __xor(hir_expr_t *expr, hir_parser_t *parser)
 {
-	parse_st_t st;
+	hir_parse_t st;
 	hir_expr_t lhs;
 	hir_tok_t *tok;
 
@@ -606,9 +611,9 @@ static parse_st_t __xor(hir_expr_t *expr, hir_parser_t *parser)
 	}
 }
 
-static parse_st_t __or(hir_expr_t *expr, hir_parser_t *parser)
+static hir_parse_t __or(hir_expr_t *expr, hir_parser_t *parser)
 {
-	parse_st_t st;
+	hir_parse_t st;
 	hir_expr_t lhs;
 	hir_tok_t *tok;
 
@@ -646,9 +651,9 @@ static parse_st_t __or(hir_expr_t *expr, hir_parser_t *parser)
 	}
 }
 
-static parse_st_t __land(hir_expr_t *expr, hir_parser_t *parser)
+static hir_parse_t __land(hir_expr_t *expr, hir_parser_t *parser)
 {
-	parse_st_t st;
+	hir_parse_t st;
 	hir_expr_t lhs;
 	hir_tok_t *tok;
 
@@ -686,9 +691,9 @@ static parse_st_t __land(hir_expr_t *expr, hir_parser_t *parser)
 	}
 }
 
-static parse_st_t __lor(hir_expr_t *expr, hir_parser_t *parser)
+static hir_parse_t __lor(hir_expr_t *expr, hir_parser_t *parser)
 {
-	parse_st_t st;
+	hir_parse_t st;
 	hir_expr_t lhs;
 	hir_tok_t *tok;
 
@@ -726,9 +731,9 @@ static parse_st_t __lor(hir_expr_t *expr, hir_parser_t *parser)
 	}
 }
 
-static parse_st_t __expr(hir_expr_t *expr, hir_parser_t *parser)
+static hir_parse_t __expr(hir_expr_t *expr, hir_parser_t *parser)
 {
-	parse_st_t st;
+	hir_parse_t st;
 	hir_expr_t lhs;
 	hir_tok_t *tok;
 
@@ -779,8 +784,17 @@ static parse_st_t __expr(hir_expr_t *expr, hir_parser_t *parser)
  * @param parser
  * @return
  */
-parse_st_t hir_expr_parse(hir_expr_t *expr, hir_parser_t *parser)
+FORCEINLINE
+hir_parse_t hir_expr_parse(hir_expr_t *expr, hir_parser_t *parser)
 {
 	bzero(expr, sizeof(hir_expr_t));
 	return __expr(expr, parser);
+}
+
+FORCEINLINE
+hir_parse_t hir_expr_consume(hir_expr_t *expr, hir_parser_t *parser)
+{
+	bzero(expr, sizeof(hir_expr_t));
+	return hir_parse_required((hir_parse_rule_t *)__expr, expr, parser,
+		"expression");
 }

@@ -46,75 +46,80 @@ typedef enum {
 	HIR_TOK_IDENT,
 
 	/* Scalar */
-	HIR_TOK_STRUCT, /*!< `struct'. */
-	HIR_TOK_CHAR,   /*!< `char'.   */
-	HIR_TOK_I8,     /*!< `i8'.     */
-	HIR_TOK_I16,    /*!< `i16'.    */
-	HIR_TOK_I32,    /*!< `i32'.    */
-	HIR_TOK_I64,    /*!< `i64'.    */
-	HIR_TOK_U8,     /*!< `u8'.     */
-	HIR_TOK_U16,    /*!< `u16'.    */
-	HIR_TOK_U32,    /*!< `u32'.    */
-	HIR_TOK_U64,    /*!< `u64'.    */
-	HIR_TOK_F32,    /*!< `f32'.    */
-	HIR_TOK_F64,    /*!< `f64'.    */
+	HIR_TOK_STRUCT, /*!< ‘struct’. */
+	HIR_TOK_CHAR,   /*!< ‘char’.   */
+	HIR_TOK_BOOL,   /*!< ‘bool’.   */
+	HIR_TOK_I8,     /*!< ‘i8’.     */
+	HIR_TOK_I16,    /*!< ‘i16’.    */
+	HIR_TOK_I32,    /*!< ‘i32’.    */
+	HIR_TOK_I64,    /*!< ‘i64’.    */
+	HIR_TOK_U8,     /*!< ‘u8’.     */
+	HIR_TOK_U16,    /*!< ‘u16’.    */
+	HIR_TOK_U32,    /*!< ‘u32’.    */
+	HIR_TOK_U64,    /*!< ‘u64’.    */
+	HIR_TOK_F32,    /*!< ‘f32’.    */
+	HIR_TOK_F64,    /*!< ‘f64’.    */
 
 	/* Keyword */
-	HIR_TOK_INCLUDE,   /*!< `include'.   */
-	HIR_TOK_USE,       /*!< `use'.       */
-	HIR_TOK_NAMESPACE, /*!< `namespace'. */
-	HIR_TOK_IF,        /*!< `if'.        */
-	HIR_TOK_ELSE,      /*!< `else'.      */
-	HIR_TOK_RETURN,    /*!< `return'.    */
-	HIR_TOK_AS,        /*!< `as'.        */
+	HIR_TOK_INCLUDE,   /*!< ‘include’.   */
+	HIR_TOK_USE,       /*!< ‘use’.       */
+	HIR_TOK_NAMESPACE, /*!< ‘namespace’. */
+	HIR_TOK_LET,       /*!< ‘let’.       */
+	HIR_TOK_IF,        /*!< ‘if’.        */
+	HIR_TOK_ELSE,      /*!< ‘else’.      */
+	HIR_TOK_WHILE,     /*!< ‘while’.     */
+	HIR_TOK_CONTINUE,  /*!< ‘continue’.  */
+	HIR_TOK_BREAK,     /*!< ‘break’.     */
+	HIR_TOK_RETURN,    /*!< ‘return’.    */
+	HIR_TOK_AS,        /*!< ‘as’.        */
 
 	/* Symbol */
-	HIR_TOK_COLON,     /*!< `:'. */
-	HIR_TOK_SEMICOLON, /*!< `;'. */
-	HIR_TOK_COMMA,     /*!< `,'. */
+	HIR_TOK_COLON,     /*!< ‘:’. */
+	HIR_TOK_SEMICOLON, /*!< ‘;’. */
+	HIR_TOK_COMMA,     /*!< ‘,’. */
 
 	/* Delimiter */
-	HIR_TOK_LPAR, /*!< `('. */
-	HIR_TOK_RPAR, /*!< `)'. */
-	HIR_TOK_LCUR, /*!< `{'. */
-	HIR_TOK_RCUR, /*!< `}'. */
-	HIR_TOK_LBRA, /*!< `['. */
-	HIR_TOK_RBRA, /*!< `]'. */
+	HIR_TOK_LPAR, /*!< ‘(’. */
+	HIR_TOK_RPAR, /*!< ‘)’. */
+	HIR_TOK_LCUR, /*!< ‘{’. */
+	HIR_TOK_RCUR, /*!< ‘}’. */
+	HIR_TOK_LBRA, /*!< ‘[’. */
+	HIR_TOK_RBRA, /*!< ‘]’. */
 
 	/* Operator */
-	HIR_TOK_TID,        /*!< `~'.  */
-	HIR_TOK_NOT,        /*!< `!'.  */
-	HIR_TOK_INC,        /*!< `++'. */
-	HIR_TOK_DEC,        /*!< `--'. */
-	HIR_TOK_EQ,         /*!< `=='. */
-	HIR_TOK_NEQ,        /*!< `!='. */
-	HIR_TOK_GT,         /*!< `>'.  */
-	HIR_TOK_GEQ,        /*!< `>='. */
-	HIR_TOK_LT,         /*!< `<'.  */
-	HIR_TOK_LEQ,        /*!< `<='. */
-	HIR_TOK_LAND,       /*!< `&&'. */
-	HIR_TOK_LOR,        /*!< `||'. */
-	HIR_TOK_LSH,        /*!< `<<'. */
-	HIR_TOK_RSH,        /*!< `>>'. */
-	HIR_TOK_AND,        /*!< `&'.  */
-	HIR_TOK_OR,         /*!< `|'.  */
-	HIR_TOK_XOR,        /*!< `^'.  */
-	HIR_TOK_ADD,        /*!< `+'.  */
-	HIR_TOK_SUB,        /*!< `-'.  */
-	HIR_TOK_MUL,        /*!< `*'.  */
-	HIR_TOK_DIV,        /*!< `/'.  */
-	HIR_TOK_MOD,        /*!< `%'.  */
-	HIR_TOK_ASSIGN,     /*!< `='.  */
-	HIR_TOK_LSH_ASSIGN, /*!< `<<'. */
-	HIR_TOK_RSH_ASSIGN, /*!< `>>'. */
-	HIR_TOK_AND_ASSIGN, /*!< `&='. */
-	HIR_TOK_OR_ASSIGN,  /*!< `|='. */
-	HIR_TOK_XOR_ASSIGN, /*!< `^='. */
-	HIR_TOK_ADD_ASSIGN, /*!< `+='. */
-	HIR_TOK_SUB_ASSIGN, /*!< `-='. */
-	HIR_TOK_MUL_ASSIGN, /*!< `*='. */
-	HIR_TOK_DIV_ASSIGN, /*!< `/='. */
-	HIR_TOK_MOD_ASSIGN, /*!< `%='. */
+	HIR_TOK_TID,        /*!< ‘~’.  */
+	HIR_TOK_NOT,        /*!< ‘!’.  */
+	HIR_TOK_INC,        /*!< ‘++’. */
+	HIR_TOK_DEC,        /*!< ‘--’. */
+	HIR_TOK_EQ,         /*!< ‘==’. */
+	HIR_TOK_NEQ,        /*!< ‘!=’. */
+	HIR_TOK_GT,         /*!< ‘>’.  */
+	HIR_TOK_GEQ,        /*!< ‘>=’. */
+	HIR_TOK_LT,         /*!< ‘<’.  */
+	HIR_TOK_LEQ,        /*!< ‘<=’. */
+	HIR_TOK_LAND,       /*!< ‘&&’. */
+	HIR_TOK_LOR,        /*!< ‘||’. */
+	HIR_TOK_LSH,        /*!< ‘<<’. */
+	HIR_TOK_RSH,        /*!< ‘>>’. */
+	HIR_TOK_AND,        /*!< ‘&’.  */
+	HIR_TOK_OR,         /*!< ‘|’.  */
+	HIR_TOK_XOR,        /*!< ‘^’.  */
+	HIR_TOK_ADD,        /*!< ‘+’.  */
+	HIR_TOK_SUB,        /*!< ‘-’.  */
+	HIR_TOK_MUL,        /*!< ‘*’.  */
+	HIR_TOK_DIV,        /*!< ‘/’.  */
+	HIR_TOK_MOD,        /*!< ‘%’.  */
+	HIR_TOK_ASSIGN,     /*!< ‘=’.  */
+	HIR_TOK_LSH_ASSIGN, /*!< ‘<<’. */
+	HIR_TOK_RSH_ASSIGN, /*!< ‘>>’. */
+	HIR_TOK_AND_ASSIGN, /*!< ‘&=’. */
+	HIR_TOK_OR_ASSIGN,  /*!< ‘|=’. */
+	HIR_TOK_XOR_ASSIGN, /*!< ‘^=’. */
+	HIR_TOK_ADD_ASSIGN, /*!< ‘+=’. */
+	HIR_TOK_SUB_ASSIGN, /*!< ‘-=’. */
+	HIR_TOK_MUL_ASSIGN, /*!< ‘*=’. */
+	HIR_TOK_DIV_ASSIGN, /*!< ‘/=’. */
+	HIR_TOK_MOD_ASSIGN, /*!< ‘%=’. */
 
 } hir_tok_kind_t;
 

@@ -88,7 +88,7 @@ hir_tok_t *hir_lexer_consume(hir_lexer_t *self, hir_tok_kind_t kind)
 	if (tok->kind != kind && self->diags) {
 		diag_t error;
 
-		diag_error(&error, "unexpected token, expected `%s' got `%s'",
+		diag_error(&error, "unexpected token, expected ‘%s’ got ‘%s’",
 			hir_tok_toa(kind), hir_tok_toa(tok->kind));
 		diag_labelize(&error, true, tok->span, NULL);
 		vecpush(*self->diags, error);
@@ -219,7 +219,7 @@ static bool __lookahead(hir_lexer_t *self)
 			if (self->diags) {
 				diag_t error;
 
-				diag_error(&error, "unexpected character `%c'", c);
+				diag_error(&error, "unexpected character ‘%c’", c);
 				diag_labelize(&error, true, span(start, 1), NULL);
 				vecpush(*self->diags, error);
 			}
@@ -273,12 +273,16 @@ static bool __lookahead(hir_lexer_t *self)
 						MATCH(HIR_TOK_F64, len);
 					else if (!memcmp("use", tok.ident, 3))
 						MATCH(HIR_TOK_USE, len);
+					else if (!memcmp("let", tok.ident, 3))
+						MATCH(HIR_TOK_LET, len);
 					else break;
 				case 4:
 					if (!memcmp("char", tok.ident, 4))
 						MATCH(HIR_TOK_CHAR, len);
+					else if (!memcmp("bool", tok.ident, 4))
+						MATCH(HIR_TOK_BOOL, len);
 					else if (!memcmp("else", tok.ident, 4))
-						MATCH(HIR_TOK_CHAR, len);
+						MATCH(HIR_TOK_ELSE, len);
 					else if (!memcmp("true", tok.ident, 4))
 						MATCH(HIR_TOK_LIT_BOOL, len, { tok.lit_bool = true; });
 					else if (!memcmp("null", tok.ident, 4))
@@ -287,6 +291,10 @@ static bool __lookahead(hir_lexer_t *self)
 				case 5:
 					if (!memcmp("false", tok.ident, 5))
 						MATCH(HIR_TOK_LIT_BOOL, len, { tok.lit_bool = false; });
+					else if (!memcmp("while", tok.ident, 5))
+						MATCH(HIR_TOK_WHILE, len);
+					else if (!memcmp("break", tok.ident, 5))
+						MATCH(HIR_TOK_BREAK, len);
 					else break;
 				case 6:
 					if (!memcmp("struct", tok.ident, 6))
@@ -297,6 +305,10 @@ static bool __lookahead(hir_lexer_t *self)
 				case 7:
 					if (!memcmp("include", tok.ident, 7))
 						MATCH(HIR_TOK_INCLUDE, len);
+					else break;
+				case 8:
+					if (!memcmp("continue", tok.ident, 8))
+						MATCH(HIR_TOK_CONTINUE, len);
 					else break;
 				case 9:
 					if (!memcmp("namespace", tok.ident, 9))
