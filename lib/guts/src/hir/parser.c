@@ -161,7 +161,7 @@ hir_tok_t *hir_parser_any(hir_parser_t *self, char __const *kinds)
 
 	errs = veclen(self->codemap->diagnostics);
 	if ((tok = hir_parser_next(self))
-		&& !strchr(kinds, tok->kind)) {
+		&& (tok->kind == HIR_TOK_EOF || !strchr(kinds, tok->kind))) {
 
 		if (errs == veclen(self->codemap->diagnostics)) {
 			u8_t i;

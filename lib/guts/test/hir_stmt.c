@@ -36,14 +36,7 @@ int main(void)
 
 	codemap_init(&codemap, NULL);
 	codemap_src_push(&codemap,
-		"{\n"
-		"    let a : i8 = 0;\n"
-		"    let b : i8 = 5;\n"
-		"\n"
-		"    if true {\n"
-		"        return b;\n"
-		"    } else return a;\n"
-		"}\n",
+		"let a: [u8; 3] = [0, 1, 2\n",
 		true
 	);
 	hir_parser_init(&parser, &codemap, NULL);

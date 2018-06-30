@@ -54,7 +54,6 @@ static hir_parse_t __slice(hir_ty_t *ty, hir_parser_t *parser, hir_tok_t *tok)
 	} else {
 		hir_expr_t expr;
 
-		hir_parser_next(parser);
 		ty->kind = HIR_TY_SLICE;
 
 		if (hir_expr_consume(&expr, parser) == PARSE_ERROR)

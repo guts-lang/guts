@@ -24,9 +24,32 @@
  * SOFTWARE.
  */
 
+#include <stdio.h>
 #include <guts.h>
 
-int main(void)
+int main(int ac, char *av[])
 {
+	codemap_t codemap;
+	hir_parser_t parser;
+	hir_stmt_t stmt;
+
+	if (ac != 2) {
+		fprintf(stderr, "gutc <file.gs>");
+		return 1;
+	}
+	codemap_init(&codemap, NULL);
+	codemap_src_push(&codemap, av[1], false);
+	hir_parser_init(&parser, &codemap, NULL);
+
+	hir_stmt_consume(&stmt, &parser);
+
+	if (codemap_has_errors(&codemap)) {
+		codemap_emit(&codemap, stdout);
+		codemap_dtor(&codemap);
+		hir_parser_dtor(&parser);
+		return 1;
+	}
+	codemap_dtor(&codemap);
+	hir_parser_dtor(&parser);
 	return 0;
 }

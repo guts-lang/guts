@@ -32,7 +32,16 @@
 #ifndef __GUTS_HIR_H
 # define __GUTS_HIR_H
 
+#include "guts/hir/entity.h"
+#include "guts/hir/expr.h"
+#include "guts/hir/ir.h"
 #include "guts/hir/lexer.h"
+#include "guts/hir/literal.h"
+#include "guts/hir/parser.h"
+#include "guts/hir/scope.h"
+#include "guts/hir/stmt.h"
+#include "guts/hir/token.h"
+#include "guts/hir/type.h"
 
 #endif /* !__GUTS_HIR_H */
 /*!@} */
