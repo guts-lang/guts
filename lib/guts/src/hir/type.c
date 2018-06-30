@@ -27,8 +27,6 @@
 #include "guts/hir/type.h"
 #include "guts/hir/expr.h"
 
-typedef hir_parse_t (rule_t)(hir_ty_t *expr, hir_parser_t *parser);
-
 FORCEINLINE
 static hir_parse_t __slice(hir_ty_t *ty, hir_parser_t *parser, hir_tok_t *tok)
 {

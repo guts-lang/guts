@@ -24,10 +24,11 @@
  * SOFTWARE.
  */
 
-#include <guts/hir/stmt.h>
 #include "guts/hir/stmt.h"
 
-hir_parse_t __scope(hir_stmt_t *stmt, hir_parser_t *parser, hir_tok_t *tok)
+FORCEINLINE
+static hir_parse_t __scope(hir_stmt_t *stmt, hir_parser_t *parser,
+						   hir_tok_t *tok)
 {
 	hir_stmt_t elem;
 
@@ -35,8 +36,6 @@ hir_parse_t __scope(hir_stmt_t *stmt, hir_parser_t *parser, hir_tok_t *tok)
 	stmt->span = tok->span;
 	stmt->kind = HIR_STMT_BLOCK;
 	hir_parser_scope(parser, &stmt->block.scope);
-	(void)parser;
-	(void)tok;
 
 	while (true) {
 		if (!(tok = hir_parser_peek(parser)))
@@ -60,7 +59,8 @@ hir_parse_t __scope(hir_stmt_t *stmt, hir_parser_t *parser, hir_tok_t *tok)
 	return PARSE_OK;
 }
 
-hir_parse_t __let(hir_stmt_t *stmt, hir_parser_t *parser, hir_tok_t *tok)
+FORCEINLINE
+static hir_parse_t __let(hir_stmt_t *stmt, hir_parser_t *parser, hir_tok_t *tok)
 {
 	hir_parser_next(parser);
 	stmt->span = tok->span;
@@ -99,7 +99,8 @@ hir_parse_t __let(hir_stmt_t *stmt, hir_parser_t *parser, hir_tok_t *tok)
 	return PARSE_OK;
 }
 
-hir_parse_t __if(hir_stmt_t *stmt, hir_parser_t *parser, hir_tok_t *tok)
+FORCEINLINE
+static hir_parse_t __if(hir_stmt_t *stmt, hir_parser_t *parser, hir_tok_t *tok)
 {
 	hir_stmt_t body;
 
@@ -135,7 +136,9 @@ hir_parse_t __if(hir_stmt_t *stmt, hir_parser_t *parser, hir_tok_t *tok)
 	return PARSE_OK;
 }
 
-hir_parse_t __while(hir_stmt_t *stmt, hir_parser_t *parser, hir_tok_t *tok)
+FORCEINLINE
+static hir_parse_t __while(hir_stmt_t *stmt, hir_parser_t *parser,
+						   hir_tok_t *tok)
 {
 	hir_stmt_t body;
 
@@ -159,7 +162,9 @@ hir_parse_t __while(hir_stmt_t *stmt, hir_parser_t *parser, hir_tok_t *tok)
 	return PARSE_OK;
 }
 
-hir_parse_t __continue(hir_stmt_t *stmt, hir_parser_t *parser, hir_tok_t *tok)
+FORCEINLINE
+static hir_parse_t __continue(hir_stmt_t *stmt, hir_parser_t *parser,
+							  hir_tok_t *tok)
 {
 	hir_parser_next(parser);
 	stmt->span = tok->span;
@@ -173,7 +178,9 @@ hir_parse_t __continue(hir_stmt_t *stmt, hir_parser_t *parser, hir_tok_t *tok)
 	return PARSE_OK;
 }
 
-hir_parse_t __break(hir_stmt_t *stmt, hir_parser_t *parser, hir_tok_t *tok)
+FORCEINLINE
+static hir_parse_t __break(hir_stmt_t *stmt, hir_parser_t *parser,
+						   hir_tok_t *tok)
 {
 	hir_parser_next(parser);
 	stmt->span = tok->span;
@@ -187,7 +194,9 @@ hir_parse_t __break(hir_stmt_t *stmt, hir_parser_t *parser, hir_tok_t *tok)
 	return PARSE_OK;
 }
 
-hir_parse_t __return(hir_stmt_t *stmt, hir_parser_t *parser, hir_tok_t *tok)
+FORCEINLINE
+static hir_parse_t __return(hir_stmt_t *stmt, hir_parser_t *parser,
+							hir_tok_t *tok)
 {
 	hir_parser_next(parser);
 	stmt->span = tok->span;
@@ -204,7 +213,9 @@ hir_parse_t __return(hir_stmt_t *stmt, hir_parser_t *parser, hir_tok_t *tok)
 	return PARSE_OK;
 }
 
-hir_parse_t __expr(hir_stmt_t *stmt, hir_parser_t *parser, hir_tok_t *tok)
+FORCEINLINE
+static hir_parse_t __expr(hir_stmt_t *stmt, hir_parser_t *parser,
+						  hir_tok_t *tok)
 {
 	stmt->span = tok->span;
 	stmt->kind = HIR_STMT_EXPR;

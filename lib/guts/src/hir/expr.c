@@ -33,6 +33,7 @@ typedef hir_parse_t (rule_t)(hir_expr_t *expr, hir_parser_t *parser);
 
 static hir_parse_t __expr(hir_expr_t *expr, hir_parser_t *parser);
 static hir_parse_t __cast(hir_expr_t *expr, hir_parser_t *parser);
+static hir_parse_t __assignation(hir_expr_t *expr, hir_parser_t *parser);
 
 /*!@brief
  *
@@ -84,8 +85,7 @@ static hir_parse_t __required(rule_t *rule, hir_expr_t *expr,
 }
 
 static hir_tok_t *__commas(vecof(hir_expr_t *) *exprs, hir_parser_t *parser,
-						   bool trailing_comma, bool empty,
-						   hir_tok_kind_t closing)
+						   bool trailing_comma, hir_tok_kind_t closing)
 {
 	hir_parse_t st;
 	hir_tok_t *tok;
@@ -94,8 +94,8 @@ static hir_tok_t *__commas(vecof(hir_expr_t *) *exprs, hir_parser_t *parser,
 	while (true) {
 		bzero(&r, sizeof(hir_expr_t));
 
-		if ((st = (!trailing_comma && (veclen(*exprs) || !empty)
-			? __required(__expr, &r, parser) : __expr(&r, parser)))
+		if ((st = veclen(*exprs) || !trailing_comma
+			? __required(__assignation, &r, parser) : __assignation(&r, parser))
 				== PARSE_ERROR)
 			return NULL;
 		if (st == PARSE_NONE)
@@ -118,67 +118,62 @@ static hir_tok_t *__commas(vecof(hir_expr_t *) *exprs, hir_parser_t *parser,
  *   : __literal
  *   | HIR_TOK_IDENT
  *   | '(' __required_expr ')'
- *   | '(' __required_expr, __commas ')'
  *   | '[' __commas ']'
  *   | '[' __commas ',' ']'
  *   ;
  * @endcode
  *
- * @param expr
+ * @param self
  * @param parser
  * @return
  */
-static hir_parse_t __primary(hir_expr_t *expr, hir_parser_t *parser)
+static hir_parse_t __primary(hir_expr_t *self, hir_parser_t *parser)
 {
 	hir_parse_t st;
 	hir_tok_t *tok;
 
-	if ((st = __literal(expr, parser)) != PARSE_NONE)
+	if ((st = __literal(self, parser)) != PARSE_NONE)
 		return st;
 	if (!(tok = hir_parser_peek(parser)))
 		return PARSE_ERROR;
 
 	switch (tok->kind) {
 		case HIR_TOK_IDENT: {
-			expr->span = tok->span;
-			expr->kind = HIR_EXPR_IDENT;
-			expr->ident = tok->ident;
 			hir_parser_next(parser);
+			self->span = tok->span;
+			self->kind = HIR_EXPR_IDENT;
+			self->ident = tok->ident;
 
 			return PARSE_OK;
 		}
 		case HIR_TOK_LPAR: {
-			hir_expr_t *r;
+			hir_expr_t expr;
 
-			expr->span = tok->span;
 			hir_parser_next(parser);
+			self->kind = HIR_EXPR_PAREN;
+			self->span = tok->span;
 
-			if (!(tok = __commas(&expr->tuple.elems, parser, false, false,
-				HIR_TOK_RPAR)))
+			if (hir_expr_consume(&expr, parser) == PARSE_ERROR)
 				return PARSE_ERROR;
-			expr->span.length = span_diff(tok->span, expr->span);
 
-			if (veclen(expr->tuple.elems) != 1)
-				expr->kind = HIR_EXPR_TUPLE;
-			else {
-				r = expr->tuple.elems[0];
-				vecdtor(expr->tuple.elems);
-				expr->kind = HIR_EXPR_PAREN;
-				expr->paren.expr = r;
-			}
+			if (!(tok = hir_parser_consume(parser, HIR_TOK_LPAR)))
+				return PARSE_ERROR;
+
+			self->paren.expr = memdup(&expr, sizeof(hir_stmt_t));
+			self->span.length = span_diff(tok->span, self->span);
 
 			return PARSE_OK;
 		}
 		case HIR_TOK_LBRA: {
-			expr->kind = HIR_EXPR_ARRAY;
-			expr->span = tok->span;
 			hir_parser_next(parser);
+			self->span = tok->span;
+			self->kind = HIR_EXPR_ARRAY;
 
-			if (!(tok = __commas(&expr->array.elems, parser, true, true,
+			if (!(tok = __commas(&self->array.elems, parser, true,
 				HIR_TOK_RBRA)))
 				return PARSE_ERROR;
 
-			expr->span.length = span_diff(tok->span, expr->span);
+			self->span.length = span_diff(tok->span, self->span);
 
 			return PARSE_OK;
 		}
@@ -226,7 +221,7 @@ static hir_parse_t __postfix(hir_expr_t *expr, hir_parser_t *parser)
 				expr->call.callee = memdup(&r1, sizeof(hir_expr_t));
 				hir_parser_next(parser);
 
-				if (!(tok = __commas(&expr->call.arguments, parser, false, true,
+				if (!(tok = __commas(&expr->call.arguments, parser, false,
 					HIR_TOK_RPAR)))
 					return PARSE_ERROR;
 
@@ -241,7 +236,7 @@ static hir_parse_t __postfix(hir_expr_t *expr, hir_parser_t *parser)
 				hir_parser_next(parser);
 
 				bzero(&r1, sizeof(hir_expr_t));
-				if ((st = __required(__expr, &r1, parser)) == PARSE_ERROR)
+				if (hir_expr_consume(&r1, parser) == PARSE_ERROR)
 					return st;
 
 				if (!(tok = hir_parser_consume(parser, HIR_TOK_RBRA)))
@@ -731,7 +726,7 @@ static hir_parse_t __lor(hir_expr_t *expr, hir_parser_t *parser)
 	}
 }
 
-static hir_parse_t __expr(hir_expr_t *expr, hir_parser_t *parser)
+static hir_parse_t __assignation(hir_expr_t *expr, hir_parser_t *parser)
 {
 	hir_parse_t st;
 	hir_expr_t lhs;
@@ -776,6 +771,46 @@ static hir_parse_t __expr(hir_expr_t *expr, hir_parser_t *parser)
 			*expr = lhs;
 			return PARSE_OK;
 	}
+}
+
+static hir_parse_t __expr(hir_expr_t *expr, hir_parser_t *parser)
+{
+	hir_parse_t st;
+	hir_expr_t lhs;
+	hir_tok_t *tok;
+
+	bzero(&lhs, sizeof(hir_expr_t));
+
+	if ((st = __assignation(&lhs, parser)) != PARSE_OK)
+		return st;
+	if (!(tok = hir_parser_peek(parser)))
+		return PARSE_ERROR;
+	if (tok->kind != HIR_TOK_COMMA) {
+		*expr = lhs;
+		return PARSE_OK;
+	}
+
+	expr->kind = HIR_EXPR_TUPLE;
+	vecpush(expr->tuple.elems, memdup(&lhs, sizeof(hir_expr_t)));
+
+	do {
+		hir_parser_next(parser);
+		bzero(&lhs, sizeof(hir_expr_t));
+
+		if (__required(__assignation, &lhs, parser) == PARSE_ERROR)
+			return PARSE_ERROR;
+
+		vecpush(expr->tuple.elems, memdup(&lhs, sizeof(hir_expr_t)));
+		tok = hir_parser_peek(parser);
+
+	} while (tok && tok->kind == HIR_TOK_COMMA);
+
+	if (!tok)
+		return PARSE_ERROR;
+
+	expr->span.length = span_diff(tok->span, expr->span);
+
+	return PARSE_OK;
 }
 
 /*!@brief
