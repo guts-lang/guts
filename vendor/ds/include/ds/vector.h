@@ -47,10 +47,7 @@
 #define vecend(v) seqend(v, __VEC_TSZ)
 #define vecback(v) seqback(v, __VEC_TSZ)
 #define vecat(v, i) seqat(v, i)
-#define vecgrow(v, n) seqgrow(v, n, __VEC_GUARD, __VEC_TSZ)
-#define vecnpush(v, items, n) seqnpush(v, items, n, __VEC_GUARD, __VEC_TSZ)
 #define vecpush(v, item) seqpush(v, item, __VEC_GUARD, __VEC_TSZ)
-#define vecnshift(v, items, n) seqnshift(v, items, n, __VEC_GUARD, __VEC_TSZ)
 #define vecshift(v, item) seqshift(v, item, __VEC_GUARD, __VEC_TSZ)
 
 #endif /* !__DS_VECTOR_H */

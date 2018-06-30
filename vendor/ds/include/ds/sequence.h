@@ -44,8 +44,6 @@
 # define ISPOW2(n) (((n) != 0) && (((n) & (~(n) + 1)) == (n)))
 #endif
 
-#define ROUNDUP32(n, TSz) (((TSz)(n)+0x1f)&~0x1f)
-
 #define SEQLEN (1)
 #define SEQCAP (2)
 #define SEQGUARD SEQCAP
@@ -81,18 +79,15 @@
 #define seqat(s, i) \
 	((s) + (i))
 
-#define seqgrow(s, n, guard, TSz) do { \
-	TSz __n = (n) + 1; \
+#define seqgrow(s, guard, TSz) do { \
 	if (!(s)) { \
 		TSz *__p; \
-		if (__n < CAP_MIN) __n = CAP_MIN; \
-		else __n = ROUNDUP32(__n, TSz); \
-		__p = calloc(1, __n * sizeof(*(s)) + (sizeof(TSz) * (guard))); \
+		__p = calloc(1, CAP_MIN * sizeof(*(s)) + (sizeof(TSz) * (guard))); \
 		(s) = (void *)(__p + (guard)); \
-		__seqcap(s, TSz) = __n; \
-	} else if (__n > __seqcap(s, TSz)) { \
-		TSz __len, *__p; \
-		__n = ROUNDUP32(__n, TSz); \
+		__seqcap(s, TSz) = CAP_MIN; \
+	} else if (__seqlen(s, TSz) + 1 >= __seqcap(s, TSz)) { \
+		TSz __n, __len, *__p; \
+		__n = __seqcap(s, TSz) * 2; \
 		__p = realloc((TSz *)(s) - (guard), \
 			(__n * sizeof(*(s)) + (sizeof(TSz) * (guard)))); \
 		(s) = (void *)(__p + (guard)); \
@@ -103,41 +98,21 @@
 	} \
 } while(false)
 
-#define seqnpush(s, items, n, guard, TSz) do { \
-	TSz __len1; \
-	TSz __n1 = (n); \
-	seqgrow(s, __n1, guard, TSz); \
-	__len1 = __seqlen(s, TSz); \
-	memcpy((s) + __len1, items, (__n1) * sizeof(*(s))); \
-	__seqlen(s, TSz) = __len1 + __n1; \
-} while(false)
-
 #define seqpush(s, item, guard, TSz) do { \
 	TSz __len1; \
-	seqgrow(s, 1, guard, TSz); \
+	seqgrow(s, guard, TSz); \
 	__len1 = __seqlen(s, TSz); \
 	*((s) + __len1) = (item); \
 	__seqlen(s, TSz) = __len1 + 1; \
 } while(false)
 
-#define seqnshift(s, items, n, guard, TSz) do { \
-	TSz __len1; \
-	TSz __n1 = (n); \
-	seqgrow(s, __n1); \
-	if ((__len1 = __seqlen(s, TSz))) \
-		memmove((s) + __n1, (s), (__len1 + 1) * sizeof(*(s))); \
-	memcpy((s), items, (__n1) * sizeof(*(s))); \
-	__seqlen(s, TSz) = __len1 + __n1; \
-} while(false)
-
 #define seqshift(s, item, guard, TSz) do { \
 	TSz __len1; \
-	TSz __n1 = 1; \
-	seqgrow(s, __n1); \
+	seqgrow(s, 1); \
 	if ((__len1 = __seqlen(s, TSz))) \
-		memmove((s) + __n1, (s), (__len1 + 1) * sizeof(*(s))); \
+		memmove((s) + 1, (s), (__len1 + 1) * sizeof(*(s))); \
 	*(s) = (item); \
-	__seqlen(s, TSz) = __len1 + __n1; \
+	__seqlen(s, TSz) = __len1 + 1; \
 } while(false)
 
 #endif /* !__DS_SEQUENCE_H */
