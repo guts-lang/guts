@@ -52,7 +52,7 @@ static hir_parse_t __slice(hir_ty_t *ty, hir_parser_t *parser, hir_tok_t *tok)
 	} else {
 		hir_expr_t expr;
 
-		ty->kind = HIR_TY_SLICE;
+		ty->kind = HIR_TY_ARRAY;
 
 		if (hir_expr_consume(&expr, parser) == PARSE_ERROR)
 			return PARSE_ERROR;
@@ -82,6 +82,7 @@ static hir_parse_t __ptr(hir_ty_t *ty, hir_parser_t *parser, hir_tok_t *tok)
 	if (!(tok = hir_parser_peek(parser)))
 		return PARSE_ERROR;
 
+	ty->kind = HIR_TY_PTR;
 	ty->ptr.elem = memdup(&elem, sizeof(hir_ty_t));
 	ty->span.length = span_diff(tok->span, ty->span);
 
