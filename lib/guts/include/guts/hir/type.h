@@ -35,66 +35,217 @@
 #include "parser.h"
 
 struct hir_expr;
+struct hir_ty;
 
-typedef enum {
-	HIR_TY_IDENT = 0,
-	HIR_TY_SLICE,
-	HIR_TY_ARRAY,
-	HIR_TY_PTR,
-	HIR_TY_FN,
-	HIR_TY_TUPLE,
-	HIR_TY_INTEGER,
-	HIR_TY_FLOATING,
-	HIR_TY_CHAR,
-	HIR_TY_BOOL,
-	HIR_TY_VOID,
-} hir_ty_kind_t;
+typedef struct hir_ty hir_ty_t;
+typedef enum hir_ty_kind hir_ty_kind_t;
 
-typedef struct hir_ty {
+/*!@struct hir_ty
+ * @brief
+ * High level representation of a type.
+ * @code{.y}
+ * type
+ * 	 : <ty_int>
+ * 	 | <ty_float>
+ * 	 | <ty_sym>
+ * 	 | <ty_tuple>
+ * 	 | <ty_lambda>
+ * 	 | <ty_nullable>
+ * 	 | <ty_ptr>
+ * 	 | <ty_slice>
+ * 	 | <ty_array>
+ * 	 ;
+ * @endcode
+ */
+struct hir_ty {
 
+	/*! Type location on the origin source. */
 	span_t span;
 
+	/*! Type kind, See hir_ty_kind: HIR_TY_*. */
 	hir_ty_kind_t kind: 8;
 
+	/*! Data union of all type kind. */
 	union {
-		hir_ident_t ident;
 
+		/*!@brief
+		 * Integer type: `i32` or `u64`.
+		 * @code{.y}
+		 * ty_int
+		 *   : ('i'|'u')<BYTES>
+		 *   ;
+		 * @endcode
+		 * Where <BYTES> is '8', '16', '32' or '64'.
+		 * Where 'i' is for signed integer type, 'u' for unsigned.
+		 */
+		struct {
+			u8_t bytes;  /*!< Integer bytes, '8', '16', '32' or '64'. */
+			bool unsign; /*!< Integer is unsigned or not. */
+		} ty_int;
+
+		/*!@brief
+		 * Floating type: `f32` or `f64`.
+		 * @code{.y}
+		 * ty_float
+		 *   : 'f'<BYTES>
+		 *   ;
+		 * @endcode
+		 * Where <BYTES> is '32' or '64'.
+		 */
+		struct {
+			u8_t bytes; /*!< Floating bytes, '32' or '64'. */
+		} ty_float;
+
+		/*!@brief
+		 * Symbol type: `foo<bar, u8>`.
+		 * @code{.y}
+		 * ty_sym
+		 *   : <IDENT>
+		 *   | <IDENT> '<' <TYPES> '>'
+		 *   | <IDENT> '<' <TYPES> ',' '>'
+		 *   ;
+		 * @endcode
+		 * Where <IDENT> is an unresolved symbol identifier.
+		 * Where <TYPES> is a list of types.
+		 */
+		struct {
+			hir_ident_t ident;               /*!< Symbol identifier. */
+			vecof(struct hir_ty *) template; /*!< Template type list. */
+		} ty_sym;
+
+		/*!@brief
+		 * Tuple type: `<i8, i16>` or `<u8>`.
+		 * @code{.y}
+		 * ty_tuple
+		 *   : '<' <TYPES> '>'
+		 *   ;
+		 * @endcode
+		 * Where <TYPES> is a list of types.
+		 */
+		struct {
+			vecof(struct hir_ty *) elems; /*!< Tuple type elements. */
+		} ty_tuple;
+
+		/*!@brief
+		 * Lambda function type: `<(u8, u16): u32>`.
+		 * @code{.y}
+		 * ty_lambda
+		 *   : '<' '(' ')' '>'
+		 *   | '<' '(' ')' ':' <type> '>'
+		 *   | '<' '(' <TYPES> ')' '>'
+		 *   | '<' '(' <TYPES> ')' ':' <type> '>'
+		 *   ;
+		 * @endcode
+		 * Where <type> is the 'type' rule, represent the return type.
+		 * Where <TYPES> represent the arguments types.
+		 */
+		struct {
+			struct hir_ty *output;         /*!< Lambda return type. */
+			vecof(struct hir_ty *) inputs; /*!< Lambda arguments types. */
+		} ty_lambda;
+
+		/*!@brief
+		 * Nullable pointer type: `? T` or `? const T`.
+		 * Can be null (empty) or reference (pointer).
+		 * A reference cannot be null.
+		 * @code{.y}
+		 * ty_nullable
+		 *   : '?' <type>
+		 *   | '?' <CONST> <type>
+		 *   ;
+		 * @endcode
+		 * Where <type> is the 'type' rule.
+		 * Where <CONST> is the 'const' keyword.
+		 */
 		struct {
 			struct hir_ty *elem;
-		} slice;
+		} ty_nullable;
 
+		/*!@brief
+		 * Raw pointer type: `* T` or `*const T`.
+		 * Cannot be null.
+		 * @code{.y}
+		 * ty_ptr
+		 *   : '*' <type>
+		 *   | '*' <CONST> <type>
+		 *   ;
+		 * @endcode
+		 * Where <type> is the 'type' rule.
+		 * Where <CONST> is the 'const' keyword.
+		 */
+		struct {
+			struct hir_ty *elem;
+		} ty_ptr;
+
+		/*!@brief
+		 * Dynamically sized slice type: `[T]`.
+		 * @code{.y}
+		 * ty_slice
+		 *   : '[' <type> ']'
+		 *   ;
+		 * @endcode
+		 * Where <type> is the 'type' rule.
+		 */
+		struct {
+			struct hir_ty *elem;
+		} ty_slice;
+
+
+		/*!@brief
+		 * Fixed size array type: `[T; n]`.
+		 * @code{.y}
+		 * ty_array
+		 *   : '[' <type> ';' <expr> ']'
+		 *   ;
+		 * @endcode
+		 * Where <type> is the 'type' rule, represent the item type.
+		 * Where <expr> is the 'expr' rule, represent the array size.
+		 */
 		struct {
 			struct hir_ty *elem;
 			struct hir_expr *len;
-		} array;
-
-		struct {
-			struct hir_ty *elem;
-		} ptr;
-
-		struct {
-			struct hir_ty *output;
-			vecof(struct hir_ty *) inputs;
-		} fn;
-
-		struct {
-			vecof(struct hir_ty *) elems;
-		} tuple;
-
-		struct {
-			u8_t bytes;
-			bool unsign;
-		} integer;
-
-		struct {
-			u8_t bytes;
-		} floating;
+		} ty_array;
 	};
+};
 
-} hir_ty_t;
+/*!@enum hir_ty_kind
+ * @brief
+ * Different kind of type.
+ */
+enum hir_ty_kind {
+	HIR_TY_INT = 0,  /*!< See hir_ty::ty_int.      */
+	HIR_TY_FLOAT,    /*!< See hir_ty::ty_float.    */
+	HIR_TY_BOOL,     /*!< See hir_ty::ty_bool.     */
+	HIR_TY_CHAR,     /*!< See hir_ty::ty_char.     */
+	HIR_TY_SYM,      /*!< See hir_ty::ty_sym.      */
+	HIR_TY_TUPLE,    /*!< See hir_ty::ty_tuple.    */
+	HIR_TY_LAMBDA,   /*!< See hir_ty::ty_lambda.   */
+	HIR_TY_NULLABLE, /*!< See hir_ty::ty_nullable. */
+	HIR_TY_PTR,      /*!< See hir_ty::ty_ptr.      */
+	HIR_TY_SLICE,    /*!< See hir_ty::ty_slice.    */
+	HIR_TY_ARRAY,    /*!< See hir_ty::ty_array.    */
+};
 
-__api hir_parse_t hir_ty_parse(hir_ty_t *ty, hir_parser_t *parser);
-__api hir_parse_t hir_ty_consume(hir_ty_t *ty, hir_parser_t *parser);
+/*!@brief
+ * Try to parse a type using #hir_ty syntax.
+ *
+ * @param[out]    self   The type to parse.
+ * @param[in,out] parser The parser to use for parsing.
+ * @return               ::PARSE_OK on success, ::PARSE_NONE if nothing was
+ *                       parsed or ::PARSE_ERROR on error, errors has been
+ *                       reported to `parser->codespan`.
+ */
+__api hir_parse_t hir_ty_parse(hir_ty_t *self, hir_parser_t *parser);
+
+/*!@brief
+ * Parse a type using #hir_ty syntax.
+ *
+ * @param[out]    self   The type to parse.
+ * @param[in,out] parser The parser to use for parsing.
+ * @return               ::PARSE_OK on success or and ::PARSE_ERROR on error or
+ *                       empty, errors has been reported to `parser->codespan`.
+ */
+__api hir_parse_t hir_ty_consume(hir_ty_t *self, hir_parser_t *parser);
 
 #endif /* !__GUTS_HIR_TYPE_H */
 /*!@} */

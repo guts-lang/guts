@@ -48,7 +48,7 @@ static hir_parse_t __slice(hir_ty_t *ty, hir_parser_t *parser, hir_tok_t *tok)
 
 	if (tok->kind == HIR_TOK_RBRA) {
 		ty->kind = HIR_TY_SLICE;
-		ty->slice.elem = memdup(&elem, sizeof(hir_ty_t));
+		ty->ty_slice.elem = memdup(&elem, sizeof(hir_ty_t));
 	} else {
 		hir_expr_t expr;
 
@@ -59,8 +59,8 @@ static hir_parse_t __slice(hir_ty_t *ty, hir_parser_t *parser, hir_tok_t *tok)
 		if (!(tok = hir_parser_consume(parser, HIR_TOK_RBRA)))
 			return PARSE_ERROR;
 
-		ty->array.elem = memdup(&elem, sizeof(hir_ty_t));
-		ty->array.len = memdup(&expr, sizeof(hir_expr_t));
+		ty->ty_array.elem = memdup(&elem, sizeof(hir_ty_t));
+		ty->ty_array.len = memdup(&expr, sizeof(hir_expr_t));
 	}
 
 	ty->span.length = span_diff(tok->span, ty->span);
@@ -83,7 +83,7 @@ static hir_parse_t __ptr(hir_ty_t *ty, hir_parser_t *parser, hir_tok_t *tok)
 		return PARSE_ERROR;
 
 	ty->kind = HIR_TY_PTR;
-	ty->ptr.elem = memdup(&elem, sizeof(hir_ty_t));
+	ty->ty_ptr.elem = memdup(&elem, sizeof(hir_ty_t));
 	ty->span.length = span_diff(tok->span, ty->span);
 
 	return PARSE_OK;
@@ -118,7 +118,7 @@ static hir_parse_t __tuple(hir_ty_t *ty, hir_parser_t *parser, hir_tok_t *tok)
 	}
 
 	ty->kind = HIR_TY_TUPLE;
-	ty->tuple.elems = types;
+	ty->ty_tuple.elems = types;
 	ty->span.length = span_diff(tok->span, ty->span);
 
 	/* TODO: fn */
@@ -132,9 +132,9 @@ static hir_parse_t __integer(hir_ty_t *ty, hir_parser_t *parser, hir_tok_t *tok,
 {
 	hir_parser_next(parser);
 	ty->span = tok->span;
-	ty->kind = HIR_TY_INTEGER;
-	ty->integer.bytes = bytes;
-	ty->integer.unsign = unsign;
+	ty->kind = HIR_TY_INT;
+	ty->ty_int.bytes = bytes;
+	ty->ty_int.unsign = unsign;
 	return PARSE_OK;
 }
 
@@ -190,15 +190,15 @@ static hir_parse_t __ty(hir_ty_t *ty, hir_parser_t *parser)
 }
 
 FORCEINLINE
-hir_parse_t hir_ty_parse(hir_ty_t *ty, hir_parser_t *parser)
+hir_parse_t hir_ty_parse(hir_ty_t *self, hir_parser_t *parser)
 {
-	bzero(ty, sizeof(hir_ty_t));
-	return __ty(ty, parser);
+	bzero(self, sizeof(hir_ty_t));
+	return __ty(self, parser);
 }
 
 FORCEINLINE
-hir_parse_t hir_ty_consume(hir_ty_t *ty, hir_parser_t *parser)
+hir_parse_t hir_ty_consume(hir_ty_t *self, hir_parser_t *parser)
 {
-	bzero(ty, sizeof(hir_ty_t));
-	return hir_parse_required((hir_parse_rule_t *)__ty, ty, parser, "type");
+	bzero(self, sizeof(hir_ty_t));
+	return hir_parse_required((hir_parse_rule_t *)__ty, self, parser, "type");
 }

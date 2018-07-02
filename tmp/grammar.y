@@ -8,17 +8,22 @@ tuple_or_empty
   | tuple
   ;
 
+path
+  : IDENT
+  | IDENT '<' tuple '>'
+  | path '::' IDENT
+  | path '::' IDENT '<' tuple '>'
+  ;
+
 type
-  : 'i' BYTES # HIR_TY_INTEGER
-  | 'u' BYTES # HIR_TY_INTEGER
+  : 'i' BYTES # HIR_TY_INT
+  | 'u' BYTES # HIR_TY_INT
   | 'f' BYTES # HIR_TY_FLOAT
   | 'usz' # HIR_TY_SIZE
   | 'isz' # HIR_TY_SIZE
   | 'bool' # HIR_TY_BOOL
   | 'char' # HIR_TY_CHAR
-  | IDENT # HIR_TY_SYMBOL
-  | IDENT '<' tuple '>' # HIR_TY_SYMBOL
-  | IDENT '<' tuple ',' '>' # HIR_TY_SYMBOL
+  | path # HIR_TY_SYMBOL
   | '<' tuple '>' # HIR_TY_TUPLE
   | '<' '(' tuple_or_empty ')' '>' # HIR_TY_LAMBDA
   | '<' '(' tuple_or_empty ')' ':' type '>' # HIR_TY_LAMBDA
@@ -28,7 +33,7 @@ type
   | '[' type ']' # HIR_TY_SLICE
   | '[' type ';' expr ']' # HIR_TY_ARRAY
   ;
-  
+
 type_clause
   : type
   | type_clause '|' type
@@ -69,11 +74,13 @@ symbol_list
 symbol_list_or_empty
   : /* empty */
   | symbol_list
-  ;  
-  
+  ;
+
 field:
   : symbol
   | MODIFIER symbol
+  | USE path
+  | USE path AS IDENT
   ;
 
 field_list:
