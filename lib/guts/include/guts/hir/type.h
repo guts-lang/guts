@@ -40,12 +40,34 @@ struct hir_ty;
 typedef struct hir_ty hir_ty_t;
 typedef enum hir_ty_kind hir_ty_kind_t;
 
+/*!@enum hir_ty_kind
+ * @brief
+ * Different kind of type.
+ */
+enum hir_ty_kind {
+	HIR_TY_CHAR = 0, /*!< See hir_ty.              */
+	HIR_TY_BOOL,     /*!< See hir_ty.              */
+	HIR_TY_INT,      /*!< See hir_ty::ty_int.      */
+	HIR_TY_FLOAT,    /*!< See hir_ty::ty_float.    */
+	HIR_TY_SYM,      /*!< See hir_ty::ty_sym.      */
+	HIR_TY_TUPLE,    /*!< See hir_ty::ty_tuple.    */
+	HIR_TY_LAMBDA,   /*!< See hir_ty::ty_lambda.   */
+	HIR_TY_NULLABLE, /*!< See hir_ty::ty_nullable. */
+	HIR_TY_PTR,      /*!< See hir_ty::ty_ptr.      */
+	HIR_TY_SLICE,    /*!< See hir_ty::ty_slice.    */
+	HIR_TY_ARRAY,    /*!< See hir_ty::ty_array.    */
+	HIR_TY_STRUCT,   /*!< @TODO. */
+	HIR_TY_ENUM,     /*!< @TODO. */
+};
+
 /*!@struct hir_ty
  * @brief
  * High level representation of a type.
  * @code{.y}
  * type
- * 	 : <ty_int>
+ * 	 : <CHAR>
+ * 	 | <BOOL>
+ * 	 | <ty_int>
  * 	 | <ty_float>
  * 	 | <ty_sym>
  * 	 | <ty_tuple>
@@ -102,7 +124,6 @@ struct hir_ty {
 		 * ty_sym
 		 *   : <IDENT>
 		 *   | <IDENT> '<' <TYPES> '>'
-		 *   | <IDENT> '<' <TYPES> ',' '>'
 		 *   ;
 		 * @endcode
 		 * Where <IDENT> is an unresolved symbol identifier.
@@ -158,6 +179,7 @@ struct hir_ty {
 		 * Where <CONST> is the 'const' keyword.
 		 */
 		struct {
+			bool constant;
 			struct hir_ty *elem;
 		} ty_nullable;
 
@@ -174,6 +196,7 @@ struct hir_ty {
 		 * Where <CONST> is the 'const' keyword.
 		 */
 		struct {
+			bool constant;
 			struct hir_ty *elem;
 		} ty_ptr;
 
@@ -208,24 +231,6 @@ struct hir_ty {
 	};
 };
 
-/*!@enum hir_ty_kind
- * @brief
- * Different kind of type.
- */
-enum hir_ty_kind {
-	HIR_TY_INT = 0,  /*!< See hir_ty::ty_int.      */
-	HIR_TY_FLOAT,    /*!< See hir_ty::ty_float.    */
-	HIR_TY_BOOL,     /*!< See hir_ty::ty_bool.     */
-	HIR_TY_CHAR,     /*!< See hir_ty::ty_char.     */
-	HIR_TY_SYM,      /*!< See hir_ty::ty_sym.      */
-	HIR_TY_TUPLE,    /*!< See hir_ty::ty_tuple.    */
-	HIR_TY_LAMBDA,   /*!< See hir_ty::ty_lambda.   */
-	HIR_TY_NULLABLE, /*!< See hir_ty::ty_nullable. */
-	HIR_TY_PTR,      /*!< See hir_ty::ty_ptr.      */
-	HIR_TY_SLICE,    /*!< See hir_ty::ty_slice.    */
-	HIR_TY_ARRAY,    /*!< See hir_ty::ty_array.    */
-};
-
 /*!@brief
  * Try to parse a type using #hir_ty syntax.
  *
@@ -246,6 +251,13 @@ __api hir_parse_t hir_ty_parse(hir_ty_t *self, hir_parser_t *parser);
  *                       empty, errors has been reported to `parser->codespan`.
  */
 __api hir_parse_t hir_ty_consume(hir_ty_t *self, hir_parser_t *parser);
+
+/*!@brief
+ * Destroy the given type.
+ *
+ * @param[in,out] self The type to destroy.
+ */
+__api void hir_ty_destroy(hir_ty_t *self);
 
 #endif /* !__GUTS_HIR_TYPE_H */
 /*!@} */

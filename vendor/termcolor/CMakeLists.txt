@@ -96,6 +96,7 @@ else ()
     -Wall -Werror -Wextra
     -ansi -fomit-frame-pointer
     -Wno-missing-field-initializers
+    $<$<CONFIG:Debug>:-g3 -O0>
     $<$<BOOL:${${PROJECT_NAME}_COVERAGE}>:--coverage>
     $<$<BOOL:${${PROJECT_NAME}_ASAN}>:-fsanitize=address>)
   target_link_libraries(${__TARGET}

@@ -24,7 +24,6 @@
  * SOFTWARE.
  */
 
-#include <guts/hir/expr.h>
 #include "guts/hir/expr.h"
 #include "guts/hir/entity.h"
 #include "guts/hir/parser.h"
@@ -406,6 +405,7 @@ static hir_parse_t __shift(hir_expr_t *expr, hir_parser_t *parser)
 	hir_parse_t st;
 	hir_expr_t lhs;
 	hir_tok_t *tok;
+	hir_tok_t *next;
 
 	bzero(&lhs, sizeof(hir_expr_t));
 	if ((st = __additive(&lhs, parser)) != PARSE_OK)
@@ -414,6 +414,25 @@ static hir_parse_t __shift(hir_expr_t *expr, hir_parser_t *parser)
 	while (true) {
 		if (!(tok = hir_parser_peek(parser)))
 			return PARSE_ERROR;
+
+		if (tok->kind == HIR_TOK_LT && (next = hir_parser_peekn(parser, 1))
+			&& next->kind == HIR_TOK_LT
+			&& next->span.start.off == tok->span.start.off - 1) {
+			--next->span.start.off;
+			--next->span.start.col;
+			++next->span.length;
+			tok = next;
+			tok->kind = HIR_TOK_LSH;
+		}
+		else if (tok->kind == HIR_TOK_GT && (next = hir_parser_peekn(parser, 1))
+			&& next->kind == HIR_TOK_GT
+			&& next->span.start.off == tok->span.start.off - 1) {
+			--next->span.start.off;
+			--next->span.start.col;
+			++next->span.length;
+			tok = next;
+			tok->kind = HIR_TOK_RSH;
+		}
 
 		switch (tok->kind) {
 			case HIR_TOK_LSH:

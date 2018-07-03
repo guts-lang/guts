@@ -24,7 +24,6 @@
  * SOFTWARE.
  */
 
-#include <guts/hir/parser.h>
 #include "guts/hir/parser.h"
 
 void hir_parser_init(hir_parser_t *self, codemap_t *codemap,
@@ -103,7 +102,8 @@ hir_tok_t *hir_parser_peekn(hir_parser_t *self, u8_t n)
 		count = 0;
 		lexer = self->lexer;
 		do {
-			count += (u8_t) (deqlen(lexer->lookahead) ? deqlen(lexer->lookahead) - 1 : 0);
+			count += (u8_t) (deqlen(lexer->lookahead)
+				? deqlen(lexer->lookahead) - 1 : 0);
 			--lexer;
 			tok = hir_lexer_peekn(lexer, n - count);
 		} while ((!tok || tok->kind == HIR_TOK_EOF)

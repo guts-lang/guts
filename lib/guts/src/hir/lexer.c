@@ -147,8 +147,12 @@ static bool __lookahead(hir_lexer_t *self)
 		/* Operator */
 		case '~': MATCH_SKIP(HIR_TOK_TID, 1);
 		case '!': switch (source_peekn(self->src, 1)) {
-			case '=': MATCH_SKIP(HIR_TOK_NOT, 2);
-			default: MATCH_SKIP(HIR_TOK_NEQ, 1);
+			case '=': MATCH_SKIP(HIR_TOK_NEQ, 2);
+			default: MATCH_SKIP(HIR_TOK_NOT, 1);
+		}
+		case '?': switch (source_peekn(self->src, 1)) {
+			case '=': MATCH_SKIP(HIR_TOK_NIL_ASSIGN, 2);
+			default: MATCH_SKIP(HIR_TOK_NIL, 1);
 		}
 		case '+': switch (source_peekn(self->src, 1)) {
 			case '=': MATCH_SKIP(HIR_TOK_ADD_ASSIGN, 2);
@@ -167,7 +171,7 @@ static bool __lookahead(hir_lexer_t *self)
 		case '>': switch (source_peekn(self->src, 1)) {
 			case '>': switch (source_peekn(self->src, 2)) {
 				case '=': MATCH_SKIP(HIR_TOK_RSH_ASSIGN, 3);
-				default: MATCH_SKIP(HIR_TOK_RSH, 2);
+				default: MATCH_SKIP(HIR_TOK_GT, 1);
 			}
 			case '=': MATCH_SKIP(HIR_TOK_GEQ, 2);
 			default: MATCH_SKIP(HIR_TOK_GT, 1);
@@ -175,7 +179,7 @@ static bool __lookahead(hir_lexer_t *self)
 		case '<': switch (source_peekn(self->src, 1)) {
 			case '<': switch (source_peekn(self->src, 2)) {
 				case '=': MATCH_SKIP(HIR_TOK_LSH_ASSIGN, 3);
-				default: MATCH_SKIP(HIR_TOK_LSH, 2);
+				default: MATCH_SKIP(HIR_TOK_LT, 1);
 			}
 			case '=': MATCH_SKIP(HIR_TOK_LEQ, 2);
 			default: MATCH_SKIP(HIR_TOK_LT, 1);
@@ -295,6 +299,8 @@ static bool __lookahead(hir_lexer_t *self)
 						MATCH(HIR_TOK_WHILE, len);
 					else if (!memcmp("break", tok.ident, 5))
 						MATCH(HIR_TOK_BREAK, len);
+					else if (!memcmp("const", tok.ident, 5))
+						MATCH(HIR_TOK_CONST, len);
 					else break;
 				case 6:
 					if (!memcmp("struct", tok.ident, 6))

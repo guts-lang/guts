@@ -72,6 +72,7 @@ typedef enum {
 	HIR_TOK_BREAK,     /*!< ‘break’.     */
 	HIR_TOK_RETURN,    /*!< ‘return’.    */
 	HIR_TOK_AS,        /*!< ‘as’.        */
+	HIR_TOK_CONST,     /*!< ‘const’.     */
 
 	/* Symbol */
 	HIR_TOK_COLON,     /*!< ‘:’. */
@@ -87,6 +88,7 @@ typedef enum {
 	HIR_TOK_RBRA, /*!< ‘]’. */
 
 	/* Operator */
+	HIR_TOK_NIL,        /*!< ‘?’.  */
 	HIR_TOK_TID,        /*!< ‘~’.  */
 	HIR_TOK_NOT,        /*!< ‘!’.  */
 	HIR_TOK_INC,        /*!< ‘++’. */
@@ -120,6 +122,7 @@ typedef enum {
 	HIR_TOK_MUL_ASSIGN, /*!< ‘*=’. */
 	HIR_TOK_DIV_ASSIGN, /*!< ‘/=’. */
 	HIR_TOK_MOD_ASSIGN, /*!< ‘%=’. */
+	HIR_TOK_NIL_ASSIGN, /*!< ‘?=’. */
 
 } hir_tok_kind_t;
 
@@ -144,6 +147,7 @@ __api void hir_tok_init(hir_tok_t *token, loc_t start, u16_t length);
 __api void hir_tok_dtor(hir_tok_t *token);
 __api char __const *hir_tok_toa(hir_tok_kind_t kind);
 __api u16_t hir_tok_diff(hir_tok_t *a, hir_tok_t *b);
+__api hir_tok_kind_t hir_tok_matching(hir_tok_kind_t kind);
 
 #endif /* !__GUTS_HIR_FE_H */
 /*!@} */

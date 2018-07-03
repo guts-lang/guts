@@ -43,10 +43,25 @@ macro (guts_register_test suite test)
   add_dependencies(check_guts test_guts_${name})
   add_dependencies(check_guts_${suite} test_guts_${name})
   add_dependencies(test_guts_${name} Guts::libguts)
+
+  if (MSVC)
+    target_compile_definitions(test_guts_${name} PRIVATE _CRT_SECURE_NO_WARNINGS)
+    target_compile_options(test_guts_${name}PRIVATE /Oy /W3)
+  else ()
+    target_compile_options(test_guts_${name}
+      PRIVATE
+      -Wall -Werror -Wextra
+      -ansi -fomit-frame-pointer
+      -Wno-missing-field-initializers
+      $<$<CONFIG:Debug>:-g3 -O0>
+      $<$<BOOL:${GUTS_COVERAGE}>:--coverage>
+      $<$<BOOL:${GUTS_ASAN}>:-fsanitize=address>)
+  endif ()
 endmacro ()
 
 guts_register_test(hir lexer)
 guts_register_test(hir scope)
 guts_register_test(hir parser)
+guts_register_test(hir type)
 guts_register_test(hir expr)
 guts_register_test(hir stmt)

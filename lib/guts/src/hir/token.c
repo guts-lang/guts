@@ -76,6 +76,7 @@ static char __const *__token_toa[] = {
 	[HIR_TOK_BREAK] = "break",
 	[HIR_TOK_RETURN] = "return",
 	[HIR_TOK_AS] = "as",
+	[HIR_TOK_CONST] = "const",
 	[HIR_TOK_COLON] = ":",
 	[HIR_TOK_SEMICOLON] = ";",
 	[HIR_TOK_COMMA] = ",",
@@ -87,6 +88,7 @@ static char __const *__token_toa[] = {
 	[HIR_TOK_RBRA] = "]",
 	[HIR_TOK_TID] = "~",
 	[HIR_TOK_NOT] = "!",
+	[HIR_TOK_NIL] = "?",
 	[HIR_TOK_INC] = "++",
 	[HIR_TOK_DEC] = "--",
 	[HIR_TOK_EQ] = "==",
@@ -118,6 +120,7 @@ static char __const *__token_toa[] = {
 	[HIR_TOK_MUL_ASSIGN] = "*=",
 	[HIR_TOK_DIV_ASSIGN] = "/=",
 	[HIR_TOK_MOD_ASSIGN] = "%=",
+	[HIR_TOK_NIL_ASSIGN] = "?=",
 };
 
 FORCEINLINE PURE
@@ -130,4 +133,21 @@ FORCEINLINE
 u16_t hir_tok_diff(hir_tok_t *a, hir_tok_t *b)
 {
 	return (u16_t)(a->span.start.off - b->span.start.off);
+}
+
+FORCEINLINE PURE
+hir_tok_kind_t hir_tok_matching(hir_tok_kind_t kind)
+{
+	switch (kind) {
+		case HIR_TOK_LPAR: return HIR_TOK_RPAR;
+		case HIR_TOK_RPAR: return HIR_TOK_LPAR;
+		case HIR_TOK_LBRA: return HIR_TOK_RBRA;
+		case HIR_TOK_RBRA: return HIR_TOK_LBRA;
+		case HIR_TOK_LCUR: return HIR_TOK_RCUR;
+		case HIR_TOK_RCUR: return HIR_TOK_LCUR;
+		case HIR_TOK_LT: return HIR_TOK_GT;
+		case HIR_TOK_GT: return HIR_TOK_LT;
+		default:
+			return HIR_TOK_EOF;
+	}
 }
