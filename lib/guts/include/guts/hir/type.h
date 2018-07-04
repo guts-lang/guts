@@ -148,13 +148,13 @@ struct hir_ty {
 		} ty_tuple;
 
 		/*!@brief
-		 * Lambda function type: `<(u8, u16): u32>`.
+		 * Lambda function type: `(u8, u16): u32`.
 		 * @code{.y}
 		 * ty_lambda
-		 *   : '<' '(' ')' '>'
-		 *   | '<' '(' ')' ':' <type> '>'
-		 *   | '<' '(' <TYPES> ')' '>'
-		 *   | '<' '(' <TYPES> ')' ':' <type> '>'
+		 *   : '(' ')' '>'
+		 *   | '(' ')' ':' <type>
+		 *   | '(' <TYPES> ')'
+		 *   | '(' <TYPES> ')' ':' <type>
 		 *   ;
 		 * @endcode
 		 * Where <type> is the 'type' rule, represent the return type.
@@ -228,6 +228,20 @@ struct hir_ty {
 			struct hir_ty *elem;
 			struct hir_expr *len;
 		} ty_array;
+
+		/*!@brief
+		 * Anonymous structure type: `{ foo: u8; }`.
+		 * @code{.y}
+		 * ty_structure
+		 *   : '{' <fields> '}'
+		 *   ;
+		 * @endcode
+		 * Where <fields> is a filed list.
+		 */
+		struct {
+			int dummy;
+			/* TODO */
+		} ty_struct;
 	};
 };
 

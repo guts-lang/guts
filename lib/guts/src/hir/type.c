@@ -88,29 +88,24 @@ FORCEINLINE
 static hir_parse_t __ty_lambda(hir_ty_t *self, hir_parser_t *parser,
 							   hir_tok_t *tok)
 {
-	hir_tok_t *next;
-
-	hir_parser_next(parser);
 	self->span = tok->span;
 	self->kind = HIR_TY_LAMBDA;
-	if (!(tok = hir_parser_peek(parser)))
+	if (!(tok = hir_parser_peekn(parser, 1)))
 		return PARSE_ERROR;
-	if (!(next = hir_parser_peekn(parser, 1)))
-		return PARSE_ERROR;
-	if (next->kind == HIR_TOK_RPAR) {
+	if (tok->kind == HIR_TOK_RPAR) {
 		hir_parser_next(parser);
 		hir_parser_next(parser);
 	} else if (!__ty_types(&self->ty_lambda.inputs, parser, tok, HIR_TOK_RPAR))
 		return PARSE_ERROR;
-	if (!(tok = hir_parser_any(parser,
-		(char[]){ HIR_TOK_GT, HIR_TOK_COLON, HIR_TOK_EOF })))
+	if (!(tok = hir_parser_peek(parser)))
 		return PARSE_ERROR;
 	if (tok->kind == HIR_TOK_COLON) {
 		hir_ty_t ty;
 
+		hir_parser_next(parser);
 		if (hir_ty_consume(&ty, parser) == PARSE_ERROR)
 			return PARSE_ERROR;
-		if (!(tok = hir_parser_consume(parser, HIR_TOK_GT)))
+		if (!(tok = hir_parser_peek(parser)))
 			return PARSE_ERROR;
 		self->ty_lambda.output = memdup(&ty, sizeof(hir_ty_t));
 	}
@@ -160,14 +155,10 @@ hir_parse_t hir_ty_parse(hir_ty_t *self, hir_parser_t *parser)
 			self->span.length = span_diff(tok->span, self->span);
 			return PARSE_OK;
 		}
-		case HIR_TOK_LT: {
-			hir_tok_t *next;
-
-			if (!(next = hir_parser_peekn(parser, 1)))
-				return PARSE_ERROR;
-			return (next->kind == HIR_TOK_LPAR ? __ty_lambda : __ty_tuple)
-				(self, parser, tok);
-		}
+		case HIR_TOK_LT:
+			return __ty_tuple(self, parser, tok);
+		case HIR_TOK_LPAR:
+			return __ty_lambda(self, parser, tok);
 		case HIR_TOK_NIL: {
 			hir_ty_t ty;
 

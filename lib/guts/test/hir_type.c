@@ -36,7 +36,7 @@ int main(void)
 
 	codemap_init(&codemap, NULL);
 	codemap_src_push(&codemap,
-		"<() : <(u8, <bool, char, [?const u8; 5]>): [*u8]>>\n", true);
+		"() : (u8, <bool, char, [?const u8; 5]>): [*u8]\n", true);
 	hir_parser_init(&parser, &codemap, NULL);
 
 	ASSERT_EQ(PARSE_OK, hir_ty_consume(&type, &parser));
