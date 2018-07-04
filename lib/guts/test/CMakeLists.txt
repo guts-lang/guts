@@ -46,7 +46,7 @@ macro (guts_register_test suite test)
 
   if (MSVC)
     target_compile_definitions(test_guts_${name} PRIVATE _CRT_SECURE_NO_WARNINGS)
-    target_compile_options(test_guts_${name}PRIVATE /Oy /W3)
+    target_compile_options(test_guts_${name} PRIVATE /Oy /W3)
   else ()
     target_compile_options(test_guts_${name}
       PRIVATE
