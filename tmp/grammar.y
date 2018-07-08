@@ -56,15 +56,65 @@ generic_list
   ;  
 
 symbol
-  : ident_list ':' type # HIR_SYMBOL
-  | ident_list '(' symbol_list_or_empty ')' # HIR_SYMBOL_CALLABLE
-  | ident_list '(' symbol_list_or_empty ')' ':' type # HIR_SYMBOL_FN
-  | STRUCT ident_list '{' field_list '}' # HIR_SYMBOL_STRUCT
-  | STRUCT ident_list '<' generic_list '>' '{' field_list '}' # HIR_SYMBOL_STRUCT
-  | STRUCT ident_list ':' tuple {' field_list '}' # HIR_SYMBOL_STRUCT
-  | STRUCT ident_list '<' generic_list '>' ':' tuple  '{' field_list '}' # HIR_SYMBOL_STRUCT
+  : ident_list ':' type # HIR_SYMBOL_VARIABLE
+  | ident_list ':' type '=' expr # HIR_SYMBOL_VARIABLE
   | entity # HIR_SYMBOL_ENTITY
   ;
+
+include stdio as io;
+
+namespace ds {
+  use std;
+}
+
+struct Foo<T: Iterable<int>>: Bar<T> {
+
+  toto: T;
+
+  Foo() => io::printf("");
+  ~Foo() {
+    io::printf("");
+  }
+
+  call(tata: int, troll(a: int): int => a): T {
+    return troll(toto.peek);
+  }
+
+  data<R>(oops: struct { item: R; oops: int; })
+}
+
+enum TOTO {
+  sfsdf(1),
+  sdasdad(int),
+  sdfsddf,
+  sdfdsfsdf {
+    a: int
+  }
+}
+
+enum TOTO_KIND {
+  TOTO_sfsdf,
+  TOTO_sdasdad,
+  TOTO_sdfsddf,
+  TOTO_sdfdsfsdf
+}
+
+struct TOTO {
+ uint8_t kind;
+
+ union {
+    int sdasdad;
+    struct {
+      int a;
+    } sdfdsfsdf;
+ };
+}
+
+foo: Foo = Foo(sdf);
+
+foo.call(0, (a) => {
+  return a + 2;
+});
   
 symbol_list
   : symbol

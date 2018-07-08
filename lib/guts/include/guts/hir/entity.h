@@ -32,56 +32,132 @@
 #ifndef __GUTS_HIR_ENTITY_H
 # define __GUTS_HIR_ENTITY_H
 
-#include "stmt.h"
+#include "type.h"
 
-typedef struct hir_entity {
+struct hir_stmt;
+struct hir_expr;
 
-	enum {
-		HIR_ENTITY_INCLUDE = 1 << 0,
-		HIR_ENTITY_USE = 1 << 1,
-		HIR_ENTITY_NAMESPACE = 1 << 2,
-		HIR_ENTITY_FUNCTION = 1 << 3,
-		HIR_ENTITY_STRUCTURE = 1 << 4,
-		HIR_ENTITY_FIELD = 1 << 5,
-		HIR_ENTITY_VARIABLE = 1 << 6,
-	} kind;
+typedef struct hir_ent hir_ent_t;
+typedef enum hir_ent_kind hir_ent_kind_t;
 
+/*!@enum hir_ent_kind
+ * @brief
+ * Different kind of entity.
+ */
+enum hir_ent_kind {
+	HIR_ENT_PARAM = 0, /*!< See hir_ent::ent_param.   */
+	HIR_ENT_VAR,       /*!< See hir_ent::ent_var.     */
+	HIR_ENT_FN,        /*!< See hir_ent::ent_fn.      */
+	HIR_ENT_STRUCT,    /*!< See hir_ent::ent_struct.  */
+	HIR_ENT_ENUM,      /*!< See hir_ent::ent_enum.    */
+	HIR_ENT_INCLUDE,   /*!< See hir_ent::ent_include. */
+	HIR_ENT_USE,       /*!< See hir_ent::ent_use.     */
+	HIR_ENT_NS,        /*!< See hir_ent::ent_ns.      */
+};
+
+/*!@struct hir_ent
+ * @brief
+ * High level representation of an entity.
+ * @code{.y}
+ * type
+ * 	 : <ent_param>
+ * 	 | <ent_var>
+ * 	 | <ent_fn>
+ * 	 | <ent_struct>
+ * 	 | <ent_enum>
+ * 	 | <ent_include>
+ * 	 | <ent_use>
+ * 	 | <ent_ns>
+ * 	 ;
+ * @endcode
+ */
+struct hir_ent {
+
+	/*! Entity location on the origin source. */
 	span_t span;
+
+	/*! Entity kind, See hir_ent_kind: HIR_ENT_*. */
+	hir_ty_kind_t kind: 8;
+
+	/*! Entity name. */
 	hir_name_t name;
-	struct hir_entity *parent;
 
+	/*! Entity parent, only the root entity got a zeroed parent. */
+	struct hir_ent *parent;
+
+	/*! Data union of all entity kind. */
 	union {
-		struct {
-			hir_scope_t scope;
-		} namespace;
 
+		/*!@brief
+		 * Parameter entity: `foo: u32 = 0`.
+		 * @code{.y}
+		 * ent_param
+		 *   : <IDENT> : <type>
+		 *   | <IDENT> : <type> = <expr>
+		 *   ;
+		 * @endcode
+		 * Where <IDENT> is the parameter name.
+		 * Where <type> is the parameter type.
+		 * Where <expr> is the parameter value.
+		 */
 		struct {
-			hir_scope_t params;
-			hir_ty_t ret_ty;
-			hir_stmt_t stmt;
-		} function;
+			hir_ty_t type;
+			struct hir_expr *value;
+		} ent_param;
 
+		/*!@brief
+		 * Variable entity: `foo: u32 = 0`.
+		 * @code{.y}
+		 * ent_var
+		 *   : <IDENT> : <type>
+		 *   | <IDENT> : <type> = <expr>
+		 *   ;
+		 * @endcode
+		 * Where <IDENT> is the variable name.
+		 * Where <type> is the variable type.
+		 * Where <expr> is the variable value.
+		 */
 		struct {
-			hir_scope_t members;
-		} structure;
+			hir_ty_t type;
+			struct hir_expr *value;
+		} ent_var;
 
+		/*!@brief
+		 * Function entity: `foo(): u32 => 0`.
+		 * @code{.y}
+		 * ent_var
+		 *   : <IDENT> <ty_lambda>
+		 *   | <IDENT> <ty_lambda> => <stmt>
+		 *   ;
+		 * @endcode
+		 * Where <IDENT> is the function name.
+		 * Where <ty_lambda> is the function lambda type.
+		 * Where <stmt> is the function body.
+		 */
 		struct {
-			hir_ty_t ty;
-			u16_t slot;
-		} field;
+			hir_lambda_t lambda;
+			struct hir_stmt *block;
+		} ent_fn;
 
+		/*!@brief
+		 * Structure entity: `foo(): u32 => 0`.
+		 * @code{.y}
+		 * ent_var
+		 *   : <IDENT> <ty_lambda>
+		 *   | <IDENT> <ty_lambda> => <stmt>
+		 *   ;
+		 * @endcode
+		 *
+		 */
 		struct {
-			hir_ty_t ty;
-		} variable;
+
+		} ent_struct;
 	};
 
-} hir_entity_t;
+};
 
-#define HIR_ENTITY_SCOPED \
-	(HIR_ENTITY_ROOT | HIR_ENTITY_NAMESPACE | HIR_ENTITY_FUNCTION | \
-		HIR_ENTITY_STRUCTURE)
-#define HIR_ENTITY_TYPED \
-	(HIR_ENTITY_FUNCTION | HIR_ENTITY_FIELD | HIR_ENTITY_VARIABLE)
+__api hir_parse_t hir_param_parse(hir_ent_t *self, hir_parser_t *parser);
+__api hir_parse_t hir_var_parse(hir_ent_t *self, hir_parser_t *parser);
 
 #endif /* !__GUTS_HIR_ENTITY_H */
 /*!@} */
