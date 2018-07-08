@@ -88,11 +88,13 @@ FORCEINLINE
 static hir_parse_t __ty_lambda(hir_ty_t *self, hir_parser_t *parser,
 							   hir_tok_t *tok)
 {
+	hir_tok_t *next;
+
 	self->span = tok->span;
 	self->kind = HIR_TY_LAMBDA;
-	if (!(tok = hir_parser_peekn(parser, 1)))
+	if (!(next = hir_parser_peekn(parser, 1)))
 		return PARSE_ERROR;
-	if (tok->kind == HIR_TOK_RPAR) {
+	if (next->kind == HIR_TOK_RPAR) {
 		hir_parser_next(parser);
 		hir_parser_next(parser);
 	} else if (!__ty_types(&self->ty_lambda.inputs, parser, tok, HIR_TOK_RPAR))

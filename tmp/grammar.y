@@ -25,8 +25,8 @@ type
   | 'char' # HIR_TY_CHAR
   | path # HIR_TY_SYMBOL
   | '<' tuple '>' # HIR_TY_TUPLE
-  | '<' '(' tuple_or_empty ')' '>' # HIR_TY_LAMBDA
-  | '<' '(' tuple_or_empty ')' ':' type '>' # HIR_TY_LAMBDA
+  | '(' tuple_or_empty ')' # HIR_TY_LAMBDA
+  | '(' tuple_or_empty ')' ':' type # HIR_TY_LAMBDA
   | '?' type # HIR_TY_NULLABLE
   | '*' type # HIR_TY_PTR
   | '*' CONST type # HIR_TY_PTR
