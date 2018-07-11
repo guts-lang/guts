@@ -71,8 +71,8 @@ struct Foo<T: Iterable<int>>: Bar<T> {
 
   toto: T;
 
-  Foo() => io::printf("");
-  ~Foo() {
+  self() => io::printf("");
+  ~self() {
     io::printf("");
   }
 
@@ -93,10 +93,10 @@ enum TOTO {
 }
 
 enum TOTO_KIND {
-  TOTO_sfsdf,
-  TOTO_sdasdad,
-  TOTO_sdfsddf,
-  TOTO_sdfdsfsdf
+  TOTO_SFSDF = 1,
+  TOTO_SDASDAD,
+  TOTO_SDFSDDF,
+  TOTO_SDFDSFSDF
 }
 
 struct TOTO {

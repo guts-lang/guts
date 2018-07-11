@@ -46,17 +46,18 @@ typedef enum hir_ent_kind hir_ent_kind_t;
  * Different kind of entity.
  */
 enum hir_ent_kind {
-	HIR_ENT_PARAM = 0, /*!< See hir_ent::ent_param.    */
-	HIR_ENT_VAR,       /*!< See hir_ent::ent_var.      */
-	HIR_ENT_FN,        /*!< See hir_ent::ent_fn.       */
-	HIR_ENT_DTOR,      /*!< See hir_ent::ent_dtor.     */
-	HIR_ENT_STRUCT,    /*!< See hir_ent::ent_struct.   */
-	HIR_ENT_ENUM,      /*!< See hir_ent::ent_enum.     */
-	HIR_ENT_ENUM_VAR,  /*!< See hir_ent::ent_enum_var. */
-	HIR_ENT_ENUM_TY,   /*!< See hir_ent::ent_enum_ty.  */
-	HIR_ENT_INCLUDE,   /*!< See hir_ent::ent_include.  */
-	HIR_ENT_USE,       /*!< See hir_ent::ent_use.      */
-	HIR_ENT_NS,        /*!< See hir_ent::ent_ns.       */
+	HIR_ENT_PARAM = 1 << 0,    /*!< See hir_ent::ent_param.    */
+	HIR_ENT_VAR = 1 << 1,      /*!< See hir_ent::ent_var.      */
+	HIR_ENT_FN = 1 << 2,       /*!< See hir_ent::ent_fn.       */
+	HIR_ENT_CTOR = 1 << 3,     /*!< See hir_ent::ent_ctor.     */
+	HIR_ENT_DTOR = 1 << 4,     /*!< See hir_ent::ent_dtor.     */
+	HIR_ENT_STRUCT = 1 << 5,   /*!< See hir_ent::ent_struct.   */
+	HIR_ENT_ENUM = 1 << 6,     /*!< See hir_ent::ent_enum.     */
+	HIR_ENT_ENUM_VAR = 1 << 7, /*!< See hir_ent::ent_enum_var. */
+	HIR_ENT_ENUM_TY = 1 << 8,  /*!< See hir_ent::ent_enum_ty.  */
+	HIR_ENT_INCLUDE = 1 << 9,  /*!< See hir_ent::ent_include.  */
+	HIR_ENT_USE = 1 << 10,     /*!< See hir_ent::ent_use.      */
+	HIR_ENT_NS = 1 << 11,      /*!< See hir_ent::ent_ns.       */
 };
 
 /*!@struct hir_ent
@@ -67,6 +68,7 @@ enum hir_ent_kind {
  * 	 : <ent_param>
  * 	 | <ent_var>
  * 	 | <ent_fn>
+ * 	 | <ent_ctor>
  * 	 | <ent_dtor>
  * 	 | <ent_struct>
  * 	 | <ent_enum>
@@ -84,7 +86,7 @@ struct hir_ent {
 	span_t span;
 
 	/*! Entity kind, See hir_ent_kind: HIR_ENT_*. */
-	hir_ent_kind_t kind: 8;
+	hir_ent_kind_t kind: 16;
 
 	/*! Entity name. */
 	hir_name_t name;
@@ -133,32 +135,54 @@ struct hir_ent {
 		 * Function entity: `foo(): u32 => 0`.
 		 * @code{.y}
 		 * ent_fn
-		 *   : <IDENT> <ty_lambda>
-		 *   | <IDENT> <ty_lambda> => <stmt>
-		 *   | <IDENT> '<' <template> '>' <ty_lambda>
-		 *   | <IDENT> '<' <template> '>' <ty_lambda> => <stmt>
+		 *   : <IDENT> '(' <params> ')'
+		 *   | <IDENT> '(' <params> ')' : <type>
+		 *   | <IDENT> '(' <params> ')' => <stmt>
+		 *   | <IDENT> '(' <params> ')' : <type> => <stmt>
+		 *   | <IDENT> '<' <template> '>' '(' <params> ')'
+		 *   | <IDENT> '<' <template> '>' '(' <params> ')' : <type>
+		 *   | <IDENT> '<' <template> '>' '(' <params> ')' => <stmt>
+		 *   | <IDENT> '<' <template> '>' '(' <params> ')' : <type> => <stmt>
 		 *   ;
 		 * @endcode
 		 * Where <IDENT> is the function name.
-		 * Where <ty_lambda> is the function lambda type.
 		 * Where <template> is the function template.
+		 * Where <params> is a list of <ent_param>, the function parameters.
+		 * Where <type> is the function return type.
 		 * Where <stmt> is the function body.
 		 */
 		struct {
 			hir_template_t *template;
-			hir_lambda_t lambda;
+			vecof(struct hir_ent) inputs;
+			hir_ty_t *output;
 			struct hir_stmt *block;
 		} ent_fn;
+
+		/*!@brief
+		 * Constructor function entity: `self(a: u32)`.
+		 * @code{.y}
+		 * ent_dtor
+		 *   : <SELF> '(' <params> ')'
+		 *   | <SELF> '(' <params> ')' => <stmt>
+		 *   ;
+		 * @endcode
+		 * Where <SELF> is the keyword `self`.
+		 * Where <params> is a list of <ent_param>, the constructor parameters.
+		 * Where <stmt> is the function body.
+		 */
+		struct {
+			struct hir_stmt *block;
+		} ent_ctor;
 
 		/*!@brief
 		 * Destructor function entity: `~foo(): u32 => 0`.
 		 * @code{.y}
 		 * ent_dtor
-		 *   : '~' <IDENT> '(' ')'
-		 *   | '~' <IDENT> '(' ')' => <stmt>
+		 *   : '~' <SELF> '(' ')'
+		 *   | '~' <SELF> '(' ')' => <stmt>
 		 *   ;
 		 * @endcode
-		 * Where <IDENT> is the function name.
+		 * Where <SELF> is the keyword `self`.
 		 * Where <stmt> is the function body.
 		 */
 		struct {
@@ -186,7 +210,7 @@ struct hir_ent {
 		struct {
 			hir_template_t *template;
 			vecof(hir_ty_t) traits;
-			vecof(struct hir_ent *) fields;
+			vecof(struct hir_ent) fields;
 		} ent_struct;
 
 		/*!@brief
@@ -217,8 +241,7 @@ struct hir_ent {
 		struct {
 			hir_template_t *template;
 			vecof(hir_ty_t) traits;
-			vecof(struct hir_ent *) fields;
-			vecof(struct hir_ent *) methods;
+			vecof(struct hir_ent) fields;
 		} ent_enum;
 
 		/*!@brief
@@ -295,16 +318,57 @@ struct hir_ent {
 		 * Where <IDENT> is the namespace name.
 		 * Where <fields> is the struct fields, a list of entities which each
 		 *   item is ::HIR_ENT_VAR, ::HIR_ENT_FN, ::HIR_ENT_USE,
-		 *   ::HIR_ENT_STRUCT or ::HIR_ENT_ENUM.
+		 *   ::HIR_ENT_STRUCT, ::HIR_ENT_ENUM or ::HIR_ENT_NS.
 		 */
 		struct {
-			vecof(struct hir_ent *) fields;
+			vecof(struct hir_ent) fields;
 		} ent_ns;
 	};
 };
 
-__api hir_parse_t hir_param_parse(hir_ent_t *self, hir_parser_t *parser);
-__api hir_parse_t hir_var_parse(hir_ent_t *self, hir_parser_t *parser);
+/*!@brief
+ * Parse an entity using #hir_ent syntax.
+ *
+ * @note
+ * If the parsed entity finish by a statement, the match for closing is omitted
+ * and prohibbed.
+ *
+ * @param[out]    self     The entity to parse.
+ * @param[in,out] parser   The parser to use for parsing.
+ * @param[in]     allowed  Flags of allowed #hir_ent_kind kinds to parse.
+ *                         Emit an error if the parsed entity kind isn't present
+ *                         in the `allowed` flags.
+ * @param[in]     closings The closings token to match at end of the entity.
+ *                         Emit an error if end token isn't present in the
+ *                         `closings` range.
+ * @return                 The closing token, already skipped, on success,
+ *                         peek otherwise.
+ */
+__api hir_tok_t *hir_ent_consume(hir_ent_t *self, hir_parser_t *parser,
+								 u16_t allowed, char __const *closings);
+
+/*!@brief
+ * TODO
+ *
+ * @param fields
+ * @return
+ */
+__api hir_tok_t *hir_struct_body(vecof(hir_ent_t) *fields);
+
+/*!@brief
+ * TODO
+ *
+ * @param fields
+ * @return
+ */
+__api hir_tok_t *hir_enum_body(vecof(hir_ent_t) *fields);
+
+/*!@brief
+ * TODO
+ *
+ * @param self
+ */
+__api void hir_ent_destroy(hir_ent_t *self);
 
 #endif /* !__GUTS_HIR_ENTITY_H */
 /*!@} */

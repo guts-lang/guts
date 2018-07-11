@@ -35,10 +35,10 @@
 #include "parser.h"
 
 struct hir_expr;
+struct hir_ent;
 struct hir_ty;
 
 typedef struct hir_ty hir_ty_t;
-typedef struct hir_lambda hir_lambda_t;
 typedef enum hir_ty_kind hir_ty_kind_t;
 
 /*!@enum hir_ty_kind
@@ -58,27 +58,8 @@ enum hir_ty_kind {
 	HIR_TY_PTR,      /*!< See hir_ty::ty_ptr.      */
 	HIR_TY_SLICE,    /*!< See hir_ty::ty_slice.    */
 	HIR_TY_ARRAY,    /*!< See hir_ty::ty_array.    */
-	HIR_TY_STRUCT,   /*!< @TODO. */
-	HIR_TY_ENUM,     /*!< @TODO. */
-};
-
-/*!@struct hir_lambda
- * @brief
- * Lambda function type: `(u8, u16): u32`.
- * @code{.y}
- * ty_lambda
- *   : '(' ')' '>'
- *   | '(' ')' ':' <type>
- *   | '(' <TYPES> ')'
- *   | '(' <TYPES> ')' ':' <type>
- *   ;
- * @endcode
- * Where <type> is the 'type' rule, represent the return type.
- * Where <TYPES> represent the arguments types.
- */
-struct hir_lambda {
-	struct hir_ty *output;         /*!< Lambda return type. */
-	vecof(struct hir_ty *) inputs; /*!< Lambda arguments types. */
+	HIR_TY_STRUCT,   /*!< See hir_ty::ty_struct.   */
+	HIR_TY_ENUM,     /*!< See hir_ty::ty_enum.     */
 };
 
 /*!@struct hir_ty
@@ -152,7 +133,7 @@ struct hir_ty {
 		 */
 		struct {
 			hir_ident_t ident;               /*!< Symbol identifier. */
-			vecof(struct hir_ty *) template; /*!< Template type list. */
+			vecof(struct hir_ty) template; /*!< Template type list. */
 		} ty_sym;
 
 		/*!@brief
@@ -165,11 +146,27 @@ struct hir_ty {
 		 * Where <TYPES> is a list of types.
 		 */
 		struct {
-			vecof(struct hir_ty *) elems; /*!< Tuple type elements. */
+			vecof(struct hir_ty) elems; /*!< Tuple type elements. */
 		} ty_tuple;
 
-		/*! See hir_lambda. */
-		hir_lambda_t ty_lambda;
+		/*!@struct hir_lambda
+		 * @brief
+		 * Lambda function type: `(u8, u16): u32`.
+		 * @code{.y}
+		 * ty_lambda
+		 *   : '(' ')' '>'
+		 *   | '(' ')' ':' <type>
+		 *   | '(' <TYPES> ')'
+		 *   | '(' <TYPES> ')' ':' <type>
+		 *   ;
+		 * @endcode
+		 * Where <type> is the 'type' rule, represent the return type.
+		 * Where <TYPES> represent the arguments types.
+		 */
+		struct {
+			struct hir_ty *output;         /*!< Lambda return type. */
+			vecof(struct hir_ty) inputs; /*!< Lambda arguments types. */
+		} ty_lambda;
 
 		/*!@brief
 		 * Nullable pointer type: `? T` or `? const T`.
@@ -237,16 +234,30 @@ struct hir_ty {
 		/*!@brief
 		 * Anonymous structure type: `struct { foo: u8; }`.
 		 * @code{.y}
-		 * ty_structure
-		 *   : <STRUCT> '{' <fields> '}'
+		 * ty_struct
+		 *   : <STRUCT> <struct_body>
 		 *   ;
 		 * @endcode
-		 * Where <fields> is a field list.
+		 * Where <STRUCT> is the keyword `struct`.
+		 * Where <struct_body> is the structure body.
 		 */
 		struct {
-			int dummy;
-			/* TODO */
+			vecof(struct hir_ent) fields;
 		} ty_struct;
+
+		/*!@brief
+		 * Anonymous enum type: `enum { FOO, BAR, BAZ; }`.
+		 * @code{.y}
+		 * ty_enum
+		 *   : <ENUM> <enum_body>
+		 *   ;
+		 * @endcode
+		 * Where <ENUM> is the keyword `enum`.
+		 * Where <enum_body> is the enum body.
+		 */
+		struct {
+			vecof(struct hir_ent) fields;
+		} ty_enum;
 	};
 };
 
@@ -270,16 +281,6 @@ __api hir_parse_t hir_ty_parse(hir_ty_t *self, hir_parser_t *parser);
  *                       empty, errors has been reported to `parser->codespan`.
  */
 __api hir_parse_t hir_ty_consume(hir_ty_t *self, hir_parser_t *parser);
-
-/*!@brief
- * Parse a lambda using hir_ty::ty_lambda syntax.
- *
- * @param[out]    self   The lambda type to parse.
- * @param[in,out] parser The parser to use for parsing.
- * @return               token peek on success, NULL on error,
- *                       errors has been reported to `parser->codespan`.
- */
-__api hir_tok_t hir_lambda_consume(hir_lambda_t *self, hir_parser_t *parser);
 
 /*!@brief
  * Destroy the given type.

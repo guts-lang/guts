@@ -237,6 +237,7 @@ hir_parse_t hir_parse_required(hir_parse_rule_t *rule, void *self,
 		diag_labelize(&error, true, tok->span, NULL);
 		codemap_diagnostic(parser->codemap, error);
 
+		//TODO: don't care, keep going
 		return PARSE_ERROR;
 	}
 
