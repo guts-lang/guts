@@ -312,15 +312,18 @@ struct hir_ent {
 		 * @code{.y}
 		 * ent_ns
 		 *   : <NAMESPACE> <IDENT> '{' <fields> '}'
+		 *   | <NAMESPACE> <path> '::' <IDENT> '{' <fields> '}'
 		 *   ;
 		 * @endcode
 		 * Where <NAMESPACE> is the keyword `namespace`.
 		 * Where <IDENT> is the namespace name.
+		 * Where <path> is the namespace path.
 		 * Where <fields> is the struct fields, a list of entities which each
 		 *   item is ::HIR_ENT_VAR, ::HIR_ENT_FN, ::HIR_ENT_USE,
 		 *   ::HIR_ENT_STRUCT, ::HIR_ENT_ENUM or ::HIR_ENT_NS.
 		 */
 		struct {
+			vecof(hir_name_t) path;
 			vecof(struct hir_ent) fields;
 		} ent_ns;
 	};
