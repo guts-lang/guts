@@ -49,6 +49,8 @@ static bool __lookahead(hir_lexer_t *self);
 hir_tok_t *hir_lexer_peek(hir_lexer_t *self)
 {
 	if (deqempty(self->lookahead)) {
+		//TODO: since the lexer will no more fail, we can return a ref to a
+		//static end token here
 		if (!__lookahead(self))
 			return NULL;
 	}
@@ -58,6 +60,8 @@ hir_tok_t *hir_lexer_peek(hir_lexer_t *self)
 hir_tok_t *hir_lexer_peekn(hir_lexer_t *self, u8_t n)
 {
 	if (deqlen(self->lookahead) <= n) {
+		//TODO: since the lexer will no more fail, we can return a ref to a
+		//static end token here
 		while (deqlen(self->lookahead) <= n) {
 			if (!__lookahead(self))
 				return NULL;
@@ -69,6 +73,8 @@ hir_tok_t *hir_lexer_peekn(hir_lexer_t *self, u8_t n)
 hir_tok_t *hir_lexer_next(hir_lexer_t *self)
 {
 	if (deqempty(self->lookahead)) {
+		//TODO: since the lexer will no more fail, we can return a ref to a
+		//static end token here
 		if (!__lookahead(self))
 			return NULL;
 	}
@@ -81,6 +87,8 @@ hir_tok_t *hir_lexer_consume(hir_lexer_t *self, hir_tok_kind_t kind)
 
 	if (self->eof) return NULL;
 	if (deqempty(self->lookahead)) {
+		//TODO: since the lexer will no more fail, we can return a ref to a
+		//static end token here
 		if (!__lookahead(self))
 			return NULL;
 	}
@@ -227,6 +235,7 @@ static bool __lookahead(hir_lexer_t *self)
 				diag_labelize(&error, true, span(start, 1), NULL);
 				vecpush(*self->diags, error);
 			}
+			//TODO: continue is this case
 			self->eof = true;
 			return false;
 		}

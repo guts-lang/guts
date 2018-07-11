@@ -24,25 +24,60 @@
  * SOFTWARE.
  */
 
-/*!@file guts/hir.h
+/*!@file guts/hir/generic.h
  * @author uael
  *
  * @addtogroup guts.hir @{
  */
-#ifndef __GUTS_HIR_H
-# define __GUTS_HIR_H
+#ifndef __GUTS_HIR_GENERIC_H
+# define __GUTS_HIR_GENERIC_H
 
-#include "guts/hir/entity.h"
-#include "guts/hir/expr.h"
-#include "guts/hir/generic.h"
-#include "guts/hir/ir.h"
-#include "guts/hir/lexer.h"
-#include "guts/hir/literal.h"
-#include "guts/hir/parser.h"
-#include "guts/hir/scope.h"
-#include "guts/hir/stmt.h"
-#include "guts/hir/token.h"
-#include "guts/hir/type.h"
+#include "parser.h"
 
-#endif /* !__GUTS_HIR_H */
+struct hir_ty;
+
+/*!@struct hir_generic_t
+ * @brief
+ * High level representation of a template item.
+ * @code{.y}
+ * generic
+ * 	 : <IDENT>
+ * 	 | <IDENT> ':' <type>
+ * 	 ;
+ * @endcode
+ */
+typedef struct {
+
+	/*! Generic location on the origin source. */
+	span_t span;
+
+	/*! Generic name. */
+	hir_name_t name;
+
+	/*! Generic clause. */
+	struct hir_ty *clause;
+
+} hir_generic_t;
+
+/*!@struct hir_template_t
+ * @brief
+ * High level representation of a template.
+ * @code{.y}
+ * template
+ * 	 : <generic>
+ * 	 | <template> ',' <generic>
+ * 	 ;
+ * @endcode
+ */
+typedef struct {
+
+	/*! Template location on the origin source. */
+	span_t span;
+
+	/*! Template items. */
+	vecof(hir_generic_t) elems;
+
+} hir_template_t;
+
+#endif /* !__GUTS_HIR_GENERIC_H */
 /*!@} */

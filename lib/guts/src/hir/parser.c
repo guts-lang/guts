@@ -78,6 +78,7 @@ hir_tok_t *hir_parser_peek(hir_parser_t *self)
 
 	if (!self->lexer)
 		return NULL;
+	//TODO: the lexer will not more fail, just look for HIR_TOK_EOF
 	if (!(tok = hir_lexer_peek(self->lexer)) || tok->kind == HIR_TOK_EOF) {
 		stackpop(self->lexers);
 		if (!stacklen(self->lexers))
@@ -96,6 +97,7 @@ hir_tok_t *hir_parser_peekn(hir_parser_t *self, u8_t n)
 
 	if (!self->lexer)
 		return NULL;
+	//TODO: the lexer will not more fail, just look for HIR_TOK_EOF
 	if (!(tok = hir_lexer_peekn(self->lexer, n)) || tok->kind == HIR_TOK_EOF) {
 		if (!stacklen(self->lexers))
 			return NULL;
@@ -118,6 +120,7 @@ hir_tok_t *hir_parser_next(hir_parser_t *self)
 
 	if (!self->lexer)
 		return NULL;
+	//TODO: the lexer will not more fail, just look for HIR_TOK_EOF
 	if (!(tok = hir_lexer_next(self->lexer)) || tok->kind == HIR_TOK_EOF) {
 		stackpop(self->lexers);
 		if (!stacklen(self->lexers))
@@ -146,6 +149,7 @@ hir_tok_t *hir_parser_consume(hir_parser_t *self, hir_tok_kind_t kind)
 			diag_labelize(&error, true, tok->span, NULL);
 			vecpush(self->codemap->diagnostics, error);
 		}
+		//TODO: just continue, without returning an error
 		tok = NULL;
 	}
 	return tok;
@@ -192,6 +196,7 @@ hir_tok_t *hir_parser_any(hir_parser_t *self, char __const *kinds)
 			diag_labelize(&error, true, tok->span, NULL);
 			vecpush(self->codemap->diagnostics, error);
 		}
+		//TODO: just continue, without returning an error
 		tok = NULL;
 	}
 	return tok;

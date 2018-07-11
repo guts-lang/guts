@@ -84,12 +84,12 @@ struct Foo<T: Iterable<int>>: Bar<T> {
 }
 
 enum TOTO {
-  sfsdf(1),
-  sdasdad(int),
-  sdfsddf,
-  sdfdsfsdf {
-    a: int
-  }
+  SFSDF = 1,
+  SDASDAD(int),
+  SDFSDDF,
+  SDFDSFSDF(struct {
+    a: int;
+  });
 }
 
 enum TOTO_KIND {
