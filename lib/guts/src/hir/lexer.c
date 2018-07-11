@@ -42,6 +42,8 @@ void hir_lexer_dtor(hir_lexer_t *self)
 {
 	deqdtor(self->lookahead);
 	self->src = NULL;
+	self->current = NULL;
+	self->match = NULL;
 }
 
 static bool __lookahead(hir_lexer_t *self);
@@ -49,22 +51,18 @@ static bool __lookahead(hir_lexer_t *self);
 hir_tok_t *hir_lexer_peek(hir_lexer_t *self)
 {
 	if (deqempty(self->lookahead)) {
-		//TODO: since the lexer will no more fail, we can return a ref to a
-		//static end token here
 		if (!__lookahead(self))
-			return NULL;
+			return self->current;
 	}
-	return deqbeg(self->lookahead);
+	return self->current = deqbeg(self->lookahead);
 }
 
 hir_tok_t *hir_lexer_peekn(hir_lexer_t *self, u8_t n)
 {
 	if (deqlen(self->lookahead) <= n) {
-		//TODO: since the lexer will no more fail, we can return a ref to a
-		//static end token here
 		while (deqlen(self->lookahead) <= n) {
 			if (!__lookahead(self))
-				return NULL;
+				return self->match;
 		}
 	}
 	return deqat(self->lookahead, n);
@@ -73,36 +71,10 @@ hir_tok_t *hir_lexer_peekn(hir_lexer_t *self, u8_t n)
 hir_tok_t *hir_lexer_next(hir_lexer_t *self)
 {
 	if (deqempty(self->lookahead)) {
-		//TODO: since the lexer will no more fail, we can return a ref to a
-		//static end token here
 		if (!__lookahead(self))
-			return NULL;
+			return self->current;
 	}
-	return dequsht(self->lookahead);
-}
-
-hir_tok_t *hir_lexer_consume(hir_lexer_t *self, hir_tok_kind_t kind)
-{
-	hir_tok_t *tok;
-
-	if (self->eof) return NULL;
-	if (deqempty(self->lookahead)) {
-		//TODO: since the lexer will no more fail, we can return a ref to a
-		//static end token here
-		if (!__lookahead(self))
-			return NULL;
-	}
-	tok = dequsht(self->lookahead);
-	if (tok->kind != kind && self->diags) {
-		diag_t error;
-
-		diag_error(&error, "unexpected token, expected ‘%s’ got ‘%s’",
-			hir_tok_toa(kind), hir_tok_toa(tok->kind));
-		diag_labelize(&error, true, tok->span, NULL);
-		vecpush(*self->diags, error);
-		tok = NULL;
-	}
-	return tok;
+	return self->current = dequsht(self->lookahead);
 }
 
 #define MATCH(k, len, ...) do { \
@@ -131,6 +103,7 @@ static bool __lookahead(hir_lexer_t *self)
 
 	if (self->eof)
 		return false;
+loop:
 	while (isspace(c = source_peek(self->src)))
 		source_next(self->src);
 	start = source_loc(self->src);
@@ -235,13 +208,13 @@ static bool __lookahead(hir_lexer_t *self)
 				diag_labelize(&error, true, span(start, 1), NULL);
 				vecpush(*self->diags, error);
 			}
-			//TODO: continue is this case
-			self->eof = true;
-			return false;
+			source_next(self->src);
+			goto loop;
 		}
 
 		match: {
 			deqpush(self->lookahead, tok);
+			self->match = deqback(self->lookahead);
 			return true;
 		}
 

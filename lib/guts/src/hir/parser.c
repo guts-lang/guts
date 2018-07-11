@@ -76,10 +76,7 @@ hir_tok_t *hir_parser_peek(hir_parser_t *self)
 {
 	hir_tok_t *tok;
 
-	if (!self->lexer)
-		return NULL;
-	//TODO: the lexer will not more fail, just look for HIR_TOK_EOF
-	if (!(tok = hir_lexer_peek(self->lexer)) || tok->kind == HIR_TOK_EOF) {
+	if ((tok = hir_lexer_peek(self->lexer))->kind == HIR_TOK_EOF) {
 		stackpop(self->lexers);
 		if (!stacklen(self->lexers))
 			return tok;
@@ -95,12 +92,9 @@ hir_tok_t *hir_parser_peekn(hir_parser_t *self, u8_t n)
 	u8_t count;
 	hir_lexer_t *lexer;
 
-	if (!self->lexer)
-		return NULL;
-	//TODO: the lexer will not more fail, just look for HIR_TOK_EOF
-	if (!(tok = hir_lexer_peekn(self->lexer, n)) || tok->kind == HIR_TOK_EOF) {
+	if ((tok = hir_lexer_peek(self->lexer))->kind == HIR_TOK_EOF) {
 		if (!stacklen(self->lexers))
-			return NULL;
+			return tok;
 		count = 0;
 		lexer = self->lexer;
 		do {
@@ -118,10 +112,7 @@ hir_tok_t *hir_parser_next(hir_parser_t *self)
 {
 	hir_tok_t *tok;
 
-	if (!self->lexer)
-		return NULL;
-	//TODO: the lexer will not more fail, just look for HIR_TOK_EOF
-	if (!(tok = hir_lexer_next(self->lexer)) || tok->kind == HIR_TOK_EOF) {
+	if ((tok = hir_lexer_peek(self->lexer))->kind == HIR_TOK_EOF) {
 		stackpop(self->lexers);
 		if (!stacklen(self->lexers))
 			return tok;
@@ -136,9 +127,6 @@ hir_tok_t *hir_parser_consume(hir_parser_t *self, hir_tok_kind_t kind)
 	hir_tok_t *tok;
 	u32_t errs;
 
-	if (!self->lexer)
-		return NULL;
-
 	errs = veclen(self->codemap->diagnostics);
 	if ((tok = hir_parser_next(self)) && tok->kind != kind) {
 		if (errs == veclen(self->codemap->diagnostics)) {
@@ -149,8 +137,6 @@ hir_tok_t *hir_parser_consume(hir_parser_t *self, hir_tok_kind_t kind)
 			diag_labelize(&error, true, tok->span, NULL);
 			vecpush(self->codemap->diagnostics, error);
 		}
-		//TODO: just continue, without returning an error
-		tok = NULL;
 	}
 	return tok;
 }
@@ -159,9 +145,6 @@ hir_tok_t *hir_parser_any(hir_parser_t *self, char __const *kinds)
 {
 	hir_tok_t *tok;
 	u32_t errs;
-
-	if (!self->lexer)
-		return NULL;
 
 	errs = veclen(self->codemap->diagnostics);
 	if ((tok = hir_parser_next(self))
@@ -196,8 +179,6 @@ hir_tok_t *hir_parser_any(hir_parser_t *self, char __const *kinds)
 			diag_labelize(&error, true, tok->span, NULL);
 			vecpush(self->codemap->diagnostics, error);
 		}
-		//TODO: just continue, without returning an error
-		tok = NULL;
 	}
 	return tok;
 }
@@ -217,29 +198,21 @@ void hir_parser_unscope(hir_parser_t *self)
 }
 
 FORCEINLINE
-hir_parse_t hir_parse_required(hir_parse_rule_t *rule, void *self,
-	hir_parser_t *parser, char __const *name)
+bool hir_parse_required(hir_parse_rule_t *rule, void *self,
+						hir_parser_t *parser, char __const *name)
 {
-	hir_parse_t st;
 	hir_tok_t *tok;
+	diag_t error;
 
-	if ((st = rule(self, parser)) == PARSE_ERROR)
-		return st;
-	else if (st == PARSE_NONE) {
-		diag_t error;
+	if (rule(self, parser))
+		return true;
 
-		if (!(tok = hir_parser_peek(parser)))
-			return PARSE_ERROR;
+	tok = hir_parser_peek(parser);
+	diag_error(&error,
+		"expected %s before ‘%s’ token",
+		name, hir_tok_toa(tok->kind));
+	diag_labelize(&error, true, tok->span, NULL);
+	codemap_diagnostic(parser->codemap, error);
 
-		diag_error(&error,
-			"expected %s before ‘%s’ token",
-			name, hir_tok_toa(tok->kind));
-		diag_labelize(&error, true, tok->span, NULL);
-		codemap_diagnostic(parser->codemap, error);
-
-		//TODO: don't care, keep going
-		return PARSE_ERROR;
-	}
-
-	return PARSE_OK;
+	return false;
 }

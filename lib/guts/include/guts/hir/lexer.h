@@ -42,6 +42,7 @@ typedef struct {
 	source_t *src;
 	deqof(hir_tok_t) lookahead;
 	vecof(diag_t) *diags;
+	hir_tok_t *current, *match;
 } hir_lexer_t;
 
 __api void hir_lexer_init(hir_lexer_t *self, source_t *src,
@@ -50,7 +51,6 @@ __api void hir_lexer_dtor(hir_lexer_t *self);
 __api hir_tok_t *hir_lexer_peek(hir_lexer_t *self);
 __api hir_tok_t *hir_lexer_peekn(hir_lexer_t *self, u8_t n);
 __api hir_tok_t *hir_lexer_next(hir_lexer_t *self);
-__api hir_tok_t *hir_lexer_consume(hir_lexer_t *self, hir_tok_kind_t kind);
 
 #endif /* !__GUTS_HIR_LEXER_H */
 /*!@} */

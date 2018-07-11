@@ -51,7 +51,7 @@ static hir_parse_t __ty_float(hir_ty_t *self, hir_parser_t *parser,
 }
 
 FORCEINLINE
-static hir_tok_t *__ty_types(vecof(hir_ty_t *) *types,
+static hir_tok_t *__ty_types(vecof(hir_ty_t) *types,
 							  hir_parser_t *parser, hir_tok_t *tok,
 							  hir_tok_kind_t closing)
 {
@@ -62,12 +62,10 @@ static hir_tok_t *__ty_types(vecof(hir_ty_t *) *types,
 	hir_parser_next(parser);
 
 	do {
-		if (hir_ty_consume(&ty, parser) == PARSE_ERROR)
-			return NULL;
-		if (!(tok = hir_parser_any(parser,
-			(char[]){ closing, HIR_TOK_COMMA, HIR_TOK_EOF })))
-			return NULL;
-		vecpush(*types, memdup(&ty, sizeof(hir_ty_t)));
+		hir_ty_consume(&ty, parser);
+		tok = hir_parser_any(parser,
+			(char[]){ closing, HIR_TOK_COMMA, HIR_TOK_EOF });
+		vecpush(*types, ty);
 	} while (tok->kind != closing);
 	return tok;
 }
@@ -92,23 +90,18 @@ static hir_parse_t __ty_lambda(hir_ty_t *self, hir_parser_t *parser,
 
 	self->span = tok->span;
 	self->kind = HIR_TY_LAMBDA;
-	if (!(next = hir_parser_peekn(parser, 1)))
-		return PARSE_ERROR;
+	next = hir_parser_peekn(parser, 1);
 	if (next->kind == HIR_TOK_RPAR) {
 		hir_parser_next(parser);
 		hir_parser_next(parser);
-	} else if (!__ty_types(&self->ty_lambda.inputs, parser, tok, HIR_TOK_RPAR))
-		return PARSE_ERROR;
-	if (!(tok = hir_parser_peek(parser)))
-		return PARSE_ERROR;
+	} else
+		__ty_types(&self->ty_lambda.inputs, parser, tok, HIR_TOK_RPAR);
+	tok = hir_parser_peek(parser);
 	if (tok->kind == HIR_TOK_COLON) {
 		hir_ty_t ty;
 
 		hir_parser_next(parser);
-		if (hir_ty_consume(&ty, parser) == PARSE_ERROR)
-			return PARSE_ERROR;
-		if (!(tok = hir_parser_peek(parser)))
-			return PARSE_ERROR;
+		tok = hir_ty_consume(&ty, parser);
 		self->ty_lambda.output = memdup(&ty, sizeof(hir_ty_t));
 	}
 	self->span.length = span_diff(tok->span, self->span);
@@ -246,24 +239,18 @@ void hir_ty_destroy(hir_ty_t *self)
 
 	switch (self->kind) {
 		case HIR_TY_SYM:
-			for (i = 0; i < veclen(self->ty_sym.template); ++i) {
-				hir_ty_destroy(self->ty_sym.template[i]);
-				free(self->ty_sym.template[i]);
-			}
+			for (i = 0; i < veclen(self->ty_sym.template); ++i)
+				hir_ty_destroy(self->ty_sym.template + i);
 			vecdtor(self->ty_sym.template);
 			break;
 		case HIR_TY_TUPLE:
-			for (i = 0; i < veclen(self->ty_tuple.elems); ++i) {
-				hir_ty_destroy(self->ty_tuple.elems[i]);
-				free(self->ty_tuple.elems[i]);
-			}
+			for (i = 0; i < veclen(self->ty_tuple.elems); ++i)
+				hir_ty_destroy(self->ty_tuple.elems + i);
 			vecdtor(self->ty_tuple.elems);
 			break;
 		case HIR_TY_LAMBDA:
-			for (i = 0; i < veclen(self->ty_lambda.inputs); ++i) {
-				hir_ty_destroy(self->ty_lambda.inputs[i]);
-				free(self->ty_lambda.inputs[i]);
-			}
+			for (i = 0; i < veclen(self->ty_lambda.inputs); ++i)
+				hir_ty_destroy(self->ty_lambda.inputs + i);
 			vecdtor(self->ty_lambda.inputs);
 			if (self->ty_lambda.output) {
 				hir_ty_destroy(self->ty_lambda.output);

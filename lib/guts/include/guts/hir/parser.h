@@ -66,10 +66,10 @@ __api hir_tok_t *hir_parser_any(hir_parser_t *self, char __const *kinds);
 __api void hir_parser_scope(hir_parser_t *self, hir_scope_t *scope);
 __api void hir_parser_unscope(hir_parser_t *self);
 
-typedef hir_parse_t (hir_parse_rule_t)(void *self, hir_parser_t *parser);
+typedef bool (hir_parse_rule_t)(void *self, hir_parser_t *parser);
 
-__api hir_parse_t hir_parse_required(hir_parse_rule_t *rule, void *self,
-									 hir_parser_t *parser, char __const *name);
+__api bool hir_parse_required(hir_parse_rule_t *rule, void *self,
+							  hir_parser_t *parser, char __const *name);
 
 #endif /* !__GUTS_HIR_PARSER_H */
 /*!@} */
