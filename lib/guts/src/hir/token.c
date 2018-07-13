@@ -24,8 +24,6 @@
  * SOFTWARE.
  */
 
-#include <il/span.h>
-#include <il/loc.h>
 #include "guts/hir/token.h"
 
 FORCEINLINE
@@ -124,7 +122,7 @@ static char __const *__token_toa[] = {
 };
 
 FORCEINLINE PURE
-char __const *hir_tok_toa(hir_tok_kind_t kind)
+char __const *hir_tok_toa(u8_t kind)
 {
 	return __token_toa[kind];
 }
@@ -136,7 +134,7 @@ u16_t hir_tok_diff(hir_tok_t *a, hir_tok_t *b)
 }
 
 FORCEINLINE PURE
-hir_tok_kind_t hir_tok_matching(hir_tok_kind_t kind)
+u8_t hir_tok_matching(u8_t kind)
 {
 	switch (kind) {
 		case HIR_TOK_LPAR: return HIR_TOK_RPAR;

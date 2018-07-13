@@ -36,7 +36,7 @@ static hir_parse_t __ty_int(hir_ty_t *self, hir_parser_t *parser,
 	self->kind = HIR_TY_INT;
 	self->ty_int.bytes = bytes;
 	self->ty_int.unsign = unsign;
-	return PARSE_OK;
+	return true;
 }
 
 FORCEINLINE
@@ -47,13 +47,12 @@ static hir_parse_t __ty_float(hir_ty_t *self, hir_parser_t *parser,
 	self->span = tok->span;
 	self->kind = HIR_TY_FLOAT;
 	self->ty_float.bytes = bytes;
-	return PARSE_OK;
+	return true;
 }
 
 FORCEINLINE
-static hir_tok_t *__ty_types(vecof(hir_ty_t) *types,
-							  hir_parser_t *parser, hir_tok_t *tok,
-							  hir_tok_kind_t closing)
+static hir_tok_t *__ty_types(vecof(hir_ty_t)*types, hir_parser_t *parser,
+							 hir_tok_t *tok, u8_t closing)
 {
 	hir_ty_t ty;
 
@@ -64,22 +63,22 @@ static hir_tok_t *__ty_types(vecof(hir_ty_t) *types,
 	do {
 		hir_ty_consume(&ty, parser);
 		tok = hir_parser_any(parser,
-			(char[]){ closing, HIR_TOK_COMMA, HIR_TOK_EOF });
+			(u8_t[]) { closing, HIR_TOK_COMMA, HIR_TOK_EOF });
 		vecpush(*types, ty);
 	} while (tok->kind != closing);
 	return tok;
 }
 
 FORCEINLINE
-static hir_parse_t __ty_tuple(hir_ty_t *self, hir_parser_t *parser,
+static bool __ty_tuple(hir_ty_t *self, hir_parser_t *parser,
 							  hir_tok_t *tok)
 {
 	self->span = tok->span;
 	self->kind = HIR_TY_TUPLE;
 	if (!(tok = __ty_types(&self->ty_tuple.elems, parser, tok, HIR_TOK_GT)))
-		return PARSE_ERROR;
+		return false;
 	self->span.length = span_diff(tok->span, self->span);
-	return PARSE_OK;
+	return true;
 }
 
 FORCEINLINE
@@ -101,44 +100,55 @@ static hir_parse_t __ty_lambda(hir_ty_t *self, hir_parser_t *parser,
 		hir_ty_t ty;
 
 		hir_parser_next(parser);
-		tok = hir_ty_consume(&ty, parser);
+		hir_ty_consume(&ty, parser);
 		self->ty_lambda.output = memdup(&ty, sizeof(hir_ty_t));
+		tok = hir_parser_peek(parser);
 	}
 	self->span.length = span_diff(tok->span, self->span);
-	return PARSE_OK;
+	return true;
 }
 
 FORCEINLINE
-hir_parse_t hir_ty_parse(hir_ty_t *self, hir_parser_t *parser)
+bool hir_ty_parse(hir_ty_t *self, hir_parser_t *parser)
 {
 	hir_tok_t *tok;
 
 	bzero(self, sizeof(hir_ty_t));
 	if (!(tok = hir_parser_peek(parser)))
-		return PARSE_ERROR;
+		return false;
 	switch (tok->kind) {
 		case HIR_TOK_CHAR: {
 			hir_parser_next(parser);
 			self->span = tok->span;
 			self->kind = HIR_TY_CHAR;
-			return PARSE_OK;
+			return true;
 		}
 		case HIR_TOK_BOOL: {
 			hir_parser_next(parser);
 			self->span = tok->span;
 			self->kind = HIR_TY_BOOL;
-			return PARSE_OK;
+			return true;
 		}
-		case HIR_TOK_I8: return __ty_int(self, parser, tok, 8, false);
-		case HIR_TOK_I16: return __ty_int(self, parser, tok, 16, false);
-		case HIR_TOK_I32: return __ty_int(self, parser, tok, 32, false);
-		case HIR_TOK_I64: return __ty_int(self, parser, tok, 64, false);
-		case HIR_TOK_U8: return __ty_int(self, parser, tok, 8, true);
-		case HIR_TOK_U16: return __ty_int(self, parser, tok, 16, true);
-		case HIR_TOK_U32: return __ty_int(self, parser, tok, 32, true);
-		case HIR_TOK_U64: return __ty_int(self, parser, tok, 64, true);
-		case HIR_TOK_F32: return __ty_float(self, parser, tok, 32);
-		case HIR_TOK_F64: return __ty_float(self, parser, tok, 64);
+		case HIR_TOK_I8:
+			return __ty_int(self, parser, tok, 8, false);
+		case HIR_TOK_I16:
+			return __ty_int(self, parser, tok, 16, false);
+		case HIR_TOK_I32:
+			return __ty_int(self, parser, tok, 32, false);
+		case HIR_TOK_I64:
+			return __ty_int(self, parser, tok, 64, false);
+		case HIR_TOK_U8:
+			return __ty_int(self, parser, tok, 8, true);
+		case HIR_TOK_U16:
+			return __ty_int(self, parser, tok, 16, true);
+		case HIR_TOK_U32:
+			return __ty_int(self, parser, tok, 32, true);
+		case HIR_TOK_U64:
+			return __ty_int(self, parser, tok, 64, true);
+		case HIR_TOK_F32:
+			return __ty_float(self, parser, tok, 32);
+		case HIR_TOK_F64:
+			return __ty_float(self, parser, tok, 64);
 		case HIR_TOK_IDENT: {
 			hir_parser_next(parser);
 			self->span = tok->span;
@@ -146,9 +156,9 @@ hir_parse_t hir_ty_parse(hir_ty_t *self, hir_parser_t *parser)
 			self->ty_sym.ident = tok->ident;
 			if (!(tok = __ty_types(&self->ty_sym.template, parser, tok,
 				HIR_TOK_GT)))
-				return PARSE_ERROR;
+				return false;
 			self->span.length = span_diff(tok->span, self->span);
-			return PARSE_OK;
+			return true;
 		}
 		case HIR_TOK_LT:
 			return __ty_tuple(self, parser, tok);
@@ -161,18 +171,18 @@ hir_parse_t hir_ty_parse(hir_ty_t *self, hir_parser_t *parser)
 			self->span = tok->span;
 			self->kind = HIR_TY_NULLABLE;
 			if (!(tok = hir_parser_peek(parser)))
-				return PARSE_ERROR;
+				return false;
 			if (tok->kind == HIR_TOK_CONST) {
 				hir_parser_next(parser);
 				self->ty_nullable.constant = true;
 			}
-			if (hir_ty_consume(&ty, parser) == PARSE_ERROR)
-				return PARSE_ERROR;
+			if (hir_ty_consume(&ty, parser) == false)
+				return false;
 			if (!(tok = hir_parser_peek(parser)))
-				return PARSE_ERROR;
+				return false;
 			self->ty_nullable.elem = memdup(&ty, sizeof(hir_ty_t));
 			self->span.length = span_diff(tok->span, self->span);
-			return PARSE_OK;
+			return true;
 		}
 		case HIR_TOK_MUL: {
 			hir_ty_t ty;
@@ -181,36 +191,36 @@ hir_parse_t hir_ty_parse(hir_ty_t *self, hir_parser_t *parser)
 			self->span = tok->span;
 			self->kind = HIR_TY_PTR;
 			if (!(tok = hir_parser_peek(parser)))
-				return PARSE_ERROR;
+				return false;
 			if (tok->kind == HIR_TOK_CONST) {
 				hir_parser_next(parser);
 				self->ty_ptr.constant = true;
 			}
-			if (hir_ty_consume(&ty, parser) == PARSE_ERROR)
-				return PARSE_ERROR;
+			if (hir_ty_consume(&ty, parser) == false)
+				return false;
 			if (!(tok = hir_parser_peek(parser)))
-				return PARSE_ERROR;
+				return false;
 			self->ty_ptr.elem = memdup(&ty, sizeof(hir_ty_t));
 			self->span.length = span_diff(tok->span, self->span);
-			return PARSE_OK;
+			return true;
 		}
 		case HIR_TOK_LBRA: {
 			hir_ty_t ty;
 
 			hir_parser_next(parser);
 			self->span = tok->span;
-			if (hir_ty_consume(&ty, parser) == PARSE_ERROR)
-				return PARSE_ERROR;
+			if (hir_ty_consume(&ty, parser) == false)
+				return false;
 			if (!(tok = hir_parser_any(parser,
-				(char[]){ HIR_TOK_RBRA, HIR_TOK_SEMICOLON, HIR_TOK_EOF })))
-				return PARSE_ERROR;
-			if (tok->kind == HIR_TOK_SEMICOLON)	{
+				(u8_t[]) { HIR_TOK_RBRA, HIR_TOK_SEMICOLON, HIR_TOK_EOF })))
+				return false;
+			if (tok->kind == HIR_TOK_SEMICOLON) {
 				hir_expr_t expr;
 
-				if (hir_expr_consume(&expr, parser) == PARSE_ERROR)
-					return PARSE_ERROR;
+				if (hir_expr_consume(&expr, parser) == false)
+					return false;
 				if (!(tok = hir_parser_consume(parser, HIR_TOK_RBRA)))
-					return PARSE_ERROR;
+					return false;
 				self->kind = HIR_TY_ARRAY;
 				self->ty_array.elem = memdup(&ty, sizeof(hir_ty_t));
 				self->ty_array.len = memdup(&expr, sizeof(hir_expr_t));
@@ -219,7 +229,7 @@ hir_parse_t hir_ty_parse(hir_ty_t *self, hir_parser_t *parser)
 				self->ty_slice.elem = memdup(&ty, sizeof(hir_ty_t));
 			}
 			self->span.length = span_diff(tok->span, self->span);
-			return PARSE_OK;
+			return true;
 		}
 		default:
 			return PARSE_NONE;
@@ -227,9 +237,9 @@ hir_parse_t hir_ty_parse(hir_ty_t *self, hir_parser_t *parser)
 }
 
 FORCEINLINE
-hir_parse_t hir_ty_consume(hir_ty_t *self, hir_parser_t *parser)
+bool hir_ty_consume(hir_ty_t *self, hir_parser_t *parser)
 {
-	return hir_parse_required((hir_parse_rule_t *)hir_ty_parse, self, parser,
+	return hir_parse_required((hir_parse_rule_t *) hir_ty_parse, self, parser,
 		"type");
 }
 

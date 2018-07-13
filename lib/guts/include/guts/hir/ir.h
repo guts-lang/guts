@@ -38,7 +38,7 @@
 
 typedef struct {
 	codemap_t codemap;
-	hir_entity_t root;
+	hir_ent_t root;
 } hir_t;
 
 #endif /* !__GUTS_HIR_IR_H */

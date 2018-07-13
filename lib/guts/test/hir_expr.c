@@ -35,10 +35,10 @@ int main(void)
 	hir_expr_t expr;
 
 	codemap_init(&codemap, NULL);
-	codemap_src_push(&codemap, "foo = bar * 8 + 2 / 4 || (+5)\n", true);
+	codemap_src_push(&codemap, "21, 42\n", true);
 	hir_parser_init(&parser, &codemap, NULL);
 
-	hir_expr_parse(&expr, &parser);
+	hir_expr_consume(&expr, &parser);
 
 	codemap_emit(&codemap, stdout);
 	codemap_dtor(&codemap);

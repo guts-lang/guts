@@ -35,7 +35,7 @@ int main(void)
 	hir_parser_t parser;
 	hir_tok_t *tok;
 	hir_scope_t scope;
-	hir_entity_t entity, *entities[10], *foo, *bar, *a, *baz, *blu, *b, *fla,
+	hir_ent_t entity, *entities[10], *foo, *bar, *a, *baz, *blu, *b, *fla,
 		*olk, *c, *lob;
 	u8_t idx = 0;
 	static char __const *SRC =
@@ -48,7 +48,7 @@ int main(void)
 	while ((tok = hir_parser_next(&parser)) && tok->kind != HIR_TOK_EOF) {
 		if (tok->kind == HIR_TOK_LCUR) {
 			tok = hir_parser_consume(&parser, HIR_TOK_IDENT);
-			bzero(&entity, sizeof(hir_entity_t));
+			bzero(&entity, sizeof(hir_ent_t));
 			entity.span = tok->span;
 			entity.name.len = tok->span.length;
 			entity.name.ident = tok->ident;
@@ -60,7 +60,7 @@ int main(void)
 		} else if (tok->kind == HIR_TOK_RCUR) {
 			parser.scope = parser.scope->parent;
 		} else if (tok->kind == HIR_TOK_IDENT) {
-			bzero(&entity, sizeof(hir_entity_t));
+			bzero(&entity, sizeof(hir_ent_t));
 			entity.span = tok->span;
 			entity.name.len = tok->span.length;
 			entity.name.ident = tok->ident;

@@ -26,6 +26,7 @@
 
 #include "guts/hir/stmt.h"
 
+#if 0
 FORCEINLINE
 static hir_parse_t __scope(hir_stmt_t *stmt, hir_parser_t *parser,
 						   hir_tok_t *tok)
@@ -265,3 +266,4 @@ hir_parse_t hir_stmt_consume(hir_stmt_t *stmt, hir_parser_t *parser)
 	return hir_parse_required((hir_parse_rule_t *)hir_stmt_parse, stmt, parser,
 		"statement");
 }
+#endif

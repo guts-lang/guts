@@ -42,5 +42,12 @@ typedef struct {
 __api span_t span(loc_t start, u16_t length);
 __api u16_t span_diff(span_t a, span_t b);
 
+typedef struct {
+	span_t span;
+	u16_t kind;
+} spanned_t;
+
+__api void spanned_diff(spanned_t *begin, spanned_t __const *end);
+
 #endif /* !__IL_SPAN_H */
 /*!@} */

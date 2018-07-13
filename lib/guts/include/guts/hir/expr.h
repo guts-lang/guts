@@ -34,8 +34,6 @@
 
 #include "type.h"
 
-struct hir_stmt;
-
 typedef enum {
 	HIR_EXPR_LIT = 0,
 	HIR_EXPR_IDENT,
@@ -96,9 +94,14 @@ typedef enum {
 
 typedef struct hir_expr {
 
-	hir_expr_kind_t kind: 8;
+	union {
+		spanned_t spanned;
 
-	span_t span;
+		struct {
+			span_t span;
+			hir_expr_kind_t kind;
+		};
+	};
 
 	union {
 		hir_lit_t lit;
@@ -109,11 +112,11 @@ typedef struct hir_expr {
 		} paren;
 
 		struct {
-			vecof(struct hir_expr *) elems;
+			vecof(struct hir_expr) elems;
 		} tuple;
 
 		struct {
-			vecof(struct hir_expr *) elems;
+			vecof(struct hir_expr) elems;
 		} array;
 
 		struct {
@@ -124,7 +127,7 @@ typedef struct hir_expr {
 
 		struct {
 			struct hir_expr *callee;
-			vecof(struct hir_expr *) arguments;
+			vecof(struct hir_expr) args;
 		} call;
 
 		struct {
@@ -146,8 +149,8 @@ typedef struct hir_expr {
 
 } hir_expr_t;
 
-__api hir_parse_t hir_expr_parse(hir_expr_t *expr, hir_parser_t *parser);
-__api hir_parse_t hir_expr_consume(hir_expr_t *expr, hir_parser_t *parser);
+__api bool hir_expr_parse(hir_expr_t *expr, hir_parser_t *parser);
+__api bool hir_expr_consume(hir_expr_t *expr, hir_parser_t *parser);
 
 #endif /* !__GUTS_HIR_EXPR_H */
 /*!@} */

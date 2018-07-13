@@ -29,6 +29,7 @@
 #include "guts/hir/scope.h"
 #include "guts/hir/entity.h"
 
+#if 0
 static bool __eq_name(u8_t const *a, u8_t const *b)
 {
 	hir_name_t *na, *nb;
@@ -55,18 +56,18 @@ void hir_scope_init(hir_scope_t *self, struct hir_scope *parent,
 	mapinit(&self->childs, __eq_name, __hash_name);
 }
 
-hir_entity_t *hir_scope_add(hir_scope_t *self, hir_entity_t *e)
+hir_ent_t *hir_scope_add(hir_scope_t *self, hir_ent_t *e)
 {
 	assert(e);
 
 	if (maphas(&self->childs, &e->name))
 		return NULL;
-	e = memcpy(malloc(sizeof(hir_entity_t)), e, sizeof(hir_entity_t));
+	e = memcpy(malloc(sizeof(hir_ent_t)), e, sizeof(hir_ent_t));
 	mapput(&self->childs, &e->name, e);
 	return e;
 }
 
-hir_entity_t *hir_scope_find(hir_scope_t *self, hir_name_t *name)
+hir_ent_t *hir_scope_find(hir_scope_t *self, hir_name_t *name)
 {
 	u32_t idx;
 
@@ -78,7 +79,7 @@ hir_entity_t *hir_scope_find(hir_scope_t *self, hir_name_t *name)
 }
 
 FORCEINLINE
-hir_entity_t *hir_scope_locate(hir_scope_t *self, hir_ident_t id,
+hir_ent_t *hir_scope_locate(hir_scope_t *self, hir_ident_t id,
 							   span_t span)
 {
 	hir_name_t name;
@@ -87,3 +88,4 @@ hir_entity_t *hir_scope_locate(hir_scope_t *self, hir_ident_t id,
 	name.len = span.length;
 	return hir_scope_find(self, &name);
 }
+#endif

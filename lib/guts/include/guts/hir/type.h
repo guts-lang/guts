@@ -53,7 +53,7 @@ enum hir_ty_kind {
 	HIR_TY_FLOAT,    /*!< See hir_ty::ty_float.    */
 	HIR_TY_SYM,      /*!< See hir_ty::ty_sym.      */
 	HIR_TY_TUPLE,    /*!< See hir_ty::ty_tuple.    */
-	HIR_TY_LAMBDA,   /*!< See hir_lambda.          */
+	HIR_TY_LAMBDA,   /*!< See hir_ty::ty_lambda.   */
 	HIR_TY_NULLABLE, /*!< See hir_ty::ty_nullable. */
 	HIR_TY_PTR,      /*!< See hir_ty::ty_ptr.      */
 	HIR_TY_SLICE,    /*!< See hir_ty::ty_slice.    */
@@ -83,11 +83,21 @@ enum hir_ty_kind {
  */
 struct hir_ty {
 
-	/*! Type location on the origin source. */
-	span_t span;
+	/*! Type is a spanned structure. */
+	union {
 
-	/*! Type kind, See hir_ty_kind: HIR_TY_*. */
-	hir_ty_kind_t kind: 8;
+		/*! Spanned heritage. */
+		spanned_t spanned;
+
+		struct {
+
+			/*! Type location on the origin source. */
+			span_t span;
+
+			/*! Type kind, See hir_ty_kind: HIR_TY_*. */
+			hir_ty_kind_t kind;
+		};
+	};
 
 	/*! Data union of all type kind. */
 	union {
@@ -270,7 +280,7 @@ struct hir_ty {
  *                       parsed or ::PARSE_ERROR on error, errors has been
  *                       reported to `parser->codespan`.
  */
-__api hir_parse_t hir_ty_parse(hir_ty_t *self, hir_parser_t *parser);
+__api bool hir_ty_parse(hir_ty_t *self, hir_parser_t *parser);
 
 /*!@brief
  * Parse a type using #hir_ty syntax.
@@ -280,7 +290,7 @@ __api hir_parse_t hir_ty_parse(hir_ty_t *self, hir_parser_t *parser);
  * @return               ::PARSE_OK on success or and ::PARSE_ERROR on error or
  *                       empty, errors has been reported to `parser->codespan`.
  */
-__api hir_parse_t hir_ty_consume(hir_ty_t *self, hir_parser_t *parser);
+__api bool hir_ty_consume(hir_ty_t *self, hir_parser_t *parser);
 
 /*!@brief
  * Destroy the given type.
