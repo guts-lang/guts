@@ -204,33 +204,7 @@ bool hir_ty_parse(hir_ty_t *self, hir_parser_t *parser)
 			self->span.length = span_diff(tok->span, self->span);
 			return true;
 		}
-		case HIR_TOK_LBRA: {
-			hir_ty_t ty;
 
-			hir_parser_next(parser);
-			self->span = tok->span;
-			if (hir_ty_consume(&ty, parser) == false)
-				return false;
-			if (!(tok = hir_parser_any(parser,
-				(u8_t[]) { HIR_TOK_RBRA, HIR_TOK_SEMICOLON, HIR_TOK_EOF })))
-				return false;
-			if (tok->kind == HIR_TOK_SEMICOLON) {
-				hir_expr_t expr;
-
-				if (hir_expr_consume(&expr, parser) == false)
-					return false;
-				if (!(tok = hir_parser_consume(parser, HIR_TOK_RBRA)))
-					return false;
-				self->kind = HIR_TY_ARRAY;
-				self->ty_array.elem = memdup(&ty, sizeof(hir_ty_t));
-				self->ty_array.len = memdup(&expr, sizeof(hir_expr_t));
-			} else {
-				self->kind = HIR_TY_SLICE;
-				self->ty_slice.elem = memdup(&ty, sizeof(hir_ty_t));
-			}
-			self->span.length = span_diff(tok->span, self->span);
-			return true;
-		}
 		default:
 			return PARSE_NONE;
 	}
@@ -274,10 +248,6 @@ void hir_ty_destroy(hir_ty_t *self)
 		case HIR_TY_PTR:
 			hir_ty_destroy(self->ty_ptr.elem);
 			free(self->ty_ptr.elem);
-			break;
-		case HIR_TY_SLICE:
-			hir_ty_destroy(self->ty_slice.elem);
-			free(self->ty_slice.elem);
 			break;
 		case HIR_TY_ARRAY:
 			hir_ty_destroy(self->ty_array.elem);

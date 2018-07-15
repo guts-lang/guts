@@ -26,13 +26,12 @@
 
 #include "guts/hir/expr.h"
 #include "guts/hir/entity.h"
-#include "guts/hir/parser.h"
 
 typedef bool (rule_t)(hir_expr_t *expr, hir_parser_t *parser);
 
-static bool __expr(hir_expr_t *expr, hir_parser_t *parser);
-static bool __cast(hir_expr_t *expr, hir_parser_t *parser);
-static bool __assignation(hir_expr_t *expr, hir_parser_t *parser);
+static bool __expr(hir_expr_t *self, hir_parser_t *parser);
+static bool __cast(hir_expr_t *self, hir_parser_t *parser);
+static bool __assignation(hir_expr_t *self, hir_parser_t *parser);
 
 FORCEINLINE
 static bool __required(rule_t *rule, hir_expr_t *expr, hir_parser_t *parser)
@@ -62,9 +61,9 @@ static hir_tok_t *__commas(vecof(hir_expr_t) *exprs, hir_parser_t *parser,
 	do {
 		bzero(&expr, sizeof(hir_expr_t));
 
-		if (!(veclen(*exprs) || !trailing_comma
-			? __required(__assignation, &expr, parser)
-			: __assignation(&expr, parser)))
+		if (((veclen(*exprs) || !trailing_comma)
+			&& !__required(__assignation, &expr, parser))
+				|| !__assignation(&expr, parser))
 			return hir_parser_consume(parser, closing);
 
 		vecpush(*exprs, expr);
@@ -129,8 +128,7 @@ static bool __postfix(hir_expr_t *self, hir_parser_t *parser)
 			}
 			case '[': {
 				self->binary.lhs = memdup(self, sizeof(hir_expr_t));
-				hir_parser_match(&self->spanned, parser, tok, HIR_EXPR_BINARY);
-				self->binary.operator = HIR_BINARY_INDEX;
+				hir_parser_match(&self->spanned, parser, tok, HIR_BINARY_INDEX);
 				self->binary.rhs = __consume(__expr, parser);
 				tok = hir_parser_consume(parser, ']');
 				spanned_diff(&self->spanned, &tok->spanned);
@@ -148,8 +146,7 @@ static bool __unary(hir_expr_t *self, hir_parser_t *parser)
 	switch ((tok = hir_parser_peek(parser))->kind) {
 		case HIR_TOK_DEC: case HIR_TOK_INC:
 		case '&': case '*': case '!': case '~': case '+': case '-': {
-			hir_parser_match(&self->spanned, parser, tok, HIR_EXPR_UNARY);
-			self->unary.operator = (hir_unary_kind_t) tok->kind;
+			hir_parser_match(&self->spanned, parser, tok, tok->kind);
 			self->unary.operand = __consume(__cast, parser);
 			tok = hir_parser_peek(parser);
 			spanned_diff(&self->spanned, &tok->spanned);
@@ -190,8 +187,7 @@ static bool __binary(hir_expr_t *self, hir_parser_t *parser, rule_t *rule,
 	while ((tok = hir_parser_peek(parser))->kind
 		   && strchr((const char *) ops, tok->kind)) {
 		self->binary.lhs = memdup(self, sizeof(hir_expr_t));
-		hir_parser_match(&self->spanned, parser, tok, HIR_EXPR_BINARY);
-		self->binary.operator = (hir_binary_kind_t) tok->kind;
+		hir_parser_match(&self->spanned, parser, tok, tok->kind);
 		self->binary.rhs = __consume(rule, parser);
 		tok = hir_parser_peek(parser);
 		spanned_diff(&self->spanned, &tok->spanned);
@@ -268,8 +264,7 @@ static bool __assignation(hir_expr_t *self, hir_parser_t *parser)
 		case HIR_TOK_SUB_ASSIGN: case HIR_TOK_MUL_ASSIGN:
 		case HIR_TOK_DIV_ASSIGN: case HIR_TOK_MOD_ASSIGN: {
 			self->binary.lhs = memdup(self, sizeof(hir_expr_t));
-			hir_parser_match(&self->spanned, parser, tok, HIR_EXPR_BINARY);
-			self->binary.operator = (hir_binary_kind_t) tok->kind;
+			hir_parser_match(&self->spanned, parser, tok, tok->kind);
 			self->binary.rhs = __consume(__lor, parser);
 			tok = hir_parser_peek(parser);
 			spanned_diff(&self->spanned, &tok->spanned);

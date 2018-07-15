@@ -56,7 +56,6 @@ enum hir_ty_kind {
 	HIR_TY_LAMBDA,   /*!< See hir_ty::ty_lambda.   */
 	HIR_TY_NULLABLE, /*!< See hir_ty::ty_nullable. */
 	HIR_TY_PTR,      /*!< See hir_ty::ty_ptr.      */
-	HIR_TY_SLICE,    /*!< See hir_ty::ty_slice.    */
 	HIR_TY_ARRAY,    /*!< See hir_ty::ty_array.    */
 	HIR_TY_STRUCT,   /*!< See hir_ty::ty_struct.   */
 	HIR_TY_ENUM,     /*!< See hir_ty::ty_enum.     */
@@ -147,10 +146,10 @@ struct hir_ty {
 		} ty_sym;
 
 		/*!@brief
-		 * Tuple type: `<i8, i16>` or `<u8>`.
+		 * Tuple type: `[i8, i16]` or `[u8]`.
 		 * @code{.y}
 		 * ty_tuple
-		 *   : '<' <TYPES> '>'
+		 *   : '[' <TYPES> ']'
 		 *   ;
 		 * @endcode
 		 * Where <TYPES> is a list of types.
@@ -214,27 +213,14 @@ struct hir_ty {
 		} ty_ptr;
 
 		/*!@brief
-		 * Dynamically sized slice type: `[T]`.
+		 * Dynamically sized slice or Fixed size array type: `T[]` or `T[42]`.
 		 * @code{.y}
-		 * ty_slice
-		 *   : '[' <type> ']'
+		 * ty_slty_arrayice
+		 *   : <type> '[' ']'
+		 *   | <type> '[' <expr> ']'
 		 *   ;
 		 * @endcode
 		 * Where <type> is the 'type' rule.
-		 */
-		struct {
-			struct hir_ty *elem;
-		} ty_slice;
-
-		/*!@brief
-		 * Fixed size array type: `[T; n]`.
-		 * @code{.y}
-		 * ty_array
-		 *   : '[' <type> ';' <expr> ']'
-		 *   ;
-		 * @endcode
-		 * Where <type> is the 'type' rule, represent the item type.
-		 * Where <expr> is the 'expr' rule, represent the array size.
 		 */
 		struct {
 			struct hir_ty *elem;

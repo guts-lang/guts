@@ -152,7 +152,7 @@ loop:
 		case '>': switch (source_peekn(self->src, 1)) {
 			case '>': switch (source_peekn(self->src, 2)) {
 				case '=': MATCH_SKIP(HIR_TOK_RSH_ASSIGN, 3);
-				default: MATCH_SKIP(HIR_TOK_GT, 1);
+				default: MATCH_SKIP(HIR_TOK_RSH, 2);
 			}
 			case '=': MATCH_SKIP(HIR_TOK_GEQ, 2);
 			default: MATCH_SKIP(HIR_TOK_GT, 1);
@@ -160,7 +160,7 @@ loop:
 		case '<': switch (source_peekn(self->src, 1)) {
 			case '<': switch (source_peekn(self->src, 2)) {
 				case '=': MATCH_SKIP(HIR_TOK_LSH_ASSIGN, 3);
-				default: MATCH_SKIP(HIR_TOK_LT, 1);
+				default: MATCH_SKIP(HIR_TOK_LSH, 2);
 			}
 			case '=': MATCH_SKIP(HIR_TOK_LEQ, 2);
 			default: MATCH_SKIP(HIR_TOK_LT, 1);

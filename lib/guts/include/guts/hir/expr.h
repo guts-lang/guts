@@ -34,19 +34,10 @@
 
 #include "type.h"
 
-typedef enum {
-	HIR_EXPR_LIT = 0,
-	HIR_EXPR_IDENT,
-	HIR_EXPR_PAREN,
-	HIR_EXPR_TUPLE,
-	HIR_EXPR_ARRAY,
-	HIR_EXPR_CALL,
-	HIR_EXPR_CAST,
-	HIR_EXPR_UNARY,
-	HIR_EXPR_BINARY,
-} hir_expr_kind_t;
+typedef struct hir_expr hir_expr_t;
+typedef enum hir_expr_kind hir_expr_kind_t;
 
-typedef enum {
+enum hir_expr_kind {
 	HIR_UNARY_REF = HIR_TOK_AND,
 	HIR_UNARY_DEREF = HIR_TOK_MUL,
 	HIR_UNARY_NOT = HIR_TOK_NOT,
@@ -57,10 +48,7 @@ typedef enum {
 	HIR_UNARY_PRE_INC = HIR_TOK_INC,
 	HIR_UNARY_POST_DEC = HIR_UNARY_PRE_INC + 1,
 	HIR_UNARY_POST_INC,
-} hir_unary_kind_t;
-
-typedef enum {
-	HIR_BINARY_INDEX = 0,
+	HIR_BINARY_INDEX,
 	HIR_BINARY_LT = HIR_TOK_LT,
 	HIR_BINARY_GT = HIR_TOK_GT,
 	HIR_BINARY_LEQ = HIR_TOK_LEQ,
@@ -90,9 +78,18 @@ typedef enum {
 	HIR_BINARY_AND_ASSIGN = HIR_TOK_AND_ASSIGN,
 	HIR_BINARY_OR_ASSIGN = HIR_TOK_OR_ASSIGN,
 	HIR_BINARY_XOR_ASSIGN = HIR_TOK_XOR_ASSIGN,
-} hir_binary_kind_t;
+	HIR_EXPR_LIT,
+	HIR_EXPR_IDENT,
+	HIR_EXPR_PAREN,
+	HIR_EXPR_TUPLE,
+	HIR_EXPR_ARRAY,
+	HIR_EXPR_CALL,
+	HIR_EXPR_CAST,
+	HIR_EXPR_UNARY,
+	HIR_EXPR_BINARY,
+};
 
-typedef struct hir_expr {
+struct hir_expr {
 
 	union {
 		spanned_t spanned;
@@ -136,18 +133,16 @@ typedef struct hir_expr {
 		} cast;
 
 		struct {
-			hir_unary_kind_t operator: 8;
 			struct hir_expr *operand;
 		} unary;
 
 		struct {
-			hir_binary_kind_t operator: 8;
 			struct hir_expr *lhs;
 			struct hir_expr *rhs;
 		} binary;
 	};
 
-} hir_expr_t;
+};
 
 __api bool hir_expr_parse(hir_expr_t *expr, hir_parser_t *parser);
 __api bool hir_expr_consume(hir_expr_t *expr, hir_parser_t *parser);
