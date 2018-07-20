@@ -78,6 +78,7 @@ enum {
 	HIR_TOK_COLON = ':',     /*!< ‘:’ (58). */
 	HIR_TOK_SEMICOLON = ';', /*!< ‘;’ (59). */
 	HIR_TOK_COMMA = ',',     /*!< ‘,’ (44). */
+	HIR_TOK_DCOLON = 69,     /*!< ‘::’.     */
 
 	/* Delimiter */
 	HIR_TOK_LPAR = '(', /*!< ‘(’ (40).  */

@@ -56,6 +56,8 @@ void hir_parser_dtor(hir_parser_t *self)
 {
 	hir_lexer_t *lexer;
 
+	if (!self)
+		return;
 	while ((lexer = stackpop(self->lexers)))
 		hir_lexer_dtor(lexer);
 	stackdtor(self->lexers);
@@ -99,7 +101,7 @@ hir_tok_t *hir_parser_peekn(hir_parser_t *self, u8_t n)
 
 	if (!self->lexer)
 		return self->eof;
-	if ((tok = hir_lexer_peek(self->lexer))->kind == HIR_TOK_EOF) {
+	if ((tok = hir_lexer_peekn(self->lexer, n))->kind == HIR_TOK_EOF) {
 		self->eof = tok;
 		if (!stacklen(self->lexers))
 			return tok;
@@ -157,44 +159,39 @@ hir_tok_t *hir_parser_consume(hir_parser_t *self, u8_t kind)
 hir_tok_t *hir_parser_any(hir_parser_t *self, u8_t __const *kinds)
 {
 	hir_tok_t *tok;
-	u32_t errs;
 
 	if (!self->lexer)
 		return self->eof;
-	errs = veclen(self->codemap->diagnostics);
 	if ((tok = hir_parser_next(self))
 		&& (tok->kind == HIR_TOK_EOF
 			|| !strchr((const char *) kinds, tok->kind))) {
+		u8_t i;
+		diag_t error;
+		char expected[256] = { '\0' };
 
-		if (errs == veclen(self->codemap->diagnostics)) {
-			u8_t i;
-			diag_t error;
-			char expected[256] = { '\0' };
+		i = 0;
+		while (*kinds) {
+			char __const *kind;
 
-			i = 0;
-			while (*kinds) {
-				char __const *kind;
+			expected[i++] = '`';
+			kind = hir_tok_toa(*kinds++);
+			while (*kind)
+				expected[i++] = *kind++;
+			expected[i++] = '\'';
 
-				expected[i++] = '`';
-				kind = hir_tok_toa(*kinds++);
-				while (*kind)
-					expected[i++] = *kind++;
-				expected[i++] = '\'';
-
-				if (*kinds && *(kinds + 1)) {
-					strcpy(expected + i, ", ");
-					i += 2;
-				} else if (*kinds) {
-					strcpy(expected + i, " or ");
-					i += 4;
-				}
+			if (*kinds && *(kinds + 1)) {
+				strcpy(expected + i, ", ");
+				i += 2;
+			} else if (*kinds) {
+				strcpy(expected + i, " or ");
+				i += 4;
 			}
-
-			diag_error(&error, "expected %s before ‘%s’ token",
-				expected, hir_tok_toa(tok->kind));
-			diag_labelize(&error, true, tok->span, NULL);
-			vecpush(self->codemap->diagnostics, error);
 		}
+
+		diag_error(&error, "expected %s before ‘%s’ token",
+			expected, hir_tok_toa(tok->kind));
+		diag_labelize(&error, true, tok->span, NULL);
+		vecpush(self->codemap->diagnostics, error);
 	}
 	return tok;
 }
@@ -216,8 +213,8 @@ void hir_parser_unscope(hir_parser_t *self)
 }
 
 FORCEINLINE
-bool hir_parse_required(hir_parse_rule_t *rule, void *self,
-						hir_parser_t *parser, char __const *name)
+bool hir_parser_required(hir_parse_rule_t *rule, void *self,
+						 hir_parser_t *parser, char __const *name)
 {
 	hir_tok_t *tok;
 	diag_t error;
@@ -237,7 +234,7 @@ bool hir_parse_required(hir_parse_rule_t *rule, void *self,
 
 FORCEINLINE
 void hir_parser_match(spanned_t *self, hir_parser_t *parser, hir_tok_t *tok,
-					 u16_t kind)
+					  u16_t kind)
 {
 	hir_parser_next(parser);
 	self->span = tok->span;

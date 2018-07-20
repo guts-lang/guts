@@ -41,6 +41,8 @@ typedef struct {
 	u16_t len;
 } hir_name_t;
 
+__api void hir_name_init(hir_name_t *self, hir_tok_t const *tok);
+
 struct hir_entity;
 
 typedef struct hir_scope {

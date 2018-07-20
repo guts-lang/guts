@@ -29,6 +29,12 @@
 #include "guts/hir/scope.h"
 #include "guts/hir/entity.h"
 
+void hir_name_init(hir_name_t *self, hir_tok_t const *tok)
+{
+	self->len = tok->span.length;
+	self->ident = tok->ident;
+}
+
 #if 0
 static bool __eq_name(u8_t const *a, u8_t const *b)
 {

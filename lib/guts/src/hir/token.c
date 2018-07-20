@@ -76,6 +76,7 @@ static char __const *__token_toa[] = {
 	[HIR_TOK_AS] = "as",
 	[HIR_TOK_CONST] = "const",
 	[HIR_TOK_COLON] = ":",
+	[HIR_TOK_DCOLON] = "::",
 	[HIR_TOK_SEMICOLON] = ";",
 	[HIR_TOK_COMMA] = ",",
 	[HIR_TOK_LPAR] = "(",

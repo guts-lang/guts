@@ -44,7 +44,7 @@ typedef struct {
 	codemap_t *codemap;
 	hir_scope_t *root, *scope;
 	struct hir_entity *entity;
-	stackof(hir_lexer_t) lexers;
+	stackof(hir_lexer_t)lexers;
 	hir_lexer_t *lexer;
 	hir_tok_t *eof;
 } hir_parser_t;
@@ -64,15 +64,15 @@ __api hir_tok_t *hir_parser_peekn(hir_parser_t *self, u8_t n);
 __api hir_tok_t *hir_parser_next(hir_parser_t *self);
 __api hir_tok_t *hir_parser_consume(hir_parser_t *self, u8_t kind);
 __api hir_tok_t *hir_parser_any(hir_parser_t *self, u8_t __const *kinds);
-__api void hir_parser_match(spanned_t *self, hir_parser_t *parser, hir_tok_t *tok,
-						   u16_t kind);
+__api void hir_parser_match(spanned_t *self, hir_parser_t *parser,
+							hir_tok_t *tok, u16_t kind);
 __api void hir_parser_scope(hir_parser_t *self, hir_scope_t *scope);
 __api void hir_parser_unscope(hir_parser_t *self);
 
 typedef bool (hir_parse_rule_t)(void *self, hir_parser_t *parser);
 
-__api bool hir_parse_required(hir_parse_rule_t *rule, void *self,
-							  hir_parser_t *parser, char __const *name);
+__api bool hir_parser_required(hir_parse_rule_t *rule, void *self,
+							   hir_parser_t *parser, char __const *name);
 
 #endif /* !__GUTS_HIR_PARSER_H */
 /*!@} */

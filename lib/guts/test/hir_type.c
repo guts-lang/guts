@@ -35,17 +35,36 @@ int main(void)
 	hir_ty_t type;
 
 	codemap_init(&codemap, NULL);
-	codemap_src_push(&codemap,
-		"() : (u8, <bool, char, [?const u8; 5]>): [*u8]\n", true);
 	hir_parser_init(&parser, &codemap, NULL);
 
-	ASSERT_EQ(PARSE_OK, hir_ty_consume(&type, &parser));
-	ASSERT_EQ(HIR_TY_LAMBDA, type.kind);
-	ASSERT_EQ(0, veclen(type.ty_lambda.inputs));
-	ASSERT_EQ(HIR_TY_LAMBDA, type.ty_lambda.output->kind);
-	ASSERT_EQ(2, veclen(type.ty_lambda.output->ty_lambda.inputs));
-
+	hir_parser_include(&parser, "([u8], u32): ?u8", true);
+	hir_ty_consume(&type, &parser);
 	hir_ty_destroy(&type);
+
+	hir_parser_include(&parser, "([T], u32): *const T", true);
+	hir_ty_consume(&type, &parser);
+	hir_ty_destroy(&type);
+
+	hir_parser_include(&parser, "[u8]", true);
+	hir_ty_consume(&type, &parser);
+	hir_ty_destroy(&type);
+
+	hir_parser_include(&parser, "[u8; 45]", true);
+	hir_ty_consume(&type, &parser);
+	hir_ty_destroy(&type);
+
+	hir_parser_include(&parser, "?[u8, u8]", true);
+	hir_ty_consume(&type, &parser);
+	hir_ty_destroy(&type);
+
+	hir_parser_include(&parser, "[[u8, u8]; 42]", true);
+	hir_ty_consume(&type, &parser);
+	hir_ty_destroy(&type);
+
+	hir_parser_include(&parser, "[foo::bar<u8, *const u8>]", true);
+	hir_ty_consume(&type, &parser);
+	hir_ty_destroy(&type);
+
 	codemap_emit(&codemap, stdout);
 	codemap_dtor(&codemap);
 	hir_parser_dtor(&parser);

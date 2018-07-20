@@ -36,7 +36,7 @@ static bool __assignation(hir_expr_t *self, hir_parser_t *parser);
 FORCEINLINE
 static bool __required(rule_t *rule, hir_expr_t *expr, hir_parser_t *parser)
 {
-	return hir_parse_required((void *) rule, expr, parser, "expression");
+	return hir_parser_required((void *) rule, expr, parser, "expression");
 }
 
 FORCEINLINE
@@ -69,7 +69,7 @@ static hir_tok_t *__commas(vecof(hir_expr_t) *exprs, hir_parser_t *parser,
 		vecpush(*exprs, expr);
 		tok = hir_parser_any(parser, (u8_t[]) { ',', closing, 0 });
 
-	} while (tok->kind == ',');
+	} while (tok->kind && tok->kind == ',');
 
 	return tok;
 }
@@ -315,8 +315,8 @@ bool hir_expr_parse(hir_expr_t *expr, hir_parser_t *parser)
 }
 
 FORCEINLINE
-bool hir_expr_consume(hir_expr_t *expr, hir_parser_t *parser)
+void hir_expr_consume(hir_expr_t *expr, hir_parser_t *parser)
 {
 	bzero(expr, sizeof(hir_expr_t));
-	return __required(__expr, expr, parser);
+	__required(__expr, expr, parser);
 }

@@ -32,7 +32,7 @@
 #ifndef __GUTS_HIR_TYPE_H
 # define __GUTS_HIR_TYPE_H
 
-#include "parser.h"
+#include "generic.h"
 
 struct hir_expr;
 struct hir_ent;
@@ -54,7 +54,6 @@ enum hir_ty_kind {
 	HIR_TY_SYM,      /*!< See hir_ty::ty_sym.      */
 	HIR_TY_TUPLE,    /*!< See hir_ty::ty_tuple.    */
 	HIR_TY_LAMBDA,   /*!< See hir_ty::ty_lambda.   */
-	HIR_TY_NULLABLE, /*!< See hir_ty::ty_nullable. */
 	HIR_TY_PTR,      /*!< See hir_ty::ty_ptr.      */
 	HIR_TY_ARRAY,    /*!< See hir_ty::ty_array.    */
 	HIR_TY_STRUCT,   /*!< See hir_ty::ty_struct.   */
@@ -73,7 +72,6 @@ enum hir_ty_kind {
  * 	 | <ty_sym>
  * 	 | <ty_tuple>
  * 	 | <ty_lambda>
- * 	 | <ty_nullable>
  * 	 | <ty_ptr>
  * 	 | <ty_slice>
  * 	 | <ty_array>
@@ -117,7 +115,7 @@ struct hir_ty {
 		} ty_int;
 
 		/*!@brief
-		 * Floating type: `f32` or `f64`.
+		 * Float type: `f32` or `f64`.
 		 * @code{.y}
 		 * ty_float
 		 *   : 'f'<BYTES>
@@ -126,23 +124,20 @@ struct hir_ty {
 		 * Where <BYTES> is '32' or '64'.
 		 */
 		struct {
-			u8_t bytes; /*!< Floating bytes, '32' or '64'. */
+			u8_t bytes; /*!< Float bytes, '32' or '64'. */
 		} ty_float;
 
 		/*!@brief
-		 * Symbol type: `foo<bar, u8>`.
+		 * Symbol type: `lul::foo<bar, u8>`.
 		 * @code{.y}
 		 * ty_sym
-		 *   : <IDENT>
-		 *   | <IDENT> '<' <TYPES> '>'
+		 *   : <path>
 		 *   ;
 		 * @endcode
-		 * Where <IDENT> is an unresolved symbol identifier.
-		 * Where <TYPES> is a list of types.
+		 * Where <path> is the 'sym' rule.
 		 */
 		struct {
-			hir_ident_t ident;               /*!< Symbol identifier. */
-			vecof(struct hir_ty) template; /*!< Template type list. */
+			hir_path_t path; /*!< A succession of generic symbols. */
 		} ty_sym;
 
 		/*!@brief
@@ -173,16 +168,17 @@ struct hir_ty {
 		 * Where <TYPES> represent the arguments types.
 		 */
 		struct {
-			struct hir_ty *output;         /*!< Lambda return type. */
+			struct hir_ty *output;       /*!< Lambda return type. */
 			vecof(struct hir_ty) inputs; /*!< Lambda arguments types. */
 		} ty_lambda;
 
 		/*!@brief
-		 * Nullable pointer type: `? T` or `? const T`.
-		 * Can be null (empty) or reference (pointer).
-		 * A reference cannot be null.
+		 * Raw pointer type: `* T` or `?const T`.
+		 * Cannot be null.
 		 * @code{.y}
-		 * ty_nullable
+		 * ty_ptr
+		 *   : '*' <type>
+		 *   | '*' <CONST> <type>
 		 *   : '?' <type>
 		 *   | '?' <CONST> <type>
 		 *   ;
@@ -191,33 +187,16 @@ struct hir_ty {
 		 * Where <CONST> is the 'const' keyword.
 		 */
 		struct {
-			bool constant;
-			struct hir_ty *elem;
-		} ty_nullable;
-
-		/*!@brief
-		 * Raw pointer type: `* T` or `*const T`.
-		 * Cannot be null.
-		 * @code{.y}
-		 * ty_ptr
-		 *   : '*' <type>
-		 *   | '*' <CONST> <type>
-		 *   ;
-		 * @endcode
-		 * Where <type> is the 'type' rule.
-		 * Where <CONST> is the 'const' keyword.
-		 */
-		struct {
-			bool constant;
+			bool nullable, constant;
 			struct hir_ty *elem;
 		} ty_ptr;
 
 		/*!@brief
-		 * Dynamically sized slice or Fixed size array type: `T[]` or `T[42]`.
+		 * Dynamically sized slice or Fixed size array type: `[T]` or `[T; 42]`.
 		 * @code{.y}
-		 * ty_slty_arrayice
-		 *   : <type> '[' ']'
-		 *   | <type> '[' <expr> ']'
+		 * ty_array
+		 *   : '[' <type> ']'
+		 *   | '[' <type> ';' <expr> ']'
 		 *   ;
 		 * @endcode
 		 * Where <type> is the 'type' rule.
@@ -262,9 +241,8 @@ struct hir_ty {
  *
  * @param[out]    self   The type to parse.
  * @param[in,out] parser The parser to use for parsing.
- * @return               ::PARSE_OK on success, ::PARSE_NONE if nothing was
- *                       parsed or ::PARSE_ERROR on error, errors has been
- *                       reported to `parser->codespan`.
+ * @return               `true` on success, `false` otherwise.
+ *                       errors has been reported to `parser->codespan`.
  */
 __api bool hir_ty_parse(hir_ty_t *self, hir_parser_t *parser);
 
@@ -273,8 +251,6 @@ __api bool hir_ty_parse(hir_ty_t *self, hir_parser_t *parser);
  *
  * @param[out]    self   The type to parse.
  * @param[in,out] parser The parser to use for parsing.
- * @return               ::PARSE_OK on success or and ::PARSE_ERROR on error or
- *                       empty, errors has been reported to `parser->codespan`.
  */
 __api bool hir_ty_consume(hir_ty_t *self, hir_parser_t *parser);
 

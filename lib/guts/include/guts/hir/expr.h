@@ -37,6 +37,10 @@
 typedef struct hir_expr hir_expr_t;
 typedef enum hir_expr_kind hir_expr_kind_t;
 
+/*!@enum hir_expr_kind
+ * @brief
+ * Different kind of expression.
+ */
 enum hir_expr_kind {
 	HIR_UNARY_REF = HIR_TOK_AND,
 	HIR_UNARY_DEREF = HIR_TOK_MUL,
@@ -46,7 +50,7 @@ enum hir_expr_kind {
 	HIR_UNARY_MINUS = HIR_TOK_SUB,
 	HIR_UNARY_PRE_DEC = HIR_TOK_DEC,
 	HIR_UNARY_PRE_INC = HIR_TOK_INC,
-	HIR_UNARY_POST_DEC = HIR_UNARY_PRE_INC + 1,
+	HIR_UNARY_POST_DEC = HIR_TOK_INC + 1,
 	HIR_UNARY_POST_INC,
 	HIR_BINARY_INDEX,
 	HIR_BINARY_LT = HIR_TOK_LT,
@@ -78,7 +82,7 @@ enum hir_expr_kind {
 	HIR_BINARY_AND_ASSIGN = HIR_TOK_AND_ASSIGN,
 	HIR_BINARY_OR_ASSIGN = HIR_TOK_OR_ASSIGN,
 	HIR_BINARY_XOR_ASSIGN = HIR_TOK_XOR_ASSIGN,
-	HIR_EXPR_LIT,
+	HIR_EXPR_LIT = HIR_TOK_XOR_ASSIGN + 1,
 	HIR_EXPR_IDENT,
 	HIR_EXPR_PAREN,
 	HIR_EXPR_TUPLE,
@@ -89,13 +93,38 @@ enum hir_expr_kind {
 	HIR_EXPR_BINARY,
 };
 
+/*!@struct hir_expr
+ * @brief
+ * High level representation of an expression.
+ * @code{.y}
+ * expr
+ * 	 : <expr_lit>
+ * 	 | <expr_ident>
+ * 	 | <expr_paren>
+ * 	 | <expr_tuple>
+ * 	 | <expr_array>
+ * 	 | <expr_member>
+ * 	 | <expr_call>
+ * 	 | <expr_cast>
+ * 	 | <expr_unary>
+ * 	 | <expr_binary>
+ * 	 ;
+ * @endcode
+ */
 struct hir_expr {
 
+	/*! Expression is a spanned structure. */
 	union {
+
+		/*! Spanned heritage. */
 		spanned_t spanned;
 
 		struct {
+
+			/*! Expression location on the origin source. */
 			span_t span;
+
+			/*! Expression kind, See hir_expr_kind. */
 			hir_expr_kind_t kind;
 		};
 	};
@@ -145,7 +174,7 @@ struct hir_expr {
 };
 
 __api bool hir_expr_parse(hir_expr_t *expr, hir_parser_t *parser);
-__api bool hir_expr_consume(hir_expr_t *expr, hir_parser_t *parser);
+__api void hir_expr_consume(hir_expr_t *expr, hir_parser_t *parser);
 
 #endif /* !__GUTS_HIR_EXPR_H */
 /*!@} */

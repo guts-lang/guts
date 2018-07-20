@@ -40,6 +40,8 @@ void hir_lexer_init(hir_lexer_t *self, source_t *src,
 
 void hir_lexer_dtor(hir_lexer_t *self)
 {
+	if (!self)
+		return;
 	deqdtor(self->lookahead);
 	self->src = NULL;
 	self->current = NULL;
@@ -113,9 +115,12 @@ loop:
 		case '\'': goto lit_char;
 
 		/* Symbol */
-		case ':': MATCH_SKIP(HIR_TOK_COLON, 1);
 		case ';': MATCH_SKIP(HIR_TOK_SEMICOLON, 1);
 		case ',': MATCH_SKIP(HIR_TOK_COMMA, 1);
+		case ':': switch (source_peekn(self->src, 1)) {
+			case ':': MATCH_SKIP(HIR_TOK_DCOLON, 2);
+			default: MATCH_SKIP(HIR_TOK_COLON, 1);
+		}
 
 		/* Delimiter */
 		case '(': MATCH_SKIP(HIR_TOK_LPAR, 1);
