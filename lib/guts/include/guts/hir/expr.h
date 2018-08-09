@@ -35,13 +35,12 @@
 #include "type.h"
 
 typedef struct hir_expr hir_expr_t;
-typedef enum hir_expr_kind hir_expr_kind_t;
 
 /*!@enum hir_expr_kind
  * @brief
  * Different kind of expression.
  */
-enum hir_expr_kind {
+typedef enum hir_expr_kind {
 	HIR_UNARY_REF = HIR_TOK_AND,
 	HIR_UNARY_DEREF = HIR_TOK_MUL,
 	HIR_UNARY_NOT = HIR_TOK_NOT,
@@ -91,7 +90,7 @@ enum hir_expr_kind {
 	HIR_EXPR_CAST,
 	HIR_EXPR_UNARY,
 	HIR_EXPR_BINARY,
-};
+} hir_expr_kind_t;
 
 /*!@struct hir_expr
  * @brief
@@ -175,6 +174,7 @@ struct hir_expr {
 
 __api bool hir_expr_parse(hir_expr_t *expr, hir_parser_t *parser);
 __api void hir_expr_consume(hir_expr_t *expr, hir_parser_t *parser);
+__api void hir_expr_destroy(hir_expr_t *self);
 
 #endif /* !__GUTS_HIR_EXPR_H */
 /*!@} */

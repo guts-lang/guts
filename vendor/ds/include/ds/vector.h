@@ -49,6 +49,9 @@
 #define vecat(v, i) seqat(v, i)
 #define vecpush(v, item) seqpush(v, item, __VEC_GUARD, __VEC_TSZ)
 #define vecshift(v, item) seqshift(v, item, __VEC_GUARD, __VEC_TSZ)
+#define veceach(v, key, val) seqeach(v, key, val, __VEC_TSZ)
+#define veceachk(v, key) seqeachk(v, key, __VEC_TSZ)
+#define vecapply(v, fn) seqapply(v, fn, __VEC_TSZ)
 
 #endif /* !__DS_VECTOR_H */
 /*!@} */

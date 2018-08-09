@@ -37,7 +37,7 @@ void codemap_init(codemap_t *self, emitter_t *emitter)
 }
 
 FORCEINLINE
-void codemap_dtor(codemap_t *self)
+void codemap_destroy(codemap_t *self)
 {
 	usize_t i;
 	source_t *source;

@@ -26,10 +26,11 @@
 
 #include "guts/hir/type.h"
 #include "guts/hir/expr.h"
+#include "guts/hir/entity.h"
 
-FORCEINLINE
-static bool __int(hir_ty_t *self, hir_parser_t *parser,
-				  hir_tok_t *tok, u8_t bytes, bool unsign)
+static FORCEINLINE
+bool __int(struct hir_ty *self, hir_parser_t *parser, hir_tok_t *tok,
+		   u8_t bytes, bool unsign)
 {
 	hir_parser_match(&self->spanned, parser, tok, HIR_TY_INT);
 	self->ty_int.bytes = bytes;
@@ -37,19 +38,19 @@ static bool __int(hir_ty_t *self, hir_parser_t *parser,
 	return true;
 }
 
-FORCEINLINE
-static bool __float(hir_ty_t *self, hir_parser_t *parser,
-					hir_tok_t *tok, u8_t bytes)
+static FORCEINLINE
+bool __float(struct hir_ty *self, hir_parser_t *parser, hir_tok_t *tok,
+			 u8_t bytes)
 {
 	hir_parser_match(&self->spanned, parser, tok, HIR_TY_FLOAT);
 	self->ty_float.bytes = bytes;
 	return true;
 }
 
-FORCEINLINE
-static bool __lambda(hir_ty_t *self, hir_parser_t *parser, hir_tok_t *tok)
+static FORCEINLINE
+bool __lambda(struct hir_ty *self, hir_parser_t *parser, hir_tok_t *tok)
 {
-	hir_ty_t ty;
+	struct hir_ty ty;
 
 	hir_parser_match(&self->spanned, parser, tok, HIR_TY_LAMBDA);
 
@@ -63,7 +64,7 @@ static bool __lambda(hir_ty_t *self, hir_parser_t *parser, hir_tok_t *tok)
 	if ((tok = hir_parser_peek(parser))->kind == ':') {
 		hir_parser_next(parser);
 		hir_ty_consume(&ty, parser);
-		self->ty_lambda.output = memdup(&ty, sizeof(hir_ty_t));
+		self->ty_lambda.output = memdup(&ty, sizeof(struct hir_ty));
 		tok = hir_parser_peek(parser);
 	}
 
@@ -72,22 +73,21 @@ static bool __lambda(hir_ty_t *self, hir_parser_t *parser, hir_tok_t *tok)
 	return true;
 }
 
-FORCEINLINE
-static bool __array_or_tuple(hir_ty_t *self, hir_parser_t *parser,
-							 hir_tok_t *tok)
+static FORCEINLINE
+bool __array_or_tuple(struct hir_ty *self, hir_parser_t *parser, hir_tok_t *tok)
 {
-	hir_ty_t ty;
+	struct hir_ty ty;
 
 	hir_parser_match(&self->spanned, parser, tok, HIR_TY_ARRAY);
 	hir_ty_consume(&ty, parser);
 	tok = hir_parser_any(parser, (u8_t[]) { ';', ']', ',', 0 });
 
 	if (tok->kind == ']')
-		self->ty_array.elem = memdup(&ty, sizeof(hir_ty_t));
+		self->ty_array.elem = memdup(&ty, sizeof(struct hir_ty));
 	else if (tok->kind == ';') {
 		hir_expr_t expr;
 
-		self->ty_array.elem = memdup(&ty, sizeof(hir_ty_t));
+		self->ty_array.elem = memdup(&ty, sizeof(struct hir_ty));
 		hir_expr_consume(&expr, parser);
 		self->ty_array.len = memdup(&expr, sizeof(hir_expr_t));
 		tok = hir_parser_consume(parser, ']');
@@ -110,11 +110,11 @@ static bool __array_or_tuple(hir_ty_t *self, hir_parser_t *parser,
 	return true;
 }
 
-bool hir_ty_parse(hir_ty_t *self, hir_parser_t *parser)
+bool hir_ty_parse(struct hir_ty *self, hir_parser_t *parser)
 {
 	hir_tok_t *tok;
 
-	bzero(self, sizeof(hir_ty_t));
+	bzero(self, sizeof(struct hir_ty));
 	switch (((tok = hir_parser_peek(parser)))->kind) {
 		case HIR_TOK_I8: return __int(self, parser, tok, 8, false);
 		case HIR_TOK_I16: return __int(self, parser, tok, 16, false);
@@ -129,7 +129,7 @@ bool hir_ty_parse(hir_ty_t *self, hir_parser_t *parser)
 		case '(': return __lambda(self, parser, tok);
 		case '[': return __array_or_tuple(self, parser, tok);
 		case '?': case '*': {
-			hir_ty_t ty;
+			struct hir_ty ty;
 
 			if (tok->kind == '?')
 				self->ty_ptr.nullable = true;
@@ -139,7 +139,7 @@ bool hir_ty_parse(hir_ty_t *self, hir_parser_t *parser)
 				self->ty_ptr.constant = true;
 			}
 			hir_ty_consume(&ty, parser);
-			self->ty_ptr.elem = memdup(&ty, sizeof(hir_ty_t));
+			self->ty_ptr.elem = memdup(&ty, sizeof(struct hir_ty));
 			tok = hir_parser_peek(parser);
 			spanned_diff(&self->spanned, &tok->spanned);
 			return true;
@@ -164,27 +164,28 @@ bool hir_ty_parse(hir_ty_t *self, hir_parser_t *parser)
 }
 
 FORCEINLINE
-bool hir_ty_consume(hir_ty_t *self, hir_parser_t *parser)
+bool hir_ty_consume(struct hir_ty *self, hir_parser_t *parser)
 {
 	return hir_parser_required((hir_parse_rule_t *) hir_ty_parse,
 		self, parser, "type");
 }
 
-void hir_ty_destroy(hir_ty_t *self)
+void hir_ty_destroy(struct hir_ty *self)
 {
-	u32_t i;
-
+	/* self is nullable here. */
 	if (!self)
 		return;
+
 	switch (self->kind) {
+		case HIR_TY_SYM:
+			hir_path_destroy(&self->ty_sym.path);
+			break;
 		case HIR_TY_TUPLE:
-			for (i = 0; i < veclen(self->ty_tuple.elems); ++i)
-				hir_ty_destroy(self->ty_tuple.elems + i);
+			vecapply(self->ty_tuple.elems, hir_ty_destroy);
 			vecdtor(self->ty_tuple.elems);
 			break;
 		case HIR_TY_LAMBDA:
-			for (i = 0; i < veclen(self->ty_lambda.inputs); ++i)
-				hir_ty_destroy(self->ty_lambda.inputs + i);
+			vecapply(self->ty_lambda.inputs, hir_ty_destroy);
 			vecdtor(self->ty_lambda.inputs);
 			if (self->ty_lambda.output) {
 				hir_ty_destroy(self->ty_lambda.output);
@@ -199,9 +200,17 @@ void hir_ty_destroy(hir_ty_t *self)
 			hir_ty_destroy(self->ty_array.elem);
 			free(self->ty_array.elem);
 			if (self->ty_array.len) {
-				/* TODO: dtor len */
+				hir_expr_destroy(self->ty_array.len);
 				free(self->ty_array.len);
 			}
+			break;
+		case HIR_TY_STRUCT:
+			vecapply(self->ty_struct.fields, hir_ent_destroy);
+			vecdtor(self->ty_struct.fields);
+			break;
+		case HIR_TY_ENUM:
+			vecapply(self->ty_enum.fields, hir_ent_destroy);
+			vecdtor(self->ty_enum.fields);
 			break;
 		default:
 			break;

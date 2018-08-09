@@ -115,5 +115,23 @@
 	__seqlen(s, TSz) = __len1 + 1; \
 } while(false)
 
+#define seqeach(s, key, val, TSz) for ( \
+	key = 0, val = (s); \
+	key < seqlen(s, TSz); \
+	val = (s) + ++key \
+)
+
+#define seqeachk(s, key, TSz) for ( \
+	key = 0; \
+	key < seqlen(s, TSz); \
+	++key \
+)
+
+#define seqapply(s, fn, TSz) do for ( \
+	TSz __key = 0; \
+	__key < seqlen(s, TSz); \
+	++__key \
+) fn((s) + __key); while (0)
+
 #endif /* !__DS_SEQUENCE_H */
 /*!@} */

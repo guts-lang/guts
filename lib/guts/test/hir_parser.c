@@ -81,7 +81,7 @@ int main(void)
 	ASSERT_NULL(hir_parser_consume(&parser, HIR_TOK_U8));
 
 	codemap_emit(&codemap, stdout);
-	codemap_dtor(&codemap);
-	hir_parser_dtor(&parser);
+	codemap_destroy(&codemap);
+	hir_parser_destroy(&parser);
 	return 0;
 }

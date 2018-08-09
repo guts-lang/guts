@@ -26,3 +26,9 @@
 
 #include "guts/hir/entity.h"
 
+FORCEINLINE
+void hir_ent_destroy(struct hir_ent *self)
+{
+	(void)self;
+	/* TODO */
+}

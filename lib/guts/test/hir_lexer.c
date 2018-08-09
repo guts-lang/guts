@@ -134,7 +134,7 @@ int main(void)
 	hir_lexer_dtor(&lexer);
 
 	codemap_emit(&fe, stdout);
-	codemap_dtor(&fe);
+	codemap_destroy(&fe);
 	hir_lexer_dtor(&lexer);
 	return 0;
 }

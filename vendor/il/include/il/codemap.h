@@ -50,7 +50,7 @@ typedef struct codemap {
 __api emitter_t *IL_DFT_EMITTER;
 
 __api void codemap_init(codemap_t *self, emitter_t *emitter);
-__api void codemap_dtor(codemap_t *self);
+__api void codemap_destroy(codemap_t *self);
 __api source_t *codemap_src_push(codemap_t *self, char __const *str, bool virt);
 __api source_t *codemap_src_find(codemap_t *self, loc_t *loc);
 __api void codemap_diagnostic(codemap_t *self, diag_t diag);

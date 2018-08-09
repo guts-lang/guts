@@ -57,7 +57,7 @@ typedef enum {
 
 __api void hir_parser_init(hir_parser_t *self, codemap_t *codemap,
 						   hir_scope_t *root);
-__api void hir_parser_dtor(hir_parser_t *self);
+__api void hir_parser_destroy(hir_parser_t *self);
 __api int hir_parser_include(hir_parser_t *self, char __const *str, bool virt);
 __api hir_tok_t *hir_parser_peek(hir_parser_t *self);
 __api hir_tok_t *hir_parser_peekn(hir_parser_t *self, u8_t n);

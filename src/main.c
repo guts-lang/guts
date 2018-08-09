@@ -45,11 +45,11 @@ int main(int ac, char *av[])
 
 	if (codemap_has_errors(&codemap)) {
 		codemap_emit(&codemap, stdout);
-		codemap_dtor(&codemap);
-		hir_parser_dtor(&parser);
+		codemap_destroy(&codemap);
+		hir_parser_destroy(&parser);
 		return 1;
 	}
-	codemap_dtor(&codemap);
-	hir_parser_dtor(&parser);
+	codemap_destroy(&codemap);
+	hir_parser_destroy(&parser);
 	return 0;
 }

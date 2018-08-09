@@ -39,13 +39,12 @@ struct hir_ent;
 struct hir_ty;
 
 typedef struct hir_ty hir_ty_t;
-typedef enum hir_ty_kind hir_ty_kind_t;
 
 /*!@enum hir_ty_kind
  * @brief
  * Different kind of type.
  */
-enum hir_ty_kind {
+typedef enum hir_ty_kind {
 	HIR_TY_VOID = 0, /*!< See hir_ty.              */
 	HIR_TY_CHAR,     /*!< See hir_ty.              */
 	HIR_TY_BOOL,     /*!< See hir_ty.              */
@@ -58,7 +57,7 @@ enum hir_ty_kind {
 	HIR_TY_ARRAY,    /*!< See hir_ty::ty_array.    */
 	HIR_TY_STRUCT,   /*!< See hir_ty::ty_struct.   */
 	HIR_TY_ENUM,     /*!< See hir_ty::ty_enum.     */
-};
+} hir_ty_kind_t;
 
 /*!@struct hir_ty
  * @brief

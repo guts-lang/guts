@@ -61,7 +61,7 @@ int main(void)
 		}
 	));
 	codemap_emit(&cm, stdout);
-	codemap_dtor(&cm);
+	codemap_destroy(&cm);
 
 	return 0;
 }

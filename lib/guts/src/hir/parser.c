@@ -52,7 +52,7 @@ void hir_parser_init(hir_parser_t *self, codemap_t *codemap,
 	}
 }
 
-void hir_parser_dtor(hir_parser_t *self)
+void hir_parser_destroy(hir_parser_t *self)
 {
 	hir_lexer_t *lexer;
 

@@ -39,9 +39,10 @@ int main(void)
 	hir_parser_init(&parser, &codemap, NULL);
 
 	hir_expr_consume(&expr, &parser);
+	hir_expr_destroy(&expr);
 
 	codemap_emit(&codemap, stdout);
-	codemap_dtor(&codemap);
-	hir_parser_dtor(&parser);
+	codemap_destroy(&codemap);
+	hir_parser_destroy(&parser);
 	return 0;
 }

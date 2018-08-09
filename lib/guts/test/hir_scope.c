@@ -97,7 +97,7 @@ int main(void)
 	/* TODO: cleanup.. */
 
 	codemap_emit(&codemap, stdout);
-	codemap_dtor(&codemap);
-	hir_parser_dtor(&parser);
+	codemap_destroy(&codemap);
+	hir_parser_destroy(&parser);
 	return 0;
 }
